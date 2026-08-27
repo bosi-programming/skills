@@ -21,6 +21,13 @@
       "details": [
         "21 removed lines are the inline template building, now gone from the controller.",
         "Dispatcher arrives by constructor injection at line 29."
+      ],
+      "hunks": [
+        {
+          "ref": "notification.controller.ts:24-36",
+          "diff": "@@ -24,21 +24,12 @@ export class NotificationController {\n-  constructor(private readonly mailer: MailerService) {}\n+  constructor(private readonly dispatcher: NotificationDispatcher) {}\n \n   @Post()\n   async send(@Body() body: SendNotificationDto) {\n-    const html = renderTemplate(body.template, body.payload);\n-    await this.mailer.send({ to: body.to, subject: body.subject, html });\n-    return { ok: true };\n+    await this.dispatcher.dispatch(body);\n+    return { ok: true };\n   }",
+          "explanation": "The controller stops knowing how a notification is delivered. Template rendering and the MailerService call are gone; both now live behind the dispatcher, and the constructor takes the dispatcher instead of the mailer."
+        }
       ]
     },
     {
@@ -37,6 +44,18 @@
         "createChannel() at line 92 maps the channel name to a concrete strategy with a switch.",
         "Emits notification.sent at line 71 after a successful send, inside the same try block.",
         "No retry here: a failed channel throws and the controller maps it to a 502."
+      ],
+      "hunks": [
+        {
+          "ref": "dispatcher.service.ts:38-52",
+          "diff": "@@ -0,0 +38,15 @@\n+  async dispatch(payload: SendNotificationDto): Promise<void> {\n+    const impl = this.channelFor(payload.channel);\n+    try {\n+      await impl.send(payload);\n+      this.events.emit('notification.sent', {\n+        channel: payload.channel,\n+        to: payload.to,\n+      });\n+    } catch (err) {\n+      this.logger.error({ err, channel: payload.channel }, 'channel failed');\n+      throw err;\n+    }\n+  }",
+          "explanation": "The whole delivery path in one method: pick a channel, send, announce it. The catch logs and rethrows rather than swallowing, so a dead channel still surfaces as a 502 at the controller."
+        },
+        {
+          "ref": "dispatcher.service.ts:92-116",
+          "diff": "@@ -0,0 +92,25 @@\n+  private channelFor(name: ChannelName): NotificationChannel {\n+    switch (name) {\n+      case 'email':\n+        return this.email;\n+      case 'sms':\n+        return this.sms;\n+      default:\n+        throw new UnsupportedChannelError(name);\n+    }\n+  }",
+          "explanation": "The one place that knows the channel names. Adding a third channel means one case here and one new class, which is the trade the refactor was after."
+        }
       ]
     },
     {
@@ -47,7 +66,14 @@
       "layer": "file",
       "status": "added",
       "insertions": 88,
-      "deletions": 0
+      "deletions": 0,
+      "hunks": [
+        {
+          "ref": "email.channel.ts:12-34",
+          "diff": "@@ -0,0 +12,23 @@\n+@Injectable()\n+export class EmailChannel implements NotificationChannel {\n+  constructor(private readonly mailer: MailerService) {}\n+\n+  async send(payload: SendNotificationDto): Promise<void> {\n+    const html = renderTemplate(payload.template, payload.payload);\n+    await this.mailer.send({\n+      to: payload.to,\n+      subject: payload.subject,\n+      html,\n+    });\n+  }\n+}",
+          "explanation": "The code deleted from the controller, moved here behind the interface. MailerService is untouched: only the caller changed."
+        }
+      ]
     },
     {
       "id": "src/notifications/channels/sms.channel.ts",
@@ -57,7 +83,14 @@
       "layer": "file",
       "status": "added",
       "insertions": 74,
-      "deletions": 0
+      "deletions": 0,
+      "hunks": [
+        {
+          "ref": "sms.channel.ts:14-30",
+          "diff": "@@ -0,0 +14,17 @@\n+@Injectable()\n+export class SmsChannel implements NotificationChannel {\n+  constructor(private readonly twilio: TwilioClient) {}\n+\n+  async send(payload: SendNotificationDto): Promise<void> {\n+    await this.twilio.messages.create({\n+      to: payload.to,\n+      body: payload.subject,\n+    });\n+  }\n+}",
+          "explanation": "The new capability the refactor was for. It drops payload.template entirely, so an SMS gets the subject line and nothing else - worth a question in review."
+        }
+      ]
     },
     {
       "id": "src/notifications/channels/channel.interface.ts",
@@ -67,7 +100,14 @@
       "layer": "file",
       "status": "added",
       "insertions": 18,
-      "deletions": 0
+      "deletions": 0,
+      "hunks": [
+        {
+          "ref": "channel.interface.ts:4-18",
+          "diff": "@@ -0,0 +4,15 @@\n+export type ChannelName = 'email' | 'sms';\n+\n+export interface NotificationChannel {\n+  send(payload: SendNotificationDto): Promise<void>;\n+}",
+          "explanation": "Four lines that hold the refactor together. ChannelName is the union the switch is checked against, so a new channel that skips this file fails to compile."
+        }
+      ]
     },
     {
       "id": "src/audit/audit.listener.ts",
@@ -78,7 +118,14 @@
       "status": "modified",
       "insertions": 70,
       "deletions": 75,
-      "summary": "Rewritten to react to notification.sent instead of being called by the send path. Same audit rows written, but the write is no longer on the request's critical path."
+      "summary": "Rewritten to react to notification.sent instead of being called by the send path. Same audit rows written, but the write is no longer on the request's critical path.",
+      "hunks": [
+        {
+          "ref": "audit.listener.ts:50-64",
+          "diff": "@@ -50,15 +50,14 @@ export class AuditListener {\n-  @OnEvent('mail.sent')\n-  async onMailSent(e: MailSentEvent) {\n-    await this.repo.insert({ kind: 'mail', to: e.to });\n+  @OnEvent('notification.sent')\n+  async onNotificationSent(e: NotificationSentEvent) {\n+    await this.repo.insert({ kind: e.channel, to: e.to });\n   }",
+          "explanation": "The listener follows the renamed event. The audit row now records which channel was used instead of assuming mail, so old rows and new rows carry different meaning in the kind column."
+        }
+      ]
     },
     {
       "id": "src/mailer/mailer.service.ts",

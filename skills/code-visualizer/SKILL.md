@@ -123,8 +123,8 @@ it feels like editing and changes nothing.
 - The call is mandatory on every run. No model is small enough to skip it.
 
 What goes through it: the top-level `summary`, every node `summary`, every
-`details` bullet, every `patterns[].intent`, every `patterns[].note`, and every
-`evidence[].explanation`.
+`details` bullet, every `hunks[].explanation`, every `patterns[].intent`, every
+`patterns[].note`, and every `evidence[].explanation`.
 
 What must not, because rewriting them would make the page wrong: `id`, `label`,
 `sublabel`, `kind`, `role`, `status`, `source`, every `ref` and `evidence` path,
@@ -156,6 +156,17 @@ quietly costs the page a feature.
 Aim for 25 or fewer nodes per layer. Past that, collapse: a directory of small
 files becomes one node, five sibling components become one. Say what you
 collapsed in the node's `summary` so nothing looks hidden.
+
+Every changed file node carries its `hunks`: the one to three pieces of the diff
+that carry the decision, each with the `@@` header and a sentence on what it does.
+Without them a reviewer can read your explanation of a file and never see the
+file, and only the files a pattern happened to claim would show any code at all.
+You have the diff open, so this is a copy, not a lookup. `--check` warns about a
+changed file with no hunks; it does not fail, because a pure rename or a lockfile
+has nothing worth showing.
+
+Pick the hunks the way you would point at a screen: the new method, the deleted
+branch, the changed signature. Not the whole patch - that is what the diff is for.
 
 The page has one explanation strip under the graph, and it is the surface people
 actually read. It shows the top-level `summary` until something is selected, then
@@ -202,9 +213,10 @@ graph where they are already drawn; the side panel narrows its pattern cards to
 that selection at the same time, with `show all` to widen again; every pattern
 card is collapsed to its name and confidence until it is opened, and inside it
 carries a link to what the pattern is, an `Isolate on graph` checkbox that dims
-everything but the participants, and its evidence refs; click a ref and the whole
-page turns into that piece of evidence - the diff hunk, coloured, with the
-explanation under it - and `Back` or `Escape` returns; chips filter by change
+everything but the participants, and its evidence refs; click a ref - in a pattern card, or under
+`Changed lines` in the strip for the file you selected - and the whole page turns
+into that hunk, coloured, with the explanation under it, and `Back` or `Escape`
+returns; chips filter by change
 status and relation kind; a text filter; `1` and `2` switch layers, `Escape`
 resets.
 

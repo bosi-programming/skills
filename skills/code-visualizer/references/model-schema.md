@@ -54,6 +54,31 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
   the explanation strip. Use them for the specifics a reviewer would otherwise
   have to dig for - the line a thing happens on, a removed behaviour, a missing
   guard. Three or four is plenty.
+- `hunks` : array. The change itself, so a reader can see it without a pattern
+  having to claim the file first. Expected on every node with a `status` of
+  `added`, `modified` or `deleted`; `--check` warns when one is missing. Each
+  entry is the same shape as `patterns[].evidence[]`:
+
+  ```json
+  {
+    "ref": "dispatcher.service.ts:38-52",
+    "diff": "@@ -0,0 +38,15 @@\n+  async dispatch(payload) {\n+    const impl = this.channelFor(payload.channel);",
+    "explanation": "The whole delivery path in one method: pick a channel, send, announce it."
+  }
+  ```
+
+  - `ref` : `path:line` or `path:line-line`. This is the button the strip shows.
+    Defaults to the node id.
+  - `diff` : required. The hunk, newline-separated, copied out of the diff you
+    already have open. Keep the `@@` header and a line or two of context. A hunk
+    with no diff fails validation, because the ref alone opens an empty page.
+    A bare string in place of the object is read as the diff.
+  - `explanation` : what this hunk does, two or three sentences. Optional, but it
+    is the sentence a reviewer reads next to the code. `note` is read as an alias.
+
+  One to three hunks per file. This is the reviewer's path through the change,
+  not a second copy of the patch: pick the hunks that carry the decision and let
+  the rest stay in the diff.
 - `parent` : string, optional but worth filling in. The file node id a code node
   belongs to. It is how selecting a file narrows the pattern list in the side
   panel to that file's patterns - without it the page falls back to matching the
@@ -106,7 +131,8 @@ a back reference becomes visible.
   ```
 
   - `ref` : `path:line` or `path:line-line`. This is all the card shows, and it
-    is a button: clicking it opens the evidence view.
+    is a button: clicking it opens the evidence view - the same view a node's
+    `hunks` open.
   - `diff` : the hunk itself, newline-separated, copied out of the diff you
     already have open. Keep the `@@` header, keep a line or two of context.
     Optional, but a ref with no diff opens a view that has nothing to look at.

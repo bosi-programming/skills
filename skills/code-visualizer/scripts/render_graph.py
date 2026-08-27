@@ -215,6 +215,55 @@ def edge_style(kind):
 # model
 
 
+def normalize_hunks(node):
+    """Bring `nodes[].hunks` into the same shape as `patterns[].evidence`.
+
+    A bare string is the common case - the hunk and nothing else to say about it
+    - so it is accepted and read as the diff. A hunk with no diff is rejected:
+    the ref alone opens a view with nothing in it.
+    """
+    hunks = node.get("hunks")
+    if hunks is None:
+        return []
+    nid = node.get("id")
+    if not isinstance(hunks, list):
+        return ["nodes[%s].hunks must be a list of hunks" % nid]
+    errors = []
+    out = []
+    for j, h in enumerate(hunks):
+        if isinstance(h, str):
+            h = {"diff": h}
+        elif not isinstance(h, dict):
+            errors.append("nodes[%s].hunks[%d] must be a string or an object" % (nid, j))
+            continue
+        if h.get("note") and not h.get("explanation"):
+            h["explanation"] = h.pop("note")
+        if not h.get("ref"):
+            h["ref"] = str(nid)
+        if not h.get("diff"):
+            errors.append(
+                "nodes[%s].hunks[%d] (%s) has no diff; a ref with no hunk opens "
+                "an empty page" % (nid, j, h.get("ref"))
+            )
+        out.append(h)
+    node["hunks"] = out
+    return errors
+
+
+def warnings(model):
+    """Editorial nudges. They never fail the run - they are judgment, not schema."""
+    out = []
+    for n in model.get("nodes") or []:
+        touched = (n.get("status") or "related").lower() in ("added", "modified", "deleted")
+        layer = n.get("layer") or ("file" if n.get("kind") == "file" else "code")
+        if touched and layer == "file" and not n.get("hunks"):
+            out.append(
+                "nodes[%s] changed but carries no hunks, so the page can explain "
+                "it without ever showing it" % n.get("id")
+            )
+    return out
+
+
 def validate(model):
     errors = []
     if not isinstance(model.get("nodes"), list) or not model["nodes"]:
@@ -233,6 +282,7 @@ def validate(model):
             n["label"] = str(nid).split("/")[-1]
         lay = n.get("layer") or ("file" if n.get("kind") == "file" else "code")
         n["layer"] = "file" if lay == "file" else "code"
+        errors += normalize_hunks(n)
     for i, e in enumerate(model.get("edges") or []):
         for side in ("from", "to"):
             if e.get(side) not in ids:
@@ -863,24 +913,39 @@ function showEvidence(i){
   const e = (MODEL._evidence||[])[i];
   if (!e) return;
   state.evidence = i;
+  const hunk = e.kind === 'hunk';
+  const from = hunk
+    ? `changed lines in <a href="#" data-goto="${esc(e.node)}">${esc(e.nodeLabel)}</a>`
+    : `evidence for <a href="#" data-pat="${e.pattern}">${esc(e.patternName)}</a>`;
   const host = document.getElementById('evidence-view');
   host.innerHTML = `
     <div class="evhead">
       <h2>${esc(e.ref)}</h2>
-      <span class="from">evidence for <a href="#" data-pat="${e.pattern}">${esc(e.patternName)}</a></span>
+      <span class="from">${from}</span>
       <button class="btn back" id="evback">Back to the graph</button>
     </div>
     ${diffHtml(e.diff)}
-    <div class="why"><h3>Why this proves it</h3>
+    <div class="why"><h3>${hunk ? 'What this hunk does' : 'Why this proves it'}</h3>
     ${e.explanation ? `<p>${esc(e.explanation)}</p>`
       : '<p class="meta" style="font-family:inherit">No explanation in the model for this ref.</p>'}
     </div>`;
   host.hidden = false;
   host.querySelector('#evback').onclick = hideEvidence;
-  host.querySelector('[data-pat]').onclick = ev => {
-    ev.preventDefault(); hideEvidence(); pickPattern(+ev.target.dataset.pat);
-  };
+  host.querySelectorAll('[data-pat]').forEach(a => a.onclick = ev => {
+    ev.preventDefault(); hideEvidence(); pickPattern(+a.dataset.pat);
+  });
+  host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
+    ev.preventDefault(); hideEvidence(); goTo(a.dataset.goto);
+  });
   host.scrollTop = 0;
+}
+
+// Select a node from anywhere: the strip, a participant link, a hunk header.
+function goTo(id){
+  state.selected = id; state.pattern = null; state.allPatterns = false;
+  document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
+  syncIsolateBoxes();
+  renderExplainer(); syncPatterns(); refresh();
 }
 
 function hideEvidence(){
@@ -899,6 +964,9 @@ function renderExplainer(){
     const meta = [id, n.status, n.line ? 'line '+n.line : null,
       (n.insertions != null || n.deletions != null) ? `+${n.insertions||0} \u2212${n.deletions||0}` : null]
       .filter(Boolean).join('  \u00b7  ');
+    // The hunks this node carries, as registry slots, so clicking one opens the
+    // same full-page diff view a pattern's evidence opens.
+    const hix = (MODEL._hunks||{})[id] || [];
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">${esc(n.kind || 'node')}</span>
@@ -909,7 +977,11 @@ function renderExplainer(){
       <div class="body"><div class="prose">
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
-      </div></div>`;
+      </div>
+      ${hix.length ? `<div class="cols"><div class="col"><h4>Changed lines</h4><ul class="rel">${
+        hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
+      }</ul></div></div>` : ''}
+      </div>`;
   } else if (state.pattern != null){
     const p = MODEL.patterns[state.pattern];
     host.innerHTML = `
@@ -952,9 +1024,7 @@ function renderExplainer(){
     ev.preventDefault(); showEvidence(+b.dataset.ev);
   });
   host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
-    ev.preventDefault(); state.selected = a.dataset.goto; state.pattern = null;
-    document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
-    renderExplainer(); syncPatterns(); refresh();
+    ev.preventDefault(); goTo(a.dataset.goto);
   });
   const b = document.getElementById('backbtn');
   if (b) b.onclick = () => {
@@ -1133,22 +1203,44 @@ def patterns_html(patterns):
     return "".join(out)
 
 
-def evidence_index(patterns):
-    """Every evidence entry, flattened and numbered the way patterns_html does.
+def evidence_index(patterns, nodes=()):
+    """Every hunk the page can open, flattened into one numbered registry.
 
-    The index is the id in `#evidence=<i>`, so it has to stay stable between the
-    card markup and the page's JavaScript.
+    Pattern evidence comes first, numbered the way patterns_html numbers it, then
+    the node hunks. The index is the id in `#evidence=<i>`, so pattern entries
+    keep the low numbers and a link pasted into an old review comment still lands
+    where it did.
     """
     out = []
     for i, p in enumerate(patterns):
         for x in (p.get("evidence") or []):
             out.append({
+                "kind": "pattern",
                 "ref": x.get("ref") or "",
                 "diff": x.get("diff") or "",
                 "explanation": x.get("explanation") or "",
                 "pattern": i,
                 "patternName": p.get("name") or "",
             })
+    for n in nodes or ():
+        for h in (n.get("hunks") or []):
+            out.append({
+                "kind": "hunk",
+                "ref": h.get("ref") or "",
+                "diff": h.get("diff") or "",
+                "explanation": h.get("explanation") or "",
+                "node": n.get("id"),
+                "nodeLabel": n.get("label") or n.get("id"),
+            })
+    return out
+
+
+def hunk_index(registry):
+    """node id -> the registry slots of its hunks, so the strip needs no search."""
+    out = {}
+    for i, e in enumerate(registry):
+        if e.get("kind") == "hunk":
+            out.setdefault(e["node"], []).append(i)
     return out
 
 
@@ -1212,6 +1304,8 @@ def render(model):
         if k not in kinds:
             kinds.append(k)
 
+    registry = evidence_index(model.get("patterns") or [], nodes)
+
     stats = model.get("stats") or {}
     stat_bits = []
     for key, label in (
@@ -1233,7 +1327,8 @@ def render(model):
         "nodes": nodes,
         "edges": edges,
         "patterns": model.get("patterns") or [],
-        "_evidence": evidence_index(model.get("patterns") or []),
+        "_evidence": registry,
+        "_hunks": hunk_index(registry),
         "_byId": {n["id"]: n for n in nodes},
         "_kinds": kinds,
     }
@@ -1328,10 +1423,13 @@ def main():
         for e in errors:
             print("  - " + e, file=sys.stderr)
         die("%d problem(s) in the model; fix them and re-run" % len(errors))
+    for w in warnings(model):
+        print("  ! " + w, file=sys.stderr)
     if args.check:
-        print("model ok: %d nodes, %d edges, %d patterns" % (
+        print("model ok: %d nodes, %d edges, %d patterns, %d hunks" % (
             len(model["nodes"]), len(model.get("edges") or []),
-            len(model.get("patterns") or [])))
+            len(model.get("patterns") or []),
+            sum(len(n.get("hunks") or []) for n in model["nodes"])))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"

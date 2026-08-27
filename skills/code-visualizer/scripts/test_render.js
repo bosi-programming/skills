@@ -48,23 +48,71 @@ const ok = (label, cond, extra = '') => {
 
 // ---- evidence registry
 const reg = MODEL._evidence || [];
+const pat = reg.filter(e => e.kind === 'pattern');
+const hunks = reg.filter(e => e.kind === 'hunk');
 const flat = [];
 (MODEL.patterns || []).forEach((p, i) => (p.evidence || []).forEach(e => flat.push([i, e.ref])));
-ok('the registry holds every evidence entry', reg.length === flat.length,
-   reg.length + ' of ' + flat.length);
+ok('the registry holds every evidence entry', pat.length === flat.length,
+   pat.length + ' of ' + flat.length);
 ok('the registry keeps the order the cards numbered them in',
-   reg.every((e, i) => e.pattern === flat[i][0] && e.ref === flat[i][1]));
-ok('every registry entry names its pattern', reg.every(e => e.patternName));
+   pat.every((e, i) => e.pattern === flat[i][0] && e.ref === flat[i][1]));
+ok('pattern evidence keeps the low indices, so old deep links still land',
+   reg.slice(0, flat.length).every(e => e.kind === 'pattern'));
+ok('every registry entry declares its kind',
+   reg.every(e => e.kind === 'pattern' || e.kind === 'hunk'));
+ok('every pattern entry names its pattern', pat.every(e => e.patternName));
 ok('evIndex round-trips a ref back to its index',
-   reg.every((e, i) => api.evIndex(e.pattern, { ref: e.ref }) === i));
+   pat.every((e, i) => api.evIndex(e.pattern, { ref: e.ref }) === i));
 ok('evIndex returns -1 for a ref that is not there',
    api.evIndex(0, { ref: 'nowhere.ts:1' }) === -1);
 
 // ---- note migrated to explanation
-ok('note arrives as explanation', reg.every(e => e.explanation !== undefined));
+ok('note arrives as explanation', pat.every(e => e.explanation !== undefined));
 ok('no evidence entry still carries a raw note',
    !(MODEL.patterns || []).some(p => (p.evidence || []).some(e => e.note)));
-ok('every evidence entry has an explanation to show', reg.every(e => e.explanation));
+ok('every evidence entry has an explanation to show', pat.every(e => e.explanation));
+
+// ---- node hunks: the diff a reviewer reads when no pattern covers the file
+const modelHunks = [];
+(MODEL.nodes || []).forEach(n => (n.hunks || []).forEach(h => modelHunks.push([n.id, h.ref])));
+ok('the example model carries node hunks at all', modelHunks.length > 0);
+ok('the registry holds every node hunk', hunks.length === modelHunks.length,
+   hunks.length + ' of ' + modelHunks.length);
+ok('the registry keeps the order the nodes listed them in',
+   hunks.every((e, i) => e.node === modelHunks[i][0] && e.ref === modelHunks[i][1]));
+ok('every hunk entry points at a real node',
+   hunks.every(e => e.node && MODEL._byId[e.node]));
+ok('every hunk entry names its node for the header',
+   hunks.every(e => e.nodeLabel));
+ok('every hunk entry carries a diff, since the ref alone shows nothing',
+   hunks.every(e => e.diff));
+ok('no hunk entry pretends to belong to a pattern',
+   hunks.every(e => e.pattern == null));
+const hidx = MODEL._hunks || {};
+ok('_hunks maps every node that has hunks', Object.keys(hidx).length ===
+   (MODEL.nodes || []).filter(n => (n.hunks || []).length).length);
+ok('_hunks points at the right registry entries',
+   Object.entries(hidx).every(([id, list]) =>
+     list.length === (MODEL._byId[id].hunks || []).length &&
+     list.every(i => reg[i] && reg[i].kind === 'hunk' && reg[i].node === id)));
+ok('every changed file node in the example shows its diff',
+   (MODEL.nodes || [])
+     .filter(n => n.layer === 'file' && ['added', 'modified', 'deleted'].includes(n.status))
+     .every(n => (n.hunks || []).length > 0));
+ok('a hunk diff is coloured the same way evidence is',
+   hunks.every(e => api.diffHtml(e.diff).includes('class="h"')));
+
+// ---- the strip and the evidence view carry hunks
+ok('the strip lists the changed lines of the selected node',
+   js.includes('<h4>Changed lines</h4>'));
+ok('the strip only opens that column when there is a hunk to show',
+   js.includes('hix.length ?'));
+ok('the evidence view labels a hunk by its node, not by a pattern',
+   js.includes('changed lines in'));
+ok('the evidence view heading adapts to a hunk',
+   js.includes('What this hunk does'));
+ok('the evidence view can jump from a hunk back to its node',
+   js.includes('data-goto="${') && js.includes("host.querySelectorAll('[data-goto]')"));
 
 // ---- diff rendering
 const withDiff = reg.find(e => e.diff);
@@ -93,7 +141,7 @@ ok('every card has an isolate checkbox',
 ok('every card links to what the pattern is',
    (panel.match(/class="patref"/g) || []).length >= nPat);
 ok('every ref in a card is a button',
-   (panel.match(/class="reflink mono" data-ev=/g) || []).length === reg.length);
+   (panel.match(/class="reflink mono" data-ev=/g) || []).length === pat.length);
 ok('no card still binds click to pickPattern',
    !js.includes(".card').forEach(c => c.onclick = () => pickPattern"));
 
