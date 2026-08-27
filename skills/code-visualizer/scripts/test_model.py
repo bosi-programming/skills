@@ -81,10 +81,10 @@ m["nodes"][0]["hunks"] = ["@@\n+x"]
 ok("a changed file with a hunk is still warned about its tests",
    any("test" in w for w in rg.warnings(m)), "; ".join(rg.warnings(m)))
 
-m = model()
+m = model(surface=[])
 m["nodes"][0]["hunks"] = ["@@\n+x"]
 m["nodes"][0]["tests"] = "none"
-ok("a changed file with a hunk and a coverage answer is quiet",
+ok("a changed file that answers every nudge is quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
 
 # ---- tests: the coverage answer, and the difference between none and unasked
@@ -148,6 +148,61 @@ m["nodes"][0]["tests"] = {"status": "added", "refs": ["a.test.ts:1"]}
 ok("untested_count ignores a covered file",
    rg.untested_count(m["nodes"]) == 0, str(rg.untested_count(m["nodes"])))
 
+# ---- surface: what the change asks of callers
+def with_surface(*entries):
+    m = model(surface=list(entries))
+    for n in m["nodes"][:1]:
+        n["hunks"] = ["@@\n+x"]
+        n["tests"] = "none"
+    return m
+
+entry = {"kind": "exported symbol", "name": "resolveThing", "change": "added",
+         "ref": "a.ts:12"}
+m = with_surface(dict(entry))
+ok("a full surface entry validates", not rg.validate(m), "; ".join(rg.validate(m)))
+ok("breaking defaults to false", m["surface"][0]["breaking"] is False)
+
+m = with_surface({k: v for k, v in entry.items() if k != "name"})
+errs = rg.validate(m)
+ok("a surface entry with no name fails", any("name" in e for e in errs), "; ".join(errs))
+
+m = with_surface({k: v for k, v in entry.items() if k != "ref"})
+errs = rg.validate(m)
+ok("a surface entry with no ref fails", any("ref" in e for e in errs), "; ".join(errs))
+
+m = with_surface(dict(entry, change="moved"))
+errs = rg.validate(m)
+ok("an unknown change fails", any("change" in e for e in errs), "; ".join(errs))
+
+m = with_surface(dict(entry, kind="grpc method"))
+ok("an unknown kind is kept, not rejected", not rg.validate(m), "; ".join(rg.validate(m)))
+ok("an unknown kind stays as written", m["surface"][0]["kind"] == "grpc method")
+
+m = with_surface(dict(entry, breaking="yes"))
+rg.validate(m)
+ok("breaking coerces to a bool", m["surface"][0]["breaking"] is True)
+
+m = model(surface="a.ts:1")
+errs = rg.validate(m)
+ok("surface must be a list", any("list" in e for e in errs), "; ".join(errs))
+
+m = with_surface(dict(entry), dict(entry, name="oldThing", change="removed",
+                                   breaking=True))
+rg.validate(m)
+ok("breaking_count counts only the breaking ones",
+   rg.breaking_count(m) == 1, str(rg.breaking_count(m)))
+
+# ---- an absent surface is not the same claim as an empty one
+m = model()
+m["nodes"][0]["hunks"] = ["@@\n+x"]
+m["nodes"][0]["tests"] = "none"
+warns = rg.warnings(m)
+ok("a model with no surface key is nudged", any("surface" in w for w in warns),
+   "; ".join(warns))
+m["surface"] = []
+ok("an empty surface is a real answer and stays quiet",
+   not rg.warnings(m), "; ".join(rg.warnings(m)))
+
 # ---- the registry the page reads
 m = model(patterns=[{
     "name": "Strategy",
@@ -176,7 +231,10 @@ ok("the bundled example demonstrates tests",
    any(n.get("tests") for n in ex["nodes"]))
 ok("the bundled example shows one honest none, so the mark has something to draw",
    rg.untested_count(ex["nodes"]) > 0, str(rg.untested_count(ex["nodes"])))
-ok("the bundled example answers both nudges",
+ok("the bundled example lists its contract surface", bool(ex.get("surface")))
+ok("the bundled example has something breaking to mark",
+   rg.breaking_count(ex) > 0, str(rg.breaking_count(ex)))
+ok("the bundled example answers every nudge",
    not rg.warnings(ex), "; ".join(rg.warnings(ex)))
 
 print("\n%d FAILED" % FAIL if FAIL else "\nall green")

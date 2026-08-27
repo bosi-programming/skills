@@ -3,7 +3,7 @@
 A worked model sits in `example-model.json` beside this file.
 
 One JSON object. Only `nodes` is required, but a model without `summary`,
-`edges` and honest `patterns` wastes the page.
+`edges`, `surface` and honest `patterns` wastes the page.
 
 ```json
 {
@@ -11,6 +11,7 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
   "source": "gh pr diff 482 (acme/services)",
   "summary": "Two or three sentences: what the change does and why it is shaped this way.",
   "stats": {"files_changed": 6, "insertions": 412, "deletions": 96},
+  "surface": [],
   "nodes": [],
   "edges": [],
   "patterns": []
@@ -26,6 +27,44 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
 - `summary` : string. Top of the side panel.
 - `stats` : object with `files_changed`, `insertions`, `deletions`. Take these
   from `git diff --numstat`, do not estimate.
+
+## surface[]
+
+What the change asks of callers. `patterns[]` says how the code is shaped;
+this says what a name outside the diff has to do about it.
+
+```json
+{
+  "kind": "event name",
+  "name": "mail.sent",
+  "change": "removed",
+  "breaking": true,
+  "ref": "src/audit/audit.listener.ts:50",
+  "note": "Renamed to notification.sent. A listener outside this repo goes quiet with no error."
+}
+```
+
+- `kind` : `exported symbol` | `http route` | `db migration` | `env var` |
+  `config key` | `feature flag` | `event name` | `queue topic` | `cli flag` |
+  free text. Cosmetic, like an edge kind: an unknown value is kept, not rejected,
+  because every codebase has a contract this list does not name.
+- `name` : required. The thing that moved, spelled the way a caller would search
+  for it: `POST /notifications`, `TWILIO_AUTH_TOKEN`, `NotificationChannel`.
+- `change` : `added` | `removed` | `changed`. Required, and an unknown value
+  fails, because it decides what the row means.
+- `breaking` : boolean, default false. True when someone outside this diff has to
+  change something, or will break if they do not. A breaking row is marked in the
+  panel, counted in the header, and listed in the overview strip before anything
+  is clicked.
+- `ref` : `path:line`, required. A contract claim with no line is a guess. When
+  the file is a node in the graph the ref becomes a jump to it.
+- `node` : optional node id, to attach the entry to a node whose path the `ref`
+  does not name.
+- `note` : who has to change, and what happens if they do not. This is the field
+  a reviewer reads; write the consequence, not the restatement.
+
+An empty list is a real answer: you looked and nothing in the public surface
+moved. Leaving the key off is a different claim, and `--check` warns about it.
 
 ## nodes[]
 

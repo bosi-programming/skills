@@ -7,6 +7,56 @@
     "insertions": 412,
     "deletions": 96
   },
+  "surface": [
+    {
+      "kind": "exported symbol",
+      "name": "NotificationChannel",
+      "change": "added",
+      "breaking": false,
+      "ref": "src/notifications/channels/channel.interface.ts:6",
+      "note": "The interface a new channel implements. Additive, so nothing outside the module has to change."
+    },
+    {
+      "kind": "exported symbol",
+      "name": "ChannelName",
+      "change": "added",
+      "breaking": false,
+      "ref": "src/notifications/channels/channel.interface.ts:4",
+      "note": "A union of 'email' and 'sms'. Widening it later is a one-line change here plus a case in the switch."
+    },
+    {
+      "kind": "http route",
+      "name": "POST /notifications",
+      "change": "changed",
+      "breaking": true,
+      "ref": "src/notifications/notification.controller.ts:27",
+      "note": "The body now needs a channel field. An existing client that omits it gets an UnsupportedChannelError, which the controller maps to a 502 rather than a 400."
+    },
+    {
+      "kind": "event name",
+      "name": "mail.sent",
+      "change": "removed",
+      "breaking": true,
+      "ref": "src/audit/audit.listener.ts:50",
+      "note": "Renamed to notification.sent. Any listener outside this repo bound to mail.sent goes quiet with no error."
+    },
+    {
+      "kind": "event name",
+      "name": "notification.sent",
+      "change": "added",
+      "breaking": false,
+      "ref": "src/notifications/dispatcher.service.ts:43",
+      "note": "Carries channel and to. The audit row now records the channel instead of assuming mail."
+    },
+    {
+      "kind": "env var",
+      "name": "TWILIO_AUTH_TOKEN",
+      "change": "added",
+      "breaking": true,
+      "ref": "src/notifications/channels/sms.channel.ts:15",
+      "note": "TwilioClient reads it at construction, so a deploy without it fails at boot rather than at the first SMS."
+    }
+  ],
   "nodes": [
     {
       "id": "src/notifications/notification.controller.ts",

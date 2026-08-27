@@ -297,6 +297,57 @@ def normalize_tests(node):
     return errors
 
 
+SURFACE_CHANGE = ("added", "removed", "changed")
+
+SURFACE_KINDS = (
+    "exported symbol", "http route", "db migration", "env var", "config key",
+    "feature flag", "event name", "queue topic", "cli flag", "other",
+)
+
+
+def normalize_surface(model):
+    """Check `surface[]`: the promises the change makes or breaks for callers.
+
+    `kind` is free text, like an edge kind, because every codebase has a contract
+    the catalog does not name. `change` is not: it decides what the row means, so
+    an unknown value is an error rather than a guess. Every entry needs a `ref`,
+    for the same reason a pattern needs evidence.
+    """
+    surface = model.get("surface")
+    if surface is None:
+        return []
+    if not isinstance(surface, list):
+        return ["surface must be a list of contract entries"]
+    errors = []
+    for i, s in enumerate(surface):
+        if not isinstance(s, dict):
+            errors.append("surface[%d] must be an object" % i)
+            continue
+        if not s.get("name"):
+            errors.append("surface[%d] has no name; name the thing that moved" % i)
+        change = (s.get("change") or "").lower()
+        if change not in SURFACE_CHANGE:
+            errors.append(
+                "surface[%d] (%s) change is %r; use one of %s"
+                % (i, s.get("name"), s.get("change"), ", ".join(SURFACE_CHANGE))
+            )
+        else:
+            s["change"] = change
+        if not s.get("ref"):
+            errors.append(
+                "surface[%d] (%s) has no ref; a contract claim with no file:line "
+                "is a guess" % (i, s.get("name"))
+            )
+        if not s.get("kind"):
+            s["kind"] = "other"
+        s["breaking"] = bool(s.get("breaking"))
+    return errors
+
+
+def breaking_count(model):
+    return sum(1 for s in (model.get("surface") or []) if s.get("breaking"))
+
+
 def untested_count(nodes):
     """Changed file nodes that answered `none`. The header number and the chip."""
     n = 0
@@ -314,6 +365,15 @@ def untested_count(nodes):
 def warnings(model):
     """Editorial nudges. They never fail the run - they are judgment, not schema."""
     out = []
+    touched_any = any(
+        (n.get("status") or "related").lower() in ("added", "modified", "deleted")
+        for n in model.get("nodes") or []
+    )
+    if touched_any and model.get("surface") is None:
+        out.append(
+            "the model has no surface key; an empty list says you looked and "
+            "nothing moved, leaving it off says nobody looked"
+        )
     for n in model.get("nodes") or []:
         touched = (n.get("status") or "related").lower() in ("added", "modified", "deleted")
         layer = n.get("layer") or ("file" if n.get("kind") == "file" else "code")
@@ -375,6 +435,7 @@ def validate(model):
                     "patterns[%d] participant points at unknown node %r"
                     % (i, part["node"])
                 )
+    errors += normalize_surface(model)
     return errors
 
 
@@ -749,7 +810,7 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer .back{margin-left:auto}
 aside{width:33.333%;min-width:320px;max-width:620px;flex:0 0 33.333%;
   border-left:1px solid var(--line);background:var(--panel);
-  overflow-y:auto;padding:16px 20px 40px}
+  overflow-y:auto;overflow-x:hidden;padding:16px 20px 40px}
 aside h2{font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);
   margin:22px 0 10px;display:flex;align-items:baseline;gap:10px}
 aside h2 .count{color:var(--muted);letter-spacing:0;text-transform:none}
@@ -777,7 +838,8 @@ aside h2:first-child{margin-top:0}
 .evlist{list-style:none;padding-left:0;margin:8px 0 0}
 .evlist li{padding:2px 0}
 .reflink{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;
-  font-size:14px;font-family:ui-monospace,Menlo,monospace;text-align:left}
+  font-size:14px;font-family:ui-monospace,Menlo,monospace;text-align:left;
+  max-width:100%;overflow-wrap:anywhere}
 .reflink:hover{text-decoration:underline}
 .card .name{font-weight:600;font-size:14px}
 .card .conf{font-size:14px;text-transform:uppercase;letter-spacing:.06em;
@@ -811,9 +873,29 @@ aside h2:first-child{margin-top:0}
 .legend .row{display:flex;align-items:center;gap:9px}
 .legend .sw{width:22px;height:0;border-top-width:2px;border-top-style:solid}
 .legend .bx{width:14px;height:12px;border-radius:3px;border:1.5px solid}
+#surface{margin:0 0 14px}
+/* nowrap, so nothing on the summary can move to a line of its own: a wrapping
+   flex container breaks a line before it shrinks an item, which is how the long
+   name once ended up below the arrow. The name is the only item that gives way,
+   and min-width:0 is what lets it. */
+.srow>summary{flex-wrap:nowrap;align-items:baseline}
+.srow>summary::before{flex:0 0 auto}
+.srow .sname{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;
+  color:var(--fg);overflow-wrap:anywhere}
+.srow .schange{flex:0 0 auto;margin-left:auto;font-size:14px;color:var(--muted);
+  white-space:nowrap}
+.srow .sbreak{flex:0 0 auto;font-size:14px;color:#f85149;font-weight:600;
+  white-space:nowrap}
+.srow .smeta{font-size:14px;color:var(--dim);text-transform:uppercase;
+  letter-spacing:.06em;margin:0 0 6px}
+.srow.breaking{border-left:2px solid #f85149}
+.srow .reflink.flat{color:var(--dim);cursor:default}
+.srow.hit{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.bigcard>summary .count{color:var(--muted);font-size:14px}
+.bigcard .filelist{margin:0}
 .filelist{font-size:14px}
 .filelist div{display:flex;gap:8px;padding:4px 0;border-top:1px solid var(--line);
-  cursor:pointer;align-items:center}
+  cursor:pointer;align-items:center;flex-wrap:wrap}
 .filelist div:hover{color:#fff}
 .filelist .p{flex:1;word-break:break-all;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
 .filelist .n{font-family:ui-monospace,Menlo,monospace;font-size:14px;white-space:nowrap}
@@ -827,7 +909,7 @@ const MODEL = JSON.parse(document.getElementById('model').textContent);
 const stage = document.getElementById('stage');
 const state = {view:'file', scale:1, tx:0, ty:0, statuses:new Set(['added','modified','deleted','related']),
                kinds:new Set(MODEL._kinds), selected:null, pattern:null, query:'',
-               allPatterns:false, evidence:null, coverOnly:false};
+               allPatterns:false, allSurface:false, evidence:null, coverOnly:false};
 
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
@@ -934,6 +1016,50 @@ function syncPatterns(){
   if (narrow) narrow.onclick = () => { state.allPatterns = false; syncPatterns(); };
 }
 
+// Which contract entries belong to a node. A surface ref names a file, so a file
+// node matches its own refs and a code node matches through its parent.
+function surfaceFor(id){
+  const n = nodeInfo(id) || {};
+  const self = n.layer === 'file' ? id : (n.parent || '');
+  return (MODEL.surface||[]).map((s,i) => ({s,i})).filter(({s}) => {
+    if (s.node) return s.node === id || s.node === self;
+    const hit = refNode(s.ref);
+    return !!hit && (hit === id || hit === self);
+  });
+}
+
+function syncSurface(){
+  const head = document.getElementById('surface-head');
+  const empty = document.getElementById('surface-empty');
+  const rows = [...document.querySelectorAll('#surface .srow')];
+  const total = rows.length;
+  if (!total){
+    head.textContent = 'Contract surface';
+    empty.hidden = false;
+    empty.textContent = 'Nothing in the public surface moved. Callers need no change.';
+    return;
+  }
+  if (!state.selected || state.allSurface){
+    rows.forEach(r => r.hidden = false);
+    empty.hidden = true;
+    head.innerHTML = `Contract surface <span class="count">${total}</span>`
+      + (state.selected ? '<button class="linkish" id="snarrowbtn">only this one</button>' : '');
+  } else {
+    const keep = new Set(surfaceFor(state.selected).map(x => x.i));
+    rows.forEach(r => r.hidden = !keep.has(+r.dataset.idx));
+    const n = nodeInfo(state.selected) || {};
+    head.innerHTML = `Surface in ${esc(n.label || state.selected)} `
+      + `<span class="count">${keep.size} of ${total}</span>`
+      + '<button class="linkish" id="sallbtn">show all</button>';
+    empty.hidden = keep.size > 0;
+    empty.textContent = keep.size ? '' : 'Nothing here is part of the public surface.';
+  }
+  const all = document.getElementById('sallbtn');
+  if (all) all.onclick = () => { state.allSurface = true; syncSurface(); };
+  const narrow = document.getElementById('snarrowbtn');
+  if (narrow) narrow.onclick = () => { state.allSurface = false; syncSurface(); };
+}
+
 function refresh(){
   const q = state.query.trim().toLowerCase();
   const patternNodes = state.pattern
@@ -964,11 +1090,11 @@ function refresh(){
 
 function select(id){
   state.selected = (state.selected === id) ? null : id;
-  state.allPatterns = false;
+  state.allPatterns = false; state.allSurface = false;
   if (state.selected) state.pattern = null;
   document.querySelectorAll('#patterns .card').forEach(c =>
     c.classList.toggle('active', +c.dataset.idx === state.pattern));
-  renderExplainer(); syncPatterns(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); refresh();
 }
 
 function derivedLine(id, n, outs, ins){
@@ -989,16 +1115,18 @@ function evIndex(pi, entry){
   return (MODEL._evidence||[]).findIndex(e => e.pattern === pi && e.ref === entry.ref);
 }
 
-// A test ref names a file. When that file is a node in the graph, the ref
-// becomes a jump to it; when the test lives outside the diff it is not a node,
-// so the ref stays plain text rather than a link to nothing.
-function testRefNode(ref){
+// A ref names a file. When that file is a node in the graph the ref becomes a
+// jump to it; when it lives outside the diff it is not a node, so the ref stays
+// plain text rather than a link to nothing. Used by tests and by the surface.
+function refNode(ref){
   const base = String(ref||'').split(':')[0].split('/').pop();
   if (!base) return null;
   const hit = (MODEL.nodes||[]).find(n =>
     n.id === base || String(n.id).split('/').pop() === base || n.label === base);
   return hit ? hit.id : null;
 }
+
+const CHANGE_WORD = {added:'new', removed:'gone', changed:'changed'};
 
 const COVER_WORD = {
   added: 'covered by a test in this diff',
@@ -1009,7 +1137,7 @@ const COVER_WORD = {
 function testsHtml(t){
   const word = COVER_WORD[t.status] || t.status || '';
   const refs = (t.refs||[]).map(r => {
-    const id = testRefNode(r);
+    const id = refNode(r);
     return id
       ? `<li><button class="reflink mono" data-goto="${esc(id)}">${esc(r)}</button></li>`
       : `<li><span class="mono">${esc(r)}</span></li>`;
@@ -1061,10 +1189,11 @@ function showEvidence(i){
 
 // Select a node from anywhere: the strip, a participant link, a hunk header.
 function goTo(id){
-  state.selected = id; state.pattern = null; state.allPatterns = false;
+  state.selected = id; state.pattern = null;
+  state.allPatterns = false; state.allSurface = false;
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
   syncIsolateBoxes();
-  renderExplainer(); syncPatterns(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); refresh();
 }
 
 function hideEvidence(){
@@ -1123,6 +1252,7 @@ function renderExplainer(){
         }</ul></div>` : ''}
       </div></div>`;
   } else {
+    const brk = (MODEL.surface||[]).map((s,i) => ({s,i})).filter(({s}) => s.breaking);
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">what this change is about</span>
@@ -1133,7 +1263,11 @@ function renderExplainer(){
       ${MODEL.summary ? `<p>${esc(MODEL.summary)}</p>`
         : '<p class="meta" style="font-family:inherit">No summary in the model.</p>'}
       <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Open a pattern card on the right for its evidence.</p>
-      </div></div>`;
+      </div>
+      ${brk.length ? `<div class="cols"><div class="col"><h4>Breaks for callers</h4><ul class="rel">${
+        brk.map(({s,i}) => `<li><b>${esc(s.name)}</b> <span class="schange">${esc(CHANGE_WORD[s.change]||s.change||'')}</span><br><button class="reflink mono" data-sjump="${i}">${esc(s.ref)}</button></li>`).join('')
+      }</ul></div></div>` : ''}
+      </div>`;
   }
 
   host.querySelectorAll('[data-pat]').forEach(a => a.onclick = ev => {
@@ -1145,11 +1279,18 @@ function renderExplainer(){
   host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
     ev.preventDefault(); goTo(a.dataset.goto);
   });
+  host.querySelectorAll('[data-sjump]').forEach(b => b.onclick = ev => {
+    ev.preventDefault();
+    const s = (MODEL.surface||[])[+b.dataset.sjump] || {};
+    const id = refNode(s.ref);
+    if (id) goTo(id);
+  });
   const b = document.getElementById('backbtn');
   if (b) b.onclick = () => {
-    state.selected = null; state.pattern = null; state.allPatterns = false;
+    state.selected = null; state.pattern = null;
+    state.allPatterns = false; state.allSurface = false;
     document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
-    renderExplainer(); syncPatterns(); refresh();
+    renderExplainer(); syncPatterns(); syncSurface(); refresh();
   };
 }
 
@@ -1166,7 +1307,7 @@ function pickPattern(i){
     if (on) c.open = true;
   });
   syncIsolateBoxes();
-  renderExplainer(); syncPatterns(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); refresh();
 }
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -1198,12 +1339,12 @@ document.getElementById('fitbtn').onclick = fit;
 document.getElementById('resetbtn').onclick = () => {
   hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false;
-  state.coverOnly = false;
+  state.allSurface = false; state.coverOnly = false;
   if (coverChip){ coverChip.setAttribute('aria-pressed','false'); coverChip.classList.add('off'); }
   document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
-  renderExplainer(); syncPatterns(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); refresh();
 };
 document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onchange = () => {
   const i = +b.dataset.iso;
@@ -1211,10 +1352,16 @@ document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onch
   syncIsolateBoxes();
   document.querySelectorAll('#patterns .card').forEach(c =>
     c.classList.toggle('active', +c.dataset.idx === state.pattern));
-  renderExplainer(); syncPatterns(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); refresh();
 });
 document.querySelectorAll('.reflink[data-ev]').forEach(b =>
   b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); showEvidence(+b.dataset.ev); });
+document.querySelectorAll('#surface .reflink[data-sref]').forEach(b => {
+  const id = refNode(b.dataset.sref);
+  if (!id) { b.classList.add('flat'); b.disabled = true; return; }
+  b.onclick = ev => { ev.preventDefault(); goTo(id); };
+  b.dataset.goto = id;
+});
 document.querySelectorAll('#stage .node').forEach(g => g.onclick = () => select(g.dataset.nodeId));
 document.querySelectorAll('.filelist div').forEach(d => d.onclick = () => {
   if (state.view !== 'file') setView('file');
@@ -1256,9 +1403,19 @@ window.addEventListener('resize', fit);
       syncIsolateBoxes(); }
     return;
   }
+  if (h.startsWith('surface=')){
+    const i = +h.slice(8);
+    const s = (MODEL.surface||[])[i];
+    if (!s) return;
+    const id = refNode(s.ref);
+    if (id) { state.selected = id; state.allSurface = false; }
+    const row = document.querySelector(`#surface .srow[data-idx="${i}"]`);
+    if (row) { row.classList.add('hit'); row.open = true; }
+    return;
+  }
   if (h.startsWith('evidence=')) showEvidence(+h.slice(9));
 })();
-renderExplainer(); syncPatterns(); refresh(); fit();
+renderExplainer(); syncPatterns(); syncSurface(); refresh(); fit();
 """
 
 
@@ -1381,6 +1538,38 @@ def hunk_index(registry):
     return out
 
 
+CHANGE_WORD = {"added": "new", "removed": "gone", "changed": "changed"}
+
+
+def surface_html(surface):
+    """One row per contract entry. The breaking ones carry their own class.
+
+    Rows sit in the side panel rather than the graph: a contract change is a fact
+    about a name, and the name is what a caller searches for, so the list reads
+    better than a marker on a box would.
+    """
+    rows = []
+    for i, s in enumerate(surface):
+        breaking = ' breaking' if s.get("breaking") else ''
+        rows.append(
+            '<details class="card srow%s" data-idx="%d">'
+            '<summary><span class="sname mono">%s</span>'
+            '<span class="schange">%s</span>%s</summary>'
+            '<div class="cardbody"><div class="smeta">%s</div>'
+            '<button class="reflink mono" data-sref="%s">%s</button>'
+            '%s</div></details>'
+            % (
+                breaking, i, esc(s.get("name")),
+                esc(CHANGE_WORD.get(s.get("change"), s.get("change") or "")),
+                '<span class="sbreak">breaking</span>' if s.get("breaking") else '',
+                esc(s.get("kind") or "other"),
+                esc(s.get("ref") or ""), esc(s.get("ref") or ""),
+                ('<p class="ev">%s</p>' % esc(s["note"])) if s.get("note") else "",
+            )
+        )
+    return "".join(rows)
+
+
 def files_html(nodes):
     rows = []
     for n in sorted(
@@ -1462,6 +1651,11 @@ def render(model):
         stat_bits.append(
             '<span style="color:#f85149"><b>%d</b> untested</span>' % untested
         )
+    breaking = breaking_count(model)
+    if breaking:
+        stat_bits.append(
+            '<span style="color:#f85149"><b>%d</b> breaking</span>' % breaking
+        )
 
     payload = {
         "title": model.get("title") or "Code change map",
@@ -1471,6 +1665,7 @@ def render(model):
         "nodes": nodes,
         "edges": edges,
         "patterns": model.get("patterns") or [],
+        "surface": model.get("surface") or [],
         "_evidence": registry,
         "_hunks": hunk_index(registry),
         "_byId": {n["id"]: n for n in nodes},
@@ -1519,8 +1714,15 @@ def render(model):
     <div id="patterns">__PATTERNS__
       <p class="empty" id="patterns-empty" hidden></p>
     </div>
-    <h2>Files changed</h2>
-    <div class="filelist">__FILES__</div>
+    <h2 id="surface-head">Contract surface</h2>
+    <div id="surface">__SURFACE__
+      <p class="empty" id="surface-empty" hidden></p>
+    </div>
+    <details class="card bigcard" id="fileswrap" open>
+      <summary><span class="name">Files changed</span>
+      <span class="count">__FILECOUNT__</span></summary>
+      <div class="cardbody"><div class="filelist">__FILES__</div></div>
+    </details>
     <h2>Legend</h2>
     <div class="legend">__LEGEND__</div>
   </aside>
@@ -1539,7 +1741,9 @@ def render(model):
         "__FILE_SVG__": file_svg,
         "__CODE_SVG__": code_svg,
         "__PATTERNS__": patterns_html(model.get("patterns") or []),
+        "__SURFACE__": surface_html(model.get("surface") or []),
         "__FILES__": files_html(nodes),
+        "__FILECOUNT__": str(sum(1 for n in nodes if n["layer"] == "file")),
         "__LEGEND__": legend_html(kinds),
         "__MODEL__": json.dumps(payload).replace("</", "<\\/"),
         "__JS__": JS,
@@ -1570,11 +1774,13 @@ def main():
     for w in warnings(model):
         print("  ! " + w, file=sys.stderr)
     if args.check:
-        print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested" % (
-            len(model["nodes"]), len(model.get("edges") or []),
-            len(model.get("patterns") or []),
-            sum(len(n.get("hunks") or []) for n in model["nodes"]),
-            untested_count(model["nodes"])))
+        print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested, "
+              "%d surface (%d breaking)" % (
+                  len(model["nodes"]), len(model.get("edges") or []),
+                  len(model.get("patterns") or []),
+                  sum(len(n.get("hunks") or []) for n in model["nodes"]),
+                  untested_count(model["nodes"]),
+                  len(model.get("surface") or []), breaking_count(model)))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"

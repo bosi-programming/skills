@@ -101,6 +101,24 @@ the diff open already, so this is a copy, not a lookup - and write the
 `explanation` as two or three sentences rather than the fragment that used to
 fit on a card.
 
+### The contract surface
+
+Patterns are about shape. Before you leave the diff, ask a different question:
+what does this change ask of someone outside it? That answer goes in the
+top-level `surface[]`, one entry per name that moved, each with a `ref`.
+
+What counts: an exported symbol added, removed or re-signed; an HTTP route or its
+request shape; a DB migration; an env var, config key or feature flag the code now
+reads; an event name, queue topic or CLI flag. `breaking: true` when someone
+outside this diff has to change something, or breaks if they do not.
+
+Two rules keep it honest. Write the consequence in `note`, not a restatement:
+"a listener bound to mail.sent goes quiet with no error" tells a reviewer
+something, "the event was renamed" does not. And an empty `surface` is a real
+answer, so write `"surface": []` when nothing moved rather than leaving the key
+off. `--check` warns about the missing key, because leaving it off says nobody
+looked.
+
 You do not need to supply a `reference` URL. The renderer maps every name in the
 catalog to its source, refactoring.guru for the classic patterns and the primary
 source for the architectural, frontend and resilience ones, and adds the
@@ -124,11 +142,13 @@ it feels like editing and changes nothing.
 
 What goes through it: the top-level `summary`, every node `summary`, every
 `details` bullet, every `hunks[].explanation`, every `tests[].note`, every
-`patterns[].intent`, every `patterns[].note`, and every `evidence[].explanation`.
+`surface[].note`, every `patterns[].intent`, every `patterns[].note`, and every
+`evidence[].explanation`.
 
 What must not, because rewriting them would make the page wrong: `id`, `label`,
-`sublabel`, `kind`, `role`, `status`, `source`, every `ref`, `evidence` and
-`tests.refs` path, every line number, and every line of the captured `diff`.
+`sublabel`, `kind`, `role`, `status`, `source`, `surface[].name`, every `ref`,
+`evidence` and `tests.refs` path, every line number, and every line of the
+captured `diff`.
 
 ## Step 5 — write the model
 
@@ -229,8 +249,8 @@ quarter of the height (draggable), and nothing on the page is smaller than 14px.
 
 What the reader gets: pan and drag, wheel zoom, `Fit`; click a box and the strip
 under the graph explains it, in prose and bullets, with the relations left to the
-graph where they are already drawn; the side panel narrows its pattern cards to
-that selection at the same time, with `show all` to widen again; every pattern
+graph where they are already drawn; the side panel narrows its pattern cards and its
+contract rows to that selection at the same time, with `show all` to widen again; every pattern
 card is collapsed to its name and confidence until it is opened, and inside it
 carries a link to what the pattern is, an `Isolate on graph` checkbox that dims
 everything but the participants, and its evidence refs; click a ref - in a pattern card, or under
@@ -243,15 +263,16 @@ resets.
 
 Deep links, worth handing to someone in a review comment: `#code` opens the code
 layer, `#node=<node id>` opens with that box selected and explained,
-`#pattern=<index>` opens with that card open and isolated, and
-`#evidence=<index>` opens straight into one piece of evidence.
+`#pattern=<index>` opens with that card open and isolated, `#surface=<index>`
+highlights one contract row, and `#evidence=<index>` opens straight into one
+piece of evidence.
 
 ## Step 7 — report back
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and
-your confidence, which changed files ship with no test, and anything the graph
-made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
+your confidence, which changed files ship with no test, what breaks for callers,
+and anything the graph made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
 pointing the wrong way, a file that everything now touches.
 
 If the user asks for a fix, edit `model.json` and re-render. Do not hand-edit

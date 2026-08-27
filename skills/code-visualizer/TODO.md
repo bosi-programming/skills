@@ -27,11 +27,20 @@ untested count in the header, a `no test` chip that dims everything covered, and
 `Tests` column in the strip whose refs jump to the test node when it is in the
 graph.
 
-## 3. Contract surface changes
+## 3. Contract surface changes — done
 
-Top-level `surface[]` = `{ kind, name, change, breaking, ref }`. `kind` is one of
-exported symbol | http route | DB migration | env var | config key | feature flag |
-event name | queue topic. Patterns cover design; this covers what breaks for callers.
+Top-level `surface[]` = `{ kind, name, change, breaking, ref, note }`. `kind` is
+free text over a known list: exported symbol | http route | db migration | env var
+| config key | feature flag | event name | queue topic | cli flag. Patterns cover
+design; this covers what the change asks of callers.
+
+Shipped: `normalize_surface` (`change` is checked, `kind` is not, `ref` required),
+`breaking_count`, a `Contract surface` section in the side panel that narrows with
+the selection the way the pattern cards do, a red left border and `breaking` marker
+on the breaking rows, a breaking count in the header, a `Breaks for callers` column
+in the overview strip, refs that jump to the node when the file is in the graph,
+and a `#surface=<index>` deep link. An absent `surface` key is nudged; `[]` is a
+real answer.
 
 ## 4. Churn and ownership per file
 

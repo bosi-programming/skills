@@ -128,6 +128,69 @@ ok('the chip drives one flag the graph reads', js.includes('state.coverOnly'));
 ok('a covered node dims when the chip is on',
    js.includes("(n.tests||{}).status !== 'none'"));
 
+// ---- contract surface: what the change asks of callers
+const surface = MODEL.surface || [];
+const breaking = surface.filter(s => s.breaking);
+ok('the model lists a contract surface', surface.length > 0);
+ok('every surface entry points at a line', surface.every(s => s.ref));
+const spanel = html.split('<div id="surface">')[1].split('id="surface-empty"')[0];
+const srows = (spanel.match(/class="card srow/g) || []).length;
+ok('the panel renders one card per entry', srows === surface.length,
+   srows + ' of ' + surface.length);
+ok('a breaking card is marked as breaking',
+   (spanel.match(/class="card srow breaking"/g) || []).length === breaking.length);
+ok('every card carries its ref as a button',
+   (spanel.match(/data-sref="/g) || []).length === surface.length);
+ok('a surface entry is a details element, like a pattern card',
+   (spanel.match(/<details class="card srow/g) || []).length === surface.length);
+ok('no surface card is open by default',
+   !/<details class="card srow[^>]*open/.test(spanel));
+ok('a long surface name wraps beside its arrow rather than under it',
+   /\.srow \.sname\{[^}]*min-width:0/.test(html)
+   && /\.srow \.sname\{[^}]*overflow-wrap:anywhere/.test(html));
+ok('nothing on the summary can wrap to a line of its own',
+   /\.srow>summary\{[^}]*flex-wrap:nowrap/.test(html));
+ok('the change word is pinned to the right edge and never breaks',
+   /\.srow \.schange\{[^}]*margin-left:auto/.test(html)
+   && /\.srow \.schange\{[^}]*white-space:nowrap/.test(html));
+ok('the name is the only item that gives way',
+   /\.srow \.sname\{[^}]*flex:1 1 auto/.test(html));
+const statsbar = html.split('<div class="stats">')[1].split('</div>')[0];
+ok('the header counts the breaking changes, and says nothing when there are none',
+   breaking.length ? statsbar.includes('<b>' + breaking.length + '</b> breaking')
+                   : !statsbar.includes('breaking'));
+ok('selecting a node narrows the surface list the way it narrows patterns',
+   js.includes('function surfaceFor(') && js.includes('function syncSurface('));
+ok('the overview names the breaking entries before anything is clicked',
+   js.includes('Breaks for callers'));
+ok('deep link surface= is handled', js.includes("h.startsWith('surface=')"));
+ok('a surface ref resolves to a node it can jump to',
+   surface.some(s => refNodeExists(s.ref)));
+ok('the page wires those refs to the node, and disables the ones it cannot',
+   js.includes("#surface .reflink[data-sref]") && js.includes("b.disabled = true"));
+
+function refNodeExists(ref) {
+  const base = String(ref || '').split(':')[0].split('/').pop();
+  return (MODEL.nodes || []).some(
+    n => n.id === base || String(n.id).split('/').pop() === base || n.label === base);
+}
+
+// ---- the side panel: nothing scrolls sideways, the long lists fold
+ok('the side panel never scrolls sideways', html.includes('overflow-x:hidden'));
+ok('a long ref wraps instead of widening the panel',
+   html.includes('overflow-wrap:anywhere'));
+ok('a file row wraps its badges rather than squeezing the path',
+   html.includes('.filelist div{display:flex;gap:8px;padding:4px 0;')
+   && /\.filelist div\{[^}]*flex-wrap:wrap/.test(html));
+ok('the file list lives in one collapsible card',
+   /<details class="card bigcard" id="fileswrap" open>/.test(html));
+ok('that card is open by default, so nothing is hidden that was not',
+   html.includes('id="fileswrap" open'));
+ok('the card counts the files it holds',
+   html.includes('<span class="count">' +
+     (MODEL.nodes || []).filter(n => n.layer === 'file').length + '</span>'));
+ok('the old bare heading is gone', !html.includes('<h2>Files changed</h2>'));
+
 // ---- the strip and the evidence view carry hunks
 ok('the strip lists the changed lines of the selected node',
    js.includes('<h4>Changed lines</h4>'));
@@ -143,7 +206,7 @@ ok('the strip lists the tests of the selected node', js.includes('<h4>Tests</h4>
 ok('the strip only opens that column when the node has an answer',
    js.includes('n.tests ?'));
 ok('a test ref that names a node in the graph becomes a jump',
-   js.includes('testRefNode'));
+   js.includes('refNode('));
 ok('a test ref outside the graph stays plain text',
    js.includes('reflink mono" data-goto') && js.includes('<span class="mono">'));
 
