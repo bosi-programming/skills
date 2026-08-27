@@ -1,0 +1,418 @@
+{
+  "title": "PR #118 — rewrite the onboarding docs",
+  "source": "gh pr diff 118 (acme/handbook)",
+  "summary": "Splits one 900-word README onboarding section into a task-shaped guide plus a reference page, and adds a glossary the guide links into. The rewrite lands the lede at the top and moves every environment-variable table out of the narrative. It also leaves one claim about token lifetime that nothing in the repo backs, and one section nobody links to.",
+  "stats": {
+    "files_changed": 4,
+    "words_added": 1180,
+    "words_removed": 604
+  },
+  "nodes": [
+    {
+      "id": "docs/onboarding.md",
+      "label": "onboarding.md",
+      "sublabel": "docs/",
+      "kind": "doc",
+      "layer": "doc",
+      "status": "added",
+      "words_added": 720,
+      "words_removed": 0,
+      "summary": "The new task-shaped guide: get a laptop from zero to a running dev server in nine steps. It carries only what a first-day engineer needs in order, and links out for everything else.",
+      "details": [
+        "opens with the outcome and the time it takes, before any prose",
+        "every step ends in a check the reader can run",
+        "the environment-variable table moved to reference.md:12"
+      ]
+    },
+    {
+      "id": "docs/reference.md",
+      "label": "reference.md",
+      "sublabel": "docs/",
+      "kind": "doc",
+      "layer": "doc",
+      "status": "added",
+      "words_added": 340,
+      "words_removed": 0,
+      "summary": "Lookup material pulled out of the old README: environment variables, ports, and the service matrix. Nothing here is meant to be read top to bottom.",
+      "details": [
+        "holds the table that used to interrupt the walkthrough"
+      ]
+    },
+    {
+      "id": "docs/glossary.md",
+      "label": "glossary.md",
+      "sublabel": "docs/",
+      "kind": "doc",
+      "layer": "doc",
+      "status": "added",
+      "words_added": 120,
+      "words_removed": 0,
+      "summary": "Eleven terms the guide uses without explaining. Added so the guide can stay short and still be readable by someone on day one."
+    },
+    {
+      "id": "README.md",
+      "label": "README.md",
+      "sublabel": "repo root",
+      "kind": "doc",
+      "layer": "doc",
+      "status": "modified",
+      "words_added": 0,
+      "words_removed": 604,
+      "summary": "Loses its whole onboarding section, which is now three files. What is left is a project description and a link to the guide.",
+      "details": [
+        "the removed section was 604 words of mixed task and reference"
+      ]
+    },
+    {
+      "id": "CONTRIBUTING.md",
+      "label": "CONTRIBUTING.md",
+      "sublabel": "repo root",
+      "kind": "doc",
+      "layer": "doc",
+      "status": "related",
+      "summary": "Untouched, but it still points at the README anchor the rewrite deleted. That link is now dead."
+    },
+    {
+      "id": "docs/onboarding.md#before-you-start",
+      "label": "Before you start",
+      "sublabel": "docs/onboarding.md",
+      "kind": "section",
+      "layer": "section",
+      "parent": "docs/onboarding.md",
+      "status": "added",
+      "heading_level": 2,
+      "line": 7,
+      "words_added": 90,
+      "words_removed": 0,
+      "summary": "Prerequisites, stated as a checklist. Names the access the reader must already have, so a missing SSO account fails on line one instead of at step six."
+    },
+    {
+      "id": "docs/onboarding.md#run-the-dev-server",
+      "label": "Run the dev server",
+      "sublabel": "docs/onboarding.md",
+      "kind": "section",
+      "layer": "section",
+      "parent": "docs/onboarding.md",
+      "status": "added",
+      "heading_level": 2,
+      "line": 41,
+      "words_added": 410,
+      "words_removed": 0,
+      "summary": "The nine steps. Each one is a command plus the output that means it worked. This is the section the whole page exists for.",
+      "details": [
+        "step 4 links into the glossary for 'tenant seed'"
+      ]
+    },
+    {
+      "id": "docs/onboarding.md#tokens",
+      "label": "Tokens and sessions",
+      "sublabel": "docs/onboarding.md",
+      "kind": "section",
+      "layer": "section",
+      "parent": "docs/onboarding.md",
+      "status": "added",
+      "heading_level": 2,
+      "line": 96,
+      "words_added": 220,
+      "words_removed": 0,
+      "summary": "Explains the local auth token. Nothing in the repo links to this section, and its central claim about token lifetime is not backed anywhere.",
+      "details": [
+        "no inbound link from the guide's own step list",
+        "contradicts services/auth/config.ts:31"
+      ]
+    },
+    {
+      "id": "docs/reference.md#env-vars",
+      "label": "Environment variables",
+      "sublabel": "docs/reference.md",
+      "kind": "table",
+      "layer": "section",
+      "parent": "docs/reference.md",
+      "status": "added",
+      "heading_level": 2,
+      "line": 12,
+      "words_added": 210,
+      "words_removed": 0,
+      "summary": "The table lifted verbatim out of the README walkthrough. Same rows, now somewhere a reader can come back to."
+    },
+    {
+      "id": "docs/glossary.md#tenant-seed",
+      "label": "tenant seed",
+      "sublabel": "docs/glossary.md",
+      "kind": "section",
+      "layer": "section",
+      "parent": "docs/glossary.md",
+      "status": "added",
+      "heading_level": 3,
+      "line": 18,
+      "words_added": 40,
+      "words_removed": 0,
+      "summary": "Defines the one term the guide could not avoid using in step 4."
+    },
+    {
+      "id": "README.md#getting-started",
+      "label": "Getting started",
+      "sublabel": "README.md",
+      "kind": "section",
+      "layer": "section",
+      "parent": "README.md",
+      "status": "deleted",
+      "heading_level": 2,
+      "line": 24,
+      "words_added": 0,
+      "words_removed": 604,
+      "summary": "The old everything-section: setup steps, the variable table, and three paragraphs of history in one run. Deleted and split three ways."
+    }
+  ],
+  "edges": [
+    {
+      "from": "README.md",
+      "to": "docs/onboarding.md",
+      "kind": "links",
+      "status": "added",
+      "label": "\"Start here\"",
+      "evidence": "README.md:9"
+    },
+    {
+      "from": "docs/onboarding.md",
+      "to": "docs/reference.md",
+      "kind": "references",
+      "status": "added",
+      "label": "env var table",
+      "evidence": "docs/onboarding.md:52"
+    },
+    {
+      "from": "docs/onboarding.md",
+      "to": "docs/glossary.md",
+      "kind": "defines",
+      "status": "added",
+      "label": "tenant seed",
+      "evidence": "docs/onboarding.md:61"
+    },
+    {
+      "from": "CONTRIBUTING.md",
+      "to": "README.md",
+      "kind": "links",
+      "status": "existing",
+      "label": "dead anchor #getting-started",
+      "evidence": "CONTRIBUTING.md:14"
+    },
+    {
+      "from": "docs/onboarding.md#before-you-start",
+      "to": "docs/onboarding.md#run-the-dev-server",
+      "kind": "includes",
+      "status": "added",
+      "evidence": "docs/onboarding.md:33"
+    },
+    {
+      "from": "docs/onboarding.md#run-the-dev-server",
+      "to": "docs/reference.md#env-vars",
+      "kind": "references",
+      "status": "added",
+      "label": "\"full list in reference\"",
+      "evidence": "docs/onboarding.md:52"
+    },
+    {
+      "from": "docs/onboarding.md#run-the-dev-server",
+      "to": "docs/glossary.md#tenant-seed",
+      "kind": "defines",
+      "status": "added",
+      "evidence": "docs/onboarding.md:61"
+    },
+    {
+      "from": "docs/reference.md#env-vars",
+      "to": "README.md#getting-started",
+      "kind": "duplicates",
+      "status": "removed",
+      "label": "same table, now moved",
+      "evidence": "README.md:48"
+    }
+  ],
+  "patterns": [
+    {
+      "name": "Diátaxis role",
+      "confidence": "high",
+      "intent": "Splits one document that was doing two jobs into a how-to and a reference, so the walkthrough can stay short and the table can stay complete.",
+      "participants": [
+        {
+          "role": "How-to",
+          "node": "docs/onboarding.md"
+        },
+        {
+          "role": "Reference",
+          "node": "docs/reference.md"
+        },
+        {
+          "role": "Source",
+          "node": "README.md#getting-started"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "docs/onboarding.md:41-95",
+          "diff": "@@ -0,0 +1,9 @@\n+## Run the dev server\n+\n+1. `pnpm install`\n+2. `cp .env.example .env` and fill AUTH_SECRET\n+3. `pnpm dev:seed` — the output ends with \"seeded 3 tenants\"\n+4. `pnpm dev` — open localhost:3000/health, it returns ok\n",
+          "explanation": "Steps only. No lookup table interrupts the walkthrough, which is the split this PR exists to make."
+        },
+        {
+          "ref": "docs/reference.md:12-44",
+          "diff": "@@ -0,0 +1,7 @@\n+## Environment variables\n+\n+| Name | Default | Notes |\n+| --- | --- | --- |\n+| AUTH_SECRET | none | server exits if unset |\n+| PORT | 3000 | |\n",
+          "explanation": "The same rows that used to sit inside the walkthrough, now somewhere a reader can come back to without scrolling past nine steps."
+        }
+      ],
+      "reference": "https://diataxis.fr/how-to-guides/"
+    },
+    {
+      "name": "Inverted pyramid",
+      "confidence": "high",
+      "intent": "Puts the outcome and the time cost in the first two lines, so a reader can decide to stop before spending an hour.",
+      "participants": [
+        {
+          "role": "Lede",
+          "node": "docs/onboarding.md#before-you-start"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "docs/onboarding.md:1-6",
+          "diff": "@@ -0,0 +1,5 @@\n+# Onboarding\n+\n+You will have a dev server running in about 40 minutes.\n+Assumes you already have SSO access to the staging account.\n",
+          "explanation": "The outcome and the cost are on lines 3 and 4. A reader who stops there still knows whether to keep going."
+        }
+      ]
+    },
+    {
+      "name": "Glossary-first",
+      "confidence": "medium",
+      "intent": "Lets the guide use house terms without stopping to define them mid-step.",
+      "participants": [
+        {
+          "role": "Glossary",
+          "node": "docs/glossary.md"
+        },
+        {
+          "role": "Consumer",
+          "node": "docs/onboarding.md#run-the-dev-server"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "docs/onboarding.md:61",
+          "diff": "@@ -58,3 +58,4 @@\n   The output ends with \"seeded 3 tenants\".\n+  A [tenant seed](glossary.md#tenant-seed) is the fixture set behind that line.\n",
+          "explanation": "The only one of the eleven glossary entries that is actually linked from where the term first appears. The other ten are why the confidence is medium."
+        }
+      ],
+      "note": "Medium: ten of the eleven entries have no inbound link. Link them from first use and this is high."
+    },
+    {
+      "name": "Orphan section",
+      "confidence": "high",
+      "intent": "Anti-pattern. A section no path reaches, so the work in it is invisible to a reader following the guide.",
+      "participants": [
+        {
+          "role": "Orphan",
+          "node": "docs/onboarding.md#tokens"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "docs/onboarding.md:96",
+          "diff": "@@ -0,0 +1,6 @@\n+## Tokens and sessions\n+\n+Local tokens never expire.\n+In most setups you should generally not need to refresh this.\n",
+          "explanation": "Grep across the repo finds nothing pointing at this anchor, so a reader following the guide never arrives here."
+        }
+      ],
+      "note": "Either link it from step 7 where tokens first appear, or move it to reference.md."
+    },
+    {
+      "name": "Dead link",
+      "confidence": "high",
+      "intent": "Anti-pattern. CONTRIBUTING.md still points at a README anchor this PR deleted.",
+      "participants": [
+        {
+          "role": "Source",
+          "node": "CONTRIBUTING.md"
+        },
+        {
+          "role": "Missing target",
+          "node": "README.md#getting-started"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "CONTRIBUTING.md:14",
+          "diff": "@@ -12,7 +12,7 @@\n Before opening a PR, set up your machine:\n see [Getting started](README.md#getting-started).\n",
+          "explanation": "The link is untouched by this PR, which is exactly the problem: the heading it points at was deleted three files away."
+        }
+      ]
+    }
+  ],
+  "moves": [
+    {
+      "kind": "claim",
+      "node": "docs/onboarding.md#before-you-start",
+      "ref": "docs/onboarding.md:3",
+      "diff": "@@ -0,0 +1,3 @@\n+# Onboarding\n+\n+You will have a dev server running in about 40 minutes.\n",
+      "quote": "You will have a dev server running in about 40 minutes.",
+      "confidence": "medium",
+      "note": "No evidence move backs the 40 minutes. One timed run would settle it."
+    },
+    {
+      "kind": "assumption",
+      "node": "docs/onboarding.md#before-you-start",
+      "ref": "docs/onboarding.md:11",
+      "diff": "@@ -8,2 +8,4 @@\n ## Before you start\n+\n+Assumes you already have SSO access to the staging account.\n",
+      "quote": "Assumes you already have SSO access to the staging account.",
+      "confidence": "high",
+      "note": "Stated where it belongs: at the top, before any work."
+    },
+    {
+      "kind": "instruction",
+      "node": "docs/onboarding.md#run-the-dev-server",
+      "ref": "docs/onboarding.md:44",
+      "diff": "@@ -41,3 +41,5 @@ ## Run the dev server\n+1. `pnpm install`\n+2. Run pnpm dev:seed, then check that localhost:3000/health returns ok.\n",
+      "quote": "Run pnpm dev:seed, then check that localhost:3000/health returns ok.",
+      "confidence": "high"
+    },
+    {
+      "kind": "evidence",
+      "node": "docs/onboarding.md#run-the-dev-server",
+      "ref": "docs/onboarding.md:58",
+      "diff": "@@ -55,2 +55,3 @@\n   Wait for the seeder to finish.\n+  The output ends with \"seeded 3 tenants\".\n",
+      "quote": "The output ends with \"seeded 3 tenants\".",
+      "confidence": "high",
+      "note": "A check the reader can actually run. Every step should end like this."
+    },
+    {
+      "kind": "contradiction",
+      "node": "docs/onboarding.md#tokens",
+      "ref": "docs/onboarding.md:101",
+      "diff": "@@ -98,2 +98,4 @@ ## Tokens and sessions\n+\n+Local tokens never expire.\n",
+      "quote": "Local tokens never expire.",
+      "confidence": "low",
+      "note": "services/auth/config.ts:31 sets a 90-day TTL. This is wrong, not just unsupported."
+    },
+    {
+      "kind": "hedge",
+      "node": "docs/onboarding.md#tokens",
+      "ref": "docs/onboarding.md:108",
+      "diff": "@@ -105,2 +105,3 @@\n   Copy it out of the seeder output.\n+  In most setups you should generally not need to refresh this.\n",
+      "quote": "In most setups you should generally not need to refresh this.",
+      "confidence": "medium",
+      "note": "Three hedges in one sentence. Say when it must be refreshed, or cut the line."
+    },
+    {
+      "kind": "definition",
+      "node": "docs/glossary.md#tenant-seed",
+      "ref": "docs/glossary.md:18",
+      "diff": "@@ -0,0 +1,2 @@\n+### tenant seed\n+tenant seed: the fixture set that gives a fresh database three sample tenants.\n",
+      "quote": "tenant seed: the fixture set that gives a fresh database three sample tenants.",
+      "confidence": "high"
+    },
+    {
+      "kind": "caveat",
+      "node": "docs/reference.md#env-vars",
+      "ref": "docs/reference.md:14",
+      "diff": "@@ -12,3 +12,4 @@ ## Environment variables\n | Name | Default | Notes |\n+| AUTH_SECRET | none | AUTH_SECRET has no default; the server exits if it is unset. |\n",
+      "quote": "AUTH_SECRET has no default; the server exits if it is unset.",
+      "confidence": "high"
+    }
+  ]
+}
