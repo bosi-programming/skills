@@ -147,6 +147,33 @@ moved. Leaving the key off is a different claim, and `--check` warns about it.
   The status drives the page in four places. A `none` node gets a red `no test`
   mark on its box and in the file list, the header counts them, and a chip in the
   toolbar dims everything else.
+- `history` : object. Churn and ownership, the context a diff cannot show. Every
+  field is optional, but a model where no node carries history gets one warning
+  from `--check`, because two `git log` calls per file are cheap.
+
+  ```json
+  {
+    "commits_90d": 34,
+    "authors_90d": 6,
+    "last_change": "2026-08-19",
+    "owners": ["@acme/notifications"],
+    "hotspot": true,
+    "note": "Six authors in three months, and every notification feature lands here first."
+  }
+  ```
+
+  - `commits_90d`, `authors_90d` : counts, from git and not from memory. Measure
+    them on the base branch, not on the PR, or the change inflates its own churn.
+  - `last_change` : the date of the last commit before this change. Any string,
+    but an ISO date reads best.
+  - `owners` : list, from CODEOWNERS. A diff that crosses two owners is worth
+    saying out loud, since it decides who has to review it.
+  - `hotspot` : boolean, default false. Your judgment, not a threshold the
+    renderer computes: a hotspot box gets an amber `hot` mark and the header
+    counts it. Set it when the numbers say a file is fragile, and say why in
+    `note`. A file with 40 commits by one author is busy; 40 commits by seven
+    authors is fragile.
+  - `note` : what the numbers mean here. This is the field worth writing.
 - `parent` : string, optional but worth filling in. The file node id a code node
   belongs to. It is how selecting a file narrows the pattern list in the side
   panel to that file's patterns - without it the page falls back to matching the

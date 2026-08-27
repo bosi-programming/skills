@@ -348,6 +348,42 @@ def breaking_count(model):
     return sum(1 for s in (model.get("surface") or []) if s.get("breaking"))
 
 
+def normalize_history(node):
+    """Check `nodes[].history`: churn, ownership, and the hotspot judgment.
+
+    Every field is optional, because the answer depends on what the repo can tell
+    you. `hotspot` is the model author's call rather than a threshold the renderer
+    computes: "this file is fragile" is a reading of the numbers, and a reading
+    belongs to whoever can also say why in `note`.
+    """
+    h = node.get("history")
+    if h is None:
+        return []
+    nid = node.get("id")
+    if not isinstance(h, dict):
+        return ["nodes[%s].history must be an object of counts and owners" % nid]
+    errors = []
+    for key in ("commits_90d", "authors_90d"):
+        v = h.get(key)
+        if v is None:
+            continue
+        if isinstance(v, bool) or not isinstance(v, int) or v < 0:
+            errors.append(
+                "nodes[%s].history.%s is %r; use a count from git log, not a word"
+                % (nid, key, v)
+            )
+    owners = h.get("owners")
+    if owners is not None and not isinstance(owners, list):
+        errors.append("nodes[%s].history.owners must be a list of names" % nid)
+    h["hotspot"] = bool(h.get("hotspot"))
+    node["history"] = h
+    return errors
+
+
+def hotspot_count(nodes):
+    return sum(1 for n in nodes or [] if (n.get("history") or {}).get("hotspot"))
+
+
 def untested_count(nodes):
     """Changed file nodes that answered `none`. The header number and the chip."""
     n = 0
@@ -373,6 +409,11 @@ def warnings(model):
         out.append(
             "the model has no surface key; an empty list says you looked and "
             "nothing moved, leaving it off says nobody looked"
+        )
+    if touched_any and not any(n.get("history") for n in model.get("nodes") or []):
+        out.append(
+            "no node carries history; two git log calls per changed file turn "
+            "\"this file changed\" into \"this much-touched file changed\""
         )
     for n in model.get("nodes") or []:
         touched = (n.get("status") or "related").lower() in ("added", "modified", "deleted")
@@ -412,6 +453,7 @@ def validate(model):
         n["layer"] = "file" if lay == "file" else "code"
         errors += normalize_hunks(n)
         errors += normalize_tests(n)
+        errors += normalize_history(n)
     for i, e in enumerate(model.get("edges") or []):
         for side in ("from", "to"):
             if e.get(side) not in ids:
@@ -550,14 +592,19 @@ def node_text(node):
     badge = ""
     if ins is not None or dele is not None:
         badge = "+%s \u2212%s" % (ins or 0, dele or 0)
-    mark = "no test" if (node.get("tests") or {}).get("status") == "none" else ""
-    return label, sub, badge, mark
+    marks = []
+    if (node.get("tests") or {}).get("status") == "none":
+        marks.append(("no test", "#f85149"))
+    if (node.get("history") or {}).get("hotspot"):
+        marks.append(("hot", "#e3b341"))
+    return label, sub, badge, marks
 
 
 def node_width(node):
-    label, sub, badge, mark = node_text(node)
+    label, sub, badge, marks = node_text(node)
     badge_w = (len(badge) * CH_MONO + 16) if badge else 0
-    mark_w = (len(mark) * CH_MONO + 16) if mark else 0
+    mark_text = " ".join(t for t, _ in marks)
+    mark_w = (len(mark_text) * CH_MONO + 16) if mark_text else 0
     line1 = len(label) * CH_SANS + mark_w + (badge_w if not sub else 0)
     line2 = (len(sub) * CH_MONO + badge_w) if sub else 0
     return int(max(MIN_W, min(MAX_W, max(line1, line2) + 32)))
@@ -684,11 +731,12 @@ def render_svg(view, nodes, edges):
             continue
         st = status_of(n)
         c = STATUS[st]
-        label, sub, badge, mark = node_text(n)
+        label, sub, badge, marks = node_text(n)
         parts.append(
             '<g class="node" data-node-id="%s" data-status="%s" data-cover="%s" '
-            'transform="translate(%.1f,%.1f)">'
+            'data-hot="%s" transform="translate(%.1f,%.1f)">'
             % (esc(n["id"]), st, esc((n.get("tests") or {}).get("status") or ""),
+               "true" if (n.get("history") or {}).get("hotspot") else "false",
                b["x"], b["y"])
         )
         parts.append(
@@ -714,10 +762,14 @@ def render_svg(view, nodes, edges):
                 '<tspan fill="#3fb950">%s</tspan> <tspan fill="#f85149">%s</tspan></text>'
                 % (b["w"] - 12, 52 if sub else 41, plus, minus)
             )
-        if mark:
+        if marks:
+            spans = " ".join(
+                '<tspan fill="%s">%s</tspan>' % (colour, esc(text))
+                for text, colour in marks
+            )
             parts.append(
-                '<text class="node-mark" x="%d" y="28" text-anchor="end" '
-                'fill="#f85149">%s</text>' % (b["w"] - 12, esc(mark))
+                '<text class="node-mark" x="%d" y="28" text-anchor="end">%s</text>'
+                % (b["w"] - 12, spans)
             )
         parts.append("<title>%s</title>" % esc(n["id"]))
         parts.append("</g>")
@@ -800,6 +852,9 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer .cols{display:flex;gap:24px;flex-wrap:wrap;flex:1 1 46%;align-items:flex-start}
 #explainer .col{flex:1 1 190px;min-width:180px}
 #explainer .cover{margin:0 0 6px;font-size:14px}
+#explainer .churn{margin:0 0 4px;font-size:14px;color:var(--muted)}
+#explainer .churn.hot{color:#e3b341}
+#explainer .owners{margin:0 0 4px;font-size:14px;color:var(--dim)}
 #explainer .cover.none{color:#f85149}
 #explainer .cover.added,#explainer .cover.existing{color:#3fb950}
 #explainer .ev{font-size:14px;color:var(--dim);margin:6px 0 0}
@@ -1104,6 +1159,8 @@ function derivedLine(id, n, outs, ins){
     bits.push(`+${n.insertions||0} \u2212${n.deletions||0} lines`);
   if (n.line) bits.push(`from line ${n.line}`);
   if (n.tests) bits.push(COVER_WORD[n.tests.status] || n.tests.status);
+  if (n.history && n.history.commits_90d != null)
+    bits.push(`${n.history.commits_90d} commits in 90 days`);
   bits.push(`${outs.length} outgoing, ${ins.length} incoming relation${ins.length===1?'':'s'}`);
   return bits.join(' \u00b7 ') + '. No written explanation in the model for this one.';
 }
@@ -1133,6 +1190,18 @@ const COVER_WORD = {
   existing: 'covered by tests the diff did not touch',
   none: 'no test covers this'
 };
+
+function historyHtml(h){
+  const bits = [];
+  if (h.commits_90d != null)
+    bits.push(`${h.commits_90d} commit${h.commits_90d === 1 ? '' : 's'} in 90 days`);
+  if (h.authors_90d != null)
+    bits.push(`${h.authors_90d} author${h.authors_90d === 1 ? '' : 's'}`);
+  if (h.last_change) bits.push(`last touched ${h.last_change}`);
+  return (bits.length ? `<p class="churn${h.hotspot ? ' hot' : ''}">${esc(bits.join(', '))}</p>` : '')
+    + ((h.owners||[]).length ? `<p class="owners mono">${esc(h.owners.join(', '))}</p>` : '')
+    + (h.note ? `<p class="ev">${esc(h.note)}</p>` : '');
+}
 
 function testsHtml(t){
   const word = COVER_WORD[t.status] || t.status || '';
@@ -1226,9 +1295,9 @@ function renderExplainer(){
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
       </div>
-      ${(hix.length || n.tests) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
+      ${(hix.length || n.tests || n.history) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
         hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
-      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}</div>` : ''}
+      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}${n.history ? `<div class="col"><h4>History</h4>${historyHtml(n.history)}</div>` : ''}</div>` : ''}
       </div>`;
   } else if (state.pattern != null){
     const p = MODEL.patterns[state.pattern];
@@ -1651,6 +1720,12 @@ def render(model):
         stat_bits.append(
             '<span style="color:#f85149"><b>%d</b> untested</span>' % untested
         )
+    hot = hotspot_count(nodes)
+    if hot:
+        stat_bits.append(
+            '<span style="color:#e3b341"><b>%d</b> hotspot%s</span>'
+            % (hot, "" if hot == 1 else "s")
+        )
     breaking = breaking_count(model)
     if breaking:
         stat_bits.append(
@@ -1775,12 +1850,13 @@ def main():
         print("  ! " + w, file=sys.stderr)
     if args.check:
         print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested, "
-              "%d surface (%d breaking)" % (
+              "%d surface (%d breaking), %d hotspots" % (
                   len(model["nodes"]), len(model.get("edges") or []),
                   len(model.get("patterns") or []),
                   sum(len(n.get("hunks") or []) for n in model["nodes"]),
                   untested_count(model["nodes"]),
-                  len(model.get("surface") or []), breaking_count(model)))
+                  len(model.get("surface") or []), breaking_count(model),
+                  hotspot_count(model["nodes"])))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"

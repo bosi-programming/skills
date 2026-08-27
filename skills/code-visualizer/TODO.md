@@ -42,11 +42,17 @@ in the overview strip, refs that jump to the node when the file is in the graph,
 and a `#surface=<index>` deep link. An absent `surface` key is nudged; `[]` is a
 real answer.
 
-## 4. Churn and ownership per file
+## 4. Churn and ownership per file — done
 
-`nodes[].history` = `{ commits_90d, authors_90d, last_change, owners }`. Source:
-`git log --since=90.days --format='%an' -- <file>` and CODEOWNERS. Turns "this file
-changed" into "this fragile, many-author file changed".
+`nodes[].history` = `{ commits_90d, authors_90d, last_change, owners, hotspot, note }`.
+Source: `git log --since=90.days --format='%an' <base> -- <file>` and CODEOWNERS.
+Turns "this file changed" into "this much-touched file changed".
+
+Shipped: `normalize_history` (counts must be counts, owners a list), `hotspot_count`,
+an amber `hot` mark on the box beside the red `no test` one, a hotspot count in the
+header, a `History` column in the strip that reads as a sentence, and one warning
+when no node carries history at all. `hotspot` is the model author's judgment
+rather than a threshold the renderer computes.
 
 ## 5. Reading order
 

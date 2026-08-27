@@ -112,10 +112,10 @@ ok('the example shows at least one uncovered file', uncovered.length > 0);
 ok('a claimed coverage always carries refs',
    changed.every(n => n.tests.status === 'none' ||
      (Array.isArray(n.tests.refs) && n.tests.refs.length > 0)));
-const marks = (html.match(/class="node-mark"/g) || []).length;
-ok('the graph marks exactly the uncovered nodes', marks === uncovered.length,
-   marks + ' marks for ' + uncovered.length + ' uncovered');
-ok('the mark says what it means', marks === 0 || html.includes('>no test<'));
+const svgMark = (t) => (html.match(
+  new RegExp('<tspan fill="#[0-9a-f]{6}">' + t + '</tspan>', 'g')) || []).length;
+ok('the graph marks every uncovered node', svgMark('no test') === uncovered.length,
+   svgMark('no test') + ' for ' + uncovered.length);
 ok('the file list marks the same set',
    (html.split('<div class="filelist">')[1].split('</div>\n')[0]
      .match(/class="nocov"/g) || []).length === uncovered.length);
@@ -174,6 +174,26 @@ function refNodeExists(ref) {
   return (MODEL.nodes || []).some(
     n => n.id === base || String(n.id).split('/').pop() === base || n.label === base);
 }
+
+// ---- history: churn, ownership, and the hotspot mark
+const withHist = (MODEL.nodes || []).filter(n => n.history);
+const hot = withHist.filter(n => n.history.hotspot);
+ok('the model carries churn on its changed files', withHist.length >= 3);
+ok('the graph marks every hotspot', svgMark('hot') === hot.length,
+   svgMark('hot') + ' for ' + hot.length);
+ok('the two marks keep their own colours',
+   !hot.length || html.includes('<tspan fill="#e3b341">hot</tspan>'));
+ok('a hotspot node says so in its markup',
+   (html.match(/data-hot="true"/g) || []).length === hot.length);
+ok('the header counts the hotspots',
+   hot.length ? html.includes('<b>' + hot.length + '</b> hotspot') : true);
+ok('the strip has a column for churn', js.includes('<h4>History</h4>'));
+ok('the strip only opens it when the node has history', js.includes('n.history ?'));
+ok('churn reads as a sentence, not a row of numbers',
+   js.includes('function historyHtml('));
+ok('every count in the model is a number',
+   withHist.every(n => ['commits_90d', 'authors_90d'].every(
+     k => n.history[k] === undefined || typeof n.history[k] === 'number')));
 
 // ---- the side panel: nothing scrolls sideways, the long lists fold
 ok('the side panel never scrolls sideways', html.includes('overflow-x:hidden'));

@@ -79,6 +79,16 @@
         ],
         "note": "The existing spec asserts a 201 and mocks the dispatcher, so it passes either way. Nothing asserts the template building is gone."
       },
+      "history": {
+        "commits_90d": 34,
+        "authors_90d": 6,
+        "last_change": "2026-08-19",
+        "owners": [
+          "@acme/notifications"
+        ],
+        "hotspot": true,
+        "note": "Six authors in three months, and every notification feature lands here first. That is the reason for the refactor, and the reason to read this file's diff twice."
+      },
       "hunks": [
         {
           "ref": "notification.controller.ts:24-36",
@@ -109,6 +119,14 @@
           "src/notifications/dispatcher.service.spec.ts:64"
         ],
         "note": "Covers both channels and the unsupported-channel throw. The notification.sent emit is asserted at line 64."
+      },
+      "history": {
+        "commits_90d": 0,
+        "authors_90d": 0,
+        "owners": [
+          "@acme/notifications"
+        ],
+        "note": "New file, so no history. It inherits the controller's traffic: the next channel change lands here instead."
       },
       "hunks": [
         {
@@ -144,6 +162,13 @@
         "refs": [
           "src/notifications/channels/email.channel.spec.ts:12"
         ]
+      },
+      "history": {
+        "commits_90d": 0,
+        "authors_90d": 0,
+        "owners": [
+          "@acme/notifications"
+        ]
       }
     },
     {
@@ -165,6 +190,13 @@
       "tests": {
         "status": "none",
         "note": "New file, no spec. The Twilio call and the dropped template are both unasserted, which is the gap worth arguing about in this diff."
+      },
+      "history": {
+        "commits_90d": 0,
+        "authors_90d": 0,
+        "owners": [
+          "@acme/notifications"
+        ]
       }
     },
     {
@@ -186,6 +218,13 @@
       "tests": {
         "status": "none",
         "note": "Types only. The compiler is the test."
+      },
+      "history": {
+        "commits_90d": 0,
+        "authors_90d": 0,
+        "owners": [
+          "@acme/notifications"
+        ]
       }
     },
     {
@@ -211,6 +250,15 @@
           "src/audit/audit.listener.spec.ts:22"
         ],
         "note": "The renamed event is covered. No case asserts what happens to rows written under the old mail.sent name."
+      },
+      "history": {
+        "commits_90d": 7,
+        "authors_90d": 2,
+        "last_change": "2026-07-02",
+        "owners": [
+          "@acme/platform"
+        ],
+        "note": "Quiet file, and owned by a different team than the rest of the diff. The event rename needs their eyes."
       }
     },
     {

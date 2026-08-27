@@ -142,13 +142,13 @@ it feels like editing and changes nothing.
 
 What goes through it: the top-level `summary`, every node `summary`, every
 `details` bullet, every `hunks[].explanation`, every `tests[].note`, every
-`surface[].note`, every `patterns[].intent`, every `patterns[].note`, and every
-`evidence[].explanation`.
+`surface[].note`, every `history[].note`, every `patterns[].intent`, every
+`patterns[].note`, and every `evidence[].explanation`.
 
 What must not, because rewriting them would make the page wrong: `id`, `label`,
 `sublabel`, `kind`, `role`, `status`, `source`, `surface[].name`, every `ref`,
-`evidence` and `tests.refs` path, every line number, and every line of the
-captured `diff`.
+`evidence` and `tests.refs` path, every count in `history`, every line number,
+and every line of the captured `diff`.
 
 ## Step 5 — write the model
 
@@ -207,6 +207,24 @@ like a types-only file where the compiler is the test.
 Do not stretch. A spec that mocks the thing you changed and asserts a status code
 covers the wiring, not the behaviour; say `existing` and put that sentence in the
 `note`. Coverage you did not open is not coverage.
+
+Two more git calls per changed file give the reader something no diff can: how
+busy the file is, and whose it is.
+
+```bash
+git log --since=90.days --format='%an' <base> -- <path> | sort | uniq -c
+git log -1 --format=%ad --date=short <base> -- <path>
+```
+
+Run them against the base, not the branch, or the change counts its own commits.
+Put the numbers in `history.commits_90d`, `history.authors_90d` and
+`history.last_change`, and the CODEOWNERS entry in `history.owners`.
+
+Then make the call the numbers cannot make for themselves. Set
+`history.hotspot: true` when a file reads as fragile and say why in `note`. Forty
+commits by one author is a busy file; forty by seven authors is a file nobody
+owns, and a hotspot box gets an amber mark so the reader sees it before clicking.
+Two owners across one diff is worth a sentence too: it decides who has to review.
 
 The page has one explanation strip under the graph, and it is the surface people
 actually read. It shows the top-level `summary` until something is selected, then
@@ -272,7 +290,7 @@ piece of evidence.
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and
 your confidence, which changed files ship with no test, what breaks for callers,
-and anything the graph made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
+which file is a hotspot, and anything the graph made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
 pointing the wrong way, a file that everything now touches.
 
 If the user asks for a fix, edit `model.json` and re-render. Do not hand-edit

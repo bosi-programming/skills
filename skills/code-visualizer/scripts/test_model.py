@@ -84,6 +84,7 @@ ok("a changed file with a hunk is still warned about its tests",
 m = model(surface=[])
 m["nodes"][0]["hunks"] = ["@@\n+x"]
 m["nodes"][0]["tests"] = "none"
+m["nodes"][0]["history"] = {"commits_90d": 4}
 ok("a changed file that answers every nudge is quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
 
@@ -200,8 +201,56 @@ warns = rg.warnings(m)
 ok("a model with no surface key is nudged", any("surface" in w for w in warns),
    "; ".join(warns))
 m["surface"] = []
+m["nodes"][0]["history"] = {"commits_90d": 4}
 ok("an empty surface is a real answer and stays quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
+
+# ---- history: churn and ownership, the context a diff cannot show
+def with_history(h):
+    m = model(surface=[])
+    m["nodes"][0]["hunks"] = ["@@\n+x"]
+    m["nodes"][0]["tests"] = "none"
+    m["nodes"][0]["history"] = h
+    return m
+
+m = with_history({"commits_90d": 31, "authors_90d": 5, "last_change": "2026-07-14",
+                  "owners": ["@acme/checkout-flow"]})
+ok("a full history validates", not rg.validate(m), "; ".join(rg.validate(m)))
+ok("hotspot defaults to false", m["nodes"][0]["history"]["hotspot"] is False)
+ok("a model with history is quiet", not rg.warnings(m), "; ".join(rg.warnings(m)))
+
+m = with_history({"commits_90d": "many"})
+errs = rg.validate(m)
+ok("a count must be a number", any("commits_90d" in e for e in errs), "; ".join(errs))
+
+m = with_history({"commits_90d": -2})
+errs = rg.validate(m)
+ok("a negative count fails", any("commits_90d" in e for e in errs), "; ".join(errs))
+
+m = with_history({"authors_90d": 3, "owners": "@team"})
+errs = rg.validate(m)
+ok("owners must be a list", any("owners" in e for e in errs), "; ".join(errs))
+
+m = with_history("hot")
+errs = rg.validate(m)
+ok("history must be an object", any("history" in e for e in errs), "; ".join(errs))
+
+m = with_history({"commits_90d": 31, "hotspot": "yes"})
+rg.validate(m)
+ok("hotspot coerces to a bool", m["nodes"][0]["history"]["hotspot"] is True)
+ok("hotspot_count counts the marked files", rg.hotspot_count(m["nodes"]) == 1,
+   str(rg.hotspot_count(m["nodes"])))
+
+m = with_history({"commits_90d": 31})
+ok("hotspot_count ignores an unmarked file", rg.hotspot_count(m["nodes"]) == 0)
+
+# ---- one nudge for the whole model, not one per file
+m = model(surface=[])
+m["nodes"][0]["hunks"] = ["@@\n+x"]
+m["nodes"][0]["tests"] = "none"
+warns = rg.warnings(m)
+ok("a model with no history anywhere is nudged once",
+   len([w for w in warns if "history" in w]) == 1, "; ".join(warns))
 
 # ---- the registry the page reads
 m = model(patterns=[{
@@ -234,6 +283,11 @@ ok("the bundled example shows one honest none, so the mark has something to draw
 ok("the bundled example lists its contract surface", bool(ex.get("surface")))
 ok("the bundled example has something breaking to mark",
    rg.breaking_count(ex) > 0, str(rg.breaking_count(ex)))
+ok("the bundled example carries churn on its changed files",
+   sum(1 for n in ex["nodes"] if n.get("history")) >= 3,
+   str(sum(1 for n in ex["nodes"] if n.get("history"))))
+ok("the bundled example marks a hotspot", rg.hotspot_count(ex["nodes"]) > 0,
+   str(rg.hotspot_count(ex["nodes"])))
 ok("the bundled example answers every nudge",
    not rg.warnings(ex), "; ".join(rg.warnings(ex)))
 
