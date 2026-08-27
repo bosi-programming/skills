@@ -123,12 +123,12 @@ it feels like editing and changes nothing.
 - The call is mandatory on every run. No model is small enough to skip it.
 
 What goes through it: the top-level `summary`, every node `summary`, every
-`details` bullet, every `hunks[].explanation`, every `patterns[].intent`, every
-`patterns[].note`, and every `evidence[].explanation`.
+`details` bullet, every `hunks[].explanation`, every `tests[].note`, every
+`patterns[].intent`, every `patterns[].note`, and every `evidence[].explanation`.
 
 What must not, because rewriting them would make the page wrong: `id`, `label`,
-`sublabel`, `kind`, `role`, `status`, `source`, every `ref` and `evidence` path,
-every line number, and every line of the captured `diff`.
+`sublabel`, `kind`, `role`, `status`, `source`, every `ref`, `evidence` and
+`tests.refs` path, every line number, and every line of the captured `diff`.
 
 ## Step 5 — write the model
 
@@ -167,6 +167,26 @@ has nothing worth showing.
 
 Pick the hunks the way you would point at a screen: the new method, the deleted
 branch, the changed signature. Not the whole patch - that is what the diff is for.
+
+Every changed file node also answers one question: does a test assert this? Look
+in two places and then commit to an answer.
+
+- Test files in the diff. They are nodes already, so the answer is usually in
+  front of you: read what they assert, not just that they exist.
+- Tests the diff did not touch:
+  `git grep -n "<new symbol>" -- '*.test.*' '*.spec.*' '*_test.*'`. Run it for
+  each new or renamed class, function and event name.
+
+Then set `tests.status` to `added`, `existing` or `none`, with `refs` for the
+first two. `none` is a real answer and often the most useful thing on the page:
+the graph marks that box in red, the header counts it, and a chip isolates them.
+Leaving the field off is not the same claim - it says nobody looked, and
+`--check` will warn about it. Say `none` with a `note` when the reason is good,
+like a types-only file where the compiler is the test.
+
+Do not stretch. A spec that mocks the thing you changed and asserts a status code
+covers the wiring, not the behaviour; say `existing` and put that sentence in the
+`note`. Coverage you did not open is not coverage.
 
 The page has one explanation strip under the graph, and it is the surface people
 actually read. It shows the top-level `summary` until something is selected, then
@@ -217,7 +237,8 @@ everything but the participants, and its evidence refs; click a ref - in a patte
 `Changed lines` in the strip for the file you selected - and the whole page turns
 into that hunk, coloured, with the explanation under it, and `Back` or `Escape`
 returns; chips filter by change
-status and relation kind; a text filter; `1` and `2` switch layers, `Escape`
+status and relation kind, and one more dims everything that has a test; a text
+filter; `1` and `2` switch layers, `Escape`
 resets.
 
 Deep links, worth handing to someone in a review comment: `#code` opens the code
@@ -229,9 +250,9 @@ layer, `#node=<node id>` opens with that box selected and explained,
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and
-your confidence, and anything the graph made obvious that the diff hid - a cycle
-drawn right-to-left, a new dependency pointing the wrong way, a file that
-everything now touches.
+your confidence, which changed files ship with no test, and anything the graph
+made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
+pointing the wrong way, a file that everything now touches.
 
 If the user asks for a fix, edit `model.json` and re-render. Do not hand-edit
 the HTML; it is generated, so the next render would throw the edit away.

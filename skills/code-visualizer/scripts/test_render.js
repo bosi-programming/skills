@@ -102,6 +102,32 @@ ok('every changed file node in the example shows its diff',
 ok('a hunk diff is coloured the same way evidence is',
    hunks.every(e => api.diffHtml(e.diff).includes('class="h"')));
 
+// ---- test coverage: the answer, the mark, the count, the chip
+const changed = (MODEL.nodes || []).filter(
+  n => n.layer === 'file' && n.kind !== 'test' &&
+       ['added', 'modified', 'deleted'].includes(n.status));
+const uncovered = changed.filter(n => n.tests && n.tests.status === 'none');
+ok('every changed file node states its coverage', changed.every(n => n.tests));
+ok('the example shows at least one uncovered file', uncovered.length > 0);
+ok('a claimed coverage always carries refs',
+   changed.every(n => n.tests.status === 'none' ||
+     (Array.isArray(n.tests.refs) && n.tests.refs.length > 0)));
+const marks = (html.match(/class="node-mark"/g) || []).length;
+ok('the graph marks exactly the uncovered nodes', marks === uncovered.length,
+   marks + ' marks for ' + uncovered.length + ' uncovered');
+ok('the mark says what it means', marks === 0 || html.includes('>no test<'));
+ok('the file list marks the same set',
+   (html.split('<div class="filelist">')[1].split('</div>\n')[0]
+     .match(/class="nocov"/g) || []).length === uncovered.length);
+ok('the header counts the untested files',
+   html.includes('<b>' + uncovered.length + '</b> untested'));
+ok('the coverage chip exists', html.includes('data-cover="none"'));
+ok('the coverage chip starts off',
+   /data-cover="none" aria-pressed="false"/.test(html));
+ok('the chip drives one flag the graph reads', js.includes('state.coverOnly'));
+ok('a covered node dims when the chip is on',
+   js.includes("(n.tests||{}).status !== 'none'"));
+
 // ---- the strip and the evidence view carry hunks
 ok('the strip lists the changed lines of the selected node',
    js.includes('<h4>Changed lines</h4>'));
@@ -113,6 +139,13 @@ ok('the evidence view heading adapts to a hunk',
    js.includes('What this hunk does'));
 ok('the evidence view can jump from a hunk back to its node',
    js.includes('data-goto="${') && js.includes("host.querySelectorAll('[data-goto]')"));
+ok('the strip lists the tests of the selected node', js.includes('<h4>Tests</h4>'));
+ok('the strip only opens that column when the node has an answer',
+   js.includes('n.tests ?'));
+ok('a test ref that names a node in the graph becomes a jump',
+   js.includes('testRefNode'));
+ok('a test ref outside the graph stays plain text',
+   js.includes('reflink mono" data-goto') && js.includes('<span class="mono">'));
 
 // ---- diff rendering
 const withDiff = reg.find(e => e.diff);

@@ -22,6 +22,13 @@
         "21 removed lines are the inline template building, now gone from the controller.",
         "Dispatcher arrives by constructor injection at line 29."
       ],
+      "tests": {
+        "status": "existing",
+        "refs": [
+          "src/notifications/notification.controller.spec.ts:31"
+        ],
+        "note": "The existing spec asserts a 201 and mocks the dispatcher, so it passes either way. Nothing asserts the template building is gone."
+      },
       "hunks": [
         {
           "ref": "notification.controller.ts:24-36",
@@ -45,6 +52,14 @@
         "Emits notification.sent at line 71 after a successful send, inside the same try block.",
         "No retry here: a failed channel throws and the controller maps it to a 502."
       ],
+      "tests": {
+        "status": "added",
+        "refs": [
+          "src/notifications/dispatcher.service.spec.ts:18",
+          "src/notifications/dispatcher.service.spec.ts:64"
+        ],
+        "note": "Covers both channels and the unsupported-channel throw. The notification.sent emit is asserted at line 64."
+      },
       "hunks": [
         {
           "ref": "dispatcher.service.ts:38-52",
@@ -73,7 +88,13 @@
           "diff": "@@ -0,0 +12,23 @@\n+@Injectable()\n+export class EmailChannel implements NotificationChannel {\n+  constructor(private readonly mailer: MailerService) {}\n+\n+  async send(payload: SendNotificationDto): Promise<void> {\n+    const html = renderTemplate(payload.template, payload.payload);\n+    await this.mailer.send({\n+      to: payload.to,\n+      subject: payload.subject,\n+      html,\n+    });\n+  }\n+}",
           "explanation": "The code deleted from the controller, moved here behind the interface. MailerService is untouched: only the caller changed."
         }
-      ]
+      ],
+      "tests": {
+        "status": "added",
+        "refs": [
+          "src/notifications/channels/email.channel.spec.ts:12"
+        ]
+      }
     },
     {
       "id": "src/notifications/channels/sms.channel.ts",
@@ -90,7 +111,11 @@
           "diff": "@@ -0,0 +14,17 @@\n+@Injectable()\n+export class SmsChannel implements NotificationChannel {\n+  constructor(private readonly twilio: TwilioClient) {}\n+\n+  async send(payload: SendNotificationDto): Promise<void> {\n+    await this.twilio.messages.create({\n+      to: payload.to,\n+      body: payload.subject,\n+    });\n+  }\n+}",
           "explanation": "The new capability the refactor was for. It drops payload.template entirely, so an SMS gets the subject line and nothing else - worth a question in review."
         }
-      ]
+      ],
+      "tests": {
+        "status": "none",
+        "note": "New file, no spec. The Twilio call and the dropped template are both unasserted, which is the gap worth arguing about in this diff."
+      }
     },
     {
       "id": "src/notifications/channels/channel.interface.ts",
@@ -107,7 +132,11 @@
           "diff": "@@ -0,0 +4,15 @@\n+export type ChannelName = 'email' | 'sms';\n+\n+export interface NotificationChannel {\n+  send(payload: SendNotificationDto): Promise<void>;\n+}",
           "explanation": "Four lines that hold the refactor together. ChannelName is the union the switch is checked against, so a new channel that skips this file fails to compile."
         }
-      ]
+      ],
+      "tests": {
+        "status": "none",
+        "note": "Types only. The compiler is the test."
+      }
     },
     {
       "id": "src/audit/audit.listener.ts",
@@ -125,7 +154,14 @@
           "diff": "@@ -50,15 +50,14 @@ export class AuditListener {\n-  @OnEvent('mail.sent')\n-  async onMailSent(e: MailSentEvent) {\n-    await this.repo.insert({ kind: 'mail', to: e.to });\n+  @OnEvent('notification.sent')\n+  async onNotificationSent(e: NotificationSentEvent) {\n+    await this.repo.insert({ kind: e.channel, to: e.to });\n   }",
           "explanation": "The listener follows the renamed event. The audit row now records which channel was used instead of assuming mail, so old rows and new rows carry different meaning in the kind column."
         }
-      ]
+      ],
+      "tests": {
+        "status": "added",
+        "refs": [
+          "src/audit/audit.listener.spec.ts:22"
+        ],
+        "note": "The renamed event is covered. No case asserts what happens to rows written under the old mail.sent name."
+      }
     },
     {
       "id": "src/mailer/mailer.service.ts",

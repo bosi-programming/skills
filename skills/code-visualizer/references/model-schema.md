@@ -79,6 +79,35 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
   One to three hunks per file. This is the reviewer's path through the change,
   not a second copy of the patch: pick the hunks that carry the decision and let
   the rest stay in the diff.
+- `tests` : object. Whether a test asserts what this node changed. Expected on
+  every changed file node that is not itself a test; `--check` warns when one is
+  missing, because leaving the field off reads as nobody looked.
+
+  ```json
+  {
+    "status": "added",
+    "refs": ["dispatcher.service.spec.ts:18", "dispatcher.service.spec.ts:64"],
+    "note": "The notification.sent emit is asserted at line 64. The retry path is not."
+  }
+  ```
+
+  - `status` : `added` when this diff adds or changes a test covering the node,
+    `existing` when a test the diff did not touch covers it, `none` when nothing
+    does. `none` is a real answer and a useful one. An absent field is not the
+    same answer: it means the question was never asked.
+  - `refs` : `path:line`, a list. Required for `added` and `existing`, and
+    validation fails without them, the same rule patterns follow: a coverage
+    claim with no `file:line` is a guess. A ref whose file is a node in the graph
+    becomes a jump to it; one outside the diff stays plain text.
+  - `note` : optional, and the most useful part on a partial answer. Say what is
+    covered and what is not, or why `none` is fine.
+
+  Two shorthands: a bare string is the status (`"tests": "none"`), and a bare
+  list is `existing` plus those refs.
+
+  The status drives the page in four places. A `none` node gets a red `no test`
+  mark on its box and in the file list, the header counts them, and a chip in the
+  toolbar dims everything else.
 - `parent` : string, optional but worth filling in. The file node id a code node
   belongs to. It is how selecting a file narrows the pattern list in the side
   panel to that file's patterns - without it the page falls back to matching the

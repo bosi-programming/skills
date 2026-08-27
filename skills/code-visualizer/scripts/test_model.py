@@ -78,7 +78,75 @@ ok("an untouched related node is not warned about", not any("b.ts" in w for w in
 
 m = model()
 m["nodes"][0]["hunks"] = ["@@\n+x"]
-ok("a changed file with a hunk is quiet", not rg.warnings(m), "; ".join(rg.warnings(m)))
+ok("a changed file with a hunk is still warned about its tests",
+   any("test" in w for w in rg.warnings(m)), "; ".join(rg.warnings(m)))
+
+m = model()
+m["nodes"][0]["hunks"] = ["@@\n+x"]
+m["nodes"][0]["tests"] = "none"
+ok("a changed file with a hunk and a coverage answer is quiet",
+   not rg.warnings(m), "; ".join(rg.warnings(m)))
+
+# ---- tests: the coverage answer, and the difference between none and unasked
+m = model()
+m["nodes"][0]["tests"] = {"status": "added", "refs": ["a.test.ts:12"]}
+ok("a full tests object validates", not rg.validate(m), "; ".join(rg.validate(m)))
+
+m = model()
+m["nodes"][0]["tests"] = "none"
+rg.validate(m)
+ok("a bare status string becomes an object", m["nodes"][0]["tests"] == {"status": "none"},
+   str(m["nodes"][0]["tests"]))
+
+m = model()
+m["nodes"][0]["tests"] = ["a.test.ts:12", "a.test.ts:40"]
+rg.validate(m)
+ok("a bare list of refs implies existing coverage",
+   m["nodes"][0]["tests"] == {"status": "existing", "refs": ["a.test.ts:12", "a.test.ts:40"]},
+   str(m["nodes"][0]["tests"]))
+
+m = model()
+m["nodes"][0]["tests"] = {"status": "covered"}
+errs = rg.validate(m)
+ok("an unknown status fails validation", any("status" in e for e in errs), "; ".join(errs))
+ok("the status error names the node", any("a.ts" in e for e in errs), "; ".join(errs))
+
+for st in ("added", "existing"):
+    m = model()
+    m["nodes"][0]["tests"] = {"status": st}
+    errs = rg.validate(m)
+    ok("claiming %s coverage with no refs fails" % st,
+       any("refs" in e for e in errs), "; ".join(errs))
+
+m = model()
+m["nodes"][0]["tests"] = {"status": "none", "note": "type-only change"}
+ok("none needs no refs", not rg.validate(m), "; ".join(rg.validate(m)))
+
+m = model()
+m["nodes"][0]["tests"] = {"status": "none", "refs": "a.test.ts:1"}
+errs = rg.validate(m)
+ok("refs must be a list", any("list" in e for e in errs), "; ".join(errs))
+
+# ---- the coverage warning skips the nodes it makes no sense for
+m = model()
+m["nodes"][0]["hunks"] = ["@@\n+x"]
+m["nodes"].append({"id": "a.test.ts", "kind": "test", "status": "added",
+                   "hunks": ["@@\n+t"]})
+warns = rg.warnings(m)
+ok("a test file is not asked to have tests", not any("a.test.ts" in w for w in warns),
+   "; ".join(warns))
+ok("a source file with no coverage answer is asked",
+   any("a.ts" in w and "test" in w for w in warns), "; ".join(warns))
+ok("an untouched related node is not asked", not any("b.ts" in w for w in warns))
+
+m = model()
+m["nodes"][0]["hunks"] = ["@@\n+x"]
+m["nodes"][0]["tests"] = {"status": "none"}
+ok("untested_count counts a changed file with no coverage",
+   rg.untested_count(m["nodes"]) == 1, str(rg.untested_count(m["nodes"])))
+m["nodes"][0]["tests"] = {"status": "added", "refs": ["a.test.ts:1"]}
+ok("untested_count ignores a covered file",
+   rg.untested_count(m["nodes"]) == 0, str(rg.untested_count(m["nodes"])))
 
 # ---- the registry the page reads
 m = model(patterns=[{
@@ -104,7 +172,11 @@ errs = rg.validate(ex)
 ok("the bundled example validates", not errs, "; ".join(errs))
 ok("the bundled example demonstrates hunks",
    any(n.get("hunks") for n in ex["nodes"]))
-ok("the bundled example leaves no changed file without a diff",
+ok("the bundled example demonstrates tests",
+   any(n.get("tests") for n in ex["nodes"]))
+ok("the bundled example shows one honest none, so the mark has something to draw",
+   rg.untested_count(ex["nodes"]) > 0, str(rg.untested_count(ex["nodes"])))
+ok("the bundled example answers both nudges",
    not rg.warnings(ex), "; ".join(rg.warnings(ex)))
 
 print("\n%d FAILED" % FAIL if FAIL else "\nall green")

@@ -250,16 +250,84 @@ def normalize_hunks(node):
     return errors
 
 
+TEST_STATUS = ("added", "existing", "none")
+
+
+def normalize_tests(node):
+    """Bring `nodes[].tests` into one shape: status, refs, note.
+
+    Two shorthands, because both are the whole answer often enough to be worth
+    typing: a bare status string, and a bare list of refs, which means the tests
+    were already there.
+
+    Claiming `added` or `existing` with no ref is rejected the way a pattern with
+    no evidence is. Saying `none` needs no ref, and leaving the field off is not
+    the same as saying `none` - it means nobody looked.
+    """
+    tests = node.get("tests")
+    if tests is None:
+        return []
+    nid = node.get("id")
+    if isinstance(tests, str):
+        tests = {"status": tests}
+    elif isinstance(tests, list):
+        tests = {"status": "existing", "refs": tests}
+    elif not isinstance(tests, dict):
+        return ["nodes[%s].tests must be a status, a list of refs, or an object" % nid]
+    errors = []
+    status = (tests.get("status") or "").lower()
+    if status not in TEST_STATUS:
+        errors.append(
+            "nodes[%s].tests.status is %r; use one of %s"
+            % (nid, tests.get("status"), ", ".join(TEST_STATUS))
+        )
+    refs = tests.get("refs")
+    if refs is not None and not isinstance(refs, list):
+        errors.append("nodes[%s].tests.refs must be a list of path:line" % nid)
+        refs = None
+    if status in ("added", "existing") and not refs:
+        errors.append(
+            "nodes[%s].tests claims %s coverage with no refs; a coverage claim "
+            "with no file:line is a guess" % (nid, status)
+        )
+    tests["status"] = status
+    if refs is not None:
+        tests["refs"] = refs
+    node["tests"] = tests
+    return errors
+
+
+def untested_count(nodes):
+    """Changed file nodes that answered `none`. The header number and the chip."""
+    n = 0
+    for node in nodes or []:
+        if (node.get("status") or "related").lower() not in ("added", "modified", "deleted"):
+            continue
+        layer = node.get("layer") or ("file" if node.get("kind") == "file" else "code")
+        if layer != "file":
+            continue
+        if (node.get("tests") or {}).get("status") == "none":
+            n += 1
+    return n
+
+
 def warnings(model):
     """Editorial nudges. They never fail the run - they are judgment, not schema."""
     out = []
     for n in model.get("nodes") or []:
         touched = (n.get("status") or "related").lower() in ("added", "modified", "deleted")
         layer = n.get("layer") or ("file" if n.get("kind") == "file" else "code")
-        if touched and layer == "file" and not n.get("hunks"):
+        if not (touched and layer == "file"):
+            continue
+        if not n.get("hunks"):
             out.append(
                 "nodes[%s] changed but carries no hunks, so the page can explain "
                 "it without ever showing it" % n.get("id")
+            )
+        if not n.get("tests") and n.get("kind") != "test":
+            out.append(
+                "nodes[%s] changed and says nothing about its tests; answer none "
+                "rather than leaving it unasked" % n.get("id")
             )
     return out
 
@@ -283,6 +351,7 @@ def validate(model):
         lay = n.get("layer") or ("file" if n.get("kind") == "file" else "code")
         n["layer"] = "file" if lay == "file" else "code"
         errors += normalize_hunks(n)
+        errors += normalize_tests(n)
     for i, e in enumerate(model.get("edges") or []):
         for side in ("from", "to"):
             if e.get(side) not in ids:
@@ -408,9 +477,11 @@ def sublabel_of(node):
 
 
 def node_text(node):
-    """The three strings a box shows: title, second line, diff badge.
+    """The four strings a box shows: title, second line, diff badge, test mark.
 
-    Width and drawing must agree on these, so both go through here.
+    Width and drawing must agree on these, so both go through here. The mark is
+    drawn only for a node that answered `none`: a graph where every box carries a
+    coverage word is a graph nobody reads, and the risk is the part worth seeing.
     """
     label = trunc(node["label"], 32)
     sub = trunc(sublabel_of(node), 30)
@@ -418,13 +489,15 @@ def node_text(node):
     badge = ""
     if ins is not None or dele is not None:
         badge = "+%s \u2212%s" % (ins or 0, dele or 0)
-    return label, sub, badge
+    mark = "no test" if (node.get("tests") or {}).get("status") == "none" else ""
+    return label, sub, badge, mark
 
 
 def node_width(node):
-    label, sub, badge = node_text(node)
+    label, sub, badge, mark = node_text(node)
     badge_w = (len(badge) * CH_MONO + 16) if badge else 0
-    line1 = len(label) * CH_SANS + (badge_w if not sub else 0)
+    mark_w = (len(mark) * CH_MONO + 16) if mark else 0
+    line1 = len(label) * CH_SANS + mark_w + (badge_w if not sub else 0)
     line2 = (len(sub) * CH_MONO + badge_w) if sub else 0
     return int(max(MIN_W, min(MAX_W, max(line1, line2) + 32)))
 
@@ -550,10 +623,12 @@ def render_svg(view, nodes, edges):
             continue
         st = status_of(n)
         c = STATUS[st]
-        label, sub, badge = node_text(n)
+        label, sub, badge, mark = node_text(n)
         parts.append(
-            '<g class="node" data-node-id="%s" data-status="%s" transform="translate(%.1f,%.1f)">'
-            % (esc(n["id"]), st, b["x"], b["y"])
+            '<g class="node" data-node-id="%s" data-status="%s" data-cover="%s" '
+            'transform="translate(%.1f,%.1f)">'
+            % (esc(n["id"]), st, esc((n.get("tests") or {}).get("status") or ""),
+               b["x"], b["y"])
         )
         parts.append(
             '<rect class="node-box" width="%d" height="%d" rx="10" fill="%s" '
@@ -577,6 +652,11 @@ def render_svg(view, nodes, edges):
                 '<text class="node-diff" x="%d" y="%d" text-anchor="end">'
                 '<tspan fill="#3fb950">%s</tspan> <tspan fill="#f85149">%s</tspan></text>'
                 % (b["w"] - 12, 52 if sub else 41, plus, minus)
+            )
+        if mark:
+            parts.append(
+                '<text class="node-mark" x="%d" y="28" text-anchor="end" '
+                'fill="#f85149">%s</text>' % (b["w"] - 12, esc(mark))
             )
         parts.append("<title>%s</title>" % esc(n["id"]))
         parts.append("</g>")
@@ -636,6 +716,7 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 .node-label{font-size:14px;font-weight:600}
 .node-sub,.node-kind{font-size:14px;font-family:ui-monospace,Menlo,monospace}
 .node-diff{font-size:14px;font-family:ui-monospace,Menlo,monospace}
+.node-mark{font-size:14px;font-family:ui-monospace,Menlo,monospace;font-weight:600}
 .node .node-box{transition:filter .12s}
 .node:hover .node-box{filter:brightness(1.35)}
 .dim{opacity:.14}
@@ -657,6 +738,10 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer .body:not(:has(.cols)) .prose{flex:1 1 100%}
 #explainer .cols{display:flex;gap:24px;flex-wrap:wrap;flex:1 1 46%;align-items:flex-start}
 #explainer .col{flex:1 1 190px;min-width:180px}
+#explainer .cover{margin:0 0 6px;font-size:14px}
+#explainer .cover.none{color:#f85149}
+#explainer .cover.added,#explainer .cover.existing{color:#3fb950}
+#explainer .ev{font-size:14px;color:var(--dim);margin:6px 0 0}
 #explainer .col h4{margin:0 0 4px;font-size:14px;letter-spacing:.07em;text-transform:uppercase;
   color:var(--dim);font-weight:600}
 #explainer .rel{margin:0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
@@ -732,6 +817,8 @@ aside h2:first-child{margin-top:0}
 .filelist div:hover{color:#fff}
 .filelist .p{flex:1;word-break:break-all;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
 .filelist .n{font-family:ui-monospace,Menlo,monospace;font-size:14px;white-space:nowrap}
+.filelist .nocov{font-family:ui-monospace,Menlo,monospace;font-size:14px;
+  color:#f85149;white-space:nowrap}
 .summary{color:var(--muted);font-size:14px;margin:0 0 4px}
 """
 
@@ -740,7 +827,7 @@ const MODEL = JSON.parse(document.getElementById('model').textContent);
 const stage = document.getElementById('stage');
 const state = {view:'file', scale:1, tx:0, ty:0, statuses:new Set(['added','modified','deleted','related']),
                kinds:new Set(MODEL._kinds), selected:null, pattern:null, query:'',
-               allPatterns:false, evidence:null};
+               allPatterns:false, evidence:null, coverOnly:false};
 
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
@@ -859,6 +946,7 @@ function refresh(){
     let dim = false;
     if (q) dim = !((id+' '+(n.label||'')+' '+(n.sublabel||'')+' '+(n.summary||'')).toLowerCase().includes(q));
     if (patternNodes && !patternNodes.has(id)) dim = true;
+    if (state.coverOnly && (n.tests||{}).status !== 'none') dim = true;
     g.classList.toggle('dim', dim);
     g.classList.toggle('hit', !!(state.selected && id === state.selected));
   });
@@ -889,6 +977,7 @@ function derivedLine(id, n, outs, ins){
   if (n.insertions != null || n.deletions != null)
     bits.push(`+${n.insertions||0} \u2212${n.deletions||0} lines`);
   if (n.line) bits.push(`from line ${n.line}`);
+  if (n.tests) bits.push(COVER_WORD[n.tests.status] || n.tests.status);
   bits.push(`${outs.length} outgoing, ${ins.length} incoming relation${ins.length===1?'':'s'}`);
   return bits.join(' \u00b7 ') + '. No written explanation in the model for this one.';
 }
@@ -898,6 +987,36 @@ function derivedLine(id, n, outs, ins){
 // in the strip open the same view.
 function evIndex(pi, entry){
   return (MODEL._evidence||[]).findIndex(e => e.pattern === pi && e.ref === entry.ref);
+}
+
+// A test ref names a file. When that file is a node in the graph, the ref
+// becomes a jump to it; when the test lives outside the diff it is not a node,
+// so the ref stays plain text rather than a link to nothing.
+function testRefNode(ref){
+  const base = String(ref||'').split(':')[0].split('/').pop();
+  if (!base) return null;
+  const hit = (MODEL.nodes||[]).find(n =>
+    n.id === base || String(n.id).split('/').pop() === base || n.label === base);
+  return hit ? hit.id : null;
+}
+
+const COVER_WORD = {
+  added: 'covered by a test in this diff',
+  existing: 'covered by tests the diff did not touch',
+  none: 'no test covers this'
+};
+
+function testsHtml(t){
+  const word = COVER_WORD[t.status] || t.status || '';
+  const refs = (t.refs||[]).map(r => {
+    const id = testRefNode(r);
+    return id
+      ? `<li><button class="reflink mono" data-goto="${esc(id)}">${esc(r)}</button></li>`
+      : `<li><span class="mono">${esc(r)}</span></li>`;
+  }).join('');
+  return `<p class="cover ${esc(t.status||'')}">${esc(word)}</p>`
+    + (refs ? `<ul class="rel">${refs}</ul>` : '')
+    + (t.note ? `<p class="ev">${esc(t.note)}</p>` : '');
 }
 
 function diffHtml(text){
@@ -978,9 +1097,9 @@ function renderExplainer(){
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
       </div>
-      ${hix.length ? `<div class="cols"><div class="col"><h4>Changed lines</h4><ul class="rel">${
+      ${(hix.length || n.tests) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
         hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
-      }</ul></div></div>` : ''}
+      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}</div>` : ''}
       </div>`;
   } else if (state.pattern != null){
     const p = MODEL.patterns[state.pattern];
@@ -1067,11 +1186,20 @@ document.querySelectorAll('.chip[data-kind]').forEach(c => c.onclick = () => {
   c.classList.toggle('off', !state.kinds.has(k));
   refresh();
 });
+const coverChip = document.querySelector('.chip[data-cover]');
+if (coverChip) coverChip.onclick = () => {
+  state.coverOnly = !state.coverOnly;
+  coverChip.setAttribute('aria-pressed', String(state.coverOnly));
+  coverChip.classList.toggle('off', !state.coverOnly);
+  refresh();
+};
 document.getElementById('search').oninput = e => { state.query = e.target.value; refresh(); };
 document.getElementById('fitbtn').onclick = fit;
 document.getElementById('resetbtn').onclick = () => {
   hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false;
+  state.coverOnly = false;
+  if (coverChip){ coverChip.setAttribute('aria-pressed','false'); coverChip.classList.add('off'); }
   document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
@@ -1153,6 +1281,15 @@ def chips_html(nodes, kinds):
             '<button class="chip" data-kind="%s" aria-pressed="true">'
             '<span class="dot" style="background:%s"></span>%s</button>'
             % (esc(k), color, esc(k))
+        )
+    # Off by default, and only there when it has something to isolate. Unlike the
+    # others this chip narrows rather than hides, so it starts unpressed.
+    untested = untested_count(nodes)
+    if untested:
+        out.append(
+            '<button class="chip off" data-cover="none" aria-pressed="false">'
+            '<span class="dot" style="background:#f85149"></span>no test '
+            '<span style="color:#6e7b8b">%d</span></button>' % untested
         )
     return "".join(out)
 
@@ -1251,12 +1388,14 @@ def files_html(nodes):
         key=lambda x: (-(x.get("insertions") or 0) - (x.get("deletions") or 0), x["id"]),
     ):
         st = status_of(n)
+        nocov = ('<span class="nocov">no test</span>'
+                 if (n.get("tests") or {}).get("status") == "none" else "")
         rows.append(
             '<div data-node-id="%s"><span class="dot" style="width:8px;height:8px;'
-            'border-radius:50%%;background:%s"></span><span class="p">%s</span>'
+            'border-radius:50%%;background:%s"></span><span class="p">%s</span>%s'
             '<span class="n"><span style="color:#3fb950">+%s</span> '
             '<span style="color:#f85149">−%s</span></span></div>'
-            % (esc(n["id"]), STATUS[st]["stroke"], esc(n["id"]),
+            % (esc(n["id"]), STATUS[st]["stroke"], esc(n["id"]), nocov,
                n.get("insertions") or 0, n.get("deletions") or 0)
         )
     return "".join(rows) or '<p class="empty">No files in the model.</p>'
@@ -1318,6 +1457,11 @@ def render(model):
     stat_bits.append("<span><b>%d</b> nodes</span>" % len(nodes))
     stat_bits.append("<span><b>%d</b> relations</span>" % len(edges))
     stat_bits.append("<span><b>%d</b> patterns</span>" % len(model.get("patterns") or []))
+    untested = untested_count(nodes)
+    if untested:
+        stat_bits.append(
+            '<span style="color:#f85149"><b>%d</b> untested</span>' % untested
+        )
 
     payload = {
         "title": model.get("title") or "Code change map",
@@ -1426,10 +1570,11 @@ def main():
     for w in warnings(model):
         print("  ! " + w, file=sys.stderr)
     if args.check:
-        print("model ok: %d nodes, %d edges, %d patterns, %d hunks" % (
+        print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested" % (
             len(model["nodes"]), len(model.get("edges") or []),
             len(model.get("patterns") or []),
-            sum(len(n.get("hunks") or []) for n in model["nodes"])))
+            sum(len(n.get("hunks") or []) for n in model["nodes"]),
+            untested_count(model["nodes"])))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"

@@ -14,11 +14,18 @@ registry with pattern evidence first and hunks after it, `_hunks` mapping a node
 its registry slots, a `Changed lines` column in the strip, and a hunk-aware evidence
 header. Tests in `scripts/test_model.py` and `scripts/test_render.js`.
 
-## 2. Test coverage of the change
+## 2. Test coverage of the change — done
 
-`nodes[].tests` = `{ status: "added" | "existing" | "none", refs: [...] }`. Source:
-test files inside the diff, plus a grep for the changed symbol across `*.spec.*` and
-`*_test.*`. Answers "which changed file ships with no test".
+`nodes[].tests` = `{ status: "added" | "existing" | "none", refs: [...], note }`.
+Source: test files inside the diff, plus a grep for the changed symbol across
+`*.test.*`, `*.spec.*` and `*_test.*`. Answers "which changed file ships with no
+test", and keeps `none` distinct from an absent field, which means nobody looked.
+
+Shipped: `normalize_tests` with two shorthands, `untested_count`, a second
+`warnings()` nudge, a red `no test` mark on the box and in the file list, an
+untested count in the header, a `no test` chip that dims everything covered, and a
+`Tests` column in the strip whose refs jump to the test node when it is in the
+graph.
 
 ## 3. Contract surface changes
 
