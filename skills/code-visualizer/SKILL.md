@@ -15,7 +15,7 @@ never hand-write HTML or SVG.
 Two artefacts, always in this order:
 
 1. `model.json` — the change model you write. Nodes, relations, patterns.
-2. the HTML page — produced by `scripts/render_graph.py` from that model.
+2. the HTML page, produced by `${CLAUDE_SKILL_DIR}/scripts/render_graph.py` from that model.
 
 The split matters: the model is where you can be wrong and get corrected
 cheaply, and re-rendering after a fix costs a second.
@@ -75,7 +75,7 @@ it. A pattern name with no `file:line` behind it is a guess dressed as an
 insight, and the renderer rejects a pattern with no evidence for exactly that
 reason.
 
-Read `references/patterns.md` for the catalog: what each pattern's participants
+Read `${CLAUDE_SKILL_DIR}/references/patterns.md` for the catalog: what each pattern's participants
 are called, and the concrete signals in code that distinguish it from a
 look-alike. Consult it rather than pattern-matching on names - a class called
 `UserFactory` that only holds static helpers is not a Factory.
@@ -98,8 +98,8 @@ Three things to hold on to:
 ## Step 4 — write the model
 
 Write `model.json` next to the output HTML. The full field list, with types and
-defaults, is in `references/model-schema.md`; read it before writing the file so
-you are not guessing at field names. `references/example-model.json` holds a
+defaults, is in `${CLAUDE_SKILL_DIR}/references/model-schema.md`; read it before writing the file so
+you are not guessing at field names. `${CLAUDE_SKILL_DIR}/references/example-model.json` holds a
 finished model for a small refactor PR - skim it for the density that reads well.
 
 Two layers of nodes, both in the same `nodes` array, told apart by `layer`:
@@ -142,13 +142,13 @@ Validate before rendering, since a bad node reference is much easier to read
 from the checker than from a wrong-looking picture:
 
 ```bash
-python3 <skill>/scripts/render_graph.py model.json --check
+python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json --check
 ```
 
 ## Step 5 — render and open
 
 ```bash
-OUT=$(python3 <skill>/scripts/render_graph.py model.json -o <name>.html)
+OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o <name>.html)
 open "$OUT"
 ```
 
