@@ -89,14 +89,40 @@ REFERENCE = {
     "anemic domain model": "https://martinfowler.com/bliki/AnemicDomainModel.html",
     "feature envy / shotgun surgery": "https://refactoring.guru/smells/feature-envy",
     "inheritance for reuse": "https://refactoring.guru/smells/refused-bequest",
+    "module": "https://www.patterns.dev/vanilla/module-pattern",
+    "flyweight": "https://www.patterns.dev/vanilla/flyweight-pattern",
+    "mixin": "https://www.patterns.dev/vanilla/mixin-pattern",
+    "higher-order component": "https://www.patterns.dev/react/hoc-pattern",
+    "client-side rendering": "https://www.patterns.dev/react/client-side-rendering",
+    "server-side rendering": "https://www.patterns.dev/react/server-side-rendering",
+    "static rendering": "https://www.patterns.dev/react/static-rendering",
+    "incremental static regeneration": "https://www.patterns.dev/react/incremental-static-rendering",
+    "streaming ssr": "https://www.patterns.dev/react/streaming-ssr",
+    "progressive hydration": "https://www.patterns.dev/react/progressive-hydration",
+    "selective hydration": "https://www.patterns.dev/react/react-selective-hydration",
+    "islands architecture": "https://www.patterns.dev/vanilla/islands-architecture",
+    "react server components": "https://www.patterns.dev/react/react-server-components",
+    "bundle splitting": "https://www.patterns.dev/vanilla/bundle-splitting",
+    "dynamic import": "https://www.patterns.dev/vanilla/dynamic-import",
+    "static import": "https://www.patterns.dev/vanilla/static-import",
+    "import on interaction": "https://www.patterns.dev/vanilla/import-on-interaction",
+    "import on visibility": "https://www.patterns.dev/vanilla/import-on-visibility",
+    "preload": "https://www.patterns.dev/vanilla/preload",
+    "prefetch": "https://www.patterns.dev/vanilla/prefetch",
+    "prpl": "https://www.patterns.dev/vanilla/prpl",
+    "tree shaking": "https://www.patterns.dev/vanilla/tree-shaking",
+    "compression": "https://www.patterns.dev/vanilla/compression",
+    "loading sequence": "https://www.patterns.dev/vanilla/loading-sequence",
+    "third-party script loading": "https://www.patterns.dev/vanilla/third-party",
+    "virtual lists": "https://www.patterns.dev/vanilla/virtual-lists",
+    "view transitions": "https://www.patterns.dev/vanilla/view-transitions",
 }
 
 
-# patterns.dev, per pattern. These sit beside the specific link rather than
-# replacing it: refactoring.guru explains Observer, patterns.dev shows what it
-# looks like in JavaScript, and a reader usually wants both. patterns.dev does
-# not cover the whole catalog, and a link to its index page helps nobody, so a
-# pattern with no page there simply gets one link.
+# patterns.dev, per pattern, for entries whose primary source is somewhere else:
+# refactoring.guru explains Observer, patterns.dev shows what it looks like in
+# JavaScript, and a reader usually wants both. Entries that patterns.dev is the
+# source for sit in REFERENCE instead and get one link.
 FAMILY = {
     "factory method": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/factory-pattern"),
     "singleton": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/singleton-pattern"),
@@ -106,6 +132,7 @@ FAMILY = {
     "observer": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/observer-pattern"),
     "mediator": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/mediator-pattern"),
     "command": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/command-pattern"),
+    "provider / context": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/provider-pattern"),
     "container / presentational": ("React", "https://www.patterns.dev/react/presentational-container-pattern"),
     "custom hook (behaviour extraction)": ("React", "https://www.patterns.dev/react/hooks-pattern"),
     "compound component": ("React", "https://www.patterns.dev/react/compound-pattern"),

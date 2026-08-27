@@ -16,7 +16,9 @@ one link and that is deliberate: a link to its index page helps nobody.
 
 Contents: [Creational](#creational) · [Structural](#structural) ·
 [Behavioural](#behavioural) · [Architectural](#architectural) ·
-[Frontend](#frontend) · [Concurrency and resilience](#concurrency-and-resilience) ·
+[Frontend](#frontend) · [Rendering](#rendering) ·
+[Loading and performance](#loading-and-performance) ·
+[Concurrency and resilience](#concurrency-and-resilience) ·
 [Violations worth naming](#violations-worth-naming)
 
 ## Creational
@@ -57,6 +59,13 @@ being constructed inside. This is the most common real pattern in a diff; only
 name it when the change introduces or removes the injection, not for every class
 that happens to have a constructor.
 
+**Module** — roles: Module, Private, Public.
+Reference: <https://www.patterns.dev/vanilla/module-pattern>
+Signal: state closed over, only part of it exported, so callers cannot reach the
+internals. In ES modules the file boundary already does this, so naming it says
+something only when a change moves a symbol in or out of the export list.
+Look-alike: a file with no exports at all, which is a script.
+
 ## Structural
 
 **Adapter** — roles: Target, Adaptee, Adapter.
@@ -89,6 +98,19 @@ Signal: a tree where a group is treated exactly like a single item.
 Reference: <https://refactoring.guru/design-patterns/bridge>
 Signal: two hierarchies varying independently, abstraction holds a reference to
 an implementor.
+
+**Flyweight** — roles: Flyweight, FlyweightFactory, Context.
+Reference: <https://www.patterns.dev/vanilla/flyweight-pattern>
+Signal: one shared instance reused across many logical items, with the varying
+part passed in per call. Look-alike: a cache. A flyweight shares immutable state
+on purpose; a cache stores results it could recompute.
+
+**Mixin** — roles: Mixin, Target.
+Reference: <https://www.patterns.dev/vanilla/mixin-pattern>
+Signal: behaviour copied onto an object or class it does not inherit from,
+through Object.assign or a class factory. Look-alike: composition through a
+field, which leaves the collaborator visible instead of merging it into the
+target's own surface.
 
 **Repository** — roles: Repository, Entity, DataSource.
 Reference: <https://martinfowler.com/eaaCatalog/repository.html>
@@ -213,6 +235,130 @@ Signal: behaviour supplied, markup left to the caller.
 Reference: <https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates>
 Signal: local cache written before the server confirms, with a rollback path.
 Worth naming because the rollback is what reviewers forget.
+
+**Higher-Order Component** — roles: HOC, WrappedComponent.
+Reference: <https://www.patterns.dev/react/hoc-pattern>
+Signal: a function that takes a component and returns a new one with extra props
+or behaviour. Look-alike: a Custom Hook, which shares logic without wrapping the
+tree. Most HOC changes in a modern diff are removals.
+
+## Rendering
+
+Where the markup is built and when it becomes interactive. These are worth
+naming when a change moves a route from one to another, which is usually a
+config or a directive rather than a rewrite, so the diff hides it.
+
+**Client-side Rendering** — roles: Shell, Bundle.
+Reference: <https://www.patterns.dev/react/client-side-rendering>
+Signal: an empty HTML shell plus a bundle that draws everything once it loads.
+Look-alike: static rendering with heavy hydration. Check whether the first
+response carries markup.
+
+**Server-side Rendering** — roles: Server, Markup, Hydration.
+Reference: <https://www.patterns.dev/react/server-side-rendering>
+Signal: HTML built per request and sent whole, then made interactive in the
+browser. Look-alike: static rendering, which builds the same markup once instead
+of per request.
+
+**Static Rendering** — roles: Build, Markup.
+Reference: <https://www.patterns.dev/react/static-rendering>
+Signal: HTML built once at build time and served as a file.
+
+**Incremental Static Regeneration** — roles: Build, Revalidation.
+Reference: <https://www.patterns.dev/react/incremental-static-rendering>
+Signal: static pages that rebuild on a schedule or on demand rather than only at
+build time. Look-alike: plain static rendering with a fast redeploy.
+
+**Streaming SSR** — roles: Server, Chunk.
+Reference: <https://www.patterns.dev/react/streaming-ssr>
+Signal: markup sent in pieces as it is produced, so the first paint does not wait
+on the slowest part of the page.
+
+**Progressive Hydration** — roles: Root, Island.
+Reference: <https://www.patterns.dev/react/progressive-hydration>
+Signal: the tree becomes interactive in parts rather than all at once.
+
+**Selective Hydration** — roles: Boundary, Priority.
+Reference: <https://www.patterns.dev/react/react-selective-hydration>
+Signal: Suspense boundaries that let React hydrate whatever the user touched
+first. Look-alike: progressive hydration, ordered by the developer rather than by
+the user.
+
+**Islands Architecture** — roles: Static shell, Island.
+Reference: <https://www.patterns.dev/vanilla/islands-architecture>
+Signal: a mostly static page with independent interactive regions, each shipping
+its own JavaScript.
+
+**React Server Components** — roles: Server Component, Client Component.
+Reference: <https://www.patterns.dev/react/react-server-components>
+Signal: components that run only on the server and ship no JavaScript, with a
+'use client' boundary marking where the client half starts.
+
+## Loading and performance
+
+What gets downloaded, in what order. A diff that touches these is usually small
+and easy to miss, which is exactly why naming it earns its place on the page.
+
+**Bundle Splitting** — roles: Entry, Chunk.
+Reference: <https://www.patterns.dev/vanilla/bundle-splitting>
+Signal: one bundle broken into several so a page downloads only what it needs.
+
+**Dynamic Import** — roles: Importer, Module.
+Reference: <https://www.patterns.dev/vanilla/dynamic-import>
+Signal: import() in an expression position, so the module is fetched when the
+branch runs.
+
+**Static Import** — roles: Importer, Module.
+Reference: <https://www.patterns.dev/vanilla/static-import>
+Signal: a top-level import, always in the initial bundle. Worth naming only when
+a change turns a dynamic import back into one.
+
+**Import on Interaction** — roles: Trigger, Module.
+Reference: <https://www.patterns.dev/vanilla/import-on-interaction>
+Signal: a dynamic import fired by a click, a focus or a hover.
+
+**Import on Visibility** — roles: Observer, Module.
+Reference: <https://www.patterns.dev/vanilla/import-on-visibility>
+Signal: a dynamic import fired by an IntersectionObserver.
+
+**Preload** — roles: Hint, Resource.
+Reference: <https://www.patterns.dev/vanilla/preload>
+Signal: rel="preload" or its equivalent, for something the current page will
+certainly need.
+
+**Prefetch** — roles: Hint, Resource.
+Reference: <https://www.patterns.dev/vanilla/prefetch>
+Signal: rel="prefetch", for something the next page will probably need.
+Look-alike: preload. The difference is certainty and urgency.
+
+**PRPL** — roles: Route, Shell, Chunk.
+Reference: <https://www.patterns.dev/vanilla/prpl>
+Signal: push the critical resource, render the route, pre-cache the rest,
+lazy-load what is left.
+
+**Tree Shaking** — roles: Entry, Dead export.
+Reference: <https://www.patterns.dev/vanilla/tree-shaking>
+Signal: build config or import style changed so unused exports stop shipping.
+
+**Compression** — roles: Asset, Encoder.
+Reference: <https://www.patterns.dev/vanilla/compression>
+Signal: gzip or brotli configured on the server or in the build.
+
+**Loading Sequence** — roles: Resource, Order.
+Reference: <https://www.patterns.dev/vanilla/loading-sequence>
+Signal: the order and priority of the critical resources changed on purpose.
+
+**Third-party script loading** — roles: Script, Host.
+Reference: <https://www.patterns.dev/vanilla/third-party>
+Signal: a third-party tag moved to async, defer, a worker, or a facade.
+
+**Virtual Lists** — roles: Window, Item.
+Reference: <https://www.patterns.dev/vanilla/virtual-lists>
+Signal: only the visible rows sit in the DOM, with the rest simulated by height.
+
+**View Transitions** — roles: Old view, New view.
+Reference: <https://www.patterns.dev/vanilla/view-transitions>
+Signal: the View Transitions API used to animate between two states.
 
 ## Concurrency and resilience
 
