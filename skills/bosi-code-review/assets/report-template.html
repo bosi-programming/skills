@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two-axis review · {{REPO}}#{{PR}}</title>
+<style>
+  /* Dark theme only. Do not add a light mode, a prefers-color-scheme block, or a theme toggle. */
+  :root{
+    --bg:#0b0e14;
+    --bg-raised:#121721;
+    --bg-sunken:#0e131c;
+    --border:#1e2735;
+    --border-soft:#19212d;
+    --fg:#d6dde8;
+    --fg-dim:#8794a8;
+    --fg-faint:#5d6a7d;
+    --accent:#6ea8fe;
+    --hard:#f2777a;
+    --hard-bg:#2a1519;
+    --warn:#e2b341;
+    --warn-bg:#2a2113;
+    --soft:#9a7fd1;
+    --soft-bg:#1f1a2b;
+    --ok:#5fb98a;
+    --ok-bg:#12241c;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 600px at 12% -8%, #17203000, #0b0e14 70%),
+      var(--bg);
+    color:var(--fg);
+    font:15px/1.65 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Inter,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:40px 28px 96px}
+
+  /* header */
+  header{border-bottom:1px solid var(--border);padding-bottom:28px;margin-bottom:34px}
+  .eyebrow{
+    font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--fg-faint);margin-bottom:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap
+  }
+  .eyebrow a{color:var(--accent);text-decoration:none}
+  .eyebrow a:hover{text-decoration:underline}
+  h1{font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:640;letter-spacing:-.015em}
+  h1 .mono{font-family:var(--mono);font-size:.82em;color:var(--accent);font-weight:600}
+  .sub{color:var(--fg-dim);font-size:14px;margin:0}
+  .sub code{font-family:var(--mono);font-size:12.5px;color:var(--fg);background:var(--bg-sunken);
+    border:1px solid var(--border-soft);border-radius:4px;padding:1px 5px}
+
+  /* scoreboard */
+  .board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0 40px}
+  .card{
+    background:linear-gradient(180deg,var(--bg-raised),#0f141d);
+    border:1px solid var(--border);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden
+  }
+  .card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px}
+  .card.standards::before{background:linear-gradient(180deg,var(--hard),var(--warn))}
+  .card.spec::before{background:linear-gradient(180deg,var(--ok),var(--soft))}
+  .card h2{margin:0 0 4px;font-size:16px;font-weight:640;letter-spacing:.01em}
+  .verdict{font-size:13px;color:var(--fg-dim);margin:0 0 16px}
+  .tally{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{
+    font:600 11.5px/1 var(--mono);padding:6px 9px;border-radius:999px;
+    border:1px solid transparent;white-space:nowrap
+  }
+  .pill.hard{color:var(--hard);background:var(--hard-bg);border-color:#3d1f24}
+  .pill.warn{color:var(--warn);background:var(--warn-bg);border-color:#3a2f18}
+  .pill.soft{color:var(--soft);background:var(--soft-bg);border-color:#2c2440}
+  .pill.ok{color:var(--ok);background:var(--ok-bg);border-color:#1d3a2c}
+
+  /* sections */
+  section{margin-bottom:52px;scroll-margin-top:20px}
+  .axis-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .axis-head h2{margin:0;font-size:21px;font-weight:640;letter-spacing:-.01em}
+  .axis-head svg{flex:none}
+  .axis-note{color:var(--fg-dim);font-size:13.5px;margin:0 0 22px;padding-left:34px}
+
+  .group{margin-bottom:26px}
+  .group > h3{
+    font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--fg-faint);margin:0 0 12px;display:flex;align-items:center;gap:10px
+  }
+  .group > h3::after{content:"";flex:1;height:1px;background:var(--border-soft)}
+
+  ul.findings{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+  li.f{
+    background:var(--bg-raised);border:1px solid var(--border);border-left-width:3px;
+    border-radius:8px;padding:14px 16px
+  }
+  li.f.hard{border-left-color:var(--hard)}
+  li.f.warn{border-left-color:var(--warn)}
+  li.f.soft{border-left-color:var(--soft)}
+  li.f.ok{border-left-color:var(--ok)}
+  li.f .t{font-weight:620;font-size:14.5px;margin-bottom:5px}
+  li.f .d{color:var(--fg-dim);font-size:13.5px}
+  li.f .d + .d{margin-top:6px}
+  .rule{
+    display:block;margin-top:9px;padding-top:9px;border-top:1px dashed var(--border);
+    font-size:12.5px;color:var(--fg-faint)
+  }
+  .rule b{color:var(--fg-dim);font-weight:600}
+
+  code{font-family:var(--mono);font-size:12.5px;color:#a9c7f5;
+    background:var(--bg-sunken);border:1px solid var(--border-soft);border-radius:4px;padding:1px 5px}
+  li.f .t code{font-size:13px}
+
+  /* acceptance criteria, grid not table */
+  .acs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+  .ac{
+    display:flex;gap:10px;align-items:flex-start;background:var(--bg-sunken);
+    border:1px solid var(--border-soft);border-radius:7px;padding:10px 12px;font-size:13.5px
+  }
+  .ac .mark{flex:none;margin-top:2px}
+  .ac .body{color:var(--fg-dim)}
+  .ac .body b{color:var(--fg);font-weight:600;display:block;font-size:12px;
+    font-family:var(--mono);letter-spacing:.04em;margin-bottom:2px}
+
+  /* commits */
+  .commits{display:grid;gap:8px}
+  .commit{
+    display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
+    background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;padding:12px 15px
+  }
+  .commit .sha{font:600 12.5px var(--mono);color:var(--accent)}
+  .commit .msg{font-size:13.5px;color:var(--fg-dim)}
+  .commit .msg b{color:var(--fg);font-weight:600}
+  .tag{font:600 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+    padding:5px 8px;border-radius:5px;white-space:nowrap}
+  .tag.creep{color:var(--hard);background:var(--hard-bg)}
+  .tag.defensible{color:var(--warn);background:var(--warn-bg)}
+  .tag.needed{color:var(--ok);background:var(--ok-bg)}
+
+  /* callout */
+  .callout{
+    border:1px solid var(--border);border-radius:10px;padding:18px 20px;
+    background:linear-gradient(135deg,#141a26,#0f141d);position:relative
+  }
+  .callout h3{margin:0 0 8px;font-size:15px;font-weight:640;display:flex;align-items:center;gap:9px}
+  .callout p{margin:0;color:var(--fg-dim);font-size:13.5px}
+  .callout p + p{margin-top:9px}
+
+  footer{border-top:1px solid var(--border);margin-top:56px;padding-top:22px;
+    color:var(--fg-faint);font-size:12.5px}
+  footer b{color:var(--fg-dim)}
+  footer ul{margin:8px 0 0;padding-left:18px}
+  footer li{margin-bottom:4px}
+
+  @media (max-width:860px){
+    .board{grid-template-columns:1fr}
+    .commit{grid-template-columns:1fr;gap:6px}
+    .wrap{padding:28px 18px 64px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ HEADER ============
+     Eyebrow: review name, PR link, issue link. Drop any link you don't have.
+     h1: the change in one line. Wrap the conventional-commit prefix in <span class="mono">.
+     .sub: base ref, merge-base SHA, head SHA, commit / file / +- counts. All from git, never guessed.
+-->
+<header>
+  <div class="eyebrow">
+    <span>Two-axis review</span><span style="color:var(--border)">/</span>
+    <a href="{{PR_URL}}">{{REPO}}#{{PR}}</a>
+    <span style="color:var(--border)">/</span>
+    <a href="{{ISSUE_URL}}">{{ISSUE_KEY}}</a>
+  </div>
+  <h1><span class="mono">{{COMMIT_PREFIX}}</span> {{CHANGE_TITLE}}</h1>
+  <p class="sub">
+    Base <code>{{BASE_REF}}</code> · merge-base <code>{{MERGE_BASE}}</code> · head <code>{{HEAD_SHA}}</code> ·
+    {{N}} commits, {{N}} files, +{{N}} / -{{N}}
+  </p>
+</header>
+
+<!-- ============ SCOREBOARD ============
+     One card per axis, tallies as pills. Severity classes: hard, warn, soft, ok.
+     If the Spec axis was skipped, keep the card and say "no spec available" in .verdict with no pills.
+-->
+<div class="board">
+  <div class="card standards">
+    <h2>Standards</h2>
+    <p class="verdict">Does the code follow the repo's documented standards?</p>
+    <div class="tally">
+      <span class="pill hard">{{N}} hard violations</span>
+      <span class="pill warn">{{N}} flagged tensions</span>
+      <span class="pill soft">{{N}} judgement calls</span>
+    </div>
+  </div>
+  <div class="card spec">
+    <h2>Spec</h2>
+    <p class="verdict">Does the code implement what {{ISSUE_KEY}} asked for?</p>
+    <div class="tally">
+      <span class="pill ok">{{N}} / {{N}} criteria met</span>
+      <span class="pill warn">{{N}} partial</span>
+      <span class="pill hard">{{N}} scope creep</span>
+      <span class="pill hard">{{N}} defects</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STANDARDS ============
+     Groups, in order: "Hard violations", "Flagged, not condemned", "Judgement calls · smell baseline".
+     Omit a group with no findings. Severity per finding: li.f.hard / .warn / .soft.
+     .t = one-line finding title. .d = evidence, one claim per .d, with file:line in <code>.
+     .rule = the standard breached: <b>doc name</b> (line N) plus the rule text. Omit for smell findings.
+-->
+<section id="standards">
+  <div class="axis-head">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2777a" stroke-width="1.7"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0L7 7zM17 7l-3 7a3.2 3.2 0 0 0 6 0l-3-7z"/>
+    </svg>
+    <h2>Standards</h2>
+  </div>
+  <p class="axis-note">
+    Sources: {{STANDARDS_SOURCES}}. Anything lint or the type-checker already enforces is skipped.
+  </p>
+
+  <div class="group">
+    <h3>Hard violations</h3>
+    <ul class="findings">
+      <li class="f hard">
+        <div class="t">{{FINDING_TITLE}}</div>
+        <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
+        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Flagged, not condemned</h3>
+    <ul class="findings">
+      <li class="f warn">
+        <div class="t">{{FINDING_TITLE}}</div>
+        <div class="d">{{EVIDENCE}}</div>
+        <div class="d">{{THE_TENSION_THAT_EXCUSES_IT}}</div>
+        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Judgement calls · smell baseline</h3>
+    <ul class="findings">
+      <li class="f soft">
+        <div class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></div>
+        <div class="d">{{EVIDENCE}}</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ SPEC ============
+     Groups, in order: "Acceptance criteria · N of N met", "Partial", "Scope", "Implementation defects".
+     Omit any group with no findings. If no spec was found, replace the whole section body with a
+     single .callout saying which sources were searched and that no spec was found.
+-->
+<section id="spec">
+  <div class="axis-head">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5fb98a" stroke-width="1.7"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+      <path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/>
+    </svg>
+    <h2>Spec</h2>
+  </div>
+  <p class="axis-note">
+    Source: <a href="{{ISSUE_URL}}" style="color:var(--accent)">{{ISSUE_KEY}}</a>.
+    Every criterion checked against the code, not the PR body.
+  </p>
+
+  <div class="group">
+    <h3>Acceptance criteria · {{N}} of {{N}} met</h3>
+    <div class="acs">
+      <!-- met: green check -->
+      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+        stroke="#5fb98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>
+        <div class="body"><b>AC1</b>{{WHAT_SATISFIES_IT}} · <code>{{FILE}}:{{LINE}}</code></div></div>
+
+      <!-- partial: amber dash. Detail the gap in the "Partial" group below. -->
+      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+        stroke="#e2b341" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8h9"/></svg>
+        <div class="body"><b>AC2</b>{{WHAT_IS_PARTIAL}}</div></div>
+
+      <!-- missing: red cross -->
+      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+        stroke="#f2777a" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        <div class="body"><b>AC3</b>{{WHAT_IS_MISSING}}</div></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Partial</h3>
+    <ul class="findings">
+      <li class="f warn">
+        <div class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</div>
+        <div class="d">{{EVIDENCE}}</div>
+        <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Scope · {{ONE_LINE_VERDICT_ON_CREEP}}</h3>
+    <div class="commits">
+      <!-- .tag classes: creep (unrequested), defensible (unrequested but implied), needed (necessary) -->
+      <div class="commit">
+        <span class="sha">{{SHA}}</span>
+        <span class="msg"><b>{{COMMIT_SUBJECT}}</b> {{WHY_IT_IS_OR_IS_NOT_CREEP}}</span>
+        <span class="tag creep">creep</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Implementation defects</h3>
+    <ul class="findings">
+      <li class="f hard">
+        <div class="t">{{DEFECT_TITLE}}</div>
+        <div class="d">{{EVIDENCE}}</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ CROSS ============
+     Optional. Only when the two axes contradict each other: passing one requires failing the other.
+     Say so as a note, never as a rerank. Delete the whole section when they don't conflict.
+-->
+<section id="cross">
+  <div class="callout">
+    <h3>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e2b341" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 9v4M12 17h.01"/>
+        <path d="M10.3 3.9L2.4 17.1A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0z"/>
+      </svg>
+      The two axes disagree with each other
+    </h3>
+    <p>{{WHAT_THE_SPEC_PRESCRIBES_THAT_THE_STANDARD_FORBIDS}}</p>
+    <p>This is a note, not a rerank: neither axis outranks the other here.</p>
+  </div>
+</section>
+
+<!-- ============ WORST ============
+     Worst issue within each axis. Exactly one entry per axis, never a single cross-axis winner.
+-->
+<section id="worst">
+  <div class="group">
+    <h3>Worst issue within each axis</h3>
+    <ul class="findings">
+      <li class="f hard">
+        <div class="t">Standards</div>
+        <div class="d">{{WORST_STANDARDS_FINDING}}</div>
+      </li>
+      <li class="f hard">
+        <div class="t">Spec</div>
+        <div class="d">{{WORST_SPEC_FINDING}}</div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============
+     How the review was checked, and what was NOT run. State unrun checks plainly.
+     Carry the objectum residual here: what the gate could not unveil, and what would unveil it.
+     Drop the corrections line if the gate corrected nothing.
+-->
+<footer>
+  <b>How this was checked.</b>
+  <ul>
+    <li>{{HOW_CITATIONS_WERE_VERIFIED}}</li>
+    <li>{{HOW_QUOTED_RULES_WERE_VERIFIED}}</li>
+    <li>{{N}} sub-agent citations were wrong and were corrected against the real file.</li>
+    <li><b>Unverified:</b> {{WHAT_COULD_NOT_BE_CHECKED_AND_WHAT_WOULD_CHECK_IT}}</li>
+    <li><b>Not run:</b> {{WHAT_WAS_NOT_EXECUTED}}. Every finding comes from reading code and standards, not from execution.</li>
+  </ul>
+</footer>
+
+</div>
+</body>
+</html>

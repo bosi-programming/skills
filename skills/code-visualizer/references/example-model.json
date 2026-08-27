@@ -1,0 +1,381 @@
+{
+  "title": "PR #482 \u2014 notification fan-out",
+  "source": "gh pr diff 482 (acme/services)",
+  "summary": "Replaces the inline email send with a strategy-per-channel dispatcher behind a factory, and emits a domain event so the audit log stays decoupled.",
+  "stats": {
+    "files_changed": 6,
+    "insertions": 412,
+    "deletions": 96
+  },
+  "nodes": [
+    {
+      "id": "src/notifications/notification.controller.ts",
+      "label": "notification.controller.ts",
+      "sublabel": "src/notifications",
+      "kind": "file",
+      "layer": "file",
+      "status": "modified",
+      "insertions": 34,
+      "deletions": 21,
+      "summary": "The HTTP entry point. It used to build the email body and call MailerService itself; now it validates the request and hands the payload to the dispatcher, so the controller no longer knows which channels exist.",
+      "details": [
+        "21 removed lines are the inline template building, now gone from the controller.",
+        "Dispatcher arrives by constructor injection at line 29."
+      ]
+    },
+    {
+      "id": "src/notifications/dispatcher.service.ts",
+      "label": "dispatcher.service.ts",
+      "sublabel": "src/notifications",
+      "kind": "file",
+      "layer": "file",
+      "status": "added",
+      "insertions": 128,
+      "deletions": 0,
+      "summary": "New file. Holds the channel registry, resolves one channel per request from the notification payload, runs it, then emits notification.sent so nothing downstream has to be called inline.",
+      "details": [
+        "createChannel() at line 92 maps the channel name to a concrete strategy with a switch.",
+        "Emits notification.sent at line 71 after a successful send, inside the same try block.",
+        "No retry here: a failed channel throws and the controller maps it to a 502."
+      ]
+    },
+    {
+      "id": "src/notifications/channels/email.channel.ts",
+      "label": "email.channel.ts",
+      "sublabel": "channels",
+      "kind": "file",
+      "layer": "file",
+      "status": "added",
+      "insertions": 88,
+      "deletions": 0
+    },
+    {
+      "id": "src/notifications/channels/sms.channel.ts",
+      "label": "sms.channel.ts",
+      "sublabel": "channels",
+      "kind": "file",
+      "layer": "file",
+      "status": "added",
+      "insertions": 74,
+      "deletions": 0
+    },
+    {
+      "id": "src/notifications/channels/channel.interface.ts",
+      "label": "channel.interface.ts",
+      "sublabel": "channels",
+      "kind": "file",
+      "layer": "file",
+      "status": "added",
+      "insertions": 18,
+      "deletions": 0
+    },
+    {
+      "id": "src/audit/audit.listener.ts",
+      "label": "audit.listener.ts",
+      "sublabel": "src/audit",
+      "kind": "file",
+      "layer": "file",
+      "status": "modified",
+      "insertions": 70,
+      "deletions": 75,
+      "summary": "Rewritten to react to notification.sent instead of being called by the send path. Same audit rows written, but the write is no longer on the request's critical path."
+    },
+    {
+      "id": "src/mailer/mailer.service.ts",
+      "label": "mailer.service.ts",
+      "sublabel": "src/mailer",
+      "kind": "file",
+      "layer": "file",
+      "status": "related",
+      "summary": "Untouched; now called only from the email channel.",
+      "details": [
+        "Untouched by this PR; only its caller changed."
+      ]
+    },
+    {
+      "id": "NotificationController.send",
+      "label": "NotificationController.send()",
+      "sublabel": "notification.controller.ts",
+      "kind": "method",
+      "layer": "code",
+      "status": "modified",
+      "line": 41,
+      "parent": "src/notifications/notification.controller.ts"
+    },
+    {
+      "id": "NotificationDispatcher",
+      "label": "NotificationDispatcher",
+      "sublabel": "dispatcher.service.ts",
+      "kind": "class",
+      "layer": "code",
+      "status": "added",
+      "line": 18,
+      "summary": "Holds the channel registry and resolves one per request.",
+      "details": [
+        "Depends on the NotificationChannel interface only, never on EmailChannel or SmsChannel directly."
+      ],
+      "parent": "src/notifications/dispatcher.service.ts"
+    },
+    {
+      "id": "NotificationChannel",
+      "label": "NotificationChannel",
+      "sublabel": "channel.interface.ts",
+      "kind": "interface",
+      "layer": "code",
+      "status": "added",
+      "line": 4,
+      "parent": "src/notifications/channels/channel.interface.ts"
+    },
+    {
+      "id": "EmailChannel",
+      "label": "EmailChannel",
+      "sublabel": "email.channel.ts",
+      "kind": "class",
+      "layer": "code",
+      "status": "added",
+      "line": 12,
+      "parent": "src/notifications/channels/email.channel.ts"
+    },
+    {
+      "id": "SmsChannel",
+      "label": "SmsChannel",
+      "sublabel": "sms.channel.ts",
+      "kind": "class",
+      "layer": "code",
+      "status": "added",
+      "line": 10,
+      "parent": "src/notifications/channels/sms.channel.ts"
+    },
+    {
+      "id": "channelFactory",
+      "label": "createChannel()",
+      "sublabel": "dispatcher.service.ts",
+      "kind": "function",
+      "layer": "code",
+      "status": "added",
+      "line": 92,
+      "parent": "src/notifications/dispatcher.service.ts"
+    },
+    {
+      "id": "AuditListener.onNotificationSent",
+      "label": "AuditListener.onNotificationSent()",
+      "sublabel": "audit.listener.ts",
+      "kind": "method",
+      "layer": "code",
+      "status": "modified",
+      "line": 57,
+      "parent": "src/audit/audit.listener.ts"
+    },
+    {
+      "id": "MailerService.send",
+      "label": "MailerService.send()",
+      "sublabel": "mailer.service.ts",
+      "kind": "method",
+      "layer": "code",
+      "status": "related",
+      "line": 88,
+      "parent": "src/mailer/mailer.service.ts"
+    }
+  ],
+  "edges": [
+    {
+      "from": "src/notifications/notification.controller.ts",
+      "to": "src/notifications/dispatcher.service.ts",
+      "kind": "injects",
+      "status": "added",
+      "evidence": "notification.controller.ts:29"
+    },
+    {
+      "from": "src/notifications/dispatcher.service.ts",
+      "to": "src/notifications/channels/channel.interface.ts",
+      "kind": "imports",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/channels/email.channel.ts",
+      "to": "src/notifications/channels/channel.interface.ts",
+      "kind": "implements",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/channels/sms.channel.ts",
+      "to": "src/notifications/channels/channel.interface.ts",
+      "kind": "implements",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/dispatcher.service.ts",
+      "to": "src/notifications/channels/email.channel.ts",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/dispatcher.service.ts",
+      "to": "src/notifications/channels/sms.channel.ts",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/channels/email.channel.ts",
+      "to": "src/mailer/mailer.service.ts",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "src/notifications/dispatcher.service.ts",
+      "to": "src/audit/audit.listener.ts",
+      "kind": "emits",
+      "status": "added",
+      "evidence": "dispatcher.service.ts:71"
+    },
+    {
+      "from": "NotificationController.send",
+      "to": "NotificationDispatcher",
+      "kind": "injects",
+      "status": "added",
+      "evidence": "notification.controller.ts:41"
+    },
+    {
+      "from": "NotificationDispatcher",
+      "to": "channelFactory",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "channelFactory",
+      "to": "EmailChannel",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "channelFactory",
+      "to": "SmsChannel",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "EmailChannel",
+      "to": "NotificationChannel",
+      "kind": "implements",
+      "status": "added"
+    },
+    {
+      "from": "SmsChannel",
+      "to": "NotificationChannel",
+      "kind": "implements",
+      "status": "added"
+    },
+    {
+      "from": "NotificationDispatcher",
+      "to": "NotificationChannel",
+      "kind": "calls",
+      "status": "added",
+      "evidence": "dispatcher.service.ts:44"
+    },
+    {
+      "from": "NotificationDispatcher",
+      "to": "AuditListener.onNotificationSent",
+      "kind": "emits",
+      "status": "added"
+    },
+    {
+      "from": "EmailChannel",
+      "to": "MailerService.send",
+      "kind": "calls",
+      "status": "added"
+    },
+    {
+      "from": "AuditListener.onNotificationSent",
+      "to": "NotificationDispatcher",
+      "kind": "reads",
+      "status": "existing",
+      "label": "back reference"
+    }
+  ],
+  "patterns": [
+    {
+      "name": "Strategy",
+      "confidence": "high",
+      "intent": "One interface per delivery channel so the dispatcher does not branch on channel type.",
+      "participants": [
+        {
+          "role": "Strategy",
+          "node": "NotificationChannel"
+        },
+        {
+          "role": "ConcreteStrategy",
+          "node": "EmailChannel"
+        },
+        {
+          "role": "ConcreteStrategy",
+          "node": "SmsChannel"
+        },
+        {
+          "role": "Context",
+          "node": "NotificationDispatcher"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "channel.interface.ts:4-18",
+          "note": "single send() contract"
+        },
+        {
+          "ref": "dispatcher.service.ts:44",
+          "note": "context calls through the interface"
+        }
+      ]
+    },
+    {
+      "name": "Factory Method",
+      "confidence": "medium",
+      "intent": "createChannel() maps a channel name to a concrete strategy.",
+      "participants": [
+        {
+          "role": "Creator",
+          "node": "channelFactory"
+        },
+        {
+          "role": "Product",
+          "node": "EmailChannel"
+        },
+        {
+          "role": "Product",
+          "node": "SmsChannel"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "dispatcher.service.ts:92-116",
+          "note": "switch on channel returns a strategy"
+        }
+      ],
+      "note": "Medium: it is a plain switch, not a registry, so adding a channel still edits this function."
+    },
+    {
+      "name": "Observer",
+      "confidence": "high",
+      "intent": "Audit log reacts to a domain event instead of being called inline.",
+      "participants": [
+        {
+          "role": "Subject",
+          "node": "NotificationDispatcher"
+        },
+        {
+          "role": "Observer",
+          "node": "AuditListener.onNotificationSent"
+        }
+      ],
+      "evidence": [
+        {
+          "ref": "dispatcher.service.ts:71",
+          "note": "eventEmitter.emit('notification.sent')"
+        },
+        {
+          "ref": "audit.listener.ts:57",
+          "note": "@OnEvent handler"
+        }
+      ]
+    }
+  ]
+}

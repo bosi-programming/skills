@@ -1,0 +1,23 @@
+{
+  "name": "bosi-programming",
+  "owner": {
+    "name": "Felipe Bosi",
+    "url": "https://felipebosi.com/"
+  },
+  "description": "Bosi's skills as an installable Claude Code plugin.",
+  "plugins": [
+    {
+      "name": "bosi-programming-skills",
+      "source": "./",
+      "description": "Bosi's LLM skills",
+      "category": "engineering",
+      "keywords": [
+        "engineering",
+        "skills",
+        "tdd",
+        "code-review",
+        "phenomenology-coding"
+      ]
+    }
+  ]
+}
