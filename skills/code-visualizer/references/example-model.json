@@ -57,6 +57,32 @@
       "note": "TwilioClient reads it at construction, so a deploy without it fails at boot rather than at the first SMS."
     }
   ],
+  "reading_order": [
+    {
+      "node": "src/notifications/channels/channel.interface.ts",
+      "why": "Fifteen lines, and every other file in the diff is shaped by them. Read the interface and the ChannelName union first and the rest follows."
+    },
+    {
+      "node": "src/notifications/dispatcher.service.ts",
+      "why": "The new middle. It holds the channel registry, the switch, and the emit, so it is where the refactor's decisions live."
+    },
+    {
+      "node": "src/notifications/notification.controller.ts",
+      "why": "What was taken out. Compare the 21 deleted lines against the dispatcher you just read: this is the same behaviour, one layer down."
+    },
+    {
+      "node": "src/notifications/channels/email.channel.ts",
+      "why": "The moved code, unchanged in substance. Skim it to confirm nothing was lost in the move."
+    },
+    {
+      "node": "src/notifications/channels/sms.channel.ts",
+      "why": "The new capability, and the only untested file. This is where to spend review time: it drops payload.template and needs an env var nothing else needs."
+    },
+    {
+      "node": "src/audit/audit.listener.ts",
+      "why": "The blast radius. A different team owns this file and the event it listens for was renamed, so read it last but do not skip it."
+    }
+  ],
   "nodes": [
     {
       "id": "src/notifications/notification.controller.ts",

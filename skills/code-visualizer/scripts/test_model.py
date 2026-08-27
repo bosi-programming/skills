@@ -81,7 +81,7 @@ m["nodes"][0]["hunks"] = ["@@\n+x"]
 ok("a changed file with a hunk is still warned about its tests",
    any("test" in w for w in rg.warnings(m)), "; ".join(rg.warnings(m)))
 
-m = model(surface=[])
+m = model(surface=[], reading_order=["a.ts"])
 m["nodes"][0]["hunks"] = ["@@\n+x"]
 m["nodes"][0]["tests"] = "none"
 m["nodes"][0]["history"] = {"commits_90d": 4}
@@ -201,13 +201,14 @@ warns = rg.warnings(m)
 ok("a model with no surface key is nudged", any("surface" in w for w in warns),
    "; ".join(warns))
 m["surface"] = []
+m["reading_order"] = ["a.ts"]
 m["nodes"][0]["history"] = {"commits_90d": 4}
 ok("an empty surface is a real answer and stays quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
 
 # ---- history: churn and ownership, the context a diff cannot show
 def with_history(h):
-    m = model(surface=[])
+    m = model(surface=[], reading_order=["a.ts"])
     m["nodes"][0]["hunks"] = ["@@\n+x"]
     m["nodes"][0]["tests"] = "none"
     m["nodes"][0]["history"] = h
@@ -252,6 +253,69 @@ warns = rg.warnings(m)
 ok("a model with no history anywhere is nudged once",
    len([w for w in warns if "history" in w]) == 1, "; ".join(warns))
 
+# ---- reading order: where to start, and what next
+def with_order(order):
+    m = model(surface=[], reading_order=order)  # noqa: E501
+    n = m["nodes"][0]
+    n["hunks"] = ["@@\n+x"]
+    n["tests"] = "none"
+    n["history"] = {"commits_90d": 4}
+    return m
+
+m = with_order(["a.ts"])
+ok("a bare id is accepted as a step", not rg.validate(m), "; ".join(rg.validate(m)))
+ok("a bare id becomes an object", m["reading_order"][0] == {"node": "a.ts"},
+   str(m["reading_order"][0]))
+
+m = with_order([{"node": "a.ts", "why": "the entry point"}])
+ok("a full step validates", not rg.validate(m), "; ".join(rg.validate(m)))
+
+m = with_order(["nowhere.ts"])
+errs = rg.validate(m)
+ok("a step pointing at no node fails", any("nowhere.ts" in e for e in errs),
+   "; ".join(errs))
+
+m = with_order(["a.ts", "a.ts"])
+errs = rg.validate(m)
+ok("the same node twice fails", any("twice" in e or "duplicate" in e for e in errs),
+   "; ".join(errs))
+
+m = with_order("a.ts")
+errs = rg.validate(m)
+ok("reading_order must be a list", any("list" in e for e in errs), "; ".join(errs))
+
+m = with_order([{"why": "no node named"}])
+errs = rg.validate(m)
+ok("a step with no node fails", any("node" in e for e in errs), "; ".join(errs))
+
+m = with_order(["a.ts"])
+ok("step_index numbers the steps from one",
+   rg.step_index(m["reading_order"]) == {"a.ts": 1},
+   str(rg.step_index(m["reading_order"])))
+
+# ---- the nudges: one for a missing order, one for a changed file left out
+m = model(surface=[])
+n = m["nodes"][0]
+n["hunks"] = ["@@\n+x"]
+n["tests"] = "none"
+n["history"] = {"commits_90d": 4}
+warns = rg.warnings(m)
+ok("a model with no reading order is nudged once",
+   len([w for w in warns if "reading" in w]) == 1, "; ".join(warns))
+
+m["nodes"].append({"id": "c.ts", "kind": "file", "status": "added",
+                   "hunks": ["@@\n+y"], "tests": "none"})
+m["reading_order"] = ["a.ts"]
+rg.validate(m)
+warns = rg.warnings(m)
+ok("a changed file left out of the order is named",
+   any("c.ts" in w for w in warns), "; ".join(warns))
+
+m["reading_order"] = ["a.ts", "c.ts"]
+rg.validate(m)
+ok("an order that covers every changed file is quiet",
+   not rg.warnings(m), "; ".join(rg.warnings(m)))
+
 # ---- the registry the page reads
 m = model(patterns=[{
     "name": "Strategy",
@@ -288,6 +352,9 @@ ok("the bundled example carries churn on its changed files",
    str(sum(1 for n in ex["nodes"] if n.get("history"))))
 ok("the bundled example marks a hotspot", rg.hotspot_count(ex["nodes"]) > 0,
    str(rg.hotspot_count(ex["nodes"])))
+ok("the bundled example says where to start", bool(ex.get("reading_order")))
+ok("every step in the example says why it is there",
+   all(x.get("why") for x in ex.get("reading_order") or []))
 ok("the bundled example answers every nudge",
    not rg.warnings(ex), "; ".join(rg.warnings(ex)))
 

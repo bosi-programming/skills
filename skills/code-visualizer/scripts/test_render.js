@@ -195,6 +195,32 @@ ok('every count in the model is a number',
    withHist.every(n => ['commits_90d', 'authors_90d'].every(
      k => n.history[k] === undefined || typeof n.history[k] === 'number')));
 
+// ---- reading order: the number on the box and the list in the panel
+const order = MODEL.reading_order || [];
+ok('the model says where to start', order.length > 0);
+ok('every step names a node in the graph',
+   order.every(x => x.node && MODEL._byId[x.node]));
+ok('every step says why it is there', order.every(x => x.why));
+ok('the step map numbers from one',
+   order.every((x, i) => (MODEL._step || {})[x.node] === i + 1));
+ok('every ordered box carries its number',
+   (html.match(/class="node-step"/g) || []).length === order.length,
+   (html.match(/class="node-step"/g) || []).length + ' of ' + order.length);
+const opanel = html.split('<div class="orderlist">')[1].split('id="fileswrap"')[0];
+ok('the panel lists the steps in order',
+   (opanel.match(/data-goto="/g) || []).length === order.length,
+   (opanel.match(/data-goto="/g) || []).length + ' of ' + order.length);
+ok('the panel numbers them from one',
+   (opanel.match(/class="onum">1</g) || []).length === 1);
+ok('those buttons are wired to select the node',
+   js.includes(".orderlist [data-goto]"));
+ok('the list lives in one collapsible card',
+   /<details class="card bigcard" id="orderwrap" open>/.test(html));
+ok('the overview points at step one', js.includes('Start here'));
+ok('the strip says which step the selected node is',
+   js.includes('step ${st} of'));
+ok('n and p walk the order', js.includes("e.key === 'n'") && js.includes("e.key === 'p'"));
+
 // ---- the side panel: nothing scrolls sideways, the long lists fold
 ok('the side panel never scrolls sideways', html.includes('overflow-x:hidden'));
 ok('a long ref wraps instead of widening the panel',

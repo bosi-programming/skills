@@ -28,6 +28,37 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
 - `stats` : object with `files_changed`, `insertions`, `deletions`. Take these
   from `git diff --numstat`, do not estimate.
 
+## reading_order[]
+
+Where to start, and what to read next. The graph shows how the files connect; it
+cannot show which one to open first, and that is what a reviewer facing an
+unfamiliar diff needs most.
+
+```json
+[
+  { "node": "src/notifications/channels/channel.interface.ts",
+    "why": "Fifteen lines, and every other file in the diff is shaped by them." },
+  { "node": "src/notifications/dispatcher.service.ts",
+    "why": "The new middle: the registry, the switch and the emit all live here." }
+]
+```
+
+- `node` : a node id, required, and each node appears at most once.
+- `why` : one or two sentences on what this step buys the reader. Without it the
+  order is a list of files they already had.
+
+A bare id in place of the object works, so `["a.ts", "b.ts"]` is valid, but the
+`why` is the part that makes an order followable.
+
+Order by what the reader needs, not by the directory tree: the contract or type
+first, then the file that holds the decisions, then what was taken out, then the
+blast radius. Leave the least interesting file last and say so.
+
+The page numbers each ordered box on the graph, lists the steps in a `Read in
+this order` card, names step one in the overview strip, and walks the order with
+`n` and `p`. `--check` warns when the key is missing, and again when the order
+leaves a changed file out.
+
 ## surface[]
 
 What the change asks of callers. `patterns[]` says how the code is shaped;

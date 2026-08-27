@@ -54,10 +54,17 @@ header, a `History` column in the strip that reads as a sentence, and one warnin
 when no node carries history at all. `hotspot` is the model author's judgment
 rather than a threshold the renderer computes.
 
-## 5. Reading order
+## 5. Reading order — done
 
-Top-level `reading_order: [node ids]`. The graph shows topology but not where to
-start reading. Direct fix for the "I can't follow this diff" trigger.
+Top-level `reading_order` = `[{ node, why }]`, a bare id also accepted. The graph
+shows topology but not where to start reading. Direct fix for the "I can't follow
+this diff" trigger.
+
+Shipped: `normalize_reading_order` (unknown node and duplicate both fail),
+`step_index`, a numbered prefix on the ordered boxes in accent blue, a
+`Read in this order` card in the side panel, `Start here` in the overview strip,
+`step 3 of 7` in the selected node's meta line, `n` and `p` to walk the order, and
+two warnings: no order at all, and an order that leaves a changed file out.
 
 ## 6. Risks and open questions
 

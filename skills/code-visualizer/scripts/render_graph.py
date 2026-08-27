@@ -380,6 +380,56 @@ def normalize_history(node):
     return errors
 
 
+def normalize_reading_order(model, ids):
+    """Check `reading_order`: the path through the diff, in the order to walk it.
+
+    The graph shows how the pieces connect. It cannot show where to start, and a
+    reviewer opening an unfamiliar diff needs that more than they need topology.
+    A bare id is accepted, but a step with no `why` wastes the field: the reason
+    is the part that makes the order followable.
+    """
+    order = model.get("reading_order")
+    if order is None:
+        return []
+    if not isinstance(order, list):
+        return ["reading_order must be a list of node ids or steps"]
+    errors = []
+    seen = set()
+    out = []
+    for i, x in enumerate(order):
+        if isinstance(x, str):
+            x = {"node": x}
+        elif not isinstance(x, dict):
+            errors.append("reading_order[%d] must be a node id or an object" % i)
+            continue
+        nid = x.get("node")
+        if not nid:
+            errors.append("reading_order[%d] names no node" % i)
+        elif nid not in ids:
+            errors.append("reading_order[%d] points at unknown node %r" % (i, nid))
+        elif nid in seen:
+            errors.append("reading_order lists %s twice; one step per node" % nid)
+        else:
+            seen.add(nid)
+        out.append(x)
+    model["reading_order"] = out
+    return errors
+
+
+def step_index(order):
+    """node id -> its 1-based place in the order, for the badge on the box.
+
+    Reads the bare-id form too, so it works on a model that has not been through
+    validate yet.
+    """
+    out = {}
+    for i, x in enumerate(order or []):
+        nid = x if isinstance(x, str) else x.get("node")
+        if nid:
+            out[nid] = i + 1
+    return out
+
+
 def hotspot_count(nodes):
     return sum(1 for n in nodes or [] if (n.get("history") or {}).get("hotspot"))
 
@@ -410,6 +460,27 @@ def warnings(model):
             "the model has no surface key; an empty list says you looked and "
             "nothing moved, leaving it off says nobody looked"
         )
+    order = model.get("reading_order")
+    if touched_any and not order:
+        out.append(
+            "the model has no reading_order; the graph shows how the files "
+            "connect but not which one to open first"
+        )
+    elif order:
+        # warnings() can run on a model that has not been normalised yet, so
+        # both the bare-id and the object form have to be read here.
+        placed = {x.get("node") if isinstance(x, dict) else x for x in order}
+        missing = [
+            n.get("id") for n in model.get("nodes") or []
+            if (n.get("status") or "related").lower() in ("added", "modified", "deleted")
+            and (n.get("layer") or ("file" if n.get("kind") == "file" else "code")) == "file"
+            and n.get("id") not in placed
+        ]
+        if missing:
+            out.append(
+                "reading_order leaves out %d changed file(s): %s"
+                % (len(missing), ", ".join(missing[:4]))
+            )
     if touched_any and not any(n.get("history") for n in model.get("nodes") or []):
         out.append(
             "no node carries history; two git log calls per changed file turn "
@@ -478,6 +549,7 @@ def validate(model):
                     % (i, part["node"])
                 )
     errors += normalize_surface(model)
+    errors += normalize_reading_order(model, ids)
     return errors
 
 
@@ -592,16 +664,19 @@ def node_text(node):
     badge = ""
     if ins is not None or dele is not None:
         badge = "+%s \u2212%s" % (ins or 0, dele or 0)
+    step = node.get("_step")
+    if step:
+        label = "%d \u00b7 %s" % (step, label)
     marks = []
     if (node.get("tests") or {}).get("status") == "none":
         marks.append(("no test", "#f85149"))
     if (node.get("history") or {}).get("hotspot"):
         marks.append(("hot", "#e3b341"))
-    return label, sub, badge, marks
+    return label, sub, badge, marks, step
 
 
 def node_width(node):
-    label, sub, badge, marks = node_text(node)
+    label, sub, badge, marks, _step = node_text(node)
     badge_w = (len(badge) * CH_MONO + 16) if badge else 0
     mark_text = " ".join(t for t, _ in marks)
     mark_w = (len(mark_text) * CH_MONO + 16) if mark_text else 0
@@ -731,7 +806,7 @@ def render_svg(view, nodes, edges):
             continue
         st = status_of(n)
         c = STATUS[st]
-        label, sub, badge, marks = node_text(n)
+        label, sub, badge, marks, step = node_text(n)
         parts.append(
             '<g class="node" data-node-id="%s" data-status="%s" data-cover="%s" '
             'data-hot="%s" transform="translate(%.1f,%.1f)">'
@@ -747,9 +822,15 @@ def render_svg(view, nodes, edges):
             '<rect class="node-accent" width="4" height="%d" rx="2" fill="%s"/>'
             % (b["h"], c["stroke"])
         )
+        if step:
+            head, rest = label.split(" \u00b7 ", 1)
+            shown = ('<tspan class="node-step" fill="#58a6ff">%s \u00b7</tspan> %s'
+                     % (esc(head), esc(rest)))
+        else:
+            shown = esc(label)
         parts.append(
             '<text class="node-label" x="16" y="%d" fill="#e6edf3">%s</text>'
-            % (28 if sub else 41, esc(label))
+            % (28 if sub else 41, shown)
         )
         if sub:
             parts.append(
@@ -853,6 +934,7 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer .col{flex:1 1 190px;min-width:180px}
 #explainer .cover{margin:0 0 6px;font-size:14px}
 #explainer .churn{margin:0 0 4px;font-size:14px;color:var(--muted)}
+#explainer .start{margin:8px 0 0;font-size:14px;color:var(--muted)}
 #explainer .churn.hot{color:#e3b341}
 #explainer .owners{margin:0 0 4px;font-size:14px;color:var(--dim)}
 #explainer .cover.none{color:#f85149}
@@ -947,6 +1029,14 @@ aside h2:first-child{margin-top:0}
 .srow .reflink.flat{color:var(--dim);cursor:default}
 .srow.hit{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
 .bigcard>summary .count{color:var(--muted);font-size:14px}
+.orderlist{font-size:14px}
+.ostep{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
+.ostep:first-child{border-top:0}
+.ostep .onum{flex:0 0 22px;height:22px;border-radius:50%;background:#1b2230;
+  color:var(--accent);font-size:14px;font-weight:600;display:flex;
+  align-items:center;justify-content:center}
+.ostep .obody{min-width:0}
+.ostep .owhy{margin:2px 0 0;color:var(--muted);font-size:14px}
 .bigcard .filelist{margin:0}
 .filelist{font-size:14px}
 .filelist div{display:flex;gap:8px;padding:4px 0;border-top:1px solid var(--line);
@@ -1278,7 +1368,10 @@ function renderExplainer(){
     const id = state.selected, n = nodeInfo(id) || {};
     const outs = (MODEL.edges||[]).filter(e => e.from === id);
     const ins = (MODEL.edges||[]).filter(e => e.to === id);
-    const meta = [id, n.status, n.line ? 'line '+n.line : null,
+    const st = (MODEL._step||{})[id];
+    const meta = [id, n.status,
+      st ? `step ${st} of ${(MODEL.reading_order||[]).length}` : null,
+      n.line ? 'line '+n.line : null,
       (n.insertions != null || n.deletions != null) ? `+${n.insertions||0} \u2212${n.deletions||0}` : null]
       .filter(Boolean).join('  \u00b7  ');
     // The hunks this node carries, as registry slots, so clicking one opens the
@@ -1322,6 +1415,7 @@ function renderExplainer(){
       </div></div>`;
   } else {
     const brk = (MODEL.surface||[]).map((s,i) => ({s,i})).filter(({s}) => s.breaking);
+    const first = (MODEL.reading_order||[])[0];
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">what this change is about</span>
@@ -1331,7 +1425,8 @@ function renderExplainer(){
       <div class="body"><div class="prose">
       ${MODEL.summary ? `<p>${esc(MODEL.summary)}</p>`
         : '<p class="meta" style="font-family:inherit">No summary in the model.</p>'}
-      <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Open a pattern card on the right for its evidence.</p>
+      ${first ? `<p class="start">Start here: <button class="reflink" data-goto="${esc(first.node)}">${esc((nodeInfo(first.node)||{}).label || first.node)}</button>${first.why ? ` \u00b7 ${esc(first.why)}` : ''}</p>` : ''}
+      <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Press <b>n</b> for the next step in the reading order.</p>
       </div>
       ${brk.length ? `<div class="cols"><div class="col"><h4>Breaks for callers</h4><ul class="rel">${
         brk.map(({s,i}) => `<li><b>${esc(s.name)}</b> <span class="schange">${esc(CHANGE_WORD[s.change]||s.change||'')}</span><br><button class="reflink mono" data-sjump="${i}">${esc(s.ref)}</button></li>`).join('')
@@ -1425,6 +1520,8 @@ document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onch
 });
 document.querySelectorAll('.reflink[data-ev]').forEach(b =>
   b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); showEvidence(+b.dataset.ev); });
+document.querySelectorAll('.orderlist [data-goto]').forEach(b =>
+  b.onclick = ev => { ev.preventDefault(); goTo(b.dataset.goto); });
 document.querySelectorAll('#surface .reflink[data-sref]').forEach(b => {
   const id = refNode(b.dataset.sref);
   if (!id) { b.classList.add('flat'); b.disabled = true; return; }
@@ -1441,6 +1538,20 @@ window.addEventListener('keydown', e => {
   if (e.key === '1') setView('file');
   if (e.key === '2') setView('code');
   if (e.key === 'f') fit();
+  if (e.key === 'n' || e.key === 'p'){
+    const ord = (MODEL.reading_order||[]).map(x => x.node);
+    if (!ord.length) return;
+    const at = ord.indexOf(state.selected);
+    const next = e.key === 'n'
+      ? (at < 0 ? 0 : Math.min(at + 1, ord.length - 1))
+      : (at < 0 ? ord.length - 1 : Math.max(at - 1, 0));
+    const id = ord[next];
+    const n = nodeInfo(id) || {};
+    if (n.layer === 'code' && !document.querySelector('#viewseg [data-view=code]').disabled)
+      setView('code');
+    else if (n.layer === 'file' && state.view !== 'file') setView('file');
+    goTo(id);
+  }
   if (e.key === 'Escape'){
     if (state.evidence != null) hideEvidence();
     else document.getElementById('resetbtn').click();
@@ -1639,6 +1750,24 @@ def surface_html(surface):
     return "".join(rows)
 
 
+def order_html(order, by_id):
+    """The path through the diff, numbered, with the reason for each step."""
+    rows = []
+    for i, x in enumerate(order):
+        nid = x.get("node") or ""
+        node = by_id.get(nid) or {}
+        rows.append(
+            '<div class="ostep"><span class="onum">%d</span>'
+            '<div class="obody"><button class="reflink" data-goto="%s">%s</button>'
+            '%s</div></div>'
+            % (
+                i + 1, esc(nid), esc(node.get("label") or nid),
+                ('<p class="owhy">%s</p>' % esc(x["why"])) if x.get("why") else "",
+            )
+        )
+    return "".join(rows)
+
+
 def files_html(nodes):
     rows = []
     for n in sorted(
@@ -1684,6 +1813,12 @@ def legend_html(kinds):
 def render(model):
     nodes = model["nodes"]
     edges = model.get("edges") or []
+    # Stamped before layout, because the number sits in the label and the label
+    # decides how wide the box is.
+    steps = step_index(model.get("reading_order") or [])
+    for n in nodes:
+        if n["id"] in steps:
+            n["_step"] = steps[n["id"]]
     file_nodes = [n for n in nodes if n["layer"] == "file"]
     code_nodes = [n for n in nodes if n["layer"] == "code"]
     fids, cids = {n["id"] for n in file_nodes}, {n["id"] for n in code_nodes}
@@ -1741,6 +1876,8 @@ def render(model):
         "edges": edges,
         "patterns": model.get("patterns") or [],
         "surface": model.get("surface") or [],
+        "reading_order": model.get("reading_order") or [],
+        "_step": steps,
         "_evidence": registry,
         "_hunks": hunk_index(registry),
         "_byId": {n["id"]: n for n in nodes},
@@ -1793,6 +1930,11 @@ def render(model):
     <div id="surface">__SURFACE__
       <p class="empty" id="surface-empty" hidden></p>
     </div>
+    <details class="card bigcard" id="orderwrap" open>
+      <summary><span class="name">Read in this order</span>
+      <span class="count">__ORDERCOUNT__</span></summary>
+      <div class="cardbody"><div class="orderlist">__ORDER__</div></div>
+    </details>
     <details class="card bigcard" id="fileswrap" open>
       <summary><span class="name">Files changed</span>
       <span class="count">__FILECOUNT__</span></summary>
@@ -1817,6 +1959,9 @@ def render(model):
         "__CODE_SVG__": code_svg,
         "__PATTERNS__": patterns_html(model.get("patterns") or []),
         "__SURFACE__": surface_html(model.get("surface") or []),
+        "__ORDER__": order_html(model.get("reading_order") or [],
+                               {n["id"]: n for n in nodes}),
+        "__ORDERCOUNT__": str(len(model.get("reading_order") or [])),
         "__FILES__": files_html(nodes),
         "__FILECOUNT__": str(sum(1 for n in nodes if n["layer"] == "file")),
         "__LEGEND__": legend_html(kinds),
@@ -1850,13 +1995,14 @@ def main():
         print("  ! " + w, file=sys.stderr)
     if args.check:
         print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested, "
-              "%d surface (%d breaking), %d hotspots" % (
+              "%d surface (%d breaking), %d hotspots, %d steps" % (
                   len(model["nodes"]), len(model.get("edges") or []),
                   len(model.get("patterns") or []),
                   sum(len(n.get("hunks") or []) for n in model["nodes"]),
                   untested_count(model["nodes"]),
                   len(model.get("surface") or []), breaking_count(model),
-                  hotspot_count(model["nodes"])))
+                  hotspot_count(model["nodes"]),
+                  len(model.get("reading_order") or [])))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"
