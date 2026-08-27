@@ -1,6 +1,6 @@
 ---
 name: code-visualizer
-description: Turn a code diff or pull request into a dark-theme interactive web page that maps what changed, how the changed pieces relate, and which design patterns the change uses or breaks. Use this whenever the user wants to see, picture, map, diagram or visualize a change rather than read it - "visualize this PR", "show me what this diff touches", "draw the relations in this branch", "what patterns does this PR use", "map this change", "I can't follow this diff", "graph the dependencies of these commits" - and also when a diff is large or unfamiliar enough that a picture would land faster than prose. Accepts a PR URL or number, a git ref range, a .diff/.patch file, or the current working tree.
+description: Turn a code diff or pull request into a dark-theme interactive web page that maps what changed, how the changed pieces relate, and which design patterns the change uses or breaks. Use this whenever the user wants to see, picture, map, diagram or visualize a change rather than read it - "visualize this PR", "show me what this diff touches", "draw the relations in this branch", "what patterns does this PR use", "map this change", "I can't follow this diff", "graph the dependencies of these commits" - and also when a diff is large or unfamiliar enough that a picture would land faster than prose. Accepts a PR URL or number, a git ref range, a .diff/.patch file, or the current working tree. This one is for code diffs; for a change to documentation or other prose files use docs-visualizer instead.
 ---
 
 # Code visualizer
@@ -95,7 +95,42 @@ Three things to hold on to:
   code. Report zero patterns and let the summary carry the meaning; do not
   inflate a helper function into a Factory to fill the panel.
 
-## Step 4 — write the model
+Each piece of evidence gets a whole page of its own, so give it something to
+show. Alongside the `ref`, capture the `diff` hunk those lines sit in - you have
+the diff open already, so this is a copy, not a lookup - and write the
+`explanation` as two or three sentences rather than the fragment that used to
+fit on a card.
+
+You do not need to supply a `reference` URL. The renderer maps every name in the
+catalog to its source, refactoring.guru for the classic patterns and the primary
+source for the architectural, frontend and resilience ones, and adds the
+pattern's own patterns.dev page as a second link where it has one. Set `reference`
+yourself only to override the first link, or when you name a pattern the catalog
+does not carry.
+
+## Step 4 — run the prose through un-ai
+
+Everything you are about to write into the model that a person will read has to
+go through the `un-ai` skill first.
+
+**Invoke `un-ai` with the Skill tool. Do not apply it from memory.** Rewriting
+from what you remember the rules say is the failure this step exists to prevent:
+it feels like editing and changes nothing.
+
+- Skill name: `un-ai`. A plugin install namespaces its siblings, so use
+  `bosi-programming-skills:un-ai` and fall back to bare `un-ai` if that name is
+  not listed.
+- The call is mandatory on every run. No model is small enough to skip it.
+
+What goes through it: the top-level `summary`, every node `summary`, every
+`details` bullet, every `patterns[].intent`, every `patterns[].note`, and every
+`evidence[].explanation`.
+
+What must not, because rewriting them would make the page wrong: `id`, `label`,
+`sublabel`, `kind`, `role`, `status`, `source`, every `ref` and `evidence` path,
+every line number, and every line of the captured `diff`.
+
+## Step 5 — write the model
 
 Write `model.json` next to the output HTML. The full field list, with types and
 defaults, is in `${CLAUDE_SKILL_DIR}/references/model-schema.md`; read it before writing the file so
@@ -145,7 +180,7 @@ from the checker than from a wrong-looking picture:
 python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json --check
 ```
 
-## Step 5 — render and open
+## Step 6 — render and open
 
 ```bash
 OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o <name>.html)
@@ -162,18 +197,23 @@ works offline. The side panel takes a third of the width, the explanation strip 
 quarter of the height (draggable), and nothing on the page is smaller than 14px.
 
 What the reader gets: pan and drag, wheel zoom, `Fit`; click a box and the strip
-under the graph explains it and lists what it depends on and what uses it, each
-relation clickable to jump on; the side panel narrows its pattern cards to that
-selection at the same time, with `show all` to widen again; click a pattern card
-and the strip explains the pattern while the graph isolates its participants;
-chips filter by change status and relation kind; a text filter; `1` and `2`
-switch layers, `Escape` resets.
+under the graph explains it, in prose and bullets, with the relations left to the
+graph where they are already drawn; the side panel narrows its pattern cards to
+that selection at the same time, with `show all` to widen again; every pattern
+card is collapsed to its name and confidence until it is opened, and inside it
+carries a link to what the pattern is, an `Isolate on graph` checkbox that dims
+everything but the participants, and its evidence refs; click a ref and the whole
+page turns into that piece of evidence - the diff hunk, coloured, with the
+explanation under it - and `Back` or `Escape` returns; chips filter by change
+status and relation kind; a text filter; `1` and `2` switch layers, `Escape`
+resets.
 
 Deep links, worth handing to someone in a review comment: `#code` opens the code
 layer, `#node=<node id>` opens with that box selected and explained,
-`#pattern=<index>` opens with that pattern isolated.
+`#pattern=<index>` opens with that card open and isolated, and
+`#evidence=<index>` opens straight into one piece of evidence.
 
-## Step 6 — report back
+## Step 7 — report back
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and

@@ -1,5 +1,5 @@
 {
-  "title": "PR #482 \u2014 notification fan-out",
+  "title": "PR #482 — notification fan-out",
   "source": "gh pr diff 482 (acme/services)",
   "summary": "Replaces the inline email send with a strategy-per-channel dispatcher behind a factory, and emits a domain event so the audit log stays decoupled.",
   "stats": {
@@ -318,11 +318,13 @@
       "evidence": [
         {
           "ref": "channel.interface.ts:4-18",
-          "note": "single send() contract"
+          "diff": "@@ -0,0 +1,15 @@\n+export interface NotificationChannel {\n+  readonly key: ChannelKey;\n+  send(msg: Notification): Promise<SendResult>;\n+}\n",
+          "explanation": "One method, one return type, no channel name anywhere in the signature. That is what lets the dispatcher stop knowing which provider it is talking to."
         },
         {
           "ref": "dispatcher.service.ts:44",
-          "note": "context calls through the interface"
+          "diff": "@@ -38,9 +41,7 @@ export class DispatcherService {\n-    if (channel === 'email') return this.mailer.send(msg);\n-    if (channel === 'sms') return this.twilio.send(msg);\n-    if (channel === 'push') return this.fcm.send(msg);\n+    const impl = this.channelFor(channel);\n+    return impl.send(msg);\n",
+          "explanation": "The three-branch if is gone. The dispatcher now asks for an implementation and calls it, so adding a fourth channel never touches this method."
         }
       ]
     },
@@ -347,7 +349,8 @@
       "evidence": [
         {
           "ref": "dispatcher.service.ts:92-116",
-          "note": "switch on channel returns a strategy"
+          "diff": "@@ -0,0 +1,12 @@\n+  private channelFor(key: ChannelKey): NotificationChannel {\n+    switch (key) {\n+      case 'email': return this.emailChannel;\n+      case 'sms': return this.smsChannel;\n+      case 'push': return this.pushChannel;\n+    }\n+  }\n",
+          "explanation": "The switch moved here and returns injected instances, not new ones. It picks a product and hands it back, which is the whole of Factory Method."
         }
       ],
       "note": "Medium: it is a plain switch, not a registry, so adding a channel still edits this function."
@@ -369,13 +372,16 @@
       "evidence": [
         {
           "ref": "dispatcher.service.ts:71",
-          "note": "eventEmitter.emit('notification.sent')"
+          "diff": "@@ -66,6 +68,8 @@ export class DispatcherService {\n     const result = await impl.send(msg);\n+    this.eventEmitter.emit('notification.sent',\n+      new NotificationSentEvent(msg.id, key, result.providerId));\n     return result;\n",
+          "explanation": "The send path emits after the channel returns. Nothing here knows who listens, so audit can be added or dropped without editing the dispatcher."
         },
         {
           "ref": "audit.listener.ts:57",
-          "note": "@OnEvent handler"
+          "diff": "@@ -0,0 +1,9 @@\n+  @OnEvent('notification.sent')\n+  async record(event: NotificationSentEvent) {\n+    await this.audit.write({ id: event.id, channel: event.channel });\n+  }\n",
+          "explanation": "The other half of the pair. It subscribes by event name only, which is what makes this Observer and not a direct call."
         }
-      ]
+      ],
+      "reference": "https://refactoring.guru/design-patterns/observer"
     }
   ]
 }

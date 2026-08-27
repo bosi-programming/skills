@@ -34,6 +34,119 @@ EDGE = {
     "other": ("#7d8798", "2 4"),
 }
 
+# Where each catalog name is explained. refactoring.guru is the home for the
+# classic patterns; the architectural, frontend and resilience groups are not on
+# that site, so they point at their own primary source. A model's
+# patterns[].reference overrides anything here.
+REFERENCE = {
+    "factory method": "https://refactoring.guru/design-patterns/factory-method",
+    "abstract factory": "https://refactoring.guru/design-patterns/abstract-factory",
+    "builder": "https://refactoring.guru/design-patterns/builder",
+    "singleton": "https://refactoring.guru/design-patterns/singleton",
+    "prototype": "https://refactoring.guru/design-patterns/prototype",
+    "dependency injection": "https://martinfowler.com/articles/injection.html",
+    "adapter": "https://refactoring.guru/design-patterns/adapter",
+    "facade": "https://refactoring.guru/design-patterns/facade",
+    "decorator": "https://refactoring.guru/design-patterns/decorator",
+    "proxy": "https://refactoring.guru/design-patterns/proxy",
+    "composite": "https://refactoring.guru/design-patterns/composite",
+    "bridge": "https://refactoring.guru/design-patterns/bridge",
+    "repository": "https://martinfowler.com/eaaCatalog/repository.html",
+    "strategy": "https://refactoring.guru/design-patterns/strategy",
+    "observer / pub-sub": "https://refactoring.guru/design-patterns/observer",
+    "observer": "https://refactoring.guru/design-patterns/observer",
+    "command": "https://refactoring.guru/design-patterns/command",
+    "chain of responsibility": "https://refactoring.guru/design-patterns/chain-of-responsibility",
+    "template method": "https://refactoring.guru/design-patterns/template-method",
+    "state": "https://refactoring.guru/design-patterns/state",
+    "mediator": "https://refactoring.guru/design-patterns/mediator",
+    "visitor": "https://refactoring.guru/design-patterns/visitor",
+    "iterator / generator": "https://refactoring.guru/design-patterns/iterator",
+    "iterator": "https://refactoring.guru/design-patterns/iterator",
+    "memento": "https://refactoring.guru/design-patterns/memento",
+    "layered / hexagonal (ports and adapters)": "https://alistair.cockburn.us/hexagonal-architecture/",
+    "cqrs": "https://martinfowler.com/bliki/CQRS.html",
+    "event sourcing": "https://martinfowler.com/eaaDev/EventSourcing.html",
+    "saga / process manager": "https://microservices.io/patterns/data/saga.html",
+    "outbox": "https://microservices.io/patterns/data/transactional-outbox.html",
+    "strangler fig": "https://martinfowler.com/bliki/StranglerFigApplication.html",
+    "anti-corruption layer": "https://learn.microsoft.com/en-us/azure/architecture/patterns/anti-corruption-layer",
+    "container / presentational": "https://www.patterns.dev/react/presentational-container-pattern",
+    "custom hook (behaviour extraction)": "https://react.dev/learn/reusing-logic-with-custom-hooks",
+    "provider / context": "https://react.dev/learn/passing-data-deeply-with-context",
+    "compound component": "https://www.patterns.dev/react/compound-pattern",
+    "render prop / headless component": "https://www.patterns.dev/react/render-props-pattern",
+    "optimistic update": "https://tanstack.com/query/latest/docs/framework/react/guides/optimistic-updates",
+    "circuit breaker": "https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker",
+    "retry with backoff": "https://learn.microsoft.com/en-us/azure/architecture/patterns/retry",
+    "bulkhead / rate limiter": "https://learn.microsoft.com/en-us/azure/architecture/patterns/bulkhead",
+    "idempotency key": "https://docs.stripe.com/api/idempotent_requests",
+    "cache-aside": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+    "leaky abstraction": "https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions/",
+    "strategy with an if": "https://refactoring.guru/replace-conditional-with-polymorphism",
+    "god object / single responsibility break": "https://en.wikipedia.org/wiki/Single-responsibility_principle",
+    "circular dependency": "https://en.wikipedia.org/wiki/Circular_dependency",
+    "anemic domain model": "https://martinfowler.com/bliki/AnemicDomainModel.html",
+    "feature envy / shotgun surgery": "https://refactoring.guru/smells/feature-envy",
+    "inheritance for reuse": "https://refactoring.guru/smells/refused-bequest",
+}
+
+
+# patterns.dev, per pattern. These sit beside the specific link rather than
+# replacing it: refactoring.guru explains Observer, patterns.dev shows what it
+# looks like in JavaScript, and a reader usually wants both. patterns.dev does
+# not cover the whole catalog, and a link to its index page helps nobody, so a
+# pattern with no page there simply gets one link.
+FAMILY = {
+    "factory method": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/factory-pattern"),
+    "singleton": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/singleton-pattern"),
+    "prototype": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/prototype-pattern"),
+    "proxy": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/proxy-pattern"),
+    "observer / pub-sub": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/observer-pattern"),
+    "observer": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/observer-pattern"),
+    "mediator": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/mediator-pattern"),
+    "command": ("Vanilla JS/TS", "https://www.patterns.dev/vanilla/command-pattern"),
+    "container / presentational": ("React", "https://www.patterns.dev/react/presentational-container-pattern"),
+    "custom hook (behaviour extraction)": ("React", "https://www.patterns.dev/react/hooks-pattern"),
+    "compound component": ("React", "https://www.patterns.dev/react/compound-pattern"),
+    "render prop / headless component": ("React", "https://www.patterns.dev/react/render-props-pattern"),
+}
+
+
+def norm_name(name):
+    key = re.sub(r"[`\u2019']", "", str(name or "")).strip().lower()
+    return re.sub(r"\s+", " ", key)
+
+
+def references_for(pattern):
+    """Every link shown under a pattern name, as (label, url) pairs.
+
+    A model's `reference` replaces the catalog link and may be a string or a
+    list. The patterns.dev family link is added on top either way, since it
+    answers a different question: what this looks like in the language.
+    """
+    key = norm_name(pattern.get("name"))
+    own = pattern.get("reference")
+    out = []
+    if own:
+        urls = own if isinstance(own, (list, tuple)) else [own]
+        out.extend(("What this pattern is", str(u)) for u in urls if u)
+    else:
+        url = REFERENCE.get(key)
+        if url:
+            out.append(("What this pattern is", url))
+    fam = FAMILY.get(key)
+    if fam and not any(u == fam[1] for _, u in out):
+        out.append(("In %s" % fam[0], fam[1]))
+    return out
+
+
+def reference_for(pattern):
+    """First link only. Kept for callers that want a single URL."""
+    refs = references_for(pattern)
+    return refs[0][1] if refs else ""
+
+
 NODE_H = 70
 V_GAP = 26
 H_GAP = 104
@@ -107,6 +220,9 @@ def validate(model):
                 "patterns[%d] (%s) has no evidence; a pattern without file:line "
                 "evidence must not be claimed" % (i, p.get("name"))
             )
+        for x in p.get("evidence") or []:
+            if x.get("note") and not x.get("explanation"):
+                x["explanation"] = x.pop("note")
         for part in p.get("participants") or []:
             if part.get("node") and part["node"] not in ids:
                 errors.append(
@@ -459,8 +575,9 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
   max-width:82ch}
 #explainer ul.bullets li{margin:2px 0}
 #explainer .body{display:flex;gap:30px;align-items:flex-start}
-#explainer .prose{flex:1 1 48%;min-width:280px}
+#explainer .prose{flex:1 1 auto;min-width:280px}
 #explainer .prose p,#explainer .prose ul{max-width:none}
+#explainer .body:not(:has(.cols)) .prose{flex:1 1 100%}
 #explainer .cols{display:flex;gap:24px;flex-wrap:wrap;flex:1 1 46%;align-items:flex-start}
 #explainer .col{flex:1 1 190px;min-width:180px}
 #explainer .col h4{margin:0 0 4px;font-size:14px;letter-spacing:.07em;text-transform:uppercase;
@@ -478,11 +595,28 @@ aside h2 .count{color:var(--muted);letter-spacing:0;text-transform:none}
   padding:0;margin-left:auto;letter-spacing:0;text-transform:none}
 .linkish:hover{text-decoration:underline}
 aside h2:first-child{margin-top:0}
-.card{border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:9px;
-  background:var(--panel-2);cursor:pointer}
+.card{border:1px solid var(--line);border-radius:10px;margin-bottom:9px;
+  background:var(--panel-2)}
 .card:hover{border-color:#3a465a}
 .card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-.card .row{display:flex;align-items:center;gap:8px}
+.card>summary{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;
+  list-style:none;user-select:none}
+.card>summary::-webkit-details-marker{display:none}
+.card>summary::before{content:"▸";color:var(--dim);font-size:14px;transition:transform .12s}
+.card[open]>summary::before{transform:rotate(90deg)}
+.card>summary:hover{color:#fff}
+.cardbody{padding:0 13px 12px 13px;border-top:1px solid var(--line);margin-top:2px;padding-top:10px}
+.patref{display:block;font-size:14px;color:var(--accent);text-decoration:none;margin-bottom:5px}
+.patref:last-of-type{margin-bottom:8px}
+.patref:hover{text-decoration:underline}
+.isolate{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--muted);
+  cursor:pointer;margin-bottom:8px}
+.isolate input{accent-color:var(--accent);cursor:pointer;width:14px;height:14px;margin:0}
+.evlist{list-style:none;padding-left:0;margin:8px 0 0}
+.evlist li{padding:2px 0}
+.reflink{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;
+  font-size:14px;font-family:ui-monospace,Menlo,monospace;text-align:left}
+.reflink:hover{text-decoration:underline}
 .card .name{font-weight:600;font-size:14px}
 .card .conf{font-size:14px;text-transform:uppercase;letter-spacing:.06em;
   border:1px solid var(--line);border-radius:999px;padding:1px 9px;color:var(--muted)}
@@ -493,6 +627,24 @@ aside h2:first-child{margin-top:0}
 .card ul{margin:8px 0 0;padding-left:16px;color:var(--muted);font-size:14px}
 .card .ev{font-size:14px;color:var(--dim)}
 .empty{color:var(--dim);font-size:14px}
+#evidence-view{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;
+  padding:26px 34px 60px}
+#evidence-view .evhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+#evidence-view h2{margin:0;font-size:15px;font-family:ui-monospace,Menlo,monospace;color:#e6edf3;
+  letter-spacing:0;text-transform:none}
+#evidence-view .from{font-size:14px;color:var(--dim)}
+#evidence-view .from a{color:var(--accent);text-decoration:none}
+#evidence-view .from a:hover{text-decoration:underline}
+#evidence-view pre{margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel-2);overflow-x:auto;font-size:14px;line-height:1.5;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+#evidence-view pre .a{color:#7ee787;display:block}
+#evidence-view pre .d{color:#ff7b72;display:block}
+#evidence-view pre .h{color:#79c0ff;display:block}
+#evidence-view pre .c{color:#8b98a9;display:block}
+#evidence-view .why{margin:18px 0 0;max-width:82ch;font-size:15px;color:#cbd5e1}
+#evidence-view .why h3{margin:0 0 6px;font-size:14px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--dim);font-weight:600}
 .legend{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
 .legend .row{display:flex;align-items:center;gap:9px}
 .legend .sw{width:22px;height:0;border-top-width:2px;border-top-style:solid}
@@ -511,7 +663,7 @@ const MODEL = JSON.parse(document.getElementById('model').textContent);
 const stage = document.getElementById('stage');
 const state = {view:'file', scale:1, tx:0, ty:0, statuses:new Set(['added','modified','deleted','related']),
                kinds:new Set(MODEL._kinds), selected:null, pattern:null, query:'',
-               allPatterns:false};
+               allPatterns:false, evidence:null};
 
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
@@ -534,8 +686,16 @@ stage.addEventListener('wheel', e => {
   e.preventDefault();
   const r = stage.getBoundingClientRect();
   const mx = e.clientX-r.left, my = e.clientY-r.top;
-  const k = Math.exp(-e.deltaY*0.0016);
-  const ns = Math.max(0.12, Math.min(4, state.scale*k));
+  // deltaY arrives in three units depending on the device, and a mouse notch is
+  // two orders of magnitude bigger than one trackpad tick. Normalise to pixels,
+  // then cap a single event so one notch is a step rather than a jump.
+  let dy = e.deltaY;
+  if (e.deltaMode === 1) dy *= 16;
+  else if (e.deltaMode === 2) dy *= stage.clientHeight || 800;
+  dy = Math.max(-50, Math.min(50, dy));
+  // ctrlKey means a trackpad pinch, whose ticks are small and want a steeper curve.
+  const k = Math.exp(-dy * (e.ctrlKey ? 0.02 : 0.005));
+  const ns = Math.max(0.08, Math.min(8, state.scale*k));
   state.tx = mx - (mx-state.tx)*(ns/state.scale);
   state.ty = my - (my-state.ty)*(ns/state.scale);
   state.scale = ns; applyTransform();
@@ -646,17 +806,6 @@ function select(id){
   renderExplainer(); syncPatterns(); refresh();
 }
 
-function relList(list, dir){
-  return list.map(e => {
-    const other = dir === 'out' ? e.to : e.from;
-    const arrow = dir === 'out' ? '\u2192' : '\u2190';
-    const o = nodeInfo(other) || {};
-    return `<li>${esc(e.kind||'other')} ${arrow} <a href="#" data-goto="${esc(other)}">${esc(o.label||other)}</a>`
-      + `${e.label?` <span class="ev">${esc(e.label)}</span>`:''}`
-      + `${e.evidence?` <span class="ev mono">${esc(e.evidence)}</span>`:''}</li>`;
-  }).join('');
-}
-
 function derivedLine(id, n, outs, ins){
   const bits = [];
   bits.push(`${n.kind || 'node'}, ${n.status || 'related'}`);
@@ -667,6 +816,51 @@ function derivedLine(id, n, outs, ins){
   return bits.join(' \u00b7 ') + '. No written explanation in the model for this one.';
 }
 
+// Flat index of every patterns[].evidence[] entry, in the order patterns_html
+// numbered them, so a ref rendered in the side panel and the same ref rendered
+// in the strip open the same view.
+function evIndex(pi, entry){
+  return (MODEL._evidence||[]).findIndex(e => e.pattern === pi && e.ref === entry.ref);
+}
+
+function diffHtml(text){
+  if (!text) return '<p class="meta" style="font-family:inherit">No diff captured in the model for this ref.</p>';
+  const cls = l => l.startsWith('@@') ? 'h'
+    : (l.startsWith('+') && !l.startsWith('+++')) ? 'a'
+    : (l.startsWith('-') && !l.startsWith('---')) ? 'd' : 'c';
+  return '<pre>' + String(text).split('\n')
+    .map(l => `<span class="${cls(l)}">${esc(l) || '&nbsp;'}</span>`).join('') + '</pre>';
+}
+
+function showEvidence(i){
+  const e = (MODEL._evidence||[])[i];
+  if (!e) return;
+  state.evidence = i;
+  const host = document.getElementById('evidence-view');
+  host.innerHTML = `
+    <div class="evhead">
+      <h2>${esc(e.ref)}</h2>
+      <span class="from">evidence for <a href="#" data-pat="${e.pattern}">${esc(e.patternName)}</a></span>
+      <button class="btn back" id="evback">Back to the graph</button>
+    </div>
+    ${diffHtml(e.diff)}
+    <div class="why"><h3>Why this proves it</h3>
+    ${e.explanation ? `<p>${esc(e.explanation)}</p>`
+      : '<p class="meta" style="font-family:inherit">No explanation in the model for this ref.</p>'}
+    </div>`;
+  host.hidden = false;
+  host.querySelector('#evback').onclick = hideEvidence;
+  host.querySelector('[data-pat]').onclick = ev => {
+    ev.preventDefault(); hideEvidence(); pickPattern(+ev.target.dataset.pat);
+  };
+  host.scrollTop = 0;
+}
+
+function hideEvidence(){
+  state.evidence = null;
+  document.getElementById('evidence-view').hidden = true;
+}
+
 function renderExplainer(){
   const host = document.getElementById('explainer');
   const back = '<button class="btn back" id="backbtn">Back to overview</button>';
@@ -675,7 +869,6 @@ function renderExplainer(){
     const id = state.selected, n = nodeInfo(id) || {};
     const outs = (MODEL.edges||[]).filter(e => e.from === id);
     const ins = (MODEL.edges||[]).filter(e => e.to === id);
-    const pats = patternsFor(id).map(x => [x.p, x.i]);
     const meta = [id, n.status, n.line ? 'line '+n.line : null,
       (n.insertions != null || n.deletions != null) ? `+${n.insertions||0} \u2212${n.deletions||0}` : null]
       .filter(Boolean).join('  \u00b7  ');
@@ -689,13 +882,6 @@ function renderExplainer(){
       <div class="body"><div class="prose">
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
-      </div>
-      <div class="cols">
-        ${outs.length ? `<div class="col"><h4>Depends on</h4><ul class="rel">${relList(outs,'out')}</ul></div>` : ''}
-        ${ins.length ? `<div class="col"><h4>Used by</h4><ul class="rel">${relList(ins,'in')}</ul></div>` : ''}
-        ${pats.length ? `<div class="col"><h4>Patterns here</h4><ul class="rel">${
-          pats.map(([p,i]) => `<li><a href="#" data-pat="${i}">${esc(p.name)}</a> <span class="ev">${esc(p.confidence||'')}</span></li>`).join('')
-        }</ul></div>` : ''}
       </div></div>`;
   } else if (state.pattern != null){
     const p = MODEL.patterns[state.pattern];
@@ -715,13 +901,10 @@ function renderExplainer(){
           (p.participants||[]).map(x => `<li><b>${esc(x.role||'participant')}</b>: <a href="#" data-goto="${esc(x.node)}">${esc((nodeInfo(x.node)||{}).label || x.node)}</a></li>`).join('')
         }</ul></div>` : ''}
         ${(p.evidence||[]).length ? `<div class="col"><h4>Evidence</h4><ul class="rel">${
-          (p.evidence||[]).map(x => `<li><span class="mono">${esc(x.ref)}</span>${x.note?' \u2014 '+esc(x.note):''}</li>`).join('')
+          (p.evidence||[]).map(x => `<li><button class="reflink mono" data-ev="${evIndex(state.pattern, x)}">${esc(x.ref)}</button></li>`).join('')
         }</ul></div>` : ''}
       </div></div>`;
   } else {
-    const top = (MODEL.nodes||[]).filter(n => n.layer === 'file' && n.status !== 'related')
-      .sort((a,b) => ((b.insertions||0)+(b.deletions||0)) - ((a.insertions||0)+(a.deletions||0)))
-      .slice(0,4);
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">what this change is about</span>
@@ -731,20 +914,15 @@ function renderExplainer(){
       <div class="body"><div class="prose">
       ${MODEL.summary ? `<p>${esc(MODEL.summary)}</p>`
         : '<p class="meta" style="font-family:inherit">No summary in the model.</p>'}
-      <p class="meta" style="font-family:inherit">Click any box, file or pattern to swap this panel for its explanation.</p>
-      </div>
-      <div class="cols">
-        ${top.length ? `<div class="col"><h4>Where the change lands</h4><ul class="rel">${
-          top.map(n => `<li><a href="#" data-goto="${esc(n.id)}">${esc(n.label||n.id)}</a> <span class="ev mono">+${n.insertions||0} \u2212${n.deletions||0}</span></li>`).join('')
-        }</ul></div>` : ''}
-        ${(MODEL.patterns||[]).length ? `<div class="col"><h4>Patterns found</h4><ul class="rel">${
-          (MODEL.patterns||[]).map((p,i) => `<li><a href="#" data-pat="${i}">${esc(p.name)}</a> <span class="ev">${esc(p.confidence||'')}</span></li>`).join('')
-        }</ul></div>` : '<div class="col"><h4>Patterns found</h4><p class="meta" style="font-family:inherit">None claimed: plain procedural change.</p></div>'}
+      <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Open a pattern card on the right for its evidence.</p>
       </div></div>`;
   }
 
   host.querySelectorAll('[data-pat]').forEach(a => a.onclick = ev => {
     ev.preventDefault(); state.selected = null; pickPattern(+a.dataset.pat);
+  });
+  host.querySelectorAll('.reflink[data-ev]').forEach(b => b.onclick = ev => {
+    ev.preventDefault(); showEvidence(+b.dataset.ev);
   });
   host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
     ev.preventDefault(); state.selected = a.dataset.goto; state.pattern = null;
@@ -759,10 +937,19 @@ function renderExplainer(){
   };
 }
 
+function syncIsolateBoxes(){
+  document.querySelectorAll('#patterns .card input[data-iso]').forEach(b =>
+    b.checked = (+b.dataset.iso === state.pattern));
+}
+
 function pickPattern(i){
   state.pattern = (state.pattern === i) ? null : i;
-  document.querySelectorAll('#patterns .card').forEach(c =>
-    c.classList.toggle('active', +c.dataset.idx === state.pattern));
+  document.querySelectorAll('#patterns .card').forEach(c => {
+    const on = +c.dataset.idx === state.pattern;
+    c.classList.toggle('active', on);
+    if (on) c.open = true;
+  });
+  syncIsolateBoxes();
   renderExplainer(); syncPatterns(); refresh();
 }
 
@@ -786,12 +973,23 @@ document.querySelectorAll('.chip[data-kind]').forEach(c => c.onclick = () => {
 document.getElementById('search').oninput = e => { state.query = e.target.value; refresh(); };
 document.getElementById('fitbtn').onclick = fit;
 document.getElementById('resetbtn').onclick = () => {
+  hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false;
+  document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
   renderExplainer(); syncPatterns(); refresh();
 };
-document.querySelectorAll('#patterns .card').forEach(c => c.onclick = () => pickPattern(+c.dataset.idx));
+document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onchange = () => {
+  const i = +b.dataset.iso;
+  state.pattern = b.checked ? i : null;
+  syncIsolateBoxes();
+  document.querySelectorAll('#patterns .card').forEach(c =>
+    c.classList.toggle('active', +c.dataset.idx === state.pattern));
+  renderExplainer(); syncPatterns(); refresh();
+});
+document.querySelectorAll('.reflink[data-ev]').forEach(b =>
+  b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); showEvidence(+b.dataset.ev); });
 document.querySelectorAll('#stage .node').forEach(g => g.onclick = () => select(g.dataset.nodeId));
 document.querySelectorAll('.filelist div').forEach(d => d.onclick = () => {
   if (state.view !== 'file') setView('file');
@@ -802,7 +1000,10 @@ window.addEventListener('keydown', e => {
   if (e.key === '1') setView('file');
   if (e.key === '2') setView('code');
   if (e.key === 'f') fit();
-  if (e.key === 'Escape') document.getElementById('resetbtn').click();
+  if (e.key === 'Escape'){
+    if (state.evidence != null) hideEvidence();
+    else document.getElementById('resetbtn').click();
+  }
 });
 window.addEventListener('resize', fit);
 // Deep links: #code, #node=<id>, #pattern=<index>. Handy for pasting a link to
@@ -822,8 +1023,15 @@ window.addEventListener('resize', fit);
   if (h.startsWith('pattern=')){
     const i = +h.slice(8);
     if (MODEL.patterns[i]) { state.pattern = i;
-      document.querySelectorAll('#patterns .card').forEach(c => c.classList.toggle('active', +c.dataset.idx === i)); }
+      document.querySelectorAll('#patterns .card').forEach(c => {
+        const on = +c.dataset.idx === i;
+        c.classList.toggle('active', on);
+        if (on) c.open = true;
+      });
+      syncIsolateBoxes(); }
+    return;
   }
+  if (h.startsWith('evidence=')) showEvidence(+h.slice(9));
 })();
 renderExplainer(); syncPatterns(); refresh(); fit();
 """
@@ -859,6 +1067,7 @@ def patterns_html(patterns):
             "finding, not a gap: the diff is plain procedural code.</p>"
         )
     out = []
+    ei = 0
     for i, p in enumerate(patterns):
         conf = (p.get("confidence") or "medium").lower()
         parts = "".join(
@@ -866,23 +1075,54 @@ def patterns_html(patterns):
             % (esc(x.get("role") or "participant"), esc(x.get("node")))
             for x in (p.get("participants") or [])
         )
-        ev = "".join(
-            '<li class="ev mono">%s%s</li>'
-            % (esc(x.get("ref")), (" — " + esc(x.get("note"))) if x.get("note") else "")
-            for x in (p.get("evidence") or [])
+        ev_items = []
+        for x in (p.get("evidence") or []):
+            ev_items.append(
+                '<li><button class="reflink mono" data-ev="%d">%s</button></li>'
+                % (ei, esc(x.get("ref")))
+            )
+            ei += 1
+        ev = "".join(ev_items)
+        link = "".join(
+            '<a class="patref" href="%s" target="_blank" rel="noreferrer noopener">'
+            '%s ↗</a>' % (esc(u), esc(label))
+            for label, u in references_for(p)
         )
         out.append(
-            '<div class="card" data-idx="%d"><div class="row"><span class="name">%s</span>'
-            '<span class="conf %s">%s</span></div>%s%s%s%s</div>'
+            '<details class="card" data-idx="%d">'
+            '<summary><span class="name">%s</span>'
+            '<span class="conf %s">%s</span></summary>'
+            '<div class="cardbody">%s'
+            '<label class="isolate"><input type="checkbox" data-iso="%d"> Isolate on graph</label>'
+            '%s%s%s%s</div></details>'
             % (
-                i, esc(p.get("name")), conf, conf,
+                i, esc(p.get("name")), conf, conf, link, i,
                 ('<p>%s</p>' % esc(p["intent"])) if p.get("intent") else "",
                 ('<ul>%s</ul>' % parts) if parts else "",
-                ('<ul>%s</ul>' % ev) if ev else "",
+                ('<ul class="evlist">%s</ul>' % ev) if ev else "",
                 ('<p class="ev">%s</p>' % esc(p["note"])) if p.get("note") else "",
             )
         )
     return "".join(out)
+
+
+def evidence_index(patterns):
+    """Every evidence entry, flattened and numbered the way patterns_html does.
+
+    The index is the id in `#evidence=<i>`, so it has to stay stable between the
+    card markup and the page's JavaScript.
+    """
+    out = []
+    for i, p in enumerate(patterns):
+        for x in (p.get("evidence") or []):
+            out.append({
+                "ref": x.get("ref") or "",
+                "diff": x.get("diff") or "",
+                "explanation": x.get("explanation") or "",
+                "pattern": i,
+                "patternName": p.get("name") or "",
+            })
+    return out
 
 
 def files_html(nodes):
@@ -966,6 +1206,7 @@ def render(model):
         "nodes": nodes,
         "edges": edges,
         "patterns": model.get("patterns") or [],
+        "_evidence": evidence_index(model.get("patterns") or []),
         "_byId": {n["id"]: n for n in nodes},
         "_kinds": kinds,
     }
@@ -1005,6 +1246,7 @@ def render(model):
       <div class="pane" id="pane-code" hidden>__CODE_SVG__</div>
     </div>
     <section id="explainer"></section>
+<div id="evidence-view" hidden></div>
   </div>
   <aside>
     <h2 id="patterns-head">Design patterns</h2>

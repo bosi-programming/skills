@@ -1,0 +1,158 @@
+// Headless check on the page render_graph.py produces.
+//
+//   python3 scripts/render_graph.py references/example-model.json -o /tmp/cv.html
+//   node scripts/test_render.js /tmp/cv.html
+//
+// It pulls the page's own functions out of the HTML and runs them against the
+// page's own model, so what it proves is what the browser would see: the markup
+// and the data. It cannot click, so opening a card and leaving the evidence
+// view still need a person.
+
+const fs = require('fs');
+
+const path = process.argv[2];
+if (!path) {
+  console.error('usage: node test_render.js <rendered.html>');
+  process.exit(2);
+}
+const html = fs.readFileSync(path, 'utf8');
+const js = html.split('<script>').pop().split('</script>')[0];
+
+const grab = (name) => {
+  const i = js.indexOf('function ' + name + '(');
+  if (i < 0) throw new Error('missing ' + name);
+  let depth = 0, started = false;
+  for (let j = i; j < js.length; j++) {
+    if (js[j] === '{') { depth++; started = true; }
+    else if (js[j] === '}') { depth--; if (started && depth === 0) return js.slice(i, j + 1); }
+  }
+  throw new Error('unbalanced ' + name);
+};
+
+const MODEL = JSON.parse(html.split('type="application/json" id="model">')[1].split('</script>')[0]);
+const state = { pattern: null, evidence: null };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const nodeInfo = id => MODEL._byId[id];
+
+const ctx = { MODEL, state, esc, nodeInfo };
+const names = ['patternsFor', 'evIndex', 'diffHtml'];
+const api = new Function(...Object.keys(ctx),
+  names.map(grab).join('\n') + '\nreturn {' + names.join(',') + '};')(...Object.values(ctx));
+
+let fail = 0;
+const ok = (label, cond, extra = '') => {
+  console.log((cond ? 'PASS  ' : 'FAIL  ') + label + (extra ? '  :: ' + extra : ''));
+  if (!cond) fail++;
+};
+
+// ---- evidence registry
+const reg = MODEL._evidence || [];
+const flat = [];
+(MODEL.patterns || []).forEach((p, i) => (p.evidence || []).forEach(e => flat.push([i, e.ref])));
+ok('the registry holds every evidence entry', reg.length === flat.length,
+   reg.length + ' of ' + flat.length);
+ok('the registry keeps the order the cards numbered them in',
+   reg.every((e, i) => e.pattern === flat[i][0] && e.ref === flat[i][1]));
+ok('every registry entry names its pattern', reg.every(e => e.patternName));
+ok('evIndex round-trips a ref back to its index',
+   reg.every((e, i) => api.evIndex(e.pattern, { ref: e.ref }) === i));
+ok('evIndex returns -1 for a ref that is not there',
+   api.evIndex(0, { ref: 'nowhere.ts:1' }) === -1);
+
+// ---- note migrated to explanation
+ok('note arrives as explanation', reg.every(e => e.explanation !== undefined));
+ok('no evidence entry still carries a raw note',
+   !(MODEL.patterns || []).some(p => (p.evidence || []).some(e => e.note)));
+ok('every evidence entry has an explanation to show', reg.every(e => e.explanation));
+
+// ---- diff rendering
+const withDiff = reg.find(e => e.diff);
+ok('at least one evidence entry carries a diff', !!withDiff);
+if (withDiff) {
+  const d = api.diffHtml(withDiff.diff);
+  ok('an added line is coloured', d.includes('class="a"'));
+  ok('a removed line is coloured', reg.some(e => api.diffHtml(e.diff).includes('class="d"')));
+  ok('a hunk header is coloured', d.includes('class="h"'));
+}
+ok('the diff escapes markup in the hunk',
+   api.diffHtml('+<script>alert(1)</script>').includes('&lt;script&gt;'));
+ok('the diff leaves no raw tag from the hunk',
+   !api.diffHtml('+<script>alert(1)</script>').includes('<script>'));
+ok('a missing diff renders a fallback, not an exception',
+   api.diffHtml('').includes('No diff captured'));
+
+// ---- pattern cards
+const panel = html.split('<div id="patterns">')[1].split('</aside>')[0];
+const nPat = (MODEL.patterns || []).length;
+ok('every card is a collapsed details element',
+   (panel.match(/<details class="card"/g) || []).length === nPat);
+ok('no card is open by default', !panel.includes('<details class="card" open'));
+ok('every card has an isolate checkbox',
+   (panel.match(/type="checkbox" data-iso=/g) || []).length === nPat);
+ok('every card links to what the pattern is',
+   (panel.match(/class="patref"/g) || []).length >= nPat);
+ok('every ref in a card is a button',
+   (panel.match(/class="reflink mono" data-ev=/g) || []).length === reg.length);
+ok('no card still binds click to pickPattern',
+   !js.includes(".card').forEach(c => c.onclick = () => pickPattern"));
+
+// ---- the built-in reference map, and a model override
+const cards = panel.split('<details class="card"').slice(1);
+const hrefsIn = c => [...c.matchAll(/class="patref" href="([^"]+)"/g)].map(m => m[1]);
+const hrefs = hrefsIn(panel);
+ok('a GoF name resolves to refactoring.guru',
+   hrefs.some(h => h.startsWith('https://refactoring.guru/design-patterns/')));
+ok('every card carries at least one link', cards.every(c => hrefsIn(c).length >= 1));
+ok('a classic pattern also links to a patterns.dev vanilla page',
+   cards.some(c => hrefsIn(c).some(u => /patterns\.dev\/vanilla\/.+/.test(u))));
+ok('no link lands on a patterns.dev index page',
+   hrefs.every(u => !/^https:\/\/www\.patterns\.dev\/(vanilla|react)\/?$/.test(u)));
+ok('the family link comes second, after the specific one',
+   cards.every(c => {
+     const h = hrefsIn(c);
+     const i = h.findIndex(u => u.startsWith('https://www.patterns.dev/'));
+     return i === -1 || i === h.length - 1;
+   }));
+ok('no card repeats the same url twice',
+   cards.every(c => new Set(hrefsIn(c)).size === hrefsIn(c).length));
+const override = (MODEL.patterns || []).find(p => p.reference);
+ok('a model-level reference is present to override with', !!override);
+if (override) {
+  const card = cards.find(c => c.includes(override.reference));
+  ok('the model reference wins', !!card);
+  ok('the family link survives a model override',
+     !!card && hrefsIn(card).some(u => u.startsWith('https://www.patterns.dev/')));
+}
+
+ok('the collapse marker is a real character, not a broken CSS escape',
+   html.includes('summary::before{content:"\u25b8"'));
+
+// ---- the strip gives its prose the full width now that the columns are gone
+ok('the node branch has no empty column wrapper',
+   (js.match(/<div class="cols">\s*<\/div>/g) || []).length === 0);
+ok('the prose expands when nothing shares the row',
+   html.includes('.body:not(:has(.cols)) .prose{flex:1 1 100%}'));
+
+// ---- zoom
+ok('wheel deltas are normalised per device', js.includes('e.deltaMode === 1'));
+ok('a single wheel event is capped', js.includes('Math.max(-50, Math.min(50, dy))'));
+ok('a trackpad pinch gets its own rate', js.includes("e.ctrlKey ? 0.02 : 0.005"));
+
+// ---- strip columns
+ok('the strip dropped Used by', !js.includes('<h4>Used by</h4>'));
+ok('the strip dropped Depends on', !js.includes('<h4>Depends on</h4>'));
+ok('the strip dropped Patterns here', !js.includes('<h4>Patterns here</h4>'));
+ok('the overview dropped Where the change lands', !js.includes('Where the change lands'));
+ok('the overview dropped its pattern list', !js.includes('<h4>Patterns found</h4>'));
+
+// ---- deep links
+['node=', 'pattern=', 'evidence='].forEach(k =>
+  ok('deep link ' + k + ' is handled', js.includes("h.startsWith('" + k + "')")));
+
+// ---- self-contained
+ok('the page loads nothing over the network',
+   !/<(script|link|img)[^>]+(src|href)="https?:/.test(html));
+
+console.log(fail ? '\n' + fail + ' FAILED' : '\nall green');
+process.exit(fail ? 1 : 0);

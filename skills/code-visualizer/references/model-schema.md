@@ -84,7 +84,35 @@ a back reference becomes visible.
   textbook definition - what it does in this diff.
 - `participants[]` : `{ "role": "Context", "node": "<node id>" }`. Use the
   catalog's role names so a reader can map the picture onto the pattern.
-- `evidence[]` : `{ "ref": "file.ts:12-40", "note": "why this line proves it" }`.
-  Required. A pattern with no evidence fails validation.
-- `note` : the caveat. Why confidence is not `high`, what would raise it, or -
-  for a pattern the change breaks - what the violation is.
+- `reference` : a URL, or a list of them, for what the pattern is. Shown under
+  the name in the card. Optional, and usually leave it out: the renderer already
+  maps every catalog name to a source, refactoring.guru for the classic patterns
+  and the primary source for the rest. Set it only to override that, or for a
+  pattern the catalog does not carry.
+
+  The card also carries a second link to the pattern's own patterns.dev page,
+  for the dozen entries that have one. It answers a different question, what the
+  pattern looks like in JavaScript or React, so it stays even when `reference`
+  overrides the first link.
+- `evidence[]` : required, and a pattern with no evidence fails validation. Each
+  entry is:
+
+  ```json
+  {
+    "ref": "dispatcher.service.ts:44",
+    "diff": "@@ -38,9 +41,7 @@\n-    if (channel === 'email') …\n+    const impl = this.channelFor(channel);",
+    "explanation": "The three-branch if is gone. The dispatcher now asks for an implementation and calls it."
+  }
+  ```
+
+  - `ref` : `path:line` or `path:line-line`. This is all the card shows, and it
+    is a button: clicking it opens the evidence view.
+  - `diff` : the hunk itself, newline-separated, copied out of the diff you
+    already have open. Keep the `@@` header, keep a line or two of context.
+    Optional, but a ref with no diff opens a view that has nothing to look at.
+  - `explanation` : why these lines prove the pattern. It used to sit on the
+    card as a dash-note; it now has a whole panel, so write two or three
+    sentences rather than a fragment. `note` is still read as an alias.
+- `note` : the caveat on the pattern as a whole. Why confidence is not `high`,
+  what would raise it, or - for a pattern the change breaks - what the violation
+  is.
