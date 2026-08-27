@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bosi-programming-skills",
   "displayName": "Bosi Programming Skills",
-  "version": "1.0.1",
-  "description": "Bosi's LLM skills: two-axis code review, change visualization, and two epistemic-discipline gates.",
+  "version": "1.3.0",
+  "description": "Bosi's LLM skills: two-axis code review, change visualization for code and for docs, an AI-tell stripper, and two epistemic-discipline gates.",
   "author": {
     "name": "Felipe Bosi",
     "url": "https://felipebosi.com/"
@@ -16,6 +16,8 @@
     "skills",
     "tdd",
     "code-review",
-    "phenomenology-coding"
+    "documentation",
+    "phenomenology-coding",
+    "writing"
   ]
 }
