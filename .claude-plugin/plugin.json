@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bosi-programming-skills",
   "displayName": "Bosi Programming Skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bosi's LLM skills: two-axis code review, change visualization, and two epistemic-discipline gates.",
   "author": {
     "name": "Felipe Bosi",

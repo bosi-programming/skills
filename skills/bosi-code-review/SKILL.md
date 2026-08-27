@@ -84,7 +84,11 @@ Stop here. The aggregate is a draft, not the report. It goes through the gate in
 
 The aggregate is a draft. It does not become a file until it passes the gate.
 
-Run the `objectum` skill on it at **Full** depth, six passes. This is a review the user will act on, so Sweep never applies.
+**Invoke the `objectum` skill with the Skill tool. Do not paraphrase it from memory.** Running the passes inline, from what you remember the gate says, is the failure this step exists to prevent: it feels like gating and checks nothing.
+
+- Skill name: `objectum`. When this skill runs from a plugin install its sibling is namespaced, so use `bosi-programming-skills:objectum` and fall back to bare `objectum` if that name is not listed.
+- Pass the aggregate as the argument, and say **Full** depth, six passes. This is a review the user will act on, so Sweep never applies.
+- The call is mandatory on every run. There is no diff small enough, and no set of findings clean enough, to skip it.
 
 What the gate is looking for here, specifically:
 
@@ -104,6 +108,8 @@ Gate verdicts, mapped to this skill:
 The user gets the page, never the audit. Don't narrate the passes, don't list the pulls, don't announce that you ran the gate.
 
 ### 7. Render the HTML report
+
+**Precondition.** Before you write a single byte to disk, check this session's tool history for the `objectum` Skill call from step 6. If it is not there, you have not gated the aggregate, whatever it feels like. Go back to step 6 and make the call.
 
 The final deliverable is a web page, not a chat dump.
 
