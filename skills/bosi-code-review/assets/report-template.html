@@ -142,9 +142,10 @@
   a.ref:focus-visible{outline:none}
   a.ref:focus-visible code{outline:2px solid var(--accent);outline-offset:2px}
 
-  /* acceptance criteria, grid not table. Each one folds and ships shut: the verdict is the
-     mark plus the label, and the evidence is one click away. */
-  .acs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+  /* acceptance criteria, one per row, never a table. Each one folds and ships shut: the verdict
+     is the mark plus the label, and the evidence is one click away. One per row because the labels
+     run to different lengths, and side by side they made a ragged block nobody reads down. */
+  .acs{display:grid;grid-template-columns:1fr;gap:8px}
   .ac{
     background:var(--bg-sunken);align-content:start;
     border:1px solid var(--border-soft);border-radius:7px;padding:10px 12px;font-size:13.5px
