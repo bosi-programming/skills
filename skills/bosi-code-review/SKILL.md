@@ -232,13 +232,21 @@ Give each excerpt a link out to the same lines on GitHub, pinned to the head SHA
 
 **A reference you cannot resolve stays unlinked, and the companion page says why.** Cross-repo citations are the usual case: a path in another repository with no checkout has no code to quote. Do not guess at it, do not link it to a path that might exist, and do not quietly drop the reference from the prose. Name the file at the bottom of the companion page and say what is missing.
 
-Then open the report with the platform's opener, so the page lands in a browser rather than in a sentence telling the user to open it themselves:
+Then open the report with the platform's opener, so the page lands in a browser rather than in a sentence telling the user to open it themselves.
+
+In a POSIX shell, macOS then Linux:
 
 ```bash
-open "$REPORT" 2>/dev/null || xdg-open "$REPORT" 2>/dev/null || start "" "$REPORT"
+open "$REPORT" 2>/dev/null || xdg-open "$REPORT" 2>/dev/null || printf 'file://%s\n' "$REPORT"
 ```
 
-`open` is macOS, `xdg-open` is Linux, `start` is Windows. If none of them is there, give the user the `file://` URL and say the opener is missing. The companion page opens from the links.
+`start` does not belong in that chain. It is a `cmd.exe` builtin, so on Windows the shell never expands `$REPORT` and `2>/dev/null` is not a redirect it understands. Windows gets its own line:
+
+```bat
+start "" "%REPORT%"
+```
+
+Pick the one for the platform you are on rather than running both. **If the opener you tried did not report success, print the `file://` URL and say the page is written but not opened.** A silent failure here is how a review ends with the user believing there was no page.
 
 Reply to the user with the `file://` URL and the per-axis tallies. The detail lives on the page, so nothing else belongs in the reply except the two cases where the reader would otherwise act on a page that cannot tell them:
 

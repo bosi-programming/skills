@@ -32,10 +32,26 @@ semicolon in it runs whatever it says, with the user's permissions, at expansion
 time - before git or `gh` ever sees the value and rejects it. So bind it to a
 quoted variable once, validate it, and keep it quoted everywhere after that.
 
+**Two endpoints, validated one at a time.** `main...feature` is a range a user
+will type, and `git rev-parse --verify` takes a single revision, so validating
+the whole string rejects a range that is perfectly good. Split it first, check
+each side, and then use the range the user gave rather than appending `...HEAD`
+to it.
+
 ```bash
-BASE='<what the user said>'
-git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null || exit 1
+WHAT='<what the user said>'
+case "$WHAT" in
+  *...*) LEFT=${WHAT%%...*}; RIGHT=${WHAT##*...} ;;
+  *)     LEFT=$WHAT;         RIGHT=HEAD ;;
+esac
+[ -n "$RIGHT" ] || RIGHT=HEAD
+git rev-parse --verify --quiet "$LEFT^{commit}"  >/dev/null || exit 1
+git rev-parse --verify --quiet "$RIGHT^{commit}" >/dev/null || exit 1
+RANGE="$LEFT...$RIGHT"
 ```
+
+Use `"$RANGE"` in every diff from here on, never `"$LEFT...HEAD"`. Three dots, so
+the comparison is against the merge base.
 
 The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
 `--repo` slug (`owner/name`, nothing else), and a patch path, which goes after
@@ -43,18 +59,36 @@ The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
 into a command string.
 
 - PR URL or number: `gh pr view "$PR" --json title,url,body,headRefName,baseRefName`
-  then `gh pr diff "$PR"`. For a URL from another repo add `--repo "$SLUG"`.
-- ref range: `git diff --stat "$BASE...HEAD" --` and `git diff "$BASE...HEAD" --`.
+  then `gh pr diff "$PR"`.
+- ref range or single ref: `git diff --stat "$RANGE" --` and `git diff "$RANGE" --`.
 - patch file: read it with the Read tool rather than a shell command. Note that
   you cannot open the surrounding files if the patch came from outside this repo
   - say so in the summary instead of guessing at links.
 - nothing given: `git status -sb` and `git diff HEAD --`. If the working tree is
   clean, ask which range or PR they mean rather than visualizing nothing.
 
+**A PR in another repository needs that repository on disk, not just `--repo`.**
+`--repo "$SLUG"` scopes the two `gh` calls and nothing else. Every step after it
+reads whole files and runs `git diff --word-diff` for the word counts, and both
+of those would run against whatever repo you happen to be standing in. The
+sections you would draw are sections of files that are not the ones in the diff.
+
+```bash
+DIR=$(mktemp -d)
+gh repo clone "$SLUG" "$DIR" -- --no-checkout --filter=blob:none
+git -C "$DIR" fetch origin "$BASE_REF" "$HEAD_REF"
+git -C "$DIR" checkout "$HEAD_REF"
+```
+
+Take `$BASE_REF` and `$HEAD_REF` from the `gh pr view` output you already have.
+Run every later command with `git -C "$DIR"`, and read files from under `$DIR`.
+If you cannot clone it, say so and stop: a map drawn from the wrong repo is worse
+than no map, because it looks right.
+
 Narrow to text:
 
 ```bash
-git diff --numstat "$BASE...HEAD" -- '*.md' '*.mdx' '*.txt' '*.rst' '*.adoc'
+git diff --numstat "$RANGE" -- '*.md' '*.mdx' '*.txt' '*.rst' '*.adoc'
 ```
 
 If the range holds code changes too, say so and visualize the prose only - the
@@ -69,8 +103,8 @@ Count words, not lines. A reflowed paragraph shows up in `--numstat` as a whole
 block rewritten, so line counts make a comma look like a rewrite:
 
 ```bash
-git diff --word-diff=porcelain "$BASE...HEAD" -- "$FILE" | grep '^+[^+]' | cut -c2- | wc -w   # added
-git diff --word-diff=porcelain "$BASE...HEAD" -- "$FILE" | grep '^-[^-]' | cut -c2- | wc -w   # removed
+git diff --word-diff=porcelain "$RANGE" -- "$FILE" | grep '^+[^+]' | cut -c2- | wc -w   # added
+git diff --word-diff=porcelain "$RANGE" -- "$FILE" | grep '^-[^-]' | cut -c2- | wc -w   # removed
 ```
 
 Count the words in the changed segments, not the segments themselves: porcelain
@@ -263,11 +297,13 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json --check
 
 ```bash
 OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json -o "$NAME.html")
-open "$OUT" 2>/dev/null || xdg-open "$OUT" 2>/dev/null || start "" "$OUT"
+open "$OUT" 2>/dev/null || xdg-open "$OUT" 2>/dev/null || printf 'file://%s\n' "$OUT"
 ```
 
-`open` is macOS, `xdg-open` is Linux, `start` is Windows. If none of them is
-there, give the user the `file://` URL and say the opener is missing.
+`start` is not in that chain on purpose: it is a `cmd.exe` builtin, so on Windows
+the shell never expands `$OUT` and `2>/dev/null` means nothing to it. There, run
+`start "" "%OUT%"` instead. Either way, if the opener did not succeed, print the
+`file://` URL and say the page is written but not opened.
 
 Default the output to a scratch path outside the repo, e.g.
 `$TMPDIR/docs-visualizer/<pr-or-branch-slug>/`, so nothing lands in the user's

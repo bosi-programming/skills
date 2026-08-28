@@ -187,6 +187,17 @@ ok('the page renders pattern links at all', patrefs.length > 0, String(patrefs.l
 ok('every one of them is http(s)', patrefs.every(u => /^https?:\/\//.test(u)),
    patrefs.filter(u => !/^https?:\/\//.test(u)).join(', '));
 
+// ---- fit() cannot flip or invert the graph
+ok('the fitted scale has the same floor as the wheel handler',
+   js.includes('Math.max(0.08, Math.min((r.width-40)/w'));
+
+// ---- the page's model is parseable JSON
+const modelBlock = html.split('type="application/json" id="model">')[1].split('</script>')[0];
+ok('the model block parses',
+   (() => { try { JSON.parse(modelBlock); return true; } catch (e) { return false; } })());
+ok('no bare NaN or Infinity reached it',
+   !/(^|[^"\w])(NaN|Infinity)([^"\w]|$)/.test(modelBlock));
+
 // ---- self-contained
 ok('the page loads nothing over the network', !/src="http|href="http(?!s?:\/\/[^"]*"\s+target)/.test(
   html.replace(/class="patref" href="[^"]*"/g, '')));

@@ -169,7 +169,7 @@
       "deletions": 0,
       "summary": "New file. Holds the channel registry, resolves one channel per request from the notification payload, runs it, then emits notification.sent so nothing downstream has to be called inline.",
       "details": [
-        "createChannel() at line 92 maps the channel name to a concrete strategy with a switch.",
+        "channelFor() at line 92 maps the channel name to a concrete strategy with a switch.",
         "Emits notification.sent at line 71 after a successful send, inside the same try block.",
         "No retry here: a failed channel throws and the controller maps it to a 502."
       ],
@@ -354,7 +354,8 @@
       "line": 18,
       "summary": "Holds the channel registry and resolves one per request.",
       "details": [
-        "Depends on the NotificationChannel interface only, never on EmailChannel or SmsChannel directly."
+        "channelFor holds the concrete channels, returning this.email or this.sms per case, so adding a third means editing this switch.",
+        "Everything downstream of that switch is typed as NotificationChannel, so dispatch itself never names a channel."
       ],
       "parent": "src/notifications/dispatcher.service.ts"
     },
@@ -390,7 +391,7 @@
     },
     {
       "id": "channelFactory",
-      "label": "createChannel()",
+      "label": "channelFor()",
       "sublabel": "dispatcher.service.ts",
       "kind": "function",
       "layer": "code",
@@ -525,13 +526,6 @@
       "to": "MailerService.send",
       "kind": "calls",
       "status": "added"
-    },
-    {
-      "from": "AuditListener.onNotificationSent",
-      "to": "NotificationDispatcher",
-      "kind": "reads",
-      "status": "existing",
-      "label": "back reference"
     }
   ],
   "patterns": [
@@ -573,7 +567,7 @@
     {
       "name": "Factory Method",
       "confidence": "medium",
-      "intent": "createChannel() maps a channel name to a concrete strategy.",
+      "intent": "channelFor() maps a channel name to a concrete strategy.",
       "participants": [
         {
           "role": "Creator",

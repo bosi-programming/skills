@@ -463,6 +463,18 @@ ok('an invalid escape reads as no deep link', /catch \(err\) \{ h = ''; \}/.test
 ok('every pattern reference on the page is http(s)',
    [...html.matchAll(/class="patref" href="([^"]*)"/g)].every(m => /^https?:\/\//.test(m[1])));
 
+// ---- fit() cannot flip or invert the graph
+ok('the fitted scale has the same floor as the wheel handler',
+   js.includes('Math.max(0.08, Math.min((r.width-40)/w'));
+
+// ---- the page's model is parseable JSON
+ok('the model block parses', (() => { try { JSON.parse(
+     html.split('type="application/json" id="model">')[1].split('</script>')[0]);
+     return true; } catch (e) { return false; } })());
+ok('no bare NaN or Infinity reached it',
+   !/(^|[^"\w])(NaN|Infinity)([^"\w]|$)/.test(
+     html.split('type="application/json" id="model">')[1].split('</script>')[0]));
+
 // ---- self-contained
 ok('the page loads nothing over the network',
    !/<(script|link|img)[^>]+(src|href)="https?:/.test(html));

@@ -223,6 +223,87 @@ ok("with no javascript surviving alongside them",
            for _, u in rg.references_for(pat)))
 
 
+# ---- validate returns errors, never a traceback
+# A traceback names a Python line instead of the field the author has to fix, so
+# every malformed shape below has to come back as a message.
+BAD = [{}, [], {"a": 1}, ["x"], 3, 3.5, True, None, "", "nope"]
+SHAPES = {
+    "risks[].node": lambda v: model(risks=[{"statement": "s", "ref": "a.ts:1", "node": v}]),
+    "surface[].node": lambda v: model(
+        surface=[{"name": "n", "change": "added", "ref": "a.ts:1", "node": v}]),
+    "participant node": lambda v: model(
+        patterns=[{"name": "X", "evidence": [{"ref": "a.ts:1"}], "participants": [{"node": v}]}]),
+    "reading_order[].node": lambda v: model(reading_order=[{"node": v}]),
+    "edges[].from": lambda v: model(edges=[{"from": v, "to": "a.ts"}]),
+    "a node id": lambda v: model(nodes=[{"id": "a.ts"}, {"id": v}]),
+    "node scalars": lambda v: model(
+        nodes=[{"id": "a.ts", "status": v, "kind": v, "hunks": v, "tests": v, "history": v}]),
+    "top-level scalars": lambda v: model(stats=v, summary=v, title=v),
+    "the whole model": lambda v: v,
+}
+crashes = []
+for label, shape in SHAPES.items():
+    for v in BAD:
+        try:
+            rg.validate(shape(v))
+        except Exception as exc:
+            crashes.append("%s = %r -> %s" % (label, v, type(exc).__name__))
+ok("no malformed model raises instead of reporting",
+   not crashes, "; ".join(crashes[:4]))
+ok("and the probe covered every container that names a node",
+   len(SHAPES) * len(BAD) == 90, str(len(SHAPES) * len(BAD)))
+
+errs = rg.validate([])
+ok("a model that is not an object says so", any("JSON object" in e for e in errs),
+   "; ".join(errs))
+
+
+# ---- NaN and Infinity never reach the page
+for v, where in ((float("nan"), "stats"), (float("inf"), "a node")):
+    m = model(stats={"insertions": v}) if where == "stats" else model(
+        nodes=[{"id": "a.ts", "line": v}])
+    errs = rg.validate(m)
+    ok("%s in %s fails, because JSON has no such number" % (v, where),
+       any("NaN or Infinity" in e for e in errs), "; ".join(errs))
+ok("the error names the field, not just the file",
+   any("stats.insertions" in e for e in rg.validate(model(stats={"insertions": float("nan")}))))
+
+
+# ---- a ref has to be reachable, not merely present
+for good in ("a.ts:12", "src/a.ts:12", "a.ts:12-19", "a.ts:12,19"):
+    ok("%r is a usable ref" % good, not rg.bad_ref(good))
+for bad in ("unknown", "a.ts", "a.ts:", ":12", "", None, "a.ts:x"):
+    ok("%r is not a ref a reader can follow" % bad, rg.bad_ref(bad))
+
+m = model(surface=[{"name": "n", "change": "added", "ref": "unknown"}])
+errs = rg.validate(m)
+ok("a surface claim with an unreachable ref fails rather than rendering a dead link",
+   any("path:line" in e for e in errs), "; ".join(errs))
+
+m = model(patterns=[{"name": "X", "evidence": [{}]}])
+errs = rg.validate(m)
+ok("evidence with no ref fails, the same as a pattern with no evidence",
+   any("path:line" in e for e in errs), "; ".join(errs))
+
+m = model(patterns=[{"name": "X", "evidence": [{"ref": "Observer"}]}])
+errs = rg.validate(m)
+ok("and a pattern name in the ref slot does not count as a citation",
+   any("path:line" in e for e in errs), "; ".join(errs))
+
+
+# ---- the bundled example says only what its own hunks show
+with open(os.path.join(HERE, "..", "references", "example-model.json")) as fh:
+    ex_raw = json.load(fh)
+ok("no edge claims the audit listener reads the dispatcher back",
+   not any(e.get("from") == "AuditListener.onNotificationSent"
+           and e.get("to") == "NotificationDispatcher" for e in ex_raw["edges"]))
+blob = json.dumps(ex_raw)
+ok("no node is labelled with a symbol the hunks never define",
+   "createChannel" not in blob)
+ok("the dispatcher does not claim independence from the channels its switch names",
+   "never on EmailChannel" not in blob)
+
+
 # ---- nodes is required and has to hold something, as the schema now says
 errs = rg.validate({"nodes": []})
 ok("an empty nodes list fails, matching references/model-schema.md",

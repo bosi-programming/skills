@@ -17,6 +17,8 @@ import re
 import sys
 from collections import defaultdict, deque
 
+INF = float("inf")
+
 STATUS = {
     "added": {"stroke": "#3fb950", "fill": "#10251a", "text": "#7ee787"},
     "modified": {"stroke": "#d29922", "fill": "#26200f", "text": "#e3b341"},
@@ -156,59 +158,198 @@ def edge_style(kind):
 # model
 
 
+REF_RE = re.compile(r"^[^\s:]+:\d+(?:[-,]\d+)*$")
+
+
+def bad_ref(ref):
+    """True when `ref` is not `path:line`, so it cannot reach any prose.
+
+    Presence was the only check, and `"ref": "somewhere"` passed it. That renders
+    as a sourced reading with a dead link: the reader sees a citation and has no
+    way to reach what it cites, which is worse than an honest gap.
+    """
+    return not REF_RE.match(str(ref or "").strip())
+
+
+def nonfinite_paths(value, path="model"):
+    """Every path in the model holding NaN or Infinity.
+
+    `json.dumps` writes those as bare `NaN` and `Infinity`, which are not JSON,
+    so the page's `JSON.parse` throws and nothing renders. Catching it here names
+    the field instead of leaving a blank page.
+    """
+    out = []
+    if isinstance(value, float) and (value != value or value in (INF, -INF)):
+        out.append(path)
+    elif isinstance(value, dict):
+        for k, v in value.items():
+            out += nonfinite_paths(v, "%s.%s" % (path, k))
+    elif isinstance(value, (list, tuple)):
+        for i, v in enumerate(value):
+            out += nonfinite_paths(v, "%s[%d]" % (path, i))
+    return out
+
+
+def unknown_node(value, ids):
+    """The error text for a bad node reference, or "" when it is fine.
+
+    Every list in the model can name a node, and testing `value not in ids`
+    straight away raises TypeError on a dict or a list, so the check that exists
+    to catch a typo was itself the crash.
+    """
+    if not value:
+        return ""
+    if not isinstance(value, str):
+        return "must be a node id string, not %s" % type(value).__name__
+    if value not in ids:
+        return "points at unknown node %r" % value
+    return ""
+
+
 def validate(model):
+    """Every error the model can carry, as a list, never as an exception.
+
+    `--check` exists so a bad model fails here rather than as a wrong-looking
+    picture, and a traceback is the one outcome that helps nobody: it names a
+    Python line instead of the field the author has to fix. So every container is
+    type-checked before it is walked.
+    """
     errors = []
+    if not isinstance(model, dict):
+        return ["model must be a JSON object, not %s" % type(model).__name__]
+    bad = nonfinite_paths(model)
+    if bad:
+        return [
+            "%s is NaN or Infinity; JSON has no such number and the page would "
+            "fail to parse" % b
+            for b in bad
+        ]
     if not isinstance(model.get("nodes"), list) or not model["nodes"]:
         errors.append("model.nodes must be a non-empty list")
         return errors
+    stats = model.get("stats")
+    if stats is not None and not isinstance(stats, dict):
+        errors.append("model.stats must be an object of counts")
+        model["stats"] = {}
+    if model.get("edges") is not None and not isinstance(model["edges"], list):
+        errors.append("model.edges must be a list of {from, to, kind}")
+        model["edges"] = []
+    if model.get("patterns") is not None and not isinstance(model["patterns"], list):
+        errors.append("model.patterns must be a list of pattern objects")
+        model["patterns"] = []
+    if model.get("moves") is not None and not isinstance(model["moves"], list):
+        errors.append("model.moves must be a list of move objects")
+        model["moves"] = []
     ids = set()
     for i, n in enumerate(model["nodes"]):
+        if not isinstance(n, dict):
+            errors.append("nodes[%d] must be an object, not %s" % (i, type(n).__name__))
+            continue
         nid = n.get("id")
         if not nid:
             errors.append("nodes[%d] has no id" % i)
             continue
+        if not isinstance(nid, str):
+            errors.append(
+                "nodes[%d].id must be a string, not %s" % (i, type(nid).__name__)
+            )
+            continue
         if nid in ids:
             errors.append("duplicate node id: %s" % nid)
         ids.add(nid)
+        for key in ("status", "kind", "layer", "label", "sublabel"):
+            v = n.get(key)
+            if v is not None and not isinstance(v, str):
+                errors.append(
+                    "nodes[%s].%s must be a string, not %s"
+                    % (nid, key, type(v).__name__)
+                )
+                n.pop(key)
         if not n.get("label"):
             n["label"] = str(nid).split("/")[-1]
         lay = n.get("layer") or ("doc" if n.get("kind") == "doc" else "section")
         n["layer"] = "doc" if lay == "doc" else "section"
     for i, e in enumerate(model.get("edges") or []):
+        if not isinstance(e, dict):
+            errors.append("edges[%d] must be an object, not %s" % (i, type(e).__name__))
+            continue
         for side in ("from", "to"):
-            if e.get(side) not in ids:
+            v = e.get(side)
+            if not isinstance(v, str):
                 errors.append(
-                    "edges[%d].%s points at unknown node %r" % (i, side, e.get(side))
+                    "edges[%d].%s must be a node id string, not %s"
+                    % (i, side, type(v).__name__)
                 )
+            elif v not in ids:
+                errors.append("edges[%d].%s points at unknown node %r" % (i, side, v))
     for i, p in enumerate(model.get("patterns") or []):
+        if not isinstance(p, dict):
+            errors.append(
+                "patterns[%d] must be an object, not %s" % (i, type(p).__name__)
+            )
+            continue
         if not p.get("name"):
             errors.append("patterns[%d] has no name" % i)
-        if not p.get("evidence"):
+        ev = p.get("evidence")
+        if ev is not None and not isinstance(ev, list):
+            errors.append(
+                "patterns[%d] (%s) evidence must be a list of {ref, quote, explanation}"
+                % (i, p.get("name"))
+            )
+            ev = None
+            p["evidence"] = []
+        if not ev:
             errors.append(
                 "patterns[%d] (%s) has no evidence; a pattern without file:line "
                 "evidence must not be claimed" % (i, p.get("name"))
             )
-        for x in p.get("evidence") or []:
+        for j, x in enumerate(ev or []):
+            if not isinstance(x, dict):
+                errors.append(
+                    "patterns[%d] evidence[%d] must be an object, not %s"
+                    % (i, j, type(x).__name__)
+                )
+                continue
+            # An evidence entry with no usable ref is the same claim as a pattern
+            # with no evidence at all: a name with nothing behind it.
+            if bad_ref(x.get("ref")):
+                errors.append(
+                    "patterns[%d] (%s) evidence[%d] ref is %r; a pattern needs "
+                    "path:line evidence, not a name"
+                    % (i, p.get("name"), j, x.get("ref"))
+                )
             if x.get("note") and not x.get("explanation"):
                 x["explanation"] = x.pop("note")
-        for part in p.get("participants") or []:
-            if part.get("node") and part["node"] not in ids:
+        parts = p.get("participants")
+        if parts is not None and not isinstance(parts, list):
+            errors.append("patterns[%d] participants must be a list" % i)
+            parts = None
+        for part in parts or []:
+            if not isinstance(part, dict):
                 errors.append(
-                    "patterns[%d] participant points at unknown node %r"
-                    % (i, part["node"])
+                    "patterns[%d] participant must be an object, not %s"
+                    % (i, type(part).__name__)
                 )
+                continue
+            bad = unknown_node(part.get("node"), ids)
+            if bad:
+                errors.append("patterns[%d] participant %s" % (i, bad))
     for i, m in enumerate(model.get("moves") or []):
+        if not isinstance(m, dict):
+            errors.append("moves[%d] must be an object, not %s" % (i, type(m).__name__))
+            continue
         if not m.get("kind"):
             errors.append("moves[%d] has no kind" % i)
-        if m.get("node") not in ids:
+        bad = unknown_node(m.get("node"), ids)
+        if not m.get("node"):
+            errors.append("moves[%d] points at unknown node %r" % (i, m.get("node")))
+        elif bad:
+            errors.append("moves[%d] %s" % (i, bad))
+        if bad_ref(m.get("ref")):
             errors.append(
-                "moves[%d] points at unknown node %r" % (i, m.get("node"))
-            )
-        if not m.get("ref"):
-            errors.append(
-                "moves[%d] (%s) has no ref; a rhetorical move without a "
-                "file:line is an impression, not a reading"
-                % (i, m.get("kind") or "?")
+                "moves[%d] (%s) ref is %r; a rhetorical move needs path:line, and "
+                "a citation the reader cannot reach is an impression with a link "
+                "on it" % (i, m.get("kind") or "?", m.get("ref"))
             )
     return errors
 
@@ -674,7 +815,9 @@ function fit(){
   const svg = svgEl();
   const w = +svg.getAttribute('width'), h = +svg.getAttribute('height');
   const r = stage.getBoundingClientRect();
-  const s = Math.min((r.width-40)/w, (r.height-40)/h, 1.4);
+  // A pane narrower than the 40px margin makes this negative, which flips the
+  // SVG and shows a negative zoom. Same floor the wheel handler uses.
+  const s = Math.max(0.08, Math.min((r.width-40)/w, (r.height-40)/h, 1.4));
   state.scale = s;
   state.tx = (r.width - w*s)/2;
   state.ty = (r.height - h*s)/2;
@@ -1363,7 +1506,7 @@ def render(model):
         "__PATTERNS__": patterns_html(model.get("patterns") or []),
         "__DOCS__": docs_html(nodes),
         "__LEGEND__": legend_html(kinds),
-        "__MODEL__": json.dumps(payload).replace("</", "<\\/"),
+        "__MODEL__": json.dumps(payload, allow_nan=False).replace("</", "<\\/"),
         "__JS__": (JS.replace("__MOVE_COLORS__", json.dumps(MOVE))
                      .replace("__MOVE_REFERENCE__", json.dumps(MOVE_REFERENCE))),
     }

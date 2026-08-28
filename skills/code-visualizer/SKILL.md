@@ -32,10 +32,26 @@ semicolon in it runs whatever it says, with the user's permissions, at expansion
 time - before git or `gh` ever sees the value and rejects it. So bind it to a
 quoted variable once, validate it, and keep it quoted everywhere after that.
 
+**Two endpoints, validated one at a time.** `main...feature` is a range a user
+will type, and `git rev-parse --verify` takes a single revision, so validating
+the whole string rejects a range that is perfectly good. Split it first, check
+each side, and then use the range the user gave rather than appending `...HEAD`
+to it.
+
 ```bash
-BASE='<what the user said>'
-git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null || exit 1
+WHAT='<what the user said>'
+case "$WHAT" in
+  *...*) LEFT=${WHAT%%...*}; RIGHT=${WHAT##*...} ;;
+  *)     LEFT=$WHAT;         RIGHT=HEAD ;;
+esac
+[ -n "$RIGHT" ] || RIGHT=HEAD
+git rev-parse --verify --quiet "$LEFT^{commit}"  >/dev/null || exit 1
+git rev-parse --verify --quiet "$RIGHT^{commit}" >/dev/null || exit 1
+RANGE="$LEFT...$RIGHT"
 ```
+
+Use `"$RANGE"` in every diff from here on, never `"$LEFT...HEAD"`. Three dots, so
+the comparison is against the merge base.
 
 The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
 `--repo` slug (`owner/name`, nothing else), and a patch path, which goes after
@@ -43,18 +59,37 @@ The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
 into a command string.
 
 - PR URL or number: `gh pr view "$PR" --json title,url,body,headRefName,baseRefName`
-  then `gh pr diff "$PR"`. For a URL from another repo add `--repo "$SLUG"`.
-- ref range: `git diff --stat "$BASE...HEAD" --` and `git diff "$BASE...HEAD" --`.
+  then `gh pr diff "$PR"`.
+- ref range or single ref: `git diff --stat "$RANGE" --` and `git diff "$RANGE" --`.
 - patch file: read it with the Read tool rather than a shell command. Note that
   you cannot open the surrounding files if the patch came from outside this repo
   - say so in the summary instead of guessing at relations.
 - nothing given: `git status -sb` and `git diff HEAD --`. If the working tree is
   clean, ask which range or PR they mean rather than visualizing nothing.
 
+**A PR in another repository needs that repository on disk, not just `--repo`.**
+`--repo "$SLUG"` scopes the two `gh` calls and nothing else. Every step after it
+reads whole files, greps for call sites, runs `git log` for churn and reads
+CODEOWNERS, and all of those would run against whatever repo you happen to be
+standing in. The relations you would draw are relations between files that are
+not the ones in the diff.
+
+```bash
+DIR=$(mktemp -d)
+gh repo clone "$SLUG" "$DIR" -- --no-checkout --filter=blob:none
+git -C "$DIR" fetch origin "$BASE_REF" "$HEAD_REF"
+git -C "$DIR" checkout "$HEAD_REF"
+```
+
+Take `$BASE_REF` and `$HEAD_REF` from the `gh pr view` output you already have.
+Run every later command with `git -C "$DIR"`, and read files from under `$DIR`.
+If you cannot clone it, say so and stop: a graph drawn from the wrong repo is
+worse than no graph, because it looks right.
+
 Every path you pass to git later carries the same rule: `--` before the pathspec,
 and the path in quotes. A file called `--output=x` is legal on most filesystems.
 
-Also grab `git diff --numstat "$BASE...HEAD" --` (or `gh pr diff --patch | diffstat`)
+Also grab `git diff --numstat "$RANGE" --` (or `gh pr diff --patch | diffstat`)
 so the per-file insertion and deletion counts in the model are real numbers rather
 than eyeballed ones.
 
@@ -214,9 +249,10 @@ in two places and then commit to an answer.
 - Test files in the diff. They are nodes already, so the answer is usually in
   front of you: read what they assert, not just that they exist.
 - Tests the diff did not touch:
-  `git grep -n -e "$SYM" -- '*.test.*' '*.spec.*' '*_test.*'`, with the symbol in
-  a quoted variable and `-e` so a name starting with a dash is not read as a
-  flag. Run it for
+  `git grep -n -F -e "$SYM" -- '*.test.*' '*.spec.*' '*_test.*'`, with the symbol
+  in a quoted variable, `-F` so `billing.invoice.paid` does not match
+  `billingXinvoiceYpaid` and a name holding `[` does not abort the search, and
+  `-e` so a name starting with a dash is not read as a flag. Run it for
   each new or renamed class, function and event name.
 
 Then set `tests.status` to `added`, `existing` or `none`, with `refs` for the
@@ -257,11 +293,11 @@ Two more git calls per changed file give the reader something no diff can: how
 busy the file is, and whose it is.
 
 ```bash
-git log --since=90.days --format='%an' "$BASE" -- "$FILE" | sort | uniq -c
-git log -1 --format=%ad --date=short "$BASE" -- "$FILE"
+git log --since=90.days --format='%an' "$LEFT" -- "$FILE" | sort | uniq -c
+git log -1 --format=%ad --date=short "$LEFT" -- "$FILE"
 ```
 
-Run them against the base, not the branch, or the change counts its own commits.
+Run them against `$LEFT`, the base side of the range, not the branch, or the change counts its own commits.
 Put the numbers in `history.commits_90d`, `history.authors_90d` and
 `history.last_change`, and the CODEOWNERS entry in `history.owners`.
 
@@ -300,8 +336,13 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json --check
 
 ```bash
 OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o "$NAME.html")
-open "$OUT"          # xdg-open on Linux, start on Windows
+open "$OUT" 2>/dev/null || xdg-open "$OUT" 2>/dev/null || printf 'file://%s\n' "$OUT"
 ```
+
+`start` is not in that chain on purpose: it is a `cmd.exe` builtin, so on Windows
+the shell never expands `$OUT` and `2>/dev/null` means nothing to it. There, run
+`start "" "%OUT%"` instead. Either way, if the opener did not succeed, print the
+`file://` URL and say the page is written but not opened.
 
 Default the output to a scratch path outside the repo, e.g.
 `$TMPDIR/diff-visualizer/<pr-or-branch-slug>/`, so nothing lands in the user's
