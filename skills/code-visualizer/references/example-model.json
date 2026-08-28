@@ -83,6 +83,41 @@
       "why": "The blast radius. A different team owns this file and the event it listens for was renamed, so read it last but do not skip it."
     }
   ],
+  "risks": [
+    {
+      "severity": "high",
+      "statement": "An SMS gets the subject line and nothing else. SmsChannel drops payload.template, so any notification with a body renders as its subject over SMS.",
+      "ref": "src/notifications/channels/sms.channel.ts:19",
+      "question": "Is a subject-only SMS the intended message, or should the template render for SMS too?",
+      "node": "src/notifications/channels/sms.channel.ts"
+    },
+    {
+      "severity": "high",
+      "statement": "A client that omits the new channel field gets an UnsupportedChannelError, which the controller maps to a 502 rather than a 400. A caller's bad request reads as our outage.",
+      "ref": "src/notifications/dispatcher.service.ts:92",
+      "question": "Should an unknown channel be a 400, and should channel default to email for existing clients?",
+      "node": "src/notifications/dispatcher.service.ts"
+    },
+    {
+      "severity": "medium",
+      "statement": "The audit kind column now holds the channel name instead of the constant 'mail', so rows written before and after this deploy mean different things with no marker between them.",
+      "ref": "src/audit/audit.listener.ts:53",
+      "question": "Does anything query audit rows by kind = 'mail'?",
+      "node": "src/audit/audit.listener.ts"
+    },
+    {
+      "severity": "medium",
+      "statement": "A failed channel throws and nothing retries. The old inline mailer call had the same behaviour, so this is not a regression, but the dispatcher is now the obvious place for a retry and does not have one.",
+      "ref": "src/notifications/dispatcher.service.ts:46",
+      "question": "Is a dropped notification acceptable, or does this need a retry before it ships?"
+    },
+    {
+      "severity": "low",
+      "statement": "TWILIO_AUTH_TOKEN is read when TwilioClient is constructed, so a deploy missing it fails at boot rather than at the first SMS. Loud is better than silent here, but it needs to be in the deploy config before this merges.",
+      "ref": "src/notifications/channels/sms.channel.ts:15",
+      "question": "Is the token already in every environment's config?"
+    }
+  ],
   "nodes": [
     {
       "id": "src/notifications/notification.controller.ts",

@@ -81,7 +81,7 @@ m["nodes"][0]["hunks"] = ["@@\n+x"]
 ok("a changed file with a hunk is still warned about its tests",
    any("test" in w for w in rg.warnings(m)), "; ".join(rg.warnings(m)))
 
-m = model(surface=[], reading_order=["a.ts"])
+m = model(surface=[], reading_order=["a.ts"], risks=[])
 m["nodes"][0]["hunks"] = ["@@\n+x"]
 m["nodes"][0]["tests"] = "none"
 m["nodes"][0]["history"] = {"commits_90d": 4}
@@ -202,13 +202,14 @@ ok("a model with no surface key is nudged", any("surface" in w for w in warns),
    "; ".join(warns))
 m["surface"] = []
 m["reading_order"] = ["a.ts"]
+m["risks"] = []
 m["nodes"][0]["history"] = {"commits_90d": 4}
 ok("an empty surface is a real answer and stays quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
 
 # ---- history: churn and ownership, the context a diff cannot show
 def with_history(h):
-    m = model(surface=[], reading_order=["a.ts"])
+    m = model(surface=[], reading_order=["a.ts"], risks=[])
     m["nodes"][0]["hunks"] = ["@@\n+x"]
     m["nodes"][0]["tests"] = "none"
     m["nodes"][0]["history"] = h
@@ -255,7 +256,7 @@ ok("a model with no history anywhere is nudged once",
 
 # ---- reading order: where to start, and what next
 def with_order(order):
-    m = model(surface=[], reading_order=order)  # noqa: E501
+    m = model(surface=[], reading_order=order, risks=[])  # noqa: E501
     n = m["nodes"][0]
     n["hunks"] = ["@@\n+x"]
     n["tests"] = "none"
@@ -294,7 +295,7 @@ ok("step_index numbers the steps from one",
    str(rg.step_index(m["reading_order"])))
 
 # ---- the nudges: one for a missing order, one for a changed file left out
-m = model(surface=[])
+m = model(surface=[], risks=[])
 n = m["nodes"][0]
 n["hunks"] = ["@@\n+x"]
 n["tests"] = "none"
@@ -315,6 +316,67 @@ m["reading_order"] = ["a.ts", "c.ts"]
 rg.validate(m)
 ok("an order that covers every changed file is quiet",
    not rg.warnings(m), "; ".join(rg.warnings(m)))
+
+# ---- risks: what a reviewer should check, and what to ask
+def with_risks(*entries):
+    m = model(surface=[], reading_order=["a.ts"], risks=list(entries))
+    n = m["nodes"][0]
+    n["hunks"] = ["@@\n+x"]
+    n["tests"] = "none"
+    n["history"] = {"commits_90d": 4}
+    return m
+
+risk = {"severity": "high", "statement": "the guard is gone", "ref": "a.ts:14",
+        "question": "what happens when payload is null?"}
+
+m = with_risks(dict(risk))
+ok("a full risk validates", not rg.validate(m), "; ".join(rg.validate(m)))
+ok("a model with an empty risks list is quiet",
+   not rg.warnings(with_risks()), "; ".join(rg.warnings(with_risks())))
+
+m = with_risks({k: v for k, v in risk.items() if k != "statement"})
+errs = rg.validate(m)
+ok("a risk with no statement fails", any("statement" in e for e in errs), "; ".join(errs))
+
+m = with_risks({k: v for k, v in risk.items() if k != "ref"})
+errs = rg.validate(m)
+ok("a risk with no ref fails", any("ref" in e for e in errs), "; ".join(errs))
+
+m = with_risks(dict(risk, severity="scary"))
+errs = rg.validate(m)
+ok("an unknown severity fails", any("severity" in e for e in errs), "; ".join(errs))
+
+m = with_risks(dict(risk, severity="HIGH"))
+rg.validate(m)
+ok("severity is read case-insensitively", m["risks"][0]["severity"] == "high")
+
+m = with_risks({k: v for k, v in risk.items() if k != "severity"})
+rg.validate(m)
+ok("a risk with no severity is medium", m["risks"][0]["severity"] == "medium")
+
+m = model(surface=[], reading_order=["a.ts"], risks="a.ts:1")
+errs = rg.validate(m)
+ok("risks must be a list", any("list" in e for e in errs), "; ".join(errs))
+
+m = with_risks(dict(risk), dict(risk, severity="low"))
+rg.validate(m)
+ok("high_risk_count counts only the high ones", rg.high_risk_count(m) == 1,
+   str(rg.high_risk_count(m)))
+
+m = with_risks(dict(risk, node="nowhere.ts"))
+errs = rg.validate(m)
+ok("a risk pointing at an unknown node fails",
+   any("nowhere.ts" in e for e in errs), "; ".join(errs))
+
+# ---- an absent risks key is not the same claim as an empty one
+m = model(surface=[], reading_order=["a.ts"])
+n = m["nodes"][0]
+n["hunks"] = ["@@\n+x"]
+n["tests"] = "none"
+n["history"] = {"commits_90d": 4}
+warns = rg.warnings(m)
+ok("a model with no risks key is nudged", any("risks" in w for w in warns),
+   "; ".join(warns))
 
 # ---- the registry the page reads
 m = model(patterns=[{
@@ -355,6 +417,11 @@ ok("the bundled example marks a hotspot", rg.hotspot_count(ex["nodes"]) > 0,
 ok("the bundled example says where to start", bool(ex.get("reading_order")))
 ok("every step in the example says why it is there",
    all(x.get("why") for x in ex.get("reading_order") or []))
+ok("the bundled example raises risks", bool(ex.get("risks")))
+ok("every risk in the example carries a ref and a question",
+   all(r.get("ref") and r.get("question") for r in ex.get("risks") or []))
+ok("the bundled example has a high risk to mark", rg.high_risk_count(ex) > 0,
+   str(rg.high_risk_count(ex)))
 ok("the bundled example answers every nudge",
    not rg.warnings(ex), "; ".join(rg.warnings(ex)))
 

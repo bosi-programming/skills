@@ -416,6 +416,51 @@ def normalize_reading_order(model, ids):
     return errors
 
 
+SEVERITY = ("high", "medium", "low")
+
+
+def normalize_risks(model, ids):
+    """Check `risks[]`: what a reviewer should look at, and what to ask about it.
+
+    Not patterns. A missing null guard breaks no pattern and is exactly the kind
+    of thing a reader wants pointed at. Every risk needs a `ref`, because a risk
+    with no location is a feeling, and the `question` is what turns it into
+    something the author can answer.
+    """
+    risks = model.get("risks")
+    if risks is None:
+        return []
+    if not isinstance(risks, list):
+        return ["risks must be a list of entries"]
+    errors = []
+    for i, r in enumerate(risks):
+        if not isinstance(r, dict):
+            errors.append("risks[%d] must be an object" % i)
+            continue
+        if not r.get("statement"):
+            errors.append("risks[%d] has no statement; say what to check" % i)
+        if not r.get("ref"):
+            errors.append(
+                "risks[%d] (%s) has no ref; a risk with no line is a feeling"
+                % (i, r.get("statement"))
+            )
+        sev = (r.get("severity") or "medium").lower()
+        if sev not in SEVERITY:
+            errors.append(
+                "risks[%d] severity is %r; use one of %s"
+                % (i, r.get("severity"), ", ".join(SEVERITY))
+            )
+        else:
+            r["severity"] = sev
+        if r.get("node") and r["node"] not in ids:
+            errors.append("risks[%d] points at unknown node %r" % (i, r["node"]))
+    return errors
+
+
+def high_risk_count(model):
+    return sum(1 for r in (model.get("risks") or []) if r.get("severity") == "high")
+
+
 def step_index(order):
     """node id -> its 1-based place in the order, for the badge on the box.
 
@@ -459,6 +504,11 @@ def warnings(model):
         out.append(
             "the model has no surface key; an empty list says you looked and "
             "nothing moved, leaving it off says nobody looked"
+        )
+    if touched_any and model.get("risks") is None:
+        out.append(
+            "the model has no risks key; an empty list says you looked for what "
+            "a reviewer should check and found nothing"
         )
     order = model.get("reading_order")
     if touched_any and not order:
@@ -550,6 +600,7 @@ def validate(model):
                 )
     errors += normalize_surface(model)
     errors += normalize_reading_order(model, ids)
+    errors += normalize_risks(model, ids)
     return errors
 
 
@@ -1028,6 +1079,26 @@ aside h2:first-child{margin-top:0}
 .srow.breaking{border-left:2px solid #f85149}
 .srow .reflink.flat{color:var(--dim);cursor:default}
 .srow.hit{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+#risks{margin:0 0 14px}
+.rrow>summary{flex-wrap:nowrap;align-items:baseline}
+.rrow>summary::before{flex:0 0 auto}
+.rrow .rname{flex:1 1 auto;min-width:0;font-weight:600;font-size:14px;
+  color:var(--fg);overflow-wrap:anywhere}
+.rrow .sev{flex:0 0 auto;margin-left:auto;font-size:14px;text-transform:uppercase;
+  letter-spacing:.06em;border:1px solid var(--line);border-radius:999px;
+  padding:1px 9px;color:var(--muted);white-space:nowrap}
+.rrow .sev.high{color:#ff9492;border-color:#6b2b2b}
+.rrow .sev.medium{color:#e3b341;border-color:#5c4a1e}
+.rrow.high{border-left:2px solid #f85149}
+.rrow.medium{border-left:2px solid #e3b341}
+.rrow .rstatement{margin:0 0 8px;font-size:14px;font-weight:400;
+  color:var(--muted);overflow-wrap:anywhere}
+.rrow .rquestion{margin:6px 0 0;font-size:14px;font-weight:400;color:#cbd5e1}
+.rrow.hit{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+#explainer .rq{margin:2px 0 8px;font-size:14px;color:#cbd5e1}
+#explainer .sev-high{color:#ff9492}
+#explainer .sev-medium{color:#e3b341}
+#explainer .sev-low{color:var(--dim)}
 .bigcard>summary .count{color:var(--muted);font-size:14px}
 .orderlist{font-size:14px}
 .ostep{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
@@ -1054,7 +1125,8 @@ const MODEL = JSON.parse(document.getElementById('model').textContent);
 const stage = document.getElementById('stage');
 const state = {view:'file', scale:1, tx:0, ty:0, statuses:new Set(['added','modified','deleted','related']),
                kinds:new Set(MODEL._kinds), selected:null, pattern:null, query:'',
-               allPatterns:false, allSurface:false, evidence:null, coverOnly:false};
+               allPatterns:false, allSurface:false, allRisks:false, evidence:null,
+               coverOnly:false};
 
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
@@ -1173,6 +1245,50 @@ function surfaceFor(id){
   });
 }
 
+// Which risks belong to a node. A risk names a node outright or points at a
+// file through its ref, the same two ways a surface entry does.
+function risksFor(id){
+  const n = nodeInfo(id) || {};
+  const self = n.layer === 'file' ? id : (n.parent || '');
+  return (MODEL.risks||[]).map((r,i) => ({r,i})).filter(({r}) => {
+    if (r.node) return r.node === id || r.node === self;
+    const hit = refNode(r.ref);
+    return !!hit && (hit === id || hit === self);
+  });
+}
+
+function syncRisks(){
+  const head = document.getElementById('risks-head');
+  const empty = document.getElementById('risks-empty');
+  const rows = [...document.querySelectorAll('#risks .rrow')];
+  const total = rows.length;
+  if (!total){
+    head.textContent = 'Risks and questions';
+    empty.hidden = false;
+    empty.textContent = 'Nothing raised. Read the diff and disagree if you like.';
+    return;
+  }
+  if (!state.selected || state.allRisks){
+    rows.forEach(r => r.hidden = false);
+    empty.hidden = true;
+    head.innerHTML = `Risks and questions <span class="count">${total}</span>`
+      + (state.selected ? '<button class="linkish" id="rnarrowbtn">only this one</button>' : '');
+  } else {
+    const keep = new Set(risksFor(state.selected).map(x => x.i));
+    rows.forEach(r => r.hidden = !keep.has(+r.dataset.idx));
+    const n = nodeInfo(state.selected) || {};
+    head.innerHTML = `Risks in ${esc(n.label || state.selected)} `
+      + `<span class="count">${keep.size} of ${total}</span>`
+      + '<button class="linkish" id="rallbtn">show all</button>';
+    empty.hidden = keep.size > 0;
+    empty.textContent = keep.size ? '' : 'Nothing raised against this one.';
+  }
+  const all = document.getElementById('rallbtn');
+  if (all) all.onclick = () => { state.allRisks = true; syncRisks(); };
+  const narrow = document.getElementById('rnarrowbtn');
+  if (narrow) narrow.onclick = () => { state.allRisks = false; syncRisks(); };
+}
+
 function syncSurface(){
   const head = document.getElementById('surface-head');
   const empty = document.getElementById('surface-empty');
@@ -1235,11 +1351,11 @@ function refresh(){
 
 function select(id){
   state.selected = (state.selected === id) ? null : id;
-  state.allPatterns = false; state.allSurface = false;
+  state.allPatterns = false; state.allSurface = false; state.allRisks = false;
   if (state.selected) state.pattern = null;
   document.querySelectorAll('#patterns .card').forEach(c =>
     c.classList.toggle('active', +c.dataset.idx === state.pattern));
-  renderExplainer(); syncPatterns(); syncSurface(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
 }
 
 function derivedLine(id, n, outs, ins){
@@ -1280,6 +1396,17 @@ const COVER_WORD = {
   existing: 'covered by tests the diff did not touch',
   none: 'no test covers this'
 };
+
+const SEV_WORD = {high: 'high', medium: 'medium', low: 'low'};
+
+function nodeRisksHtml(id){
+  const mine = risksFor(id);
+  if (!mine.length) return '';
+  return `<ul class="rel">${mine.map(({r,i}) =>
+    `<li><b class="sev-${esc(r.severity||'medium')}">${esc(SEV_WORD[r.severity]||'')}</b> `
+    + `${esc(r.statement)}<br><button class="reflink mono" data-rjump="${i}">${esc(r.ref)}</button>`
+    + (r.question ? `<p class="rq">${esc(r.question)}</p>` : '') + '</li>').join('')}</ul>`;
+}
 
 function historyHtml(h){
   const bits = [];
@@ -1349,10 +1476,10 @@ function showEvidence(i){
 // Select a node from anywhere: the strip, a participant link, a hunk header.
 function goTo(id){
   state.selected = id; state.pattern = null;
-  state.allPatterns = false; state.allSurface = false;
+  state.allPatterns = false; state.allSurface = false; state.allRisks = false;
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
   syncIsolateBoxes();
-  renderExplainer(); syncPatterns(); syncSurface(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
 }
 
 function hideEvidence(){
@@ -1388,9 +1515,9 @@ function renderExplainer(){
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
       </div>
-      ${(hix.length || n.tests || n.history) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
+      ${(hix.length || n.tests || n.history || risksFor(id).length) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
         hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
-      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}${n.history ? `<div class="col"><h4>History</h4>${historyHtml(n.history)}</div>` : ''}</div>` : ''}
+      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}${n.history ? `<div class="col"><h4>History</h4>${historyHtml(n.history)}</div>` : ''}${risksFor(id).length ? `<div class="col"><h4>Risks</h4>${nodeRisksHtml(id)}</div>` : ''}</div>` : ''}
       </div>`;
   } else if (state.pattern != null){
     const p = MODEL.patterns[state.pattern];
@@ -1416,6 +1543,8 @@ function renderExplainer(){
   } else {
     const brk = (MODEL.surface||[]).map((s,i) => ({s,i})).filter(({s}) => s.breaking);
     const first = (MODEL.reading_order||[])[0];
+    const ask = (MODEL.risks||[]).map((r,i) => ({r,i}))
+      .filter(({r}) => r.severity === 'high').slice(0, 3);
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">what this change is about</span>
@@ -1428,9 +1557,11 @@ function renderExplainer(){
       ${first ? `<p class="start">Start here: <button class="reflink" data-goto="${esc(first.node)}">${esc((nodeInfo(first.node)||{}).label || first.node)}</button>${first.why ? ` \u00b7 ${esc(first.why)}` : ''}</p>` : ''}
       <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Press <b>n</b> for the next step in the reading order.</p>
       </div>
-      ${brk.length ? `<div class="cols"><div class="col"><h4>Breaks for callers</h4><ul class="rel">${
+      ${(brk.length || ask.length) ? `<div class="cols">${ask.length ? `<div class="col"><h4>Ask the author</h4><ul class="rel">${
+        ask.map(({r,i}) => `<li>${esc(r.question || r.statement)}<br><button class="reflink mono" data-rjump="${i}">${esc(r.ref)}</button></li>`).join('')
+      }</ul></div>` : ''}${brk.length ? `<div class="col"><h4>Breaks for callers</h4><ul class="rel">${
         brk.map(({s,i}) => `<li><b>${esc(s.name)}</b> <span class="schange">${esc(CHANGE_WORD[s.change]||s.change||'')}</span><br><button class="reflink mono" data-sjump="${i}">${esc(s.ref)}</button></li>`).join('')
-      }</ul></div></div>` : ''}
+      }</ul></div>` : ''}</div>` : ''}
       </div>`;
   }
 
@@ -1443,6 +1574,12 @@ function renderExplainer(){
   host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
     ev.preventDefault(); goTo(a.dataset.goto);
   });
+  host.querySelectorAll('[data-rjump]').forEach(b => b.onclick = ev => {
+    ev.preventDefault();
+    const r = (MODEL.risks||[])[+b.dataset.rjump] || {};
+    const id = r.node || refNode(r.ref);
+    if (id) goTo(id);
+  });
   host.querySelectorAll('[data-sjump]').forEach(b => b.onclick = ev => {
     ev.preventDefault();
     const s = (MODEL.surface||[])[+b.dataset.sjump] || {};
@@ -1452,9 +1589,9 @@ function renderExplainer(){
   const b = document.getElementById('backbtn');
   if (b) b.onclick = () => {
     state.selected = null; state.pattern = null;
-    state.allPatterns = false; state.allSurface = false;
+    state.allPatterns = false; state.allSurface = false; state.allRisks = false;
     document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
-    renderExplainer(); syncPatterns(); syncSurface(); refresh();
+    renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
   };
 }
 
@@ -1471,7 +1608,7 @@ function pickPattern(i){
     if (on) c.open = true;
   });
   syncIsolateBoxes();
-  renderExplainer(); syncPatterns(); syncSurface(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
 }
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -1503,12 +1640,12 @@ document.getElementById('fitbtn').onclick = fit;
 document.getElementById('resetbtn').onclick = () => {
   hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false;
-  state.allSurface = false; state.coverOnly = false;
+  state.allSurface = false; state.allRisks = false; state.coverOnly = false;
   if (coverChip){ coverChip.setAttribute('aria-pressed','false'); coverChip.classList.add('off'); }
   document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
-  renderExplainer(); syncPatterns(); syncSurface(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
 };
 document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onchange = () => {
   const i = +b.dataset.iso;
@@ -1516,12 +1653,17 @@ document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.onch
   syncIsolateBoxes();
   document.querySelectorAll('#patterns .card').forEach(c =>
     c.classList.toggle('active', +c.dataset.idx === state.pattern));
-  renderExplainer(); syncPatterns(); syncSurface(); refresh();
+  renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh();
 });
 document.querySelectorAll('.reflink[data-ev]').forEach(b =>
   b.onclick = ev => { ev.preventDefault(); ev.stopPropagation(); showEvidence(+b.dataset.ev); });
 document.querySelectorAll('.orderlist [data-goto]').forEach(b =>
   b.onclick = ev => { ev.preventDefault(); goTo(b.dataset.goto); });
+document.querySelectorAll('#risks .reflink[data-rref]').forEach(b => {
+  const id = refNode(b.dataset.rref);
+  if (!id) { b.classList.add('flat'); b.disabled = true; return; }
+  b.onclick = ev => { ev.preventDefault(); goTo(id); };
+});
 document.querySelectorAll('#surface .reflink[data-sref]').forEach(b => {
   const id = refNode(b.dataset.sref);
   if (!id) { b.classList.add('flat'); b.disabled = true; return; }
@@ -1583,6 +1725,16 @@ window.addEventListener('resize', fit);
       syncIsolateBoxes(); }
     return;
   }
+  if (h.startsWith('risk=')){
+    const i = +h.slice(5);
+    const r = (MODEL.risks||[])[i];
+    if (!r) return;
+    const id = r.node || refNode(r.ref);
+    if (id) { state.selected = id; state.allRisks = false; }
+    const row = document.querySelector(`#risks .rrow[data-idx="${i}"]`);
+    if (row) { row.classList.add('hit'); row.open = true; }
+    return;
+  }
   if (h.startsWith('surface=')){
     const i = +h.slice(8);
     const s = (MODEL.surface||[])[i];
@@ -1595,7 +1747,7 @@ window.addEventListener('resize', fit);
   }
   if (h.startsWith('evidence=')) showEvidence(+h.slice(9));
 })();
-renderExplainer(); syncPatterns(); syncSurface(); refresh(); fit();
+renderExplainer(); syncPatterns(); syncSurface(); syncRisks(); refresh(); fit();
 """
 
 
@@ -1750,6 +1902,48 @@ def surface_html(surface):
     return "".join(rows)
 
 
+def short_title(text, n=58):
+    """One short line for a card summary, cut at a word rather than mid-word."""
+    t = " ".join(str(text or "").split())
+    stop = t.find(". ")
+    if 0 < stop <= n:
+        return t[:stop]
+    if len(t) <= n:
+        return t
+    cut = t[:n].rsplit(" ", 1)[0]
+    return cut + "\u2026"
+
+
+def risks_html(risks):
+    """One collapsed card per risk.
+
+    The summary is one short line, because a card whose title runs to four lines
+    is not a card. The statement itself sits in the body in normal weight, where
+    it can be as long as it needs to be.
+    """
+    rows = []
+    for i, r in enumerate(risks):
+        sev = r.get("severity") or "medium"
+        title = r.get("title") or short_title(r.get("statement"))
+        rows.append(
+            '<details class="card rrow %s" data-idx="%d">'
+            '<summary><span class="rname">%s</span>'
+            '<span class="sev %s">%s</span></summary>'
+            '<div class="cardbody">'
+            '<p class="rstatement">%s</p>'
+            '<button class="reflink mono" data-rref="%s">%s</button>'
+            '%s</div></details>'
+            % (
+                esc(sev), i, esc(title), esc(sev), esc(sev),
+                esc(r.get("statement")),
+                esc(r.get("ref") or ""), esc(r.get("ref") or ""),
+                ('<p class="rquestion">%s</p>' % esc(r["question"]))
+                if r.get("question") else "",
+            )
+        )
+    return "".join(rows)
+
+
 def order_html(order, by_id):
     """The path through the diff, numbered, with the reason for each step."""
     rows = []
@@ -1861,6 +2055,14 @@ def render(model):
             '<span style="color:#e3b341"><b>%d</b> hotspot%s</span>'
             % (hot, "" if hot == 1 else "s")
         )
+    risks = model.get("risks") or []
+    if risks:
+        high = high_risk_count(model)
+        stat_bits.append(
+            '<span style="color:%s"><b>%d</b> risk%s</span>'
+            % ("#f85149" if high else "#e3b341", len(risks),
+               "" if len(risks) == 1 else "s")
+        )
     breaking = breaking_count(model)
     if breaking:
         stat_bits.append(
@@ -1877,6 +2079,7 @@ def render(model):
         "patterns": model.get("patterns") or [],
         "surface": model.get("surface") or [],
         "reading_order": model.get("reading_order") or [],
+        "risks": model.get("risks") or [],
         "_step": steps,
         "_evidence": registry,
         "_hunks": hunk_index(registry),
@@ -1922,15 +2125,19 @@ def render(model):
 <div id="evidence-view" hidden></div>
   </div>
   <aside>
+    <h2 id="order-head">Read in this order</h2>
+    <details class="card bigcard" id="orderwrap">
+      <summary><span class="name">__ORDERCOUNT__ steps</span></summary>
+      <div class="cardbody"><div class="orderlist">__ORDER__</div></div>
+    </details>
+    <h2 id="risks-head">Risks and questions</h2>
+    <div id="risks">__RISKS__
+      <p class="empty" id="risks-empty" hidden></p>
+    </div>
     <h2 id="patterns-head">Design patterns</h2>
     <div id="patterns">__PATTERNS__
       <p class="empty" id="patterns-empty" hidden></p>
     </div>
-    <h2 id="order-head">Read in this order</h2>
-    <details class="card bigcard" id="orderwrap" open>
-      <summary><span class="name">__ORDERCOUNT__ steps</span></summary>
-      <div class="cardbody"><div class="orderlist">__ORDER__</div></div>
-    </details>
     <h2 id="surface-head">Contract surface</h2>
     <div id="surface">__SURFACE__
       <p class="empty" id="surface-empty" hidden></p>
@@ -1959,6 +2166,7 @@ def render(model):
         "__CODE_SVG__": code_svg,
         "__PATTERNS__": patterns_html(model.get("patterns") or []),
         "__SURFACE__": surface_html(model.get("surface") or []),
+        "__RISKS__": risks_html(model.get("risks") or []),
         "__ORDER__": order_html(model.get("reading_order") or [],
                                {n["id"]: n for n in nodes}),
         "__ORDERCOUNT__": str(len(model.get("reading_order") or [])),
@@ -1995,14 +2203,16 @@ def main():
         print("  ! " + w, file=sys.stderr)
     if args.check:
         print("model ok: %d nodes, %d edges, %d patterns, %d hunks, %d untested, "
-              "%d surface (%d breaking), %d hotspots, %d steps" % (
+              "%d surface (%d breaking), %d hotspots, %d steps, "
+              "%d risks (%d high)" % (
                   len(model["nodes"]), len(model.get("edges") or []),
                   len(model.get("patterns") or []),
                   sum(len(n.get("hunks") or []) for n in model["nodes"]),
                   untested_count(model["nodes"]),
                   len(model.get("surface") or []), breaking_count(model),
                   hotspot_count(model["nodes"]),
-                  len(model.get("reading_order") or [])))
+                  len(model.get("reading_order") or []),
+                  len(model.get("risks") or []), high_risk_count(model)))
         return
 
     out = args.out or os.path.splitext(args.model)[0] + ".html"

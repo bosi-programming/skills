@@ -143,7 +143,8 @@ it feels like editing and changes nothing.
 What goes through it: the top-level `summary`, every node `summary`, every
 `details` bullet, every `hunks[].explanation`, every `tests[].note`, every
 `surface[].note`, every `history[].note`, every `reading_order[].why`, every
-`patterns[].intent`, every `patterns[].note`, and every `evidence[].explanation`.
+`risks[].statement`, every `risks[].question`, every `patterns[].intent`, every
+`patterns[].note`, and every `evidence[].explanation`.
 
 What must not, because rewriting them would make the page wrong: `id`, `label`,
 `sublabel`, `kind`, `role`, `status`, `source`, `surface[].name`, every `ref`,
@@ -207,6 +208,21 @@ like a types-only file where the compiler is the test.
 Do not stretch. A spec that mocks the thing you changed and asserts a status code
 covers the wiring, not the behaviour; say `existing` and put that sentence in the
 `note`. Coverage you did not open is not coverage.
+
+Then say what you would say out loud if you were reading this diff next to
+someone. `risks[]` is that list: one entry per thing worth checking, each with a
+`severity`, a `ref`, and the `question` you would actually ask the author.
+
+Keep it to what you would raise in person. Three real risks land; ten padded ones
+get skimmed. `high` means it should block the merge until answered, and if
+everything is `high` then nothing is. An empty list is a real answer, so write
+`"risks": []` rather than leaving the key off.
+
+Two things worth writing down that reviewers usually leave out. Say when
+something is not a regression, because "the old code did this too" saves the
+reader a hunt. And when a risk was already argued in the PR description, say the
+author's reason in the `statement` and put your remaining doubt in the `question`
+rather than raising it as if it were new.
 
 Last, say where to read. `reading_order` is a list of node ids, each with a
 `why`, and it is the direct answer to "I cannot follow this diff". Order by what
@@ -290,16 +306,16 @@ resets.
 Deep links, worth handing to someone in a review comment: `#code` opens the code
 layer, `#node=<node id>` opens with that box selected and explained,
 `#pattern=<index>` opens with that card open and isolated, `#surface=<index>`
-highlights one contract row, and `#evidence=<index>` opens straight into one
-piece of evidence.
+highlights one contract row, `#risk=<index>` opens one risk on the file it
+concerns, and `#evidence=<index>` opens straight into one piece of evidence.
 
 ## Step 7 — report back
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and
 your confidence, where you would start reading, which changed files ship with no
-test, what breaks for callers, which file is a hotspot, and anything the graph
-made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
+test, what breaks for callers, which file is a hotspot, the questions you would
+ask the author, and anything the graph made obvious that the diff hid - a cycle drawn right-to-left, a new dependency
 pointing the wrong way, a file that everything now touches.
 
 If the user asks for a fix, edit `model.json` and re-render. Do not hand-edit

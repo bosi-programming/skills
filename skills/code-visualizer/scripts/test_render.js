@@ -128,6 +128,8 @@ ok('the chip drives one flag the graph reads', js.includes('state.coverOnly'));
 ok('a covered node dims when the chip is on',
    js.includes("(n.tests||{}).status !== 'none'"));
 
+const statsbar = html.split('<div class="stats">')[1].split('</div>')[0];
+
 // ---- contract surface: what the change asks of callers
 const surface = MODEL.surface || [];
 const breaking = surface.filter(s => s.breaking);
@@ -155,7 +157,6 @@ ok('the change word is pinned to the right edge and never breaks',
    && /\.srow \.schange\{[^}]*white-space:nowrap/.test(html));
 ok('the name is the only item that gives way',
    /\.srow \.sname\{[^}]*flex:1 1 auto/.test(html));
-const statsbar = html.split('<div class="stats">')[1].split('</div>')[0];
 ok('the header counts the breaking changes, and says nothing when there are none',
    breaking.length ? statsbar.includes('<b>' + breaking.length + '</b> breaking')
                    : !statsbar.includes('breaking'));
@@ -215,7 +216,9 @@ ok('the panel numbers them from one',
 ok('those buttons are wired to select the node',
    js.includes(".orderlist [data-goto]"));
 ok('the list lives in one collapsible card',
-   /<details class="card bigcard" id="orderwrap" open>/.test(html));
+   /<details class="card bigcard" id="orderwrap">/.test(html));
+ok('the order card starts collapsed',
+   !/id="orderwrap"[^>]*open/.test(html));
 ok('the card has a section heading of its own',
    html.includes('<h2 id="order-head">Read in this order</h2>'));
 ok('the heading is not repeated inside the card',
@@ -226,6 +229,43 @@ ok('the overview points at step one', js.includes('Start here'));
 ok('the strip says which step the selected node is',
    js.includes('step ${st} of'));
 ok('n and p walk the order', js.includes("e.key === 'n'") && js.includes("e.key === 'p'"));
+
+// ---- risks: what to check, and what to ask the author
+const risks = MODEL.risks || [];
+const high = risks.filter(r => r.severity === 'high');
+ok('the model raises risks', risks.length > 0);
+ok('every risk points at a line', risks.every(r => r.ref));
+ok('every risk carries a statement', risks.every(r => r.statement));
+const rpanel = html.split('<div id="risks">')[1].split('id="risks-empty"')[0];
+ok('the panel renders one card per risk',
+   (rpanel.match(/class="card rrow/g) || []).length === risks.length,
+   (rpanel.match(/class="card rrow/g) || []).length + ' of ' + risks.length);
+ok('no risk card is open by default', !/<details class="card rrow[^>]*open/.test(rpanel));
+ok('a high risk is marked as high',
+   (rpanel.match(/class="sev high"/g) || []).length === high.length);
+ok('the header counts the risks, and says nothing when there are none',
+   risks.length ? statsbar.includes('<b>' + risks.length + '</b> risk')
+                : !statsbar.includes('risk'));
+ok('selecting a node narrows the risks the way it narrows patterns',
+   js.includes('function risksFor(') && js.includes('function syncRisks('));
+ok('the overview asks the high-severity questions up front',
+   js.includes('Ask the author'));
+ok('the strip lists the risks of the selected node', js.includes('<h4>Risks</h4>'));
+ok('deep link risk= is handled', js.includes("h.startsWith('risk=')"));
+ok('a risk keeps its question where the reader can copy it',
+   rpanel.includes('class="rquestion"'));
+ok('the card summary is one short line, not the whole statement',
+   [...rpanel.matchAll(/<span class="rname">([^<]*)<\/span>/g)]
+     .every(mt => mt[1].length <= 60));
+ok('the statement moves into the body',
+   (rpanel.match(/class="rstatement"/g) || []).length === risks.length);
+ok('the body is not bold',
+   /\.rrow \.rstatement\{[^}]*font-weight:400/.test(html));
+ok('the sections read: order, risks, patterns, surface, files',
+   ['id="order-head"', 'id="risks-head"', 'id="patterns-head"',
+    'id="surface-head"', 'id="fileswrap"']
+     .map(k => html.indexOf(k))
+     .every((v, i, a) => v > 0 && (i === 0 || v > a[i - 1])));
 
 // ---- the side panel: nothing scrolls sideways, the long lists fold
 ok('the side panel never scrolls sideways', html.includes('overflow-x:hidden'));

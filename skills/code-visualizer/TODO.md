@@ -66,11 +66,23 @@ Shipped: `normalize_reading_order` (unknown node and duplicate both fail),
 `step 3 of 7` in the selected node's meta line, `n` and `p` to walk the order, and
 two warnings: no order at all, and an order that leaves a changed file out.
 
-## 6. Risks and open questions
+## 6. Risks and open questions — done
 
-`risks[]` = `{ severity, statement, ref, question }`. Distinct from patterns: a
-missing guard is not a pattern violation but is what a reviewer needs to see.
-Renders as a second card list beside patterns.
+`risks[]` = `{ severity, statement, ref, question, node }`. Distinct from
+patterns: a missing guard is not a pattern violation but is what a reviewer needs
+to see.
+
+Shipped: `normalize_risks` (`statement` and `ref` required, severity defaults to
+medium and an unknown one fails), `high_risk_count`, a `Risks and questions`
+section of collapsed cards that narrows with the selection, a red or amber left
+border by severity, a risk count in the header, an `Ask the author` column in the
+overview strip carrying the high-severity questions, a `Risks` column in the
+strip for the selected node, and a `#risk=<index>` deep link. An absent `risks`
+key is nudged; `[]` is a real answer.
+
+All six done. The model now carries, per change: the diff itself, its test
+coverage, its churn and owners, the contract it moves, the order to read it in,
+and the questions to ask about it.
 
 ## Notes
 

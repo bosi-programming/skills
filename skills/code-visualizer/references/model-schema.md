@@ -28,6 +28,44 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
 - `stats` : object with `files_changed`, `insertions`, `deletions`. Take these
   from `git diff --numstat`, do not estimate.
 
+## risks[]
+
+What a reviewer should look at, and what to ask about it. This is not
+`patterns[]`. A missing null guard breaks no pattern, and it is exactly the kind
+of thing a reader wants pointed at.
+
+```json
+{
+  "severity": "high",
+  "statement": "An SMS gets the subject line and nothing else, because SmsChannel drops payload.template.",
+  "ref": "src/notifications/channels/sms.channel.ts:19",
+  "question": "Is a subject-only SMS intended, or should the template render for SMS too?",
+  "node": "src/notifications/channels/sms.channel.ts"
+}
+```
+
+- `severity` : `high` | `medium` | `low`, default `medium`. `high` means it should
+  block the merge until answered. The page marks high risks red, counts them, and
+  puts their questions in the overview strip before anything is clicked.
+- `statement` : required. What is true, in one or two sentences, written so the
+  author can agree or disagree with it.
+- `ref` : `path:line`, required. A risk with no line is a feeling.
+- `question` : the thing to ask the author. Optional, and the field that does the
+  work: a statement tells a reviewer to worry, a question gives them something to
+  send.
+- `node` : optional node id, when the `ref` path does not name one.
+- `title` : optional, and only worth setting when the first sentence of the
+  `statement` makes a poor card summary. The card shows this line collapsed, and
+  falls back to a short form of the `statement`.
+
+Raise a risk you would raise out loud, and no more. An empty list is a real
+answer, so write `"risks": []` when you looked and found nothing rather than
+leaving the key off; `--check` warns about the missing key.
+
+Say when something is not a regression. "The old code did this too, but the new
+structure makes it look deliberate" is worth a `low` and a sentence, and it stops
+a reviewer chasing it.
+
 ## reading_order[]
 
 Where to start, and what to read next. The graph shows how the files connect; it
