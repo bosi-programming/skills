@@ -40,7 +40,7 @@ Run the bundled detector from the user's current location (a ticket dir, or a
 standalone checkout like `partners`/`engineering-docs`):
 
 ```bash
-bash ~/.claude/skills/ship-pr/scripts/detect_context.sh
+bash "${CLAUDE_SKILL_DIR}/scripts/detect_context.sh"
 ```
 
 It prints one JSON line per git repo with: `path`, `branch`, derived `ticket`,

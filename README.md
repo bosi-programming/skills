@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Six Claude Code skills, packaged as an installable plugin. Three do work on a diff. Three check the model's own writing before it reaches you.
+Seven Claude Code skills, packaged as an installable plugin. Four do work on a diff. Three check the model's own writing before it reaches you.
 
 ## Install
 
@@ -35,6 +35,12 @@ Handles `.md` and `.mdx` fully, and `.txt`, `.rst` and `.adoc` with sectioning d
 
 Needs `python3`. The renderer uses the standard library only.
 
+### ship-pr
+
+Turns working-tree changes into pull requests. It splits the diff into granular Conventional Commits, derives the ticket key from the branch, picks the repo's own PR template, and fills it from the diff and the Linear ticket. Two stops sit in the workflow: the first runs `bosi-code-review` over the change and waits for you to say what to fix, before anything is committed. The second waits for your go before anything is pushed.
+
+Handles a multi-repo worktree, opening one PR per repo that has changes.
+
 ### objectum
 
 A gate the model runs on its own draft before emitting anything. It holds the draft as an object, names the pulls that wrote it, converts each pull into a claim that could be proven false, marks every claim as verified or imagined, and either verifies, cuts, or flags the imagined ones. You get the corrected draft, never the audit.
@@ -59,6 +65,7 @@ skills/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
   objectum/           SKILL.md
+  ship-pr/            SKILL.md + scripts/detect_context.sh + references/
   un-ai/              SKILL.md
 ```
 
