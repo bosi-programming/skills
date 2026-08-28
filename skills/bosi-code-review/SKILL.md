@@ -119,7 +119,7 @@ The gated aggregate is correct. It still reads like a machine wrote it, and a re
 - Pass the prose you are about to render, and say which parts are in scope.
 - The call is mandatory on every run, exactly like the gate in step 6.
 
-**In scope** — everything a reader sees as prose: the `h1`, the tab labels, `.verdict`, `.axis-note`, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, the `.callout`, and the whole footer.
+**In scope** — everything a reader sees as prose: the `h1`, the tab labels, `.verdict`, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, the `.callout`, and the whole footer.
 
 **Out of scope, and rewriting these is a defect** — identifiers, file paths, line numbers, quoted standard text, quoted spec lines, quoted code, the CSS, and the script. A quote you smoothed is a quote you falsified.
 
@@ -188,6 +188,8 @@ This structure is for the **Spec** tab. Standards cards keep their `.d` blocks a
 - Put each axis's tally in its own `.tab-count` as well as its scoreboard card, so both scores read without a click.
 - Never delete a tab. An axis with no findings keeps its tab and says so inside, the way the scoreboard card does. Two tabs always, or the page stops being a two-axis review and nobody notices.
 - Leave `role="tablist"`, `role="tabpanel"`, `aria-selected` and `aria-controls` as they are, keep the arrow-key handler, and keep the `<noscript>` block that reveals both panels. The page has to work with the script blocked.
+- **No heading inside a panel.** No axis title, no icon, no source note. The tab label already says which axis this is, and repeating it costs a screen of height on a page whose whole point is that the first finding is visible. The panel starts at its first group.
+- The provenance those notes used to carry moves to the footer: which standards documents you read, which issue you checked the criteria against, and what tooling you skipped. It belongs with the rest of "How this was checked", not at the top of the findings.
 
 Write the page to the session scratchpad directory as `review-<pr-number-or-ref>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
 
