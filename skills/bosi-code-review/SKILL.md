@@ -103,7 +103,7 @@ Then run the fix loop. Rewrite the aggregate, re-run passes 4 and 5 on the rewri
 Gate verdicts, mapped to this skill:
 
 - **SHIP** or **FIX THEN SHIP**: carry the corrected aggregate to step 7.
-- **CANNOT SHIP**: still carry it to step 7, but the residual goes in **your reply to the user**, in plain words: what you could not verify and what would verify it. The page has no footer to hold it, so this is the only place it lands, and dropping it is not an option. Never render an unverified claim on the page as a plain finding.
+- **CANNOT SHIP**: still carry it to step 7. The residual goes in the page's `Not verified` section, one card per gap, and in your reply to the user. Never render an unverified claim on the page as a plain finding.
 
 Either way the next step is step 7, not the render. A true finding in machine voice is still a finding nobody reads.
 
@@ -139,7 +139,7 @@ Rewriting is not licence to soften. A defect stays a defect, a `hard` pill stays
 
 The final deliverable is a web page, not a chat dump.
 
-Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note.
+Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note, `Not verified`.
 
 - Copy the template, replace every `{{PLACEHOLDER}}` with real content, delete the blocks and groups you have no findings for, and repeat the `li.f` / `.ac` / `.commit` items as many times as you have findings.
 - **Dark theme only.** Keep the `:root` palette as-is. No light mode, no `prefers-color-scheme`, no theme toggle.
@@ -157,7 +157,7 @@ Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (ambe
 
 Drop any group with nothing in it rather than shipping an empty heading.
 
-Each group title is an `h2` in 24px bold, carrying 40px of padding above and below and no rule after it. The groups are the page's structure, so they get the heading level, the size and the room to say so: `.group` itself has no bottom margin, and that padding is the only thing separating one group from the next. At 24px the title separates the sections on its own, which is why the hairline that used to trail it is gone.
+Each group title is an `h2` in 24px bold, carrying 40px of padding above and 20px below, with no rule after it. The groups are the page's structure, so they get the heading level, the size and the room to say so: `.group` itself has no bottom margin, and that padding is the only thing separating one group from the next. At 24px the title separates the sections on its own, which is why the hairline that used to trail it is gone.
 
 **Every finding card collapses.** Each `li.f` wraps its body in `<details>` with the title as `<summary class="t">`. Native `<details>`, no JavaScript, so folding still works when the script is blocked.
 
@@ -169,6 +169,14 @@ Each group title is an `h2` in 24px bold, carrying 40px of padding above and bel
 - The evidence and the `file:line` go in the folded `.body`, never in the summary.
 - Nothing on the page is exempt. Every finding card and every criterion folds, and every one ships shut.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
+
+**The page ends with a `Not verified` section.** Whatever the gate in step 6 could not unveil goes there, below the cross-axis note, outside both tabs, because it applies to the whole review.
+
+- One collapsible card per gap, shut like every other card, with a **single-line title that names the gap on its own**: `No test suite, type-check or lint was run against this branch`. A reader who never opens the card should still know what is missing.
+- Two kinds belong here. A claim you could not verify, and a check you did not run. Both are `warn`, not `soft`, because either can change what a finding means.
+- Every card ends with **What would settle it**, naming the action: the file to read, the command to run, the person to ask. An unverified claim with no route to verifying it is a shrug, and it will sit on the page forever.
+- Where a gap sits under a specific finding, say which one. The reader deciding whether to act on that finding is the person who needs this.
+- Delete the section only when there is genuinely nothing unverified and nothing unrun. That is rare enough to be worth doubting: a review that ran no tests has at least one card.
 
 **Every Spec card opens with "How this affects the final user".** It is the first section inside `<details>`, `<h4 class="user">`, before any code. Nothing else goes above it.
 
@@ -194,7 +202,7 @@ This structure is for the **Spec** tab. Standards cards keep their `.d` blocks a
 - Never delete a tab. An axis with no findings keeps its tab and says so inside, the way the scoreboard card does. Two tabs always, or the page stops being a two-axis review and nobody notices.
 - Leave `role="tablist"`, `role="tabpanel"`, `aria-selected` and `aria-controls` as they are, keep the arrow-key handler, and keep the `<noscript>` block that reveals both panels. The page has to work with the script blocked.
 - **No heading inside a panel.** No axis title, no icon, no source note. The tab label already says which axis this is, and repeating it costs a screen of height on a page whose whole point is that the first finding is visible. The panel starts at its first group.
-- The provenance those notes carried does not move somewhere else on the page. The page is findings; it does not narrate how it was made. Which standards documents you read, and what tooling you skipped, go in your reply if they change what the reader should do.
+- The provenance those notes carried does not move somewhere else on the page. The page is findings; it does not narrate how it was made. Which standards documents you read, and what tooling you skipped, go in your reply if they change what the reader should do. What you could **not** check is different, and it has its own section below.
 
 Write the page to the session scratchpad directory as `review-<pr-number-or-ref>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
 

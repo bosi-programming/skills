@@ -76,7 +76,7 @@
   .group{margin-bottom:0}
   .group > h2{
     font:700 24px/1.25 inherit;letter-spacing:-.012em;
-    color:var(--fg);margin:0;padding:40px 0
+    color:var(--fg);margin:0;padding:40px 0 20px
   }
 
   ul.findings{list-style:none;margin:0;padding:0;display:grid;gap:10px}
@@ -499,6 +499,53 @@
     <p>This is a note, not a rerank. Neither axis outranks the other here.</p>
   </div>
 </section>
+
+<!-- ============ RESIDUAL ============
+     What the objectum gate could not unveil, one collapsible card each, shut like every other card.
+     Two kinds live here: a claim you could not verify, and a check you did not run. Both belong on the
+     page rather than only in the reply, because a reader acting on a finding needs to know what sits
+     under it.
+     Every card: a single-line title that names the gap on its own, then "What is missing" (or "What was
+     not run"), then "What would settle it". Never ship a card without that last section: an unverified
+     claim with no route to verifying it is a shrug.
+     Severity is warn, not soft. These can change what a finding means.
+     Delete the whole section only when there is genuinely nothing unverified and nothing unrun. That is
+     rare enough to be worth doubting.
+-->
+<section id="residual">
+  <div class="group">
+    <h2>Not verified</h2>
+    <ul class="findings">
+      <li class="f warn">
+        <details>
+          <summary class="t">{{WHAT_COULD_NOT_BE_CHECKED}}</summary>
+
+          <h4>What is missing</h4>
+          <div class="d">{{WHAT_IS_CERTAIN_AND_WHAT_IS_NOT}}</div>
+
+          <h4>What would settle it</h4>
+          <div class="d">{{THE_ACTION_THAT_WOULD_VERIFY_IT}}</div>
+        </details>
+      </li>
+
+      <li class="f warn">
+        <details>
+          <summary class="t">{{WHAT_WAS_NOT_EXECUTED}}</summary>
+
+          <h4>What was not run</h4>
+          <div class="d">{{WHY_IT_WAS_NOT_RUN}}</div>
+
+          <h4>What is claimed instead</h4>
+          <div class="d">{{WHOSE_CLAIM_STANDS_IN_FOR_IT}}</div>
+
+          <h4>What would settle it</h4>
+          <div class="d">{{THE_COMMAND_THAT_WOULD_RUN_IT}}</div>
+        </details>
+      </li>
+    </ul>
+  </div>
+</section>
+
 
 </div>
 
