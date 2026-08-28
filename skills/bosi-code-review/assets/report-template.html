@@ -98,7 +98,7 @@
   }
   .rule b{color:var(--fg-dim);font-weight:600}
 
-  code{font-family:var(--mono);font-size:12.5px;color:#a9c7f5;
+  code{font-family:var(--mono);font-size:12.5px;color:#9fb0c9;
     background:var(--bg-sunken);border:1px solid var(--border-soft);border-radius:4px;padding:1px 5px}
   li.f .t code{font-size:13px}
 
@@ -128,11 +128,19 @@
   li.f > details > h4:first-of-type{margin-top:12px}
   li.f h4 + .d{margin-top:0}
 
-  /* every file:line points at its own excerpt on the companion refs page */
-  a.ref{text-decoration:none;border-bottom:1px solid var(--border)}
-  a.ref:hover{border-bottom-color:var(--accent)}
-  a.ref:hover code{color:#cfe0fb;border-color:var(--accent)}
-  a.ref code{transition:color .12s,border-color .12s}
+  /* every file:line points at its own excerpt on the companion refs page.
+     Linked refs have to read as clickable at rest, not on hover: accent text on an accent-tinted
+     chip with a solid accent underline. Plain inline code above is deliberately duller so the
+     difference between "you can open this" and "this is just a name" is visible at a glance. */
+  a.ref{text-decoration:none;white-space:nowrap}
+  a.ref code{
+    color:#bcd6fb;background:#131f33;border-color:#2f4b7a;
+    border-bottom:2px solid var(--accent);border-radius:4px 4px 3px 3px;
+    transition:color .12s,background .12s,border-color .12s
+  }
+  a.ref:hover code{color:#e4edfd;background:#1b2b48;border-color:var(--accent)}
+  a.ref:focus-visible{outline:none}
+  a.ref:focus-visible code{outline:2px solid var(--accent);outline-offset:2px}
 
   /* acceptance criteria, grid not table. Each one folds and ships shut: the verdict is the
      mark plus the label, and the evidence is one click away. */
