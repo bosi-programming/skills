@@ -23,7 +23,7 @@ Based on Matt Pocock's code-review skill.
 
 ### code-visualizer
 
-Turns a diff or pull request into an interactive web page that maps what changed, how the changed pieces relate, and which design patterns the change uses or breaks. Pattern cards collapse to a name, carry a link to what the pattern is, and list evidence refs you can click through to the hunk itself. It writes a `model.json` first, so you can correct the model cheaply, then renders. Accepts a PR URL or number, a git ref range, a `.diff`/`.patch` file, or the working tree.
+Turns a diff or pull request into an interactive web page that maps what changed and how the changed pieces relate. The page answers the questions a reviewer asks before reading a line: where to start, what to ask the author, which changed file ships with no test, what breaks for callers, how busy each file is and whose it is, and which design patterns the change uses or breaks. Every claim carries a `file:line` you can click through to the hunk itself, and a red mark on a box means nothing asserts what it now does. It writes a `model.json` first, so you can correct the model cheaply, then renders. Accepts a PR URL or number, a git ref range, a `.diff`/`.patch` file, or the working tree.
 
 Needs `python3`. The renderer uses the standard library only.
 

@@ -256,8 +256,8 @@ ok('the statement moves into the body',
    (rpanel.match(/class="rstatement"/g) || []).length === risks.length);
 ok('the body is not bold',
    /\.rrow \.rstatement\{[^}]*font-weight:400/.test(html));
-ok('the sections read: order, risks, patterns, surface, files',
-   ['id="order-head"', 'id="risks-head"', 'id="patterns-head"',
+ok('the sections read: summary, order, risks, patterns, surface, files',
+   ['id="summary-head"', 'id="order-head"', 'id="risks-head"', 'id="patterns-head"',
     'id="surface-head"', 'id="fileswrap"']
      .map(k => html.indexOf(k))
      .every((v, i, a) => v > 0 && (i === 0 || v > a[i - 1])));
@@ -376,10 +376,42 @@ ok('the strip does not repeat step one, which the order card holds',
 ok('a selected pattern is explained by its card, not twice',
    !js.includes('} else if (state.pattern != null){')
    && !js.includes('<h4>Participants</h4>') && !js.includes('<h4>Evidence</h4>'));
-ok('the strip points at the panel instead',
-   js.includes('The panel on the right holds'));
+ok('the explanation lives in a Summary card, not a strip under the graph',
+   /<details class="card bigcard" id="summarywrap">/.test(html)
+   && !html.includes('<section id="explainer">'));
+ok('the card has a section heading of its own',
+   html.includes('<h2 id="summary-head">Summary</h2>'));
+ok('the summary card starts collapsed', !/id="summarywrap"[^>]*open/.test(html));
+ok('its collapsed line says what it holds',
+   html.includes('id="summary-label">What this change is about<')
+   && js.includes("cardLabel.textContent = state.selected"));
+ok('the card body does not repeat that line',
+   !js.includes('<span class="eyebrow">what this change is about</span>'));
+ok('the card is the first thing in the panel, above the reading order',
+   html.indexOf('id="summary-head"') < html.indexOf('id="order-head"'));
+ok('selecting something opens the card, so it never updates out of sight',
+   js.includes("if (card && (state.selected || state.pattern != null)) card.open = true;"));
+ok('the graph keeps the whole left side',
+   !html.includes('#explainer{flex:0 0 25vh'));
 ok('the side-column rules are gone with the columns',
    !html.includes('#explainer .cols{') && !html.includes('#explainer .col{'));
+
+// ---- the panel is resizable, and still a third of the width to start
+ok('there is a splitter between the graph and the panel',
+   html.includes('<div id="split" role="separator"'));
+ok('it looks and behaves like a splitter',
+   /#split\{[^}]*cursor:col-resize/.test(html)
+   && html.includes("split.addEventListener('pointerdown'"));
+ok('the default is still a third of the width',
+   /aside\{[^}]*flex:0 0 33\.333%/.test(html)
+   && js.includes("const PANEL_DEFAULT = '33.333%';"));
+ok('neither side can be dragged out of existence',
+   js.includes('Math.max(280, Math.min(px, total - 260))'));
+ok('the old max-width no longer caps the drag',
+   !/aside\{[^}]*max-width/.test(html));
+ok('double-click resets it', js.includes("split.addEventListener('dblclick', panelReset)"));
+ok('the keyboard can resize it too',
+   js.includes("e.key === '['") && js.includes("e.key === ']'"));
 
 // ---- zoom
 ok('wheel deltas are normalised per device', js.includes('e.deltaMode === 1'));

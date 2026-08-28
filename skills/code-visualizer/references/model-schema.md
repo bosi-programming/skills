@@ -151,13 +151,13 @@ moved. Leaving the key off is a different claim, and `--check` warns about it.
   `related` means untouched but included for context.
 - `insertions`, `deletions` : integers, file nodes mainly. Rendered as `+n −n`.
 - `line` : integer. Where the thing starts, for code nodes.
-- `summary` : string. Two to four sentences, shown in the explanation strip under
-  the graph when the box is clicked. This is the most-read text on the page after
+- `summary` : string. Two to four sentences, shown in the `Summary` card when the
+  box is clicked. This is the most-read text on the page after
   the top-level summary, so write it as an explanation, not a label: what this
   file or symbol is for, and what this change did to it. A collapsed node says
   here what it collapsed.
 - `details` : array of short strings. Rendered as bullets under the summary in
-  the explanation strip. Use them for the specifics a reviewer would otherwise
+  the `Summary` card. Use them for the specifics a reviewer would otherwise
   have to dig for - the line a thing happens on, a removed behaviour, a missing
   guard. Three or four is plenty.
 - `hunks` : array. The change itself, so a reader can see it without a pattern

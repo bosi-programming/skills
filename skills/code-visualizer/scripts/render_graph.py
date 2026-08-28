@@ -967,15 +967,13 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 .dim{opacity:.14}
 .hide{display:none}
 .hit .node-box{stroke-width:3}
-#explainer{flex:0 0 25vh;height:25vh;min-height:150px;max-height:60vh;overflow-y:auto;
-  resize:vertical;border-top:1px solid var(--line);background:var(--panel);padding:14px 20px 18px}
 #explainer .head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
 #explainer .eyebrow{font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim)}
-#explainer .name{font-size:15px;font-weight:600}
-#explainer .meta{font-size:14px;color:var(--dim);font-family:ui-monospace,Menlo,monospace}
-#explainer p{margin:0 0 8px;font-size:15px;color:#cbd5e1;max-width:82ch}
-#explainer ul.bullets{margin:0 0 10px;padding-left:18px;font-size:14px;color:var(--muted);
-  max-width:82ch}
+#explainer .name{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+#explainer .meta{font-size:14px;color:var(--dim);font-family:ui-monospace,Menlo,monospace;
+  overflow-wrap:anywhere}
+#explainer p{margin:0 0 8px;font-size:14px;color:#cbd5e1}
+#explainer ul.bullets{margin:0 0 10px;padding-left:18px;font-size:14px;color:var(--muted)}
 #explainer ul.bullets li{margin:2px 0}
 #explainer .prose p,#explainer .prose ul{max-width:none}
 #explainer .stripcards{display:flex;flex-direction:column;gap:6px;margin-top:4px}
@@ -994,9 +992,16 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer .rel{margin:0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
 #explainer .rel li{padding:2px 0}
 #explainer .back{margin-left:auto}
-aside{width:33.333%;min-width:320px;max-width:620px;flex:0 0 33.333%;
-  border-left:1px solid var(--line);background:var(--panel);
+/* A third of the width to start. The splitter overwrites flex-basis in px, so
+   max-width has to go or it would cap the drag. */
+aside{min-width:280px;flex:0 0 33.333%;
+  background:var(--panel);
   overflow-y:auto;overflow-x:hidden;padding:16px 20px 40px}
+#split{flex:0 0 7px;cursor:col-resize;background:var(--line);position:relative;
+  border-left:1px solid var(--bg);border-right:1px solid var(--bg)}
+#split:hover,#split.dragging{background:var(--accent)}
+#split::after{content:"";position:absolute;inset:0 -4px;cursor:col-resize}
+body.splitting{cursor:col-resize;user-select:none}
 aside h2{font-size:14px;letter-spacing:.09em;text-transform:uppercase;color:var(--dim);
   margin:22px 0 10px;display:flex;align-items:baseline;gap:10px}
 aside h2 .count{color:var(--muted);letter-spacing:0;text-transform:none}
@@ -1485,6 +1490,12 @@ function hideEvidence(){
 
 function renderExplainer(){
   const host = document.getElementById('explainer');
+  const card = document.getElementById('summarywrap');
+  const cardLabel = document.getElementById('summary-label');
+  if (card && (state.selected || state.pattern != null)) card.open = true;
+  if (cardLabel) cardLabel.textContent = state.selected
+    ? ((nodeInfo(state.selected)||{}).label || state.selected)
+    : 'What this change is about';
   const back = '<button class="btn back" id="backbtn">Back to overview</button>';
 
   if (state.selected){
@@ -1521,14 +1532,13 @@ function renderExplainer(){
   } else {
     host.innerHTML = `
       <div class="head">
-        <span class="eyebrow">what this change is about</span>
         <span class="name">${esc(MODEL.title||'Code change map')}</span>
         <span class="meta">${esc(MODEL.source||'')}</span>
       </div>
       <div class="prose">
       ${MODEL.summary ? `<p>${esc(MODEL.summary)}</p>`
         : '<p class="meta" style="font-family:inherit">No summary in the model.</p>'}
-      <p class="meta" style="font-family:inherit">Click any box or file to explain it here. The panel on the right holds the reading order, the risks, the patterns and the contract. Press <b>n</b> to walk the reading order.</p>
+      <p class="meta" style="font-family:inherit">Click any box or file to explain it here. Press <b>n</b> to walk the reading order.</p>
       </div>`;
   }
 
@@ -1567,6 +1577,41 @@ function pickPattern(i){
 }
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// The panel is a third of the width until someone drags it. Width is set in px
+// on flex-basis, clamped so neither side can be squeezed out of existence.
+const aside = document.querySelector('aside');
+const split = document.getElementById('split');
+const PANEL_DEFAULT = '33.333%';
+
+function panelWidth(px){
+  const total = document.querySelector('main').getBoundingClientRect().width;
+  const w = Math.max(280, Math.min(px, total - 260));
+  aside.style.flex = '0 0 ' + Math.round(w) + 'px';
+}
+function panelReset(){ aside.style.flex = '0 0 ' + PANEL_DEFAULT; }
+function panelNudge(by){
+  panelWidth(aside.getBoundingClientRect().width + by);
+}
+
+let splitting = false;
+split.addEventListener('pointerdown', e => {
+  splitting = true;
+  split.classList.add('dragging');
+  document.body.classList.add('splitting');
+  split.setPointerCapture(e.pointerId);
+});
+split.addEventListener('pointermove', e => {
+  if (!splitting) return;
+  const right = document.querySelector('main').getBoundingClientRect().right;
+  panelWidth(right - e.clientX);
+});
+split.addEventListener('pointerup', () => {
+  splitting = false;
+  split.classList.remove('dragging');
+  document.body.classList.remove('splitting');
+});
+split.addEventListener('dblclick', panelReset);
 
 document.querySelectorAll('#viewseg button').forEach(b => b.onclick = () => setView(b.dataset.view));
 document.querySelectorAll('.chip[data-status]').forEach(c => c.onclick = () => {
@@ -1635,6 +1680,9 @@ window.addEventListener('keydown', e => {
   if (e.key === '1') setView('file');
   if (e.key === '2') setView('code');
   if (e.key === 'f') fit();
+  if (e.key === '[') panelNudge(-40);
+  if (e.key === ']') panelNudge(40);
+  if (e.key === '\\') panelReset();
   if (e.key === 'n' || e.key === 'p'){
     const ord = (MODEL.reading_order||[]).map(x => x.node);
     if (!ord.length) return;
@@ -2076,10 +2124,16 @@ def render(model):
       <div class="pane" id="pane-file">__FILE_SVG__</div>
       <div class="pane" id="pane-code" hidden>__CODE_SVG__</div>
     </div>
-    <section id="explainer"></section>
 <div id="evidence-view" hidden></div>
   </div>
+  <div id="split" role="separator" aria-orientation="vertical"
+       title="Drag to resize, double-click to reset"></div>
   <aside>
+    <h2 id="summary-head">Summary</h2>
+    <details class="card bigcard" id="summarywrap">
+      <summary><span class="name" id="summary-label">What this change is about</span></summary>
+      <div class="cardbody" id="explainer"></div>
+    </details>
     <h2 id="order-head">Read in this order</h2>
     <details class="card bigcard" id="orderwrap">
       <summary><span class="name">__ORDERCOUNT__ steps</span></summary>

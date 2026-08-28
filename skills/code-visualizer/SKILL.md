@@ -250,12 +250,11 @@ commits by one author is a busy file; forty by seven authors is a file nobody
 owns, and a hotspot box gets an amber mark so the reader sees it before clicking.
 Two owners across one diff is worth a sentence too: it decides who has to review.
 
-The page has one explanation strip under the graph, and it is the surface people
-actually read. It shows the top-level `summary` until a box is selected, then that
-node's explanation, with the diff, the coverage and the churn in collapsed cards
-beneath. It repeats nothing the right-hand panel holds: the reading order, the
-risks, the patterns and the contract each live there and nowhere else. So write
-for it:
+The `Summary` card at the top of the side panel is the surface people actually
+read. It holds the top-level `summary` until a box is selected, then that node's
+explanation, with the diff, the coverage and the churn in cards nested inside it.
+It repeats nothing the sections below hold: the reading order, the risks, the
+patterns and the contract each live in one place only. So write for it:
 
 - the top-level `summary` answers "what did this change actually do" in two or
   three sentences - what a reviewer wants before they look at anything;
@@ -289,15 +288,16 @@ working tree uninvited. Keep `model.json` beside the HTML - it is the thing you
 edit when the user asks for a correction.
 
 The page needs no server: it is one self-contained file, dark theme only, and it
-works offline. The side panel takes a third of the width, the explanation strip a
-quarter of the height (draggable), and nothing on the page is smaller than 14px.
+works offline. The graph takes the whole left side, the side panel a third of the
+width until the reader drags the splitter between them, and nothing on the page is
+smaller than 14px.
 
-What the reader gets: pan and drag, wheel zoom, `Fit`; click a box and the strip
-under the graph explains it, in prose and bullets, with three collapsed cards
-beneath for the diff, the test coverage and the churn, and the relations left to
-the graph where they are already drawn; the side panel narrows its pattern cards,
-its risks and its contract rows to that selection at the same time, with
-`show all` to widen again; every pattern
+What the reader gets: pan and drag, wheel zoom, `Fit`; click a box and the `Summary`
+card explains it, in prose and bullets, with three collapsed cards inside for the
+diff, the test coverage and the churn, and the relations left to the graph where
+they are already drawn; the panel narrows its pattern cards, its risks and its
+contract rows to that selection at the same time, with `show all` to widen
+again; every pattern
 card is collapsed to its name and confidence until it is opened, and inside it
 carries a link to what the pattern is, an `Isolate on graph` checkbox that dims
 everything but the participants, and its evidence refs; click a ref - in a pattern card, or under
@@ -305,7 +305,9 @@ everything but the participants, and its evidence refs; click a ref - in a patte
 into that hunk, coloured, with the explanation under it, and `Back` or `Escape`
 returns; chips filter by change
 status and relation kind, and one more dims everything that has a test; a text
-filter; `n` and `p` walk the reading order, selecting each step in turn; `1` and `2` switch layers, `Escape`
+filter; `n` and `p` walk the reading order, selecting each step in turn; the
+splitter drags the panel wider or narrower, double-click resets it, and `[` and
+`]` do the same from the keyboard; `1` and `2` switch layers, `Escape`
 resets.
 
 Deep links, worth handing to someone in a review comment: `#code` opens the code
