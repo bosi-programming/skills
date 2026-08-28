@@ -151,6 +151,42 @@
   footer ul{margin:8px 0 0;padding-left:18px}
   footer li{margin-bottom:4px}
 
+  /* tabs. Two of them, Spec then Standards. No third state, no accordion. */
+  .tabs{
+    display:flex;gap:6px;margin:0 0 30px;padding:5px;border-radius:11px;
+    background:var(--bg-sunken);border:1px solid var(--border)
+  }
+  .tab{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;
+    padding:13px 16px;border:1px solid transparent;border-radius:8px;cursor:pointer;
+    background:none;color:var(--fg-dim);font:640 15px/1.2 inherit;letter-spacing:-.005em;
+    transition:background .13s,color .13s,border-color .13s
+  }
+  .tab svg{flex:none;opacity:.7}
+  .tab:hover{color:var(--fg);background:#141a26}
+  .tab.is-on{
+    color:var(--fg);background:linear-gradient(180deg,var(--bg-raised),#0f141d);
+    border-color:var(--border);box-shadow:0 1px 0 #232d3d inset
+  }
+  .tab.is-on svg{opacity:1}
+  .tab.is-on#tab-spec svg{stroke:var(--ok)}
+  .tab.is-on#tab-standards svg{stroke:var(--hard)}
+  .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .tab-count{
+    font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--fg-faint);
+    padding:4px 7px;border-radius:999px;background:var(--bg-sunken);border:1px solid var(--border-soft)
+  }
+  .tab.is-on .tab-count{color:var(--fg-dim);background:#0b0f17}
+  .panels > section[hidden]{display:none}
+  .panels > section{margin-bottom:52px}
+  /* the scoreboard cards double as tab switches */
+  .card{cursor:pointer;transition:border-color .13s}
+  .card:hover{border-color:#2b3849}
+
+  @media (max-width:620px){
+    .tab{flex-direction:column;gap:6px;padding:12px 8px;font-size:14px}
+  }
+
   @media (max-width:860px){
     .board{grid-template-columns:1fr}
     .commit{grid-template-columns:1fr;gap:6px}
@@ -185,18 +221,9 @@
      If the Spec axis was skipped, keep the card and say "no spec available" in .verdict with no pills.
 -->
 <div class="board">
-  <div class="card standards">
-    <h2>Standards</h2>
-    <p class="verdict">Does the code follow the repo's documented standards?</p>
-    <div class="tally">
-      <span class="pill hard">{{N}} hard violations</span>
-      <span class="pill warn">{{N}} flagged tensions</span>
-      <span class="pill soft">{{N}} judgement calls</span>
-    </div>
-  </div>
-  <div class="card spec">
+  <div class="card spec" data-goto="spec">
     <h2>Spec</h2>
-    <p class="verdict">Does the code implement what {{ISSUE_KEY}} asked for?</p>
+    <p class="verdict">Did the code do what {{ISSUE_KEY}} asked for?</p>
     <div class="tally">
       <span class="pill ok">{{N}} / {{N}} criteria met</span>
       <span class="pill warn">{{N}} partial</span>
@@ -204,66 +231,52 @@
       <span class="pill hard">{{N}} defects</span>
     </div>
   </div>
+  <div class="card standards" data-goto="standards">
+    <h2>Standards</h2>
+    <p class="verdict">Did the code follow the repo's written standards?</p>
+    <div class="tally">
+      <span class="pill hard">{{N}} hard violations</span>
+      <span class="pill warn">{{N}} flagged tensions</span>
+      <span class="pill soft">{{N}} judgement calls</span>
+    </div>
+  </div>
 </div>
 
-<!-- ============ STANDARDS ============
-     Groups, in order: "Hard violations", "Flagged, not condemned", "Judgement calls · smell baseline".
-     Omit a group with no findings. Severity per finding: li.f.hard / .warn / .soft.
-     .t = one-line finding title. .d = evidence, one claim per .d, with file:line in <code>.
-     .rule = the standard breached: <b>doc name</b> (line N) plus the rule text. Omit for smell findings.
+
+<!-- ============ TABS ============
+     Two tabs, Spec first and open by default, Standards second. Never delete a tab: an axis with no
+     findings keeps its tab and says so inside. Put each axis's tally in its .tab-count so both scores
+     read without a click. Leave the ARIA attributes and the script alone.
 -->
-<section id="standards">
-  <div class="axis-head">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2777a" stroke-width="1.7"
+<nav class="tabs" role="tablist" aria-label="Review axes">
+  <button class="tab is-on" role="tab" aria-selected="true" aria-controls="spec" id="tab-spec">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+      <path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/>
+    </svg>
+    Spec
+    <span class="tab-count">{{N}}/{{N}} met · {{N}} defects</span>
+  </button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="standards" id="tab-standards">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
          stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0L7 7zM17 7l-3 7a3.2 3.2 0 0 0 6 0l-3-7z"/>
     </svg>
-    <h2>Standards</h2>
-  </div>
-  <p class="axis-note">
-    Sources: {{STANDARDS_SOURCES}}. Anything lint or the type-checker already enforces is skipped.
-  </p>
+    Standards
+    <span class="tab-count">{{N}} hard · {{N}} warn · {{N}} soft</span>
+  </button>
+</nav>
 
-  <div class="group">
-    <h3>Hard violations</h3>
-    <ul class="findings">
-      <li class="f hard">
-        <div class="t">{{FINDING_TITLE}}</div>
-        <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
-        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
-      </li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h3>Flagged, not condemned</h3>
-    <ul class="findings">
-      <li class="f warn">
-        <div class="t">{{FINDING_TITLE}}</div>
-        <div class="d">{{EVIDENCE}}</div>
-        <div class="d">{{THE_TENSION_THAT_EXCUSES_IT}}</div>
-        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
-      </li>
-    </ul>
-  </div>
-
-  <div class="group">
-    <h3>Judgement calls · smell baseline</h3>
-    <ul class="findings">
-      <li class="f soft">
-        <div class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></div>
-        <div class="d">{{EVIDENCE}}</div>
-      </li>
-    </ul>
-  </div>
-</section>
-
+<!-- Only the two axis sections live in .panels. Header, scoreboard, cross-axis note, worst-per-axis
+     and footer stay outside, visible from both tabs, because they span the axes. -->
+<div class="panels">
 <!-- ============ SPEC ============
      Groups, in order: "Acceptance criteria · N of N met", "Partial", "Scope", "Implementation defects".
      Omit any group with no findings. If no spec was found, replace the whole section body with a
      single .callout saying which sources were searched and that no spec was found.
 -->
-<section id="spec">
+<section id="spec" role="tabpanel" aria-labelledby="tab-spec">
   <div class="axis-head">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5fb98a" stroke-width="1.7"
          stroke-linecap="round" stroke-linejoin="round">
@@ -274,7 +287,7 @@
   </div>
   <p class="axis-note">
     Source: <a href="{{ISSUE_URL}}" style="color:var(--accent)">{{ISSUE_KEY}}</a>.
-    Every criterion checked against the code, not the PR body.
+    I checked every criterion against the code, not against the PR body.
   </p>
 
   <div class="group">
@@ -331,9 +344,63 @@
   </div>
 </section>
 
+<!-- ============ STANDARDS ============
+     Groups, in order: "Hard violations", "Flagged, not condemned", "Judgement calls · smell baseline".
+     Omit a group with no findings. Severity per finding: li.f.hard / .warn / .soft.
+     .t = one-line finding title. .d = evidence, one claim per .d, with file:line in <code>.
+     .rule = the standard breached: <b>doc name</b> (line N) plus the rule text. Omit for smell findings.
+-->
+<section id="standards" role="tabpanel" aria-labelledby="tab-standards" hidden>
+  <div class="axis-head">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f2777a" stroke-width="1.7"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0L7 7zM17 7l-3 7a3.2 3.2 0 0 0 6 0l-3-7z"/>
+    </svg>
+    <h2>Standards</h2>
+  </div>
+  <p class="axis-note">
+    Sources: {{STANDARDS_SOURCES}}. I skipped anything lint or the type-checker already catches.
+  </p>
+
+  <div class="group">
+    <h3>Hard violations</h3>
+    <ul class="findings">
+      <li class="f hard">
+        <div class="t">{{FINDING_TITLE}}</div>
+        <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
+        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Flagged, not condemned</h3>
+    <ul class="findings">
+      <li class="f warn">
+        <div class="t">{{FINDING_TITLE}}</div>
+        <div class="d">{{EVIDENCE}}</div>
+        <div class="d">{{THE_TENSION_THAT_EXCUSES_IT}}</div>
+        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Judgement calls · smell baseline</h3>
+    <ul class="findings">
+      <li class="f soft">
+        <div class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></div>
+        <div class="d">{{EVIDENCE}}</div>
+      </li>
+    </ul>
+  </div>
+</section>
+</div>
+
 <!-- ============ CROSS ============
      Optional. Only when the two axes contradict each other: passing one requires failing the other.
      Say so as a note, never as a rerank. Delete the whole section when they don't conflict.
+     Prose here goes through un-ai like everything else the reader sees.
 -->
 <section id="cross">
   <div class="callout">
@@ -346,7 +413,7 @@
       The two axes disagree with each other
     </h3>
     <p>{{WHAT_THE_SPEC_PRESCRIBES_THAT_THE_STANDARD_FORBIDS}}</p>
-    <p>This is a note, not a rerank: neither axis outranks the other here.</p>
+    <p>This is a note, not a rerank. Neither axis outranks the other here.</p>
   </div>
 </section>
 
@@ -386,5 +453,51 @@
 </footer>
 
 </div>
+
+<!-- ============ TAB SCRIPT ============
+     Keep this inline and keep the <noscript> block. The page has to work with the script blocked,
+     so a blocked script reveals both panels rather than hiding the Standards axis.
+-->
+<noscript>
+  <style>.panels > section[hidden]{display:block}.tabs{display:none}</style>
+</noscript>
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+
+    function show(name) {
+      tabs.forEach(function (tab) {
+        var on = tab.getAttribute('aria-controls') === name;
+        tab.classList.toggle('is-on', on);
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (history.replaceState) history.replaceState(null, '', '#' + name);
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { show(tab.getAttribute('aria-controls')); });
+    });
+
+    document.querySelectorAll('[data-goto]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        show(card.getAttribute('data-goto'));
+        document.querySelector('.tabs').scrollIntoView({ block: 'start' });
+      });
+    });
+
+    document.querySelector('.tabs').addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      show(next.getAttribute('aria-controls'));
+    });
+
+    var want = (location.hash || '').replace('#', '');
+    if (want === 'spec' || want === 'standards') show(want);
+  })();
+</script>
 </body>
 </html>
