@@ -54,16 +54,15 @@
   .board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0 40px}
   .card{
     background:linear-gradient(180deg,var(--bg-raised),#0f141d);
-    border:1px solid var(--border);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden
+    border:1px solid var(--border);border-radius:12px;padding:17px 19px;position:relative;overflow:hidden
   }
   .card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px}
   .card.standards::before{background:linear-gradient(180deg,var(--hard),var(--warn))}
   .card.spec::before{background:linear-gradient(180deg,var(--ok),var(--soft))}
-  .card h2{margin:0 0 4px;font-size:16px;font-weight:640;letter-spacing:.01em}
-  .verdict{font-size:13px;color:var(--fg-dim);margin:0 0 16px}
-  .tally{display:flex;gap:8px;flex-wrap:wrap}
+  .card h2{margin:0 0 12px;font-size:16px;font-weight:640;letter-spacing:.01em}
+  .tally{display:flex;gap:6px;flex-wrap:wrap}
   .pill{
-    font:600 11.5px/1 var(--mono);padding:6px 9px;border-radius:999px;
+    font:600 10px/1 var(--mono);padding:4px 7px;border-radius:999px;
     border:1px solid transparent;white-space:nowrap
   }
   .pill.hard{color:var(--hard);background:var(--hard-bg);border-color:#3d1f24}
@@ -247,13 +246,13 @@
 </header>
 
 <!-- ============ SCOREBOARD ============
-     One card per axis, tallies as pills. Severity classes: hard, warn, soft, ok.
-     If the Spec axis was skipped, keep the card and say "no spec available" in .verdict with no pills.
+     One card per axis, spec first. Axis name and tallies as pills, nothing else: no strapline, the tab
+     under it already explains what the axis is. Severity classes: hard, warn, soft, ok.
+     If the Spec axis was skipped, keep the card and give it a single pill reading "no spec available".
 -->
 <div class="board">
   <div class="card spec" data-goto="spec">
     <h2>Spec</h2>
-    <p class="verdict">Did the code do what {{ISSUE_KEY}} asked for?</p>
     <div class="tally">
       <span class="pill ok">{{N}} / {{N}} criteria met</span>
       <span class="pill warn">{{N}} partial</span>
@@ -263,7 +262,6 @@
   </div>
   <div class="card standards" data-goto="standards">
     <h2>Standards</h2>
-    <p class="verdict">Did the code follow the repo's written standards?</p>
     <div class="tally">
       <span class="pill hard">{{N}} hard violations</span>
       <span class="pill warn">{{N}} flagged tensions</span>

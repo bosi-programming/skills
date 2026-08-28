@@ -119,7 +119,7 @@ The gated aggregate is correct. It still reads like a machine wrote it, and a re
 - Pass the prose you are about to render, and say which parts are in scope.
 - The call is mandatory on every run, exactly like the gate in step 6.
 
-**In scope** — everything a reader sees as prose: the `h1`, the tab labels, `.verdict`, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, the `.callout`, and the whole footer.
+**In scope** — everything a reader sees as prose: the `h1`, the tab labels, the `.pill` tallies, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, the `.callout`, and the whole footer.
 
 **Out of scope, and rewriting these is a defect** — identifiers, file paths, line numbers, quoted standard text, quoted spec lines, quoted code, the CSS, and the script. A quote you smoothed is a quote you falsified.
 
