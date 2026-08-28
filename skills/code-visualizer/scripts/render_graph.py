@@ -1926,15 +1926,15 @@ def render(model):
     <div id="patterns">__PATTERNS__
       <p class="empty" id="patterns-empty" hidden></p>
     </div>
+    <h2 id="order-head">Read in this order</h2>
+    <details class="card bigcard" id="orderwrap" open>
+      <summary><span class="name">__ORDERCOUNT__ steps</span></summary>
+      <div class="cardbody"><div class="orderlist">__ORDER__</div></div>
+    </details>
     <h2 id="surface-head">Contract surface</h2>
     <div id="surface">__SURFACE__
       <p class="empty" id="surface-empty" hidden></p>
     </div>
-    <details class="card bigcard" id="orderwrap" open>
-      <summary><span class="name">Read in this order</span>
-      <span class="count">__ORDERCOUNT__</span></summary>
-      <div class="cardbody"><div class="orderlist">__ORDER__</div></div>
-    </details>
     <details class="card bigcard" id="fileswrap" open>
       <summary><span class="name">Files changed</span>
       <span class="count">__FILECOUNT__</span></summary>

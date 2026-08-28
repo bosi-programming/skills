@@ -206,7 +206,7 @@ ok('the step map numbers from one',
 ok('every ordered box carries its number',
    (html.match(/class="node-step"/g) || []).length === order.length,
    (html.match(/class="node-step"/g) || []).length + ' of ' + order.length);
-const opanel = html.split('<div class="orderlist">')[1].split('id="fileswrap"')[0];
+const opanel = html.split('<div class="orderlist">')[1].split('</details>')[0];
 ok('the panel lists the steps in order',
    (opanel.match(/data-goto="/g) || []).length === order.length,
    (opanel.match(/data-goto="/g) || []).length + ' of ' + order.length);
@@ -216,6 +216,12 @@ ok('those buttons are wired to select the node',
    js.includes(".orderlist [data-goto]"));
 ok('the list lives in one collapsible card',
    /<details class="card bigcard" id="orderwrap" open>/.test(html));
+ok('the card has a section heading of its own',
+   html.includes('<h2 id="order-head">Read in this order</h2>'));
+ok('the heading is not repeated inside the card',
+   !opanel.includes('Read in this order'));
+ok('the order sits above the contract surface',
+   html.indexOf('id="order-head"') < html.indexOf('id="surface-head"'));
 ok('the overview points at step one', js.includes('Start here'));
 ok('the strip says which step the selected node is',
    js.includes('step ${st} of'));
