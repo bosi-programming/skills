@@ -313,13 +313,14 @@
      single .callout saying which sources were searched and that no spec was found.
 -->
 <section id="spec" role="tabpanel" aria-labelledby="tab-spec">
-  <!-- Red first. Every finding card collapses; hard ones ship open, the rest ship shut. -->
+  <!-- Red first. Every finding card collapses and every one ships shut, red included, so the title
+       has to carry the finding on its own. -->
   <div class="group">
     <h3>Implementation defects</h3>
     <ul class="findings">
       <!-- Every spec card opens with the user-impact section, then one h4 per section after it. -->
       <li class="f hard">
-        <details open>
+        <details>
           <summary class="t">{{DEFECT_TITLE}}</summary>
 
           <h4 class="user">How this affects the final user</h4>
@@ -433,7 +434,7 @@
     <h3>Hard violations</h3>
     <ul class="findings">
       <li class="f hard">
-        <details open>
+        <details>
           <summary class="t">{{FINDING_TITLE}}</summary>
           <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
           <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>

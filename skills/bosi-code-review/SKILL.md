@@ -157,8 +157,8 @@ Drop any group with nothing in it rather than shipping an empty heading.
 
 **Every finding card collapses.** Each `li.f` wraps its body in `<details>` with the title as `<summary class="t">`. Native `<details>`, no JavaScript, so folding still works when the script is blocked.
 
-- `hard` findings ship `<details open>`. The reader should not have to click to see what broke.
-- `warn` and `soft` findings ship shut. That is what keeps a page with a dozen judgement calls scannable.
+- **Every card ships shut**, red included. The page is a list of titles you skim, then open what you want. One card left open pulls the eye to itself and buries whatever sits under it, which is the same reason the criteria fold.
+- That puts the weight on the summary line. A title has to say what is wrong on its own, because for most readers it is the only part they read. `An empty partner override now blanks the sentence, and one partner already ships one` works shut. `Empty string handling` does not.
 - The `.ac` criteria cards fold too, and every one of them ships shut. Their summary is the mark plus the label, `AC4 · partner override wins`, which is the whole verdict. Seven collapsed criteria read as a checklist at a glance; seven expanded ones push the defect above them off the screen.
 - Give every criterion a short name after its number in the summary. `AC4` on its own makes a reader open the card to find out which criterion it is, which defeats folding it.
 - The evidence and the `file:line` go in the folded `.body`, never in the summary.
