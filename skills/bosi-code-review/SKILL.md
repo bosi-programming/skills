@@ -193,7 +193,26 @@ This structure is for the **Spec** tab. Standards cards keep their `.d` blocks a
 
 Write the page to the session scratchpad directory as `review-<pr-number-or-ref>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
 
-Then open it: `open <path>` on macOS.
+### 9. Build the companion code page and link every reference
+
+A finding that cites `foo.ts:49-53` and makes the reader go find `foo.ts:49-53` has done half its job. **Every `file:line` on the report is a link**, and it lands on an excerpt of that exact code.
+
+Build it from `${CLAUDE_SKILL_DIR}/assets/refs-template.html`, writing it beside the report as `review-<pr-number-or-ref>-refs.html`, one excerpt per distinct reference, each with an `id` the report links to. Paste the report's stylesheet into it first, so the two pages match.
+
+Do not hand this to GitHub's line anchors instead. A blob link at least shows the file, but a PR diff anchor collapses unchanged regions, so a reference to an untouched line inside a changed file lands on a "expand" control and the reader sees nothing. Every excerpt on your own page is guaranteed to render.
+
+**Each excerpt carries at least three lines above and three below the range the finding names.** The finding is about code in context, and one line on its own is quotable in a way that misleads. Two rules on top:
+
+- **Mark what the PR changed.** Lines the diff added get a `+` and their own background, so a reader can see at a glance whether the finding is about new code or about code the change merely leans on. Get the added line numbers from `git diff <fixed-point>...HEAD --unified=0`, numbered against `HEAD`.
+- **Say when the file runs out.** A range near the top or bottom of a file cannot have three lines on that side. Print that in the excerpt header, in words: `short of three lines, end of file`. Silently showing two is how a page starts lying about its own rule.
+
+Read every excerpt from the worktree at the reviewed commit, not from the diff hunks, so the line numbers on the page are the line numbers in the file.
+
+Give each excerpt a link out to the same lines on GitHub, pinned to the head SHA. That is the version someone can paste into a comment.
+
+**A reference you cannot resolve stays unlinked, and the companion page says why.** Cross-repo citations are the usual case: a path in another repository with no checkout has no code to quote. Do not guess at it, do not link it to a path that might exist, and do not quietly drop the reference from the prose. Name the file at the bottom of the companion page and say what is missing.
+
+Then open the report: `open <path>` on macOS. The companion page opens from the links.
 
 Reply to the user with the `file://` URL, the per-axis tallies, and nothing else. The detail lives on the page.
 

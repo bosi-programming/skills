@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Referenced code · {{REPO}}#{{PR}}</title>
+<!-- Companion to review-<ref>.html. One excerpt per distinct file:line the report cites, each with the
+     id the report links to. Paste the report's whole <style> block in here first, then this one, so the
+     two pages match. Dark theme only, no network, no build step. -->
+<style>
+  /* PASTE THE REPORT'S FULL STYLESHEET ABOVE THIS LINE. */
+
+  .backlink{display:inline-flex;align-items:center;gap:8px;color:var(--accent);text-decoration:none;
+    font:600 12px/1 var(--mono);letter-spacing:.05em;margin-bottom:26px}
+  .backlink:hover{text-decoration:underline}
+  .snip{background:var(--bg-raised);border:1px solid var(--border);border-radius:9px;
+    margin:0 0 14px;overflow:hidden;scroll-margin-top:18px}
+  .snip:target{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .snip > .hd{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;
+    padding:11px 14px;border-bottom:1px solid var(--border);background:var(--bg-sunken)}
+  .snip .fp{font:600 12.5px var(--mono);color:var(--fg)}
+  .snip .rg{font:600 11px var(--mono);color:var(--fg-faint);letter-spacing:.05em}
+  .snip .gh{margin-left:auto;font:600 11px var(--mono);color:var(--accent);text-decoration:none}
+  .snip .gh:hover{text-decoration:underline}
+  .snip table{border-collapse:collapse;width:100%;font:12.5px/1.65 var(--mono)}
+  .snip td{padding:0 0 0 6px;vertical-align:top;white-space:pre-wrap;word-break:break-word}
+  .snip td.ln{width:1%;padding:0 10px 0 14px;text-align:right;color:var(--fg-faint);
+    user-select:none;border-right:1px solid var(--border-soft);white-space:nowrap}
+  .snip td.mk{width:1%;padding:0 4px;color:var(--fg-faint);user-select:none}
+  .snip td.cd{color:var(--fg-dim);padding-right:14px}
+  .snip tr.add td.cd{color:#9fd8b8}
+  .snip tr.add td.mk{color:var(--ok)}
+  .snip tr.add{background:#10201a}
+  .snip tr.hit td.cd{color:var(--fg)}
+  .snip tr.hit{background:#171d29}
+  .snip tr.hit.add{background:#132a20}
+  .snip tr.hit td.ln{color:var(--fg-dim);box-shadow:inset 2px 0 0 var(--accent)}
+  .ctxnote{color:var(--fg-faint);font-size:12.5px;margin:0 0 26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">
+    <span>Referenced code</span><span style="color:var(--border)">/</span>
+    <a href="{{PR_URL}}">{{REPO}}#{{PR}}</a>
+  </div>
+  <h1>Every line the review points at</h1>
+</header>
+
+<a class="backlink" href="review-{{PR}}.html">&larr; back to the review</a>
+
+<p class="ctxnote">
+  Read at <code>{{HEAD_SHA}}</code>, the commit the review was written against. Each excerpt carries three
+  lines above and below the range the finding names. Lines this PR added are marked <code>+</code> and sit on
+  a green background; the range the finding points at is the brighter block.
+</p>
+
+<!-- One .snip per distinct reference, in the order the report first cites them.
+     td.ln = line number, from the file at the reviewed commit, never a diff hunk offset.
+     td.mk = "+" when the diff added this line, blank otherwise. Get the added line numbers from
+             `git diff <fixed-point>...HEAD --unified=0`, numbered against HEAD.
+     tr.add = the diff added this line.  tr.hit = the range the finding names.
+     Escape <, > and & in every line of code, or the page breaks.
+     When the range sits near the top or bottom of the file and cannot get three lines on that side, say so
+     in .rg: "· short of three lines, end of file". Never show two and stay quiet about it. -->
+<div class="snip" id="ref-1">
+  <div class="hd">
+    <span class="fp">{{FILE}}</span>
+    <span class="rg">lines {{N}}&ndash;{{N}}, highlighting {{N}}&ndash;{{N}} · touched by this PR</span>
+    <a class="gh" href="https://github.com/{{REPO}}/blob/{{HEAD_SHA}}/{{FILE}}#L{{N}}-L{{N}}">open on GitHub &rarr;</a>
+  </div>
+  <table>
+    <tr><td class="ln">{{N}}</td><td class="mk"> </td><td class="cd">{{CODE_LINE}}</td></tr>
+    <tr class="add hit"><td class="ln">{{N}}</td><td class="mk">+</td><td class="cd">{{CODE_LINE}}</td></tr>
+  </table>
+</div>
+
+<!-- Footer only when a reference could not be resolved. Name the file and say what is missing.
+     A cross-repo citation with no checkout has no code to quote: leave it unlinked on the report and
+     account for it here. Never link a path you did not read. -->
+<footer>
+  <b>{{N}} references are missing.</b>
+  <ul>
+    <li><code>{{FILE}}:{{LINE}}</code> {{WHY_IT_COULD_NOT_BE_READ}}</li>
+  </ul>
+</footer>
+
+</div>
+</body>
+</html>
