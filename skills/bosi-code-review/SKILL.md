@@ -157,6 +157,8 @@ Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (ambe
 
 Drop any group with nothing in it rather than shipping an empty heading.
 
+Each group title is an `h2` in 24px bold, carrying 40px of padding above and below and no rule after it. The groups are the page's structure, so they get the heading level, the size and the room to say so: `.group` itself has no bottom margin, and that padding is the only thing separating one group from the next. At 24px the title separates the sections on its own, which is why the hairline that used to trail it is gone.
+
 **Every finding card collapses.** Each `li.f` wraps its body in `<details>` with the title as `<summary class="t">`. Native `<details>`, no JavaScript, so folding still works when the script is blocked.
 
 - **Every card ships shut**, red included. The page is a list of titles you skim, then open what you want. One card left open pulls the eye to itself and buries whatever sits under it, which is the same reason the criteria fold.

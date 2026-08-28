@@ -73,12 +73,11 @@
   /* sections */
   section{margin-bottom:52px;scroll-margin-top:20px}
 
-  .group{margin-bottom:26px}
-  .group > h3{
-    font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;
-    color:var(--fg-faint);margin:0 0 12px;display:flex;align-items:center;gap:10px
+  .group{margin-bottom:0}
+  .group > h2{
+    font:700 24px/1.25 inherit;letter-spacing:-.012em;
+    color:var(--fg);margin:0;padding:40px 0
   }
-  .group > h3::after{content:"";flex:1;height:1px;background:var(--border-soft)}
 
   ul.findings{list-style:none;margin:0;padding:0;display:grid;gap:10px}
   li.f{
@@ -326,7 +325,7 @@
   <!-- Red first. Every finding card collapses and every one ships shut, red included, so the title
        has to carry the finding on its own. -->
   <div class="group">
-    <h3>Implementation defects</h3>
+    <h2>Implementation defects</h2>
     <ul class="findings">
       <!-- Every spec card opens with the user-impact section, then one h4 per section after it. -->
       <li class="f hard">
@@ -347,7 +346,7 @@
   </div>
 
   <div class="group">
-    <h3>Partial</h3>
+    <h2>Partial</h2>
     <ul class="findings">
       <li class="f warn">
         <details>
@@ -366,7 +365,7 @@
   </div>
 
   <div class="group">
-    <h3>Acceptance criteria · {{N}} of {{N}} met</h3>
+    <h2>Acceptance criteria · {{N}} of {{N}} met</h2>
     <div class="acs">
       <!-- Each criterion folds and ships shut. The summary is the mark plus the AC label and a short
            name for the criterion; the evidence and the file:line go in the folded .body. -->
@@ -401,7 +400,7 @@
   </div>
 
   <div class="group">
-    <h3>Scope · {{ONE_LINE_VERDICT_ON_CREEP}}</h3>
+    <h2>Scope · {{ONE_LINE_VERDICT_ON_CREEP}}</h2>
     <div class="commits">
       <!-- .tag classes: creep (unrequested), defensible (unrequested but implied), needed (necessary) -->
       <div class="commit">
@@ -414,7 +413,7 @@
 
   <!-- Purple last. Spec-side judgement calls: true, worth knowing, nobody has to act today. -->
   <div class="group">
-    <h3>Notes</h3>
+    <h2>Notes</h2>
     <ul class="findings">
       <li class="f soft">
         <details>
@@ -441,7 +440,7 @@
 -->
 <section id="standards" role="tabpanel" aria-labelledby="tab-standards" hidden>
   <div class="group">
-    <h3>Hard violations</h3>
+    <h2>Hard violations</h2>
     <ul class="findings">
       <li class="f hard">
         <details>
@@ -454,7 +453,7 @@
   </div>
 
   <div class="group">
-    <h3>Flagged, not condemned</h3>
+    <h2>Flagged, not condemned</h2>
     <ul class="findings">
       <li class="f warn">
         <details>
@@ -468,7 +467,7 @@
   </div>
 
   <div class="group">
-    <h3>Judgement calls · smell baseline</h3>
+    <h2>Judgement calls · smell baseline</h2>
     <ul class="findings">
       <li class="f soft">
         <details>
