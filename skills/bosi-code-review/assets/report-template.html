@@ -315,10 +315,10 @@
      and footer stay outside, visible from both tabs, because they span the axes. -->
 <div class="panels">
 <!-- ============ SPEC ============
-     Groups, in severity order, red first: "Implementation defects", then "Acceptance criteria · N of N met",
-     then "Partial", then "Scope", then "Notes". The worst news goes at the top and the purple judgement
-     calls go at the bottom. The acceptance criteria sit under the defects, not above them: a reader who
-     opens this tab wants to know what broke before reading what passed.
+     Groups, in severity order, red first: "Implementation defects", then "Partial", then
+     "Acceptance criteria · N of N met", then "Scope", then "Notes". The worst news goes at the top and
+     the purple judgement calls go at the bottom. Both problem groups sit above the criteria list, not
+     below it: a reader who opens this tab wants what broke and what fell short before what passed.
      Every card in this tab opens with the "How this affects the final user" h4, written about a person on a
      screen rather than about the code, then one h4 per section with a blank line between them. When nobody
      is affected today, say so in the first sentence and then say what it costs later.
@@ -346,6 +346,25 @@
 
           <h4>The fix</h4>
           <div class="d">{{WHAT_TO_CHANGE}}</div>
+        </details>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Partial</h3>
+    <ul class="findings">
+      <li class="f warn">
+        <details>
+          <summary class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</summary>
+
+          <h4 class="user">How this affects the final user</h4>
+          <div class="d">{{WHO_SEES_WHAT_AND_WHEN}}</div>
+
+          <h4>{{SECTION_HEADING}}</h4>
+          <div class="d">{{EVIDENCE}}</div>
+
+          <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
         </details>
       </li>
     </ul>
@@ -384,25 +403,6 @@
         </details>
       </div>
     </div>
-  </div>
-
-  <div class="group">
-    <h3>Partial</h3>
-    <ul class="findings">
-      <li class="f warn">
-        <details>
-          <summary class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</summary>
-
-          <h4 class="user">How this affects the final user</h4>
-          <div class="d">{{WHO_SEES_WHAT_AND_WHEN}}</div>
-
-          <h4>{{SECTION_HEADING}}</h4>
-          <div class="d">{{EVIDENCE}}</div>
-
-          <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
-        </details>
-      </li>
-    </ul>
   </div>
 
   <div class="group">

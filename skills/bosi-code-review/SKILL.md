@@ -149,7 +149,9 @@ Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries t
 
 **Order the groups by severity, worst first.** Red at the top, amber in the middle, purple at the bottom, in both tabs. A reader opening a tab should hit the bad news before anything else.
 
-Spec tab, in order: `Implementation defects` (red), `Acceptance criteria · N of N met`, `Partial` (amber), `Scope`, `Notes` (purple). The criteria sit **below** the defects on purpose. Someone opening this tab wants to know what broke before reading the list of what passed, and a green `7 of 7` at the top buries a defect underneath it.
+Spec tab, in order: `Implementation defects` (red), `Partial` (amber), `Acceptance criteria · N of N met`, `Scope`, `Notes` (purple).
+
+Both problem groups sit **above** the criteria list on purpose. Someone opening this tab wants what broke and what fell short before the list of what passed, and a green `7 of 7` at the top buries everything underneath it. The criteria are the receipt, not the headline: they answer "did you actually check" once the reader already knows the verdict.
 
 Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (amber), `Judgement calls · smell baseline` (purple).
 
