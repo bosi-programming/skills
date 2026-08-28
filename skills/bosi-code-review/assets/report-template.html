@@ -49,9 +49,6 @@
   .eyebrow a:hover{text-decoration:underline}
   h1{font-size:28px;line-height:1.25;margin:0 0 10px;font-weight:640;letter-spacing:-.015em}
   h1 .mono{font-family:var(--mono);font-size:.82em;color:var(--accent);font-weight:600}
-  .sub{color:var(--fg-dim);font-size:14px;margin:0}
-  .sub code{font-family:var(--mono);font-size:12.5px;color:var(--fg);background:var(--bg-sunken);
-    border:1px solid var(--border-soft);border-radius:4px;padding:1px 5px}
 
   /* scoreboard */
   .board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0 40px}
@@ -237,9 +234,11 @@
 <div class="wrap">
 
 <!-- ============ HEADER ============
-     Eyebrow: review name, PR link, issue link. Drop any link you don't have.
+     Eyebrow: review name, PR link, issue link, plus a state word when the PR is already merged or
+     closed. Drop any link you don't have.
      h1: the change in one line. Wrap the conventional-commit prefix in <span class="mono">.
-     .sub: base ref, merge-base SHA, head SHA, commit / file / +- counts. All from git, never guessed.
+     No ref/SHA/diffstat strip. The header carries the change and the links, nothing else. The head SHA
+     belongs in the footer, on the line saying which tree you read.
 -->
 <header>
   <div class="eyebrow">
@@ -249,10 +248,6 @@
     <a href="{{ISSUE_URL}}">{{ISSUE_KEY}}</a>
   </div>
   <h1><span class="mono">{{COMMIT_PREFIX}}</span> {{CHANGE_TITLE}}</h1>
-  <p class="sub">
-    Base <code>{{BASE_REF}}</code> · merge-base <code>{{MERGE_BASE}}</code> · head <code>{{HEAD_SHA}}</code> ·
-    {{N}} commits, {{N}} files, +{{N}} / -{{N}}
-  </p>
 </header>
 
 <!-- ============ SCOREBOARD ============
