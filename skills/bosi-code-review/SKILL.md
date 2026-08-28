@@ -159,7 +159,10 @@ Drop any group with nothing in it rather than shipping an empty heading.
 
 - `hard` findings ship `<details open>`. The reader should not have to click to see what broke.
 - `warn` and `soft` findings ship shut. That is what keeps a page with a dozen judgement calls scannable.
-- The `.ac` criteria cards and the two worst-per-axis cards never collapse. The criteria are already one line each, and the worst-per-axis pair **is** the summary, so hiding it defeats the section. It carries `no-fold` to say so.
+- The `.ac` criteria cards fold too, and every one of them ships shut. Their summary is the mark plus the label, `AC4 · partner override wins`, which is the whole verdict. Seven collapsed criteria read as a checklist at a glance; seven expanded ones push the defect above them off the screen.
+- Give every criterion a short name after its number in the summary. `AC4` on its own makes a reader open the card to find out which criterion it is, which defeats folding it.
+- The evidence and the `file:line` go in the folded `.body`, never in the summary.
+- The two worst-per-axis cards are the only findings that never collapse. That pair **is** the summary of the page, so hiding it defeats the section. It carries `no-fold` to say so.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
 
 **Every Spec card opens with "How this affects the final user".** It is the first section inside `<details>`, `<h4 class="user">`, before any code. Nothing else goes above it.

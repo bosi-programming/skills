@@ -136,16 +136,29 @@
   li.f > details > h4:first-of-type{margin-top:12px}
   li.f h4 + .d{margin-top:0}
 
-  /* acceptance criteria, grid not table */
+  /* acceptance criteria, grid not table. Each one folds and ships shut: the verdict is the
+     mark plus the label, and the evidence is one click away. */
   .acs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
   .ac{
-    display:flex;gap:10px;align-items:flex-start;background:var(--bg-sunken);
+    background:var(--bg-sunken);align-content:start;
     border:1px solid var(--border-soft);border-radius:7px;padding:10px 12px;font-size:13.5px
   }
+  .ac > details > summary{
+    display:flex;gap:10px;align-items:flex-start;cursor:pointer;list-style:none
+  }
+  .ac > details > summary::-webkit-details-marker{display:none}
+  .ac > details > summary::after{
+    content:"";flex:none;width:6px;height:6px;margin:3px 1px 0 auto;
+    border-right:1.7px solid var(--fg-faint);border-bottom:1.7px solid var(--fg-faint);
+    transform:rotate(-45deg);transition:transform .15s
+  }
+  .ac > details[open] > summary::after{transform:rotate(45deg)}
+  .ac > details > summary:hover::after{border-color:var(--fg-dim)}
+  .ac > details > summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
   .ac .mark{flex:none;margin-top:2px}
-  .ac .body{color:var(--fg-dim)}
-  .ac .body b{color:var(--fg);font-weight:600;display:block;font-size:12px;
-    font-family:var(--mono);letter-spacing:.04em;margin-bottom:2px}
+  .ac summary b{color:var(--fg);font-weight:600;font-size:12px;
+    font-family:var(--mono);letter-spacing:.04em}
+  .ac .body{color:var(--fg-dim);margin-top:8px;padding-left:24px}
 
   /* commits */
   .commits{display:grid;gap:8px}
@@ -347,20 +360,35 @@
   <div class="group">
     <h3>Acceptance criteria · {{N}} of {{N}} met</h3>
     <div class="acs">
+      <!-- Each criterion folds and ships shut. The summary is the mark plus the AC label and a short
+           name for the criterion; the evidence and the file:line go in the folded .body. -->
+
       <!-- met: green check -->
-      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
-        stroke="#5fb98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>
-        <div class="body"><b>AC1</b>{{WHAT_SATISFIES_IT}} · <code>{{FILE}}:{{LINE}}</code></div></div>
+      <div class="ac">
+        <details>
+          <summary><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+            stroke="#5fb98a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg><b>AC1 · {{SHORT_NAME}}</b></summary>
+          <div class="body">{{WHAT_SATISFIES_IT}} · <code>{{FILE}}:{{LINE}}</code></div>
+        </details>
+      </div>
 
       <!-- partial: amber dash. Detail the gap in the "Partial" group below. -->
-      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
-        stroke="#e2b341" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8h9"/></svg>
-        <div class="body"><b>AC2</b>{{WHAT_IS_PARTIAL}}</div></div>
+      <div class="ac">
+        <details>
+          <summary><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+            stroke="#e2b341" stroke-width="2.2" stroke-linecap="round"><path d="M3.5 8h9"/></svg><b>AC2 · {{SHORT_NAME}}</b></summary>
+          <div class="body">{{WHAT_IS_PARTIAL}}</div>
+        </details>
+      </div>
 
       <!-- missing: red cross -->
-      <div class="ac"><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
-        stroke="#f2777a" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-        <div class="body"><b>AC3</b>{{WHAT_IS_MISSING}}</div></div>
+      <div class="ac">
+        <details>
+          <summary><svg class="mark" width="14" height="14" viewBox="0 0 16 16" fill="none"
+            stroke="#f2777a" stroke-width="2.2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg><b>AC3 · {{SHORT_NAME}}</b></summary>
+          <div class="body">{{WHAT_IS_MISSING}}</div>
+        </details>
+      </div>
     </div>
   </div>
 
