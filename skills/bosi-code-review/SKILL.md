@@ -172,6 +172,8 @@ Write it about a person at a keyboard, not about the code. Who sees this, on whi
 
 **After that section, one `<h4>` per section, prose below it, a blank line between sections.** Sentence case, not title case. Name what the section does rather than labelling it: `What happened before`, `What happens now`, `A config already does this`, `The fix`, `Why the branch cannot run`, `Why it is amber and not red`. Two sections is fine, six is fine. Use the number the finding needs.
 
+Every heading renders identically, `.user` included. Keep the class on the first one, since it marks the section that has to be there, but don't add styling to set it apart. Its position does that already, and a heading in its own colour reads as the only part worth reading.
+
 This structure is for the **Spec** tab. Standards cards keep their `.d` blocks and their bold lead-ins, because a standards finding is about the code and has no user on the other end of it.
 - Escape `<`, `>`, and `&` inside every code snippet you quote, or the page breaks.
 - Inline SVG only for icons, as in the template. No image files, no icon fonts, no CDN.

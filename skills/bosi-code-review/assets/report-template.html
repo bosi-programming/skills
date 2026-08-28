@@ -127,12 +127,12 @@
   li.f > details[open] > summary{margin-bottom:7px}
   li.f > details > .d:first-of-type{margin-top:0}
 
-  /* card sections. Spec findings lead with the user-impact heading, then one h4 per section. */
+  /* card sections. Spec findings lead with the user-impact heading, then one h4 per section.
+     Every heading looks the same, .user included. The order carries the emphasis, not the colour. */
   li.f h4{
     margin:19px 0 7px;font:600 11px/1.35 var(--mono);letter-spacing:.11em;
-    text-transform:uppercase;color:var(--fg-faint)
+    text-transform:uppercase;color:var(--ok)
   }
-  li.f h4.user{color:var(--ok)}
   li.f > details > h4:first-of-type{margin-top:12px}
   li.f h4 + .d{margin-top:0}
 
