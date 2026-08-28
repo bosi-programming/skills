@@ -146,6 +146,21 @@ Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries t
 - Keep the CSS and the script inline in the one file. The page must render offline, from `file://`, with no network and no build step.
 - No `<table>`. Use the template's `.acs` grid, `.findings` list, and `.commits` grid instead.
 - Severity classes carry the meaning: `hard` (red) for documented-standard breaches and defects, `warn` (amber) for tensions and partials, `soft` (purple) for smell-baseline judgement calls, `ok` (green) for satisfied criteria.
+
+**Order the groups by severity, worst first.** Red at the top, amber in the middle, purple at the bottom, in both tabs. A reader opening a tab should hit the bad news before anything else.
+
+Spec tab, in order: `Implementation defects` (red), `Acceptance criteria · N of N met`, `Partial` (amber), `Scope`, `Notes` (purple). The criteria sit **below** the defects on purpose. Someone opening this tab wants to know what broke before reading the list of what passed, and a green `7 of 7` at the top buries a defect underneath it.
+
+Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (amber), `Judgement calls · smell baseline` (purple).
+
+Drop any group with nothing in it rather than shipping an empty heading.
+
+**Every finding card collapses.** Each `li.f` wraps its body in `<details>` with the title as `<summary class="t">`. Native `<details>`, no JavaScript, so folding still works when the script is blocked.
+
+- `hard` findings ship `<details open>`. The reader should not have to click to see what broke.
+- `warn` and `soft` findings ship shut. That is what keeps a page with a dozen judgement calls scannable.
+- The `.ac` criteria cards and the two worst-per-axis cards never collapse. The criteria are already one line each, and the worst-per-axis pair **is** the summary, so hiding it defeats the section. It carries `no-fold` to say so.
+- Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
 - Escape `<`, `>`, and `&` inside every code snippet you quote, or the page breaks.
 - Inline SVG only for icons, as in the template. No image files, no icon fonts, no CDN.
 

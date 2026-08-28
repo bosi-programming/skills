@@ -110,6 +110,23 @@
     background:var(--bg-sunken);border:1px solid var(--border-soft);border-radius:4px;padding:1px 5px}
   li.f .t code{font-size:13px}
 
+  /* collapsible findings. Native <details>, no JS, so it survives a blocked script. */
+  li.f > details > summary{
+    display:flex;gap:9px;align-items:flex-start;cursor:pointer;list-style:none;
+    font-weight:620;font-size:14.5px;color:var(--fg);margin-bottom:0
+  }
+  li.f > details > summary::-webkit-details-marker{display:none}
+  li.f > details > summary::before{
+    content:"";flex:none;width:6px;height:6px;margin:6px 1px 0 0;
+    border-right:1.8px solid var(--fg-faint);border-bottom:1.8px solid var(--fg-faint);
+    transform:rotate(-45deg);transition:transform .15s
+  }
+  li.f > details[open] > summary::before{transform:rotate(45deg)}
+  li.f > details > summary:hover::before{border-color:var(--fg-dim)}
+  li.f > details > summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+  li.f > details[open] > summary{margin-bottom:7px}
+  li.f > details > .d:first-of-type{margin-top:0}
+
   /* acceptance criteria, grid not table */
   .acs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
   .ac{
@@ -272,7 +289,10 @@
      and footer stay outside, visible from both tabs, because they span the axes. -->
 <div class="panels">
 <!-- ============ SPEC ============
-     Groups, in order: "Acceptance criteria · N of N met", "Partial", "Scope", "Implementation defects".
+     Groups, in severity order, red first: "Implementation defects", then "Acceptance criteria · N of N met",
+     then "Partial", then "Scope", then "Notes". The worst news goes at the top and the purple judgement
+     calls go at the bottom. The acceptance criteria sit under the defects, not above them: a reader who
+     opens this tab wants to know what broke before reading what passed.
      Omit any group with no findings. If no spec was found, replace the whole section body with a
      single .callout saying which sources were searched and that no spec was found.
 -->
@@ -289,6 +309,19 @@
     Source: <a href="{{ISSUE_URL}}" style="color:var(--accent)">{{ISSUE_KEY}}</a>.
     I checked every criterion against the code, not against the PR body.
   </p>
+
+  <!-- Red first. Every finding card collapses; hard ones ship open, the rest ship shut. -->
+  <div class="group">
+    <h3>Implementation defects</h3>
+    <ul class="findings">
+      <li class="f hard">
+        <details open>
+          <summary class="t">{{DEFECT_TITLE}}</summary>
+          <div class="d">{{EVIDENCE}}</div>
+        </details>
+      </li>
+    </ul>
+  </div>
 
   <div class="group">
     <h3>Acceptance criteria · {{N}} of {{N}} met</h3>
@@ -314,9 +347,11 @@
     <h3>Partial</h3>
     <ul class="findings">
       <li class="f warn">
-        <div class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</div>
-        <div class="d">{{EVIDENCE}}</div>
-        <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
+        <details>
+          <summary class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</summary>
+          <div class="d">{{EVIDENCE}}</div>
+          <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
+        </details>
       </li>
     </ul>
   </div>
@@ -333,12 +368,15 @@
     </div>
   </div>
 
+  <!-- Purple last. Spec-side judgement calls: true, worth knowing, nobody has to act today. -->
   <div class="group">
-    <h3>Implementation defects</h3>
+    <h3>Notes</h3>
     <ul class="findings">
-      <li class="f hard">
-        <div class="t">{{DEFECT_TITLE}}</div>
-        <div class="d">{{EVIDENCE}}</div>
+      <li class="f soft">
+        <details>
+          <summary class="t">{{FINDING_TITLE}}</summary>
+          <div class="d">{{EVIDENCE}}</div>
+        </details>
       </li>
     </ul>
   </div>
@@ -366,9 +404,11 @@
     <h3>Hard violations</h3>
     <ul class="findings">
       <li class="f hard">
-        <div class="t">{{FINDING_TITLE}}</div>
-        <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
-        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        <details open>
+          <summary class="t">{{FINDING_TITLE}}</summary>
+          <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
+          <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        </details>
       </li>
     </ul>
   </div>
@@ -377,10 +417,12 @@
     <h3>Flagged, not condemned</h3>
     <ul class="findings">
       <li class="f warn">
-        <div class="t">{{FINDING_TITLE}}</div>
-        <div class="d">{{EVIDENCE}}</div>
-        <div class="d">{{THE_TENSION_THAT_EXCUSES_IT}}</div>
-        <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        <details>
+          <summary class="t">{{FINDING_TITLE}}</summary>
+          <div class="d">{{EVIDENCE}}</div>
+          <div class="d">{{THE_TENSION_THAT_EXCUSES_IT}}</div>
+          <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        </details>
       </li>
     </ul>
   </div>
@@ -389,8 +431,10 @@
     <h3>Judgement calls · smell baseline</h3>
     <ul class="findings">
       <li class="f soft">
-        <div class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></div>
-        <div class="d">{{EVIDENCE}}</div>
+        <details>
+          <summary class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></summary>
+          <div class="d">{{EVIDENCE}}</div>
+        </details>
       </li>
     </ul>
   </div>
@@ -424,11 +468,12 @@
   <div class="group">
     <h3>Worst issue within each axis</h3>
     <ul class="findings">
-      <li class="f hard">
+      <!-- These two never collapse. They are the summary; hiding them defeats the section. -->
+      <li class="f hard no-fold">
         <div class="t">Standards</div>
         <div class="d">{{WORST_STANDARDS_FINDING}}</div>
       </li>
-      <li class="f hard">
+      <li class="f hard no-fold">
         <div class="t">Spec</div>
         <div class="d">{{WORST_SPEC_FINDING}}</div>
       </li>
