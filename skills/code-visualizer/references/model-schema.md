@@ -2,21 +2,28 @@
 
 A worked model sits in `example-model.json` beside this file.
 
-One JSON object. Only `nodes` is required, but a model without `summary`,
-`edges`, `surface` and honest `patterns` wastes the page.
+One JSON object. Only `nodes` is required, and it has to hold at least one node:
+`--check` rejects an empty list, because a graph of nothing renders as nothing. A
+model without `summary`, `edges`, `surface` and honest `patterns` wastes the page.
 
 ```json
 {
-  "title": "PR #482 — notification fan-out",
+  "title": "PR #482 - notification fan-out",
   "source": "gh pr diff 482 (acme/services)",
   "summary": "Two or three sentences: what the change does and why it is shaped this way.",
   "stats": {"files_changed": 6, "insertions": 412, "deletions": 96},
   "surface": [],
-  "nodes": [],
+  "nodes": [
+    {"id": "src/notifications/dispatcher.service.ts", "kind": "file", "status": "added"}
+  ],
   "edges": [],
   "patterns": []
 }
 ```
+
+`surface`, `risks` and `reading_order` are different: `[]` is a real answer there,
+and leaving the key off says nobody looked, so `--check` warns about the absence
+rather than the empty list.
 
 ## Top level
 

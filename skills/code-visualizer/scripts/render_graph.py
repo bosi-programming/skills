@@ -145,6 +145,21 @@ def norm_name(name):
     return re.sub(r"\s+", " ", key)
 
 
+SAFE_SCHEMES = ("https://", "http://")
+
+
+def safe_url(value):
+    """A model-supplied URL, or "" when its scheme is not one we will link.
+
+    `esc` is not enough on its own: `javascript:alert(1)` carries no
+    HTML-special character, so it survives escaping and runs on click in the
+    page the reviewer opens. The model writes `reference`, and the model reads
+    the diff, so treat it as untrusted and allowlist the scheme.
+    """
+    u = str(value or "").strip()
+    return u if u.lower().startswith(SAFE_SCHEMES) else ""
+
+
 def references_for(pattern):
     """Every link shown under a pattern name, as (label, url) pairs.
 
@@ -155,10 +170,14 @@ def references_for(pattern):
     key = norm_name(pattern.get("name"))
     own = pattern.get("reference")
     out = []
-    if own:
-        urls = own if isinstance(own, (list, tuple)) else [own]
-        out.extend(("What this pattern is", str(u)) for u in urls if u)
+    raw = own if isinstance(own, (list, tuple)) else [own] if own else []
+    mine = [u for u in (safe_url(x) for x in raw) if u]
+    if mine:
+        out.extend(("What this pattern is", u) for u in mine)
     else:
+        # Either the model named no reference, or every one it named had a scheme
+        # we will not link. Both mean the same thing here: fall back to the
+        # catalog, so dropping an unsafe link does not cost the card its link.
         url = REFERENCE.get(key)
         if url:
             out.append(("What this pattern is", url))
@@ -305,13 +324,18 @@ SURFACE_KINDS = (
 )
 
 
-def normalize_surface(model):
+def normalize_surface(model, ids=None):
     """Check `surface[]`: the promises the change makes or breaks for callers.
 
     `kind` is free text, like an edge kind, because every codebase has a contract
     the catalog does not name. `change` is not: it decides what the row means, so
     an unknown value is an error rather than a guess. Every entry needs a `ref`,
     for the same reason a pattern needs evidence.
+
+    `node` is checked against the graph the same way `risks[].node` is. A row
+    naming a node that does not exist passes every other check and then vanishes
+    the moment the reader narrows the panel to a file, which reads as a missing
+    contract rather than a typo.
     """
     surface = model.get("surface")
     if surface is None:
@@ -340,6 +364,11 @@ def normalize_surface(model):
             )
         if not s.get("kind"):
             s["kind"] = "other"
+        if ids is not None and s.get("node") and s["node"] not in ids:
+            errors.append(
+                "surface[%d] (%s) node points at unknown node %r"
+                % (i, s.get("name"), s["node"])
+            )
         s["breaking"] = bool(s.get("breaking"))
     return errors
 
@@ -598,7 +627,7 @@ def validate(model):
                     "patterns[%d] participant points at unknown node %r"
                     % (i, part["node"])
                 )
-    errors += normalize_surface(model)
+    errors += normalize_surface(model, ids)
     errors += normalize_reading_order(model, ids)
     errors += normalize_risks(model, ids)
     return errors
@@ -1127,6 +1156,22 @@ const state = {view:'file', scale:1, tx:0, ty:0, statuses:new Set(['added','modi
                allPatterns:false, allSurface:false, allRisks:false, evidence:null,
                coverOnly:false};
 
+// The full sets, so Reset can put the chips back rather than leaving a filter on
+// under a chip that reads as off.
+const ALL_STATUSES = ['added','modified','deleted','related'];
+const ALL_KINDS = MODEL._kinds || [];
+
+function codeBtn(){ return document.querySelector('#viewseg [data-view=code]'); }
+
+// Selecting a node in the hidden pane selects nothing a reader can see, so every
+// jump goes through here first. A file-only model disables the Code button, and
+// forcing that pane open throws in fit(), so the button's state is the guard.
+function showLayerFor(id){
+  const n = nodeInfo(id) || {};
+  if (n.layer === 'code'){ if (!codeBtn().disabled && state.view !== 'code') setView('code'); }
+  else if (state.view !== 'file') setView('file');
+}
+
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
 
@@ -1322,7 +1367,7 @@ function syncSurface(){
 
 function refresh(){
   const q = state.query.trim().toLowerCase();
-  const patternNodes = state.pattern
+  const patternNodes = state.pattern != null
     ? new Set((MODEL.patterns[state.pattern].participants||[]).map(p=>p.node))
     : null;
   document.querySelectorAll('#stage .pane .node').forEach(g => {
@@ -1374,11 +1419,17 @@ function derivedLine(id, n, outs, ins){
 // jump to it; when it lives outside the diff it is not a node, so the ref stays
 // plain text rather than a link to nothing. Used by tests and by the surface.
 function refNode(ref){
-  const base = String(ref||'').split(':')[0].split('/').pop();
-  if (!base) return null;
-  const hit = (MODEL.nodes||[]).find(n =>
+  const path = String(ref||'').split(':')[0];
+  const base = path.split('/').pop();
+  if (!path) return null;
+  const nodes = MODEL.nodes||[];
+  const exact = nodes.find(n => n.id === path || n.label === path);
+  if (exact) return exact.id;
+  // Basename only when it is unambiguous. Two files called config.ts in
+  // different directories would otherwise both jump to whichever came first.
+  const hits = nodes.filter(n =>
     n.id === base || String(n.id).split('/').pop() === base || n.label === base);
-  return hit ? hit.id : null;
+  return hits.length === 1 ? hits[0].id : null;
 }
 
 const CHANGE_WORD = {added:'new', removed:'gone', changed:'changed'};
@@ -1476,6 +1527,7 @@ function showEvidence(i){
 
 // Select a node from anywhere: the strip, a participant link, a hunk header.
 function goTo(id){
+  showLayerFor(id);
   state.selected = id; state.pattern = null;
   state.allPatterns = false; state.allSurface = false; state.allRisks = false;
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
@@ -1641,6 +1693,11 @@ document.getElementById('resetbtn').onclick = () => {
   hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false;
   state.allSurface = false; state.allRisks = false; state.coverOnly = false;
+  state.statuses = new Set(ALL_STATUSES);
+  state.kinds = new Set(ALL_KINDS);
+  document.querySelectorAll('.chip[data-status], .chip[data-kind]').forEach(c => {
+    c.setAttribute('aria-pressed','true'); c.classList.remove('off');
+  });
   if (coverChip){ coverChip.setAttribute('aria-pressed','false'); coverChip.classList.add('off'); }
   document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
@@ -1678,7 +1735,7 @@ document.querySelectorAll('.filelist div').forEach(d => d.onclick = () => {
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.key === '1') setView('file');
-  if (e.key === '2') setView('code');
+  if (e.key === '2' && !codeBtn().disabled) setView('code');
   if (e.key === 'f') fit();
   if (e.key === '[') panelNudge(-40);
   if (e.key === ']') panelNudge(40);
@@ -1690,12 +1747,7 @@ window.addEventListener('keydown', e => {
     const next = e.key === 'n'
       ? (at < 0 ? 0 : Math.min(at + 1, ord.length - 1))
       : (at < 0 ? ord.length - 1 : Math.max(at - 1, 0));
-    const id = ord[next];
-    const n = nodeInfo(id) || {};
-    if (n.layer === 'code' && !document.querySelector('#viewseg [data-view=code]').disabled)
-      setView('code');
-    else if (n.layer === 'file' && state.view !== 'file') setView('file');
-    goTo(id);
+    goTo(ord[next]);
   }
   if (e.key === 'Escape'){
     if (state.evidence != null) hideEvidence();
@@ -1706,14 +1758,18 @@ window.addEventListener('resize', fit);
 // Deep links: #code, #node=<id>, #pattern=<index>. Handy for pasting a link to
 // one box into a review comment.
 (function fromHash(){
-  const h = decodeURIComponent(location.hash.replace(/^#/, ''));
+  // A hash like #% throws URIError. Losing the deep link is fine; losing the
+  // rest of this function leaves the page unrendered.
+  let h;
+  try { h = decodeURIComponent(location.hash.replace(/^#/, '')); }
+  catch (err) { h = ''; }
   if (!h) return;
-  if (h === 'code' && !document.querySelector('#viewseg [data-view=code]').disabled) { setView('code'); return; }
+  if (h === 'code' && !codeBtn().disabled) { setView('code'); return; }
   if (h.startsWith('node=')){
     const id = h.slice(5);
     const n = nodeInfo(id);
     if (!n) return;
-    if (n.layer === 'code' && !document.querySelector('#viewseg [data-view=code]').disabled) setView('code');
+    showLayerFor(id);
     state.selected = id;
     return;
   }

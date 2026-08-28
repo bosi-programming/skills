@@ -36,7 +36,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
 const nodeInfo = id => MODEL._byId[id];
 
 const ctx = { MODEL, state, esc, nodeInfo };
-const names = ['patternsFor', 'diffHtml'];
+const names = ['patternsFor', 'diffHtml', 'refNode'];
 const api = new Function(...Object.keys(ctx),
   names.map(grab).join('\n') + '\nreturn {' + names.join(',') + '};')(...Object.values(ctx));
 
@@ -169,11 +169,9 @@ ok('a surface ref resolves to a node it can jump to',
 ok('the page wires those refs to the node, and disables the ones it cannot',
    js.includes("#surface .reflink[data-sref]") && js.includes("b.disabled = true"));
 
-function refNodeExists(ref) {
-  const base = String(ref || '').split(':')[0].split('/').pop();
-  return (MODEL.nodes || []).some(
-    n => n.id === base || String(n.id).split('/').pop() === base || n.label === base);
-}
+// The page's own refNode, not a copy of it, so this cannot pass while the page
+// resolves refs differently.
+function refNodeExists(ref) { return api.refNode(ref) != null; }
 
 // ---- history: churn, ownership, and the hotspot mark
 const withHist = (MODEL.nodes || []).filter(n => n.history);
@@ -428,6 +426,42 @@ ok('the overview dropped its pattern list', !js.includes('<h4>Patterns found</h4
 // ---- deep links
 ['node=', 'pattern=', 'evidence='].forEach(k =>
   ok('deep link ' + k + ' is handled', js.includes("h.startsWith('" + k + "')")));
+
+// ---- refs resolve to one node, or to none
+ok('a full path beats a basename, so two files of the same name do not collide',
+   (() => {
+     const first = (MODEL.nodes || []).find(n => String(n.id).includes('/'));
+     if (!first) return true;
+     return api.refNode(first.id + ':12') === first.id;
+   })());
+ok('an ambiguous basename resolves to nothing rather than to the first match',
+   js.includes('hits.length === 1 ? hits[0].id : null'));
+
+// ---- the first pattern is a pattern like any other
+ok('pattern index 0 isolates the graph', js.includes('state.pattern != null'));
+ok('nothing checks state.pattern for truthiness', !/state\.pattern\s*\n?\s*\?/.test(js));
+
+// ---- a jump lands somewhere the reader can see
+ok('every jump switches to the node layer first', js.includes('function showLayerFor('));
+ok('goTo goes through it', /function goTo\(id\)\{\s*\n\s*showLayerFor\(id\);/.test(js));
+ok('the layer switch is guarded by the Code button, which a file-only model disables',
+   /function showLayerFor\([\s\S]{0,220}codeBtn\(\)\.disabled/.test(js));
+ok('pressing 2 on a file-only model is a no-op rather than a blank graph',
+   js.includes("e.key === '2' && !codeBtn().disabled"));
+
+// ---- Reset resets
+ok('Reset restores the status and kind sets', js.includes('state.statuses = new Set(ALL_STATUSES)')
+   && js.includes('state.kinds = new Set(ALL_KINDS)'));
+ok('and puts the chips back with them',
+   js.includes("document.querySelectorAll('.chip[data-status], .chip[data-kind]')"));
+
+// ---- a malformed deep link costs the deep link, not the page
+ok('the hash is decoded defensively', /try \{ h = decodeURIComponent/.test(js));
+ok('an invalid escape reads as no deep link', /catch \(err\) \{ h = ''; \}/.test(js));
+
+// ---- pattern links carry a scheme the page will follow
+ok('every pattern reference on the page is http(s)',
+   [...html.matchAll(/class="patref" href="([^"]*)"/g)].every(m => /^https?:\/\//.test(m[1])));
 
 // ---- self-contained
 ok('the page loads nothing over the network',

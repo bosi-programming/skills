@@ -613,14 +613,14 @@
       ],
       "evidence": [
         {
-          "ref": "dispatcher.service.ts:71",
-          "diff": "@@ -66,6 +68,8 @@ export class DispatcherService {\n     const result = await impl.send(msg);\n+    this.eventEmitter.emit('notification.sent',\n+      new NotificationSentEvent(msg.id, key, result.providerId));\n     return result;\n",
-          "explanation": "The send path emits after the channel returns. Nothing here knows who listens, so audit can be added or dropped without editing the dispatcher."
+          "ref": "dispatcher.service.ts:42-45",
+          "diff": "@@ -0,0 +38,15 @@\n+      await impl.send(payload);\n+      this.events.emit('notification.sent', {\n+        channel: payload.channel,\n+        to: payload.to,\n+      });\n",
+          "explanation": "The dispatcher emits after the channel returns. It names an event and a payload, never a listener, so audit can be added or dropped without editing this method. That is the Subject half of the pair."
         },
         {
-          "ref": "audit.listener.ts:57",
-          "diff": "@@ -0,0 +1,9 @@\n+  @OnEvent('notification.sent')\n+  async record(event: NotificationSentEvent) {\n+    await this.audit.write({ id: event.id, channel: event.channel });\n+  }\n",
-          "explanation": "The other half of the pair. It subscribes by event name only, which is what makes this Observer and not a direct call."
+          "ref": "audit.listener.ts:50-64",
+          "diff": "@@ -50,15 +50,14 @@ export class AuditListener {\n-  @OnEvent('mail.sent')\n-  async onMailSent(e: MailSentEvent) {\n-    await this.repo.insert({ kind: 'mail', to: e.to });\n+  @OnEvent('notification.sent')\n+  async onNotificationSent(e: NotificationSentEvent) {\n+    await this.repo.insert({ kind: e.channel, to: e.to });\n   }\n",
+          "explanation": "The Observer half. It subscribes by event name, which is what makes this Observer and not a direct call. The rename from mail.sent is the same edit the contract surface lists as breaking."
         }
       ],
       "reference": "https://refactoring.guru/design-patterns/observer"

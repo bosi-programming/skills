@@ -2,8 +2,10 @@
 
 A worked model sits in `example-model.json` beside this file.
 
-One JSON object. Only `nodes` is required, but a model without `summary`,
-`edges`, honest `patterns` and real `moves` wastes the page.
+One JSON object. Only `nodes` is required, and it has to hold at least one node:
+`--check` rejects an empty list, because a graph of nothing renders as nothing. A
+model without `summary`, `edges`, honest `patterns` and real `moves` wastes the
+page.
 
 ```json
 {
@@ -11,7 +13,9 @@ One JSON object. Only `nodes` is required, but a model without `summary`,
   "source": "gh pr diff 118 (acme/handbook)",
   "summary": "Two or three sentences: what the rewrite does and why it is shaped this way.",
   "stats": {"files_changed": 4, "words_added": 1180, "words_removed": 604},
-  "nodes": [],
+  "nodes": [
+    {"id": "docs/onboarding.md", "kind": "doc", "status": "added"}
+  ],
   "edges": [],
   "patterns": [],
   "moves": []

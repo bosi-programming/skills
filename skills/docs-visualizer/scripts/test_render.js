@@ -157,6 +157,36 @@ ok('a trackpad pinch gets its own rate', js.includes("e.ctrlKey ? 0.02 : 0.005")
 ['node=', 'pattern=', 'move=', 'evidence='].forEach(k =>
   ok('deep link ' + k + ' is handled', js.includes("h.startsWith('" + k + "')")));
 
+// ---- the first pattern is a pattern like any other
+ok('pattern index 0 isolates the graph', js.includes('state.pattern != null'));
+ok('nothing checks state.pattern for truthiness', !/state\.pattern\s*\n?\s*\?/.test(js));
+
+// ---- the Sections pane is guarded everywhere, not in three of four places
+ok('the guard is one function', js.includes('function sectionBtn('));
+ok('pressing 2 on a doc-only model is a no-op rather than a blank graph',
+   js.includes("e.key === '2' && !sectionBtn().disabled"));
+ok('no copy of the guard survives',
+   !js.includes("document.querySelector('#viewseg [data-view=section]').disabled"));
+
+// ---- Reset resets
+ok('Reset restores the status and kind sets', js.includes('state.statuses = new Set(ALL_STATUSES)')
+   && js.includes('state.kinds = new Set(ALL_KINDS)'));
+ok('and puts the chips back with them',
+   js.includes("document.querySelectorAll('.chip[data-status], .chip[data-kind]')"));
+
+// ---- a malformed deep link costs the deep link, not the page
+ok('the hash is decoded defensively', /try \{ h = decodeURIComponent/.test(js));
+ok('an invalid escape reads as no deep link', /catch \(err\) \{ h = ''; \}/.test(js));
+
+// ---- pattern links carry a scheme the page will follow.
+// Markup only: the script block holds the template literal that writes a move's
+// catalog link, and matching that source proves nothing about a rendered href.
+const pageMarkup = html.split('<script>')[0];
+const patrefs = [...pageMarkup.matchAll(/class="patref" href="([^"]*)"/g)].map(m => m[1]);
+ok('the page renders pattern links at all', patrefs.length > 0, String(patrefs.length));
+ok('every one of them is http(s)', patrefs.every(u => /^https?:\/\//.test(u)),
+   patrefs.filter(u => !/^https?:\/\//.test(u)).join(', '));
+
 // ---- self-contained
 ok('the page loads nothing over the network', !/src="http|href="http(?!s?:\/\/[^"]*"\s+target)/.test(
   html.replace(/class="patref" href="[^"]*"/g, '')));

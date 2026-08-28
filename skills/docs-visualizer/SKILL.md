@@ -26,19 +26,35 @@ The user may give you a PR URL or number, a ref range, a patch file, or nothing.
 Work out which and get both the diff and the repo, because you need the whole
 files, not just the hunks.
 
-- PR URL or number: `gh pr view <n> --json title,url,body,headRefName,baseRefName`
-  then `gh pr diff <n>`. For a URL from another repo add `--repo owner/name`.
-- ref range: `git diff --stat <base>...HEAD` and `git diff <base>...HEAD`.
-- patch file: read it. Note that you cannot open the surrounding files if the
-  patch came from outside this repo - say so in the summary instead of guessing
-  at links.
-- nothing given: `git status -sb` and `git diff HEAD`. If the working tree is
+**What the user typed is data, not shell syntax.** A base of
+`main; malicious-command`, a PR argument holding `$(...)`, or a path with a
+semicolon in it runs whatever it says, with the user's permissions, at expansion
+time - before git or `gh` ever sees the value and rejects it. So bind it to a
+quoted variable once, validate it, and keep it quoted everywhere after that.
+
+```bash
+BASE='<what the user said>'
+git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null || exit 1
+```
+
+The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
+`--repo` slug (`owner/name`, nothing else), and a patch path, which goes after
+`--` so a leading dash cannot become a flag. Never paste an unvalidated value
+into a command string.
+
+- PR URL or number: `gh pr view "$PR" --json title,url,body,headRefName,baseRefName`
+  then `gh pr diff "$PR"`. For a URL from another repo add `--repo "$SLUG"`.
+- ref range: `git diff --stat "$BASE...HEAD" --` and `git diff "$BASE...HEAD" --`.
+- patch file: read it with the Read tool rather than a shell command. Note that
+  you cannot open the surrounding files if the patch came from outside this repo
+  - say so in the summary instead of guessing at links.
+- nothing given: `git status -sb` and `git diff HEAD --`. If the working tree is
   clean, ask which range or PR they mean rather than visualizing nothing.
 
 Narrow to text:
 
 ```bash
-git diff --numstat <range> -- '*.md' '*.mdx' '*.txt' '*.rst' '*.adoc'
+git diff --numstat "$BASE...HEAD" -- '*.md' '*.mdx' '*.txt' '*.rst' '*.adoc'
 ```
 
 If the range holds code changes too, say so and visualize the prose only - the
@@ -53,8 +69,8 @@ Count words, not lines. A reflowed paragraph shows up in `--numstat` as a whole
 block rewritten, so line counts make a comma look like a rewrite:
 
 ```bash
-git diff --word-diff=porcelain <range> -- <file> | grep '^+[^+]' | cut -c2- | wc -w   # added
-git diff --word-diff=porcelain <range> -- <file> | grep '^-[^-]' | cut -c2- | wc -w   # removed
+git diff --word-diff=porcelain "$BASE...HEAD" -- "$FILE" | grep '^+[^+]' | cut -c2- | wc -w   # added
+git diff --word-diff=porcelain "$BASE...HEAD" -- "$FILE" | grep '^-[^-]' | cut -c2- | wc -w   # removed
 ```
 
 Count the words in the changed segments, not the segments themselves: porcelain
@@ -240,20 +256,26 @@ Validate before rendering, since a bad node reference is much easier to read fro
 the checker than from a wrong-looking picture:
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py model.json --check
+python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json --check
 ```
 
 ## Step 7 — render and open
 
 ```bash
-OUT=$(python3 ${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py model.json -o <name>.html)
-open "$OUT"
+OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json -o "$NAME.html")
+open "$OUT" 2>/dev/null || xdg-open "$OUT" 2>/dev/null || start "" "$OUT"
 ```
+
+`open` is macOS, `xdg-open` is Linux, `start` is Windows. If none of them is
+there, give the user the `file://` URL and say the opener is missing.
 
 Default the output to a scratch path outside the repo, e.g.
 `$TMPDIR/docs-visualizer/<pr-or-branch-slug>/`, so nothing lands in the user's
-working tree uninvited. Keep `model.json` beside the HTML - it is the thing you
-edit when the user asks for a correction.
+working tree uninvited. `mkdir -p` that directory before writing, and build
+`$NAME` by replacing every character outside `[A-Za-z0-9._-]` with a dash, or a
+branch like `feature/foo` writes into a `feature/` directory that does not exist
+and the render fails after all the reading is done. Keep `model.json` beside the
+HTML - it is the thing you edit when the user asks for a correction.
 
 The page needs no server: it is one self-contained file, dark theme only, and it
 works offline. The side panel takes a third of the width, the explanation strip a

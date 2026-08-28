@@ -26,17 +26,36 @@ The user may give you a PR URL or number, a ref range, a patch file, or nothing.
 Work out which and get both the diff and the repo, because you need the full
 files, not just the hunks.
 
-- PR URL or number: `gh pr view <n> --json title,url,body,headRefName,baseRefName`
-  then `gh pr diff <n>`. For a URL from another repo add `--repo owner/name`.
-- ref range: `git diff --stat <base>...HEAD` and `git diff <base>...HEAD`.
-- patch file: read it. Note that you cannot open the surrounding files if the
-  patch came from outside this repo - say so in the summary instead of guessing
-  at relations.
-- nothing given: `git status -sb` and `git diff HEAD`. If the working tree is
+**What the user typed is data, not shell syntax.** A base of
+`main; malicious-command`, a PR argument holding `$(...)`, or a path with a
+semicolon in it runs whatever it says, with the user's permissions, at expansion
+time - before git or `gh` ever sees the value and rejects it. So bind it to a
+quoted variable once, validate it, and keep it quoted everywhere after that.
+
+```bash
+BASE='<what the user said>'
+git rev-parse --verify --quiet "$BASE^{commit}" >/dev/null || exit 1
+```
+
+The same rule covers a PR number (`case "$PR" in ''|*[!0-9]*) exit 1;; esac`), a
+`--repo` slug (`owner/name`, nothing else), and a patch path, which goes after
+`--` so a leading dash cannot become a flag. Never paste an unvalidated value
+into a command string.
+
+- PR URL or number: `gh pr view "$PR" --json title,url,body,headRefName,baseRefName`
+  then `gh pr diff "$PR"`. For a URL from another repo add `--repo "$SLUG"`.
+- ref range: `git diff --stat "$BASE...HEAD" --` and `git diff "$BASE...HEAD" --`.
+- patch file: read it with the Read tool rather than a shell command. Note that
+  you cannot open the surrounding files if the patch came from outside this repo
+  - say so in the summary instead of guessing at relations.
+- nothing given: `git status -sb` and `git diff HEAD --`. If the working tree is
   clean, ask which range or PR they mean rather than visualizing nothing.
 
-Also grab `git diff --numstat <range>` (or `gh pr diff --patch | diffstat`) so
-the per-file insertion and deletion counts in the model are real numbers rather
+Every path you pass to git later carries the same rule: `--` before the pathspec,
+and the path in quotes. A file called `--output=x` is legal on most filesystems.
+
+Also grab `git diff --numstat "$BASE...HEAD" --` (or `gh pr diff --patch | diffstat`)
+so the per-file insertion and deletion counts in the model are real numbers rather
 than eyeballed ones.
 
 ## Step 2 — read for relations, not just for lines
@@ -195,7 +214,9 @@ in two places and then commit to an answer.
 - Test files in the diff. They are nodes already, so the answer is usually in
   front of you: read what they assert, not just that they exist.
 - Tests the diff did not touch:
-  `git grep -n "<new symbol>" -- '*.test.*' '*.spec.*' '*_test.*'`. Run it for
+  `git grep -n -e "$SYM" -- '*.test.*' '*.spec.*' '*_test.*'`, with the symbol in
+  a quoted variable and `-e` so a name starting with a dash is not read as a
+  flag. Run it for
   each new or renamed class, function and event name.
 
 Then set `tests.status` to `added`, `existing` or `none`, with `refs` for the
@@ -236,8 +257,8 @@ Two more git calls per changed file give the reader something no diff can: how
 busy the file is, and whose it is.
 
 ```bash
-git log --since=90.days --format='%an' <base> -- <path> | sort | uniq -c
-git log -1 --format=%ad --date=short <base> -- <path>
+git log --since=90.days --format='%an' "$BASE" -- "$FILE" | sort | uniq -c
+git log -1 --format=%ad --date=short "$BASE" -- "$FILE"
 ```
 
 Run them against the base, not the branch, or the change counts its own commits.
@@ -278,14 +299,17 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json --check
 ## Step 6 — render and open
 
 ```bash
-OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o <name>.html)
-open "$OUT"
+OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o "$NAME.html")
+open "$OUT"          # xdg-open on Linux, start on Windows
 ```
 
 Default the output to a scratch path outside the repo, e.g.
 `$TMPDIR/diff-visualizer/<pr-or-branch-slug>/`, so nothing lands in the user's
-working tree uninvited. Keep `model.json` beside the HTML - it is the thing you
-edit when the user asks for a correction.
+working tree uninvited. `mkdir -p` that directory before writing, and build
+`$NAME` by replacing every character outside `[A-Za-z0-9._-]` with a dash, or a
+branch like `feature/foo` writes into a `feature/` directory that does not exist
+and the render fails after all the reading is done. Keep `model.json` beside the
+HTML - it is the thing you edit when the user asks for a correction.
 
 The page needs no server: it is one self-contained file, dark theme only, and it
 works offline. The graph takes the whole left side, the side panel a third of the

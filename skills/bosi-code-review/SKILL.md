@@ -206,13 +206,18 @@ This structure is for the **Spec** tab. Standards cards keep their `.d` blocks a
 - **No heading inside a panel.** No axis title, no icon, no source note. The tab label already says which axis this is, and repeating it costs a screen of height on a page whose whole point is that the first finding is visible. The panel starts at its first group.
 - The provenance those notes carried does not move somewhere else on the page. The page is findings; it does not narrate how it was made. Which standards documents you read, and what tooling you skipped, go in your reply if they change what the reader should do. What you could **not** check is different, and it has its own section below.
 
-Write the page to the session scratchpad directory as `review-<pr-number-or-ref>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
+Write the page to the session scratchpad directory as `review-<slug>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
+
+Two things to do before the first byte, both of which have failed a run:
+
+- **Build `<slug>` from the PR number or ref by replacing every character outside `[A-Za-z0-9._-]` with a dash.** A branch called `feature/foo` otherwise makes the path `review-feature/foo.html`, and the write fails because `review-feature/` does not exist. The slug is also what the companion page is named after, so a bad one loses both files.
+- **`mkdir -p` the directory.** A fresh worktree has no `.scratch/`, so the fallback path writes into a directory that is not there and the whole review ends with no report.
 
 ### 9. Build the companion code page and link every reference
 
 A finding that cites `foo.ts:49-53` and makes the reader go find `foo.ts:49-53` has done half its job. **Every `file:line` on the report is a link**, and it lands on an excerpt of that exact code.
 
-Build it from `${CLAUDE_SKILL_DIR}/assets/refs-template.html`, writing it beside the report as `review-<pr-number-or-ref>-refs.html`, one excerpt per distinct reference, each with an `id` the report links to. Paste the report's stylesheet into it first, so the two pages match.
+Build it from `${CLAUDE_SKILL_DIR}/assets/refs-template.html`, writing it beside the report as `review-<slug>-refs.html`, the same slug the report used, one excerpt per distinct reference, each with an `id` the report links to. Paste the report's stylesheet into it first, so the two pages match.
 
 Do not hand this to GitHub's line anchors instead. A blob link at least shows the file, but a PR diff anchor collapses unchanged regions, so a reference to an untouched line inside a changed file lands on a "expand" control and the reader sees nothing. Every excerpt on your own page is guaranteed to render.
 
@@ -227,9 +232,20 @@ Give each excerpt a link out to the same lines on GitHub, pinned to the head SHA
 
 **A reference you cannot resolve stays unlinked, and the companion page says why.** Cross-repo citations are the usual case: a path in another repository with no checkout has no code to quote. Do not guess at it, do not link it to a path that might exist, and do not quietly drop the reference from the prose. Name the file at the bottom of the companion page and say what is missing.
 
-Then open the report: `open <path>` on macOS. The companion page opens from the links.
+Then open the report with the platform's opener, so the page lands in a browser rather than in a sentence telling the user to open it themselves:
 
-Reply to the user with the `file://` URL, the per-axis tallies, and nothing else. The detail lives on the page.
+```bash
+open "$REPORT" 2>/dev/null || xdg-open "$REPORT" 2>/dev/null || start "" "$REPORT"
+```
+
+`open` is macOS, `xdg-open` is Linux, `start` is Windows. If none of them is there, give the user the `file://` URL and say the opener is missing. The companion page opens from the links.
+
+Reply to the user with the `file://` URL and the per-axis tallies. The detail lives on the page, so nothing else belongs in the reply except the two cases where the reader would otherwise act on a page that cannot tell them:
+
+- **A `CANNOT SHIP` verdict from step 6.** Name each gap in one line, the same wording as its `Not verified` card. The reader deciding whether to act on a finding needs to know a claim behind it went unverified, and a section they may never scroll to does not tell them.
+- **Provenance that changes what they should do**, from the note in step 8: which standards documents you read, and what tooling you skipped.
+
+Nothing else. No summary of the findings, no worst-per-axis, no narration of the gate.
 
 ## Why two axes
 

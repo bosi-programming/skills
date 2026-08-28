@@ -86,11 +86,30 @@ REFERENCE = {
 }
 
 
+SAFE_SCHEMES = ("https://", "http://")
+
+
+def safe_url(value):
+    """A model-supplied URL, or "" when its scheme is not one we will link.
+
+    `esc` is not enough on its own: `javascript:alert(1)` carries no
+    HTML-special character, so it survives escaping and runs on click in the
+    page the reader opens. The model writes `reference`, and the model reads the
+    diff, so treat it as untrusted and allowlist the scheme.
+    """
+    u = str(value or "").strip()
+    return u if u.lower().startswith(SAFE_SCHEMES) else ""
+
+
 def reference_for(pattern):
-    """The URL shown under a pattern name. The model wins over the catalog map."""
-    own = pattern.get("reference")
+    """The URL shown under a pattern name. The model wins over the catalog map.
+
+    A reference the page will not follow falls through to the catalog, so
+    dropping an unsafe link does not cost the card its link.
+    """
+    own = safe_url(pattern.get("reference"))
     if own:
-        return str(own)
+        return own
     key = re.sub(r"[`\u2019']", "", str(pattern.get("name") or "")).strip().lower()
     key = re.sub(r"\s+", " ", key)
     return REFERENCE.get(key, "")
@@ -637,6 +656,13 @@ const state = {view:'doc', scale:1, tx:0, ty:0, statuses:new Set(['added','modif
                kinds:new Set(MODEL._kinds), selected:null, pattern:null, query:'',
                allPatterns:false, move:null, evidence:null};
 
+// The full sets, so Reset can put the chips back rather than leaving a filter on
+// under a chip that reads as off.
+const ALL_STATUSES = ['added','modified','deleted','related'];
+const ALL_KINDS = MODEL._kinds || [];
+
+function sectionBtn(){ return document.querySelector('#viewseg [data-view=section]'); }
+
 function svgEl(){ return document.querySelector('#pane-'+state.view+' svg'); }
 function vp(){ return svgEl().querySelector('.viewport'); }
 
@@ -744,7 +770,7 @@ function syncPatterns(){
 
 function refresh(){
   const q = state.query.trim().toLowerCase();
-  const patternNodes = state.pattern
+  const patternNodes = state.pattern != null
     ? new Set((MODEL.patterns[state.pattern].participants||[]).map(p=>p.node))
     : null;
   document.querySelectorAll('#stage .pane .node').forEach(g => {
@@ -996,6 +1022,11 @@ document.getElementById('fitbtn').onclick = fit;
 document.getElementById('resetbtn').onclick = () => {
   hideEvidence();
   state.selected = null; state.pattern = null; state.query = ''; state.allPatterns = false; state.move = null;
+  state.statuses = new Set(ALL_STATUSES);
+  state.kinds = new Set(ALL_KINDS);
+  document.querySelectorAll('.chip[data-status], .chip[data-kind]').forEach(c => {
+    c.setAttribute('aria-pressed','true'); c.classList.remove('off');
+  });
   document.querySelectorAll('#patterns .card input[data-iso]').forEach(b => b.checked = false);
   document.getElementById('search').value = '';
   document.querySelectorAll('#patterns .card').forEach(c => c.classList.remove('active'));
@@ -1019,7 +1050,7 @@ document.querySelectorAll('.doclist div').forEach(d => d.onclick = () => {
 window.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
   if (e.key === '1') setView('doc');
-  if (e.key === '2') setView('section');
+  if (e.key === '2' && !sectionBtn().disabled) setView('section');
   if (e.key === 'f') fit();
   if (e.key === 'Escape'){
     if (state.evidence != null) hideEvidence();
@@ -1030,14 +1061,18 @@ window.addEventListener('resize', fit);
 // Deep links: #sections, #node=<id>, #pattern=<index>, #move=<index>. Handy for
 // pasting a link to one box, one pattern or one sentence into a review comment.
 (function fromHash(){
-  const h = decodeURIComponent(location.hash.replace(/^#/, ''));
+  // A hash like #% throws URIError. Losing the deep link is fine; losing the
+  // rest of this function leaves the page unrendered.
+  let h;
+  try { h = decodeURIComponent(location.hash.replace(/^#/, '')); }
+  catch (err) { h = ''; }
   if (!h) return;
-  if ((h === 'sections' || h === 'section') && !document.querySelector('#viewseg [data-view=section]').disabled) { setView('section'); return; }
+  if ((h === 'sections' || h === 'section') && !sectionBtn().disabled) { setView('section'); return; }
   if (h.startsWith('node=')){
     const id = h.slice(5);
     const n = nodeInfo(id);
     if (!n) return;
-    if (n.layer === 'section' && !document.querySelector('#viewseg [data-view=section]').disabled) setView('section');
+    if (n.layer === 'section' && !sectionBtn().disabled) setView('section');
     state.selected = id;
     return;
   }
@@ -1058,7 +1093,7 @@ window.addEventListener('resize', fit);
     const m = (MODEL.moves||[])[i];
     if (!m) return;
     const n = nodeInfo(m.node);
-    if (n && n.layer === 'section' && !document.querySelector('#viewseg [data-view=section]').disabled) setView('section');
+    if (n && n.layer === 'section' && !sectionBtn().disabled) setView('section');
     state.move = i;
     state.selected = m.node;
     return;

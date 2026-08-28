@@ -187,6 +187,47 @@ m = model(surface="a.ts:1")
 errs = rg.validate(m)
 ok("surface must be a list", any("list" in e for e in errs), "; ".join(errs))
 
+m = with_surface(dict(entry, node="a.ts"))
+ok("a surface entry may name a node in the graph", not rg.validate(m),
+   "; ".join(rg.validate(m)))
+
+m = with_surface(dict(entry, node="missing.ts"))
+errs = rg.validate(m)
+ok("a surface entry naming a node that is not there fails, the way a risk does",
+   any("unknown node" in e for e in errs), "; ".join(errs))
+
+
+# ---- a model reference only becomes a link when the page will follow it
+ok("an https reference survives",
+   rg.safe_url("https://refactoring.guru/x") == "https://refactoring.guru/x")
+ok("an http reference survives", rg.safe_url("http://example.test") != "")
+for bad in ("javascript:alert(1)", "JavaScript:alert(1)", "data:text/html,x",
+            "  javascript:alert(1)", "file:///etc/passwd", None, ""):
+    ok("a %r reference is dropped rather than escaped into an href" % bad,
+       rg.safe_url(bad) == "")
+
+pat = {"name": "Observer", "reference": "javascript:alert(1)",
+       "evidence": [{"ref": "a.ts:3"}]}
+urls = [u for _, u in rg.references_for(pat)]
+ok("a pattern card never shows a javascript reference",
+   not any(u.lower().startswith("javascript:") for u in urls), str(urls))
+ok("and it falls back to the catalog rather than losing its link",
+   rg.REFERENCE["observer"] in urls, str(urls))
+
+pat["reference"] = ["javascript:alert(1)", "https://example.test/observer"]
+ok("a list keeps the safe entries and drops the rest",
+   [u for _, u in rg.references_for(pat) if "example.test" in u]
+   == ["https://example.test/observer"])
+ok("with no javascript surviving alongside them",
+   not any(u.lower().startswith("javascript:")
+           for _, u in rg.references_for(pat)))
+
+
+# ---- nodes is required and has to hold something, as the schema now says
+errs = rg.validate({"nodes": []})
+ok("an empty nodes list fails, matching references/model-schema.md",
+   any("non-empty" in e for e in errs), "; ".join(errs))
+
 m = with_surface(dict(entry), dict(entry, name="oldThing", change="removed",
                                    breaking=True))
 rg.validate(m)
