@@ -71,7 +71,7 @@
   .pill.ok{color:var(--ok);background:var(--ok-bg);border-color:#1d3a2c}
 
   /* sections */
-  section{margin-bottom:52px;scroll-margin-top:20px}
+  section{margin-bottom:0;scroll-margin-top:20px}
 
   .group{margin-bottom:0}
   .group > h2{
@@ -182,6 +182,7 @@
   .tag.needed{color:var(--ok);background:var(--ok-bg)}
 
   /* callout */
+  #cross{padding-top:40px}
   .callout{
     border:1px solid var(--border);border-radius:10px;padding:18px 20px;
     background:linear-gradient(135deg,#141a26,#0f141d);position:relative
@@ -193,7 +194,7 @@
 
   /* tabs. Two of them, Spec then Standards. No third state, no accordion. */
   .tabs{
-    display:flex;gap:6px;margin:0 0 30px;padding:5px;border-radius:11px;
+    display:flex;gap:6px;margin:0;padding:5px;border-radius:11px;
     background:var(--bg-sunken);border:1px solid var(--border)
   }
   .tab{
@@ -218,7 +219,7 @@
   }
   .tab.is-on .tab-count{color:var(--fg-dim);background:#0b0f17}
   .panels > section[hidden]{display:none}
-  .panels > section{margin-bottom:52px}
+  .panels > section{margin-bottom:0}
   /* the scoreboard cards double as tab switches */
   .card{cursor:pointer;transition:border-color .13s}
   .card:hover{border-color:#2b3849}

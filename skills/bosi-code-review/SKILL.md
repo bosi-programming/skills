@@ -157,7 +157,9 @@ Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (ambe
 
 Drop any group with nothing in it rather than shipping an empty heading.
 
-Each group title is an `h2` in 24px bold, carrying 40px of padding above and 20px below, with no rule after it. The groups are the page's structure, so they get the heading level, the size and the room to say so: `.group` itself has no bottom margin, and that padding is the only thing separating one group from the next. At 24px the title separates the sections on its own, which is why the hairline that used to trail it is gone.
+Each group title is an `h2` in 24px bold, carrying 40px of padding above and 20px below, with no rule after it. At 24px the title separates the sections on its own, which is why the hairline that used to trail it is gone.
+
+**That 40px is the page's only vertical separator, so nothing may stack on top of it.** `.group`, `section` and `.panels > section` all carry `margin-bottom:0`, and `.tabs` has no bottom margin either. Leave one of those in and the gap above a heading silently becomes 70 or 90px, which is how the tabs ended up a screen away from the first finding. The one exception is `#cross`, which has no `h2` of its own: it carries `padding-top:40px` to earn the same gap.
 
 **Every finding card collapses.** Each `li.f` wraps its body in `<details>` with the title as `<summary class="t">`. Native `<details>`, no JavaScript, so folding still works when the script is blocked.
 
