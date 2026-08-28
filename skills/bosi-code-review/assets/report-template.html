@@ -127,6 +127,15 @@
   li.f > details[open] > summary{margin-bottom:7px}
   li.f > details > .d:first-of-type{margin-top:0}
 
+  /* card sections. Spec findings lead with the user-impact heading, then one h4 per section. */
+  li.f h4{
+    margin:19px 0 7px;font:600 11px/1.35 var(--mono);letter-spacing:.11em;
+    text-transform:uppercase;color:var(--fg-faint)
+  }
+  li.f h4.user{color:var(--ok)}
+  li.f > details > h4:first-of-type{margin-top:12px}
+  li.f h4 + .d{margin-top:0}
+
   /* acceptance criteria, grid not table */
   .acs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
   .ac{
@@ -293,6 +302,9 @@
      then "Partial", then "Scope", then "Notes". The worst news goes at the top and the purple judgement
      calls go at the bottom. The acceptance criteria sit under the defects, not above them: a reader who
      opens this tab wants to know what broke before reading what passed.
+     Every card in this tab opens with the "How this affects the final user" h4, written about a person on a
+     screen rather than about the code, then one h4 per section with a blank line between them. When nobody
+     is affected today, say so in the first sentence and then say what it costs later.
      Omit any group with no findings. If no spec was found, replace the whole section body with a
      single .callout saying which sources were searched and that no spec was found.
 -->
@@ -314,10 +326,19 @@
   <div class="group">
     <h3>Implementation defects</h3>
     <ul class="findings">
+      <!-- Every spec card opens with the user-impact section, then one h4 per section after it. -->
       <li class="f hard">
         <details open>
           <summary class="t">{{DEFECT_TITLE}}</summary>
+
+          <h4 class="user">How this affects the final user</h4>
+          <div class="d">{{WHO_SEES_WHAT_AND_WHEN}}</div>
+
+          <h4>{{SECTION_HEADING}}</h4>
           <div class="d">{{EVIDENCE}}</div>
+
+          <h4>The fix</h4>
+          <div class="d">{{WHAT_TO_CHANGE}}</div>
         </details>
       </li>
     </ul>
@@ -349,7 +370,13 @@
       <li class="f warn">
         <details>
           <summary class="t">{{AC}} {{WHAT_IT_LEAVES_UNPROVEN}}</summary>
+
+          <h4 class="user">How this affects the final user</h4>
+          <div class="d">{{WHO_SEES_WHAT_AND_WHEN}}</div>
+
+          <h4>{{SECTION_HEADING}}</h4>
           <div class="d">{{EVIDENCE}}</div>
+
           <span class="rule"><b>Spec:</b> "{{QUOTED_SPEC_LINE}}"</span>
         </details>
       </li>
@@ -375,6 +402,11 @@
       <li class="f soft">
         <details>
           <summary class="t">{{FINDING_TITLE}}</summary>
+
+          <h4 class="user">How this affects the final user</h4>
+          <div class="d">{{WHO_SEES_WHAT_AND_WHEN}}</div>
+
+          <h4>{{SECTION_HEADING}}</h4>
           <div class="d">{{EVIDENCE}}</div>
         </details>
       </li>

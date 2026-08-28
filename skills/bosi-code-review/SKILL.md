@@ -161,6 +161,18 @@ Drop any group with nothing in it rather than shipping an empty heading.
 - `warn` and `soft` findings ship shut. That is what keeps a page with a dozen judgement calls scannable.
 - The `.ac` criteria cards and the two worst-per-axis cards never collapse. The criteria are already one line each, and the worst-per-axis pair **is** the summary, so hiding it defeats the section. It carries `no-fold` to say so.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
+
+**Every Spec card opens with "How this affects the final user".** It is the first section inside `<details>`, `<h4 class="user">`, before any code. Nothing else goes above it.
+
+Write it about a person at a keyboard, not about the code. Who sees this, on which screen, and what do they read instead of what they should read? Name the partner if a config puts a name on it. The Spec axis exists to ask whether the change did what someone asked for, and the answer is worthless in terms of call stacks.
+
+- **When the answer is "nobody, today", say that in the first sentence** and then say what it costs later. "Nothing, today. Every screen shows the same words. The bill comes due when someone edits one of the two copies." An honest no-impact beats an invented one, and it tells the reader which findings they can leave alone.
+- Ground it the same way as any other claim. If you say staff at a named credit union see a blank paragraph, a config in the repo has to put it there. If no config does, say the impact is hypothetical and say so in that section, not in a footnote.
+- Don't hedge it into nothing. "This could potentially affect some users" is not an impact statement, it is a refusal to write one.
+
+**After that section, one `<h4>` per section, prose below it, a blank line between sections.** Sentence case, not title case. Name what the section does rather than labelling it: `What happened before`, `What happens now`, `A config already does this`, `The fix`, `Why the branch cannot run`, `Why it is amber and not red`. Two sections is fine, six is fine. Use the number the finding needs.
+
+This structure is for the **Spec** tab. Standards cards keep their `.d` blocks and their bold lead-ins, because a standards finding is about the code and has no user on the other end of it.
 - Escape `<`, `>`, and `&` inside every code snippet you quote, or the page breaks.
 - Inline SVG only for icons, as in the template. No image files, no icon fonts, no CDN.
 
