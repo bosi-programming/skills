@@ -45,8 +45,8 @@ of thing a reader wants pointed at.
 ```
 
 - `severity` : `high` | `medium` | `low`, default `medium`. `high` means it should
-  block the merge until answered. The page marks high risks red, counts them, and
-  puts their questions in the overview strip before anything is clicked.
+  block the merge until answered. A high risk gets a red border on its card and
+  the header counts it.
 - `statement` : required. What is true, in one or two sentences, written so the
   author can agree or disagree with it.
 - `ref` : `path:line`, required. A risk with no line is a feeling.
@@ -93,8 +93,7 @@ first, then the file that holds the decisions, then what was taken out, then the
 blast radius. Leave the least interesting file last and say so.
 
 The page numbers each ordered box on the graph, lists the steps in a `Read in
-this order` card, names step one in the overview strip, and walks the order with
-`n` and `p`. `--check` warns when the key is missing, and again when the order
+this order` card, and walks the order with `n` and `p`. `--check` warns when the key is missing, and again when the order
 leaves a changed file out.
 
 ## surface[]
@@ -123,8 +122,7 @@ this says what a name outside the diff has to do about it.
   fails, because it decides what the row means.
 - `breaking` : boolean, default false. True when someone outside this diff has to
   change something, or will break if they do not. A breaking row is marked in the
-  panel, counted in the header, and listed in the overview strip before anything
-  is clicked.
+  panel and counted in the header.
 - `ref` : `path:line`, required. A contract claim with no line is a guess. When
   the file is a node in the graph the ref becomes a jump to it.
 - `node` : optional node id, to attach the entry to a node whose path the `ref`
@@ -158,7 +156,7 @@ moved. Leaving the key off is a different claim, and `--check` warns about it.
   the top-level summary, so write it as an explanation, not a label: what this
   file or symbol is for, and what this change did to it. A collapsed node says
   here what it collapsed.
-- `details` : array of short strings. Rendered as bullets beside the summary in
+- `details` : array of short strings. Rendered as bullets under the summary in
   the explanation strip. Use them for the specifics a reviewer would otherwise
   have to dig for - the line a thing happens on, a removed behaviour, a missing
   guard. Three or four is plenty.

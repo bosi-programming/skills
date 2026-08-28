@@ -251,8 +251,11 @@ owns, and a hotspot box gets an amber mark so the reader sees it before clicking
 Two owners across one diff is worth a sentence too: it decides who has to review.
 
 The page has one explanation strip under the graph, and it is the surface people
-actually read. It shows the top-level `summary` until something is selected, then
-swaps to that node's or pattern's explanation. So write for it:
+actually read. It shows the top-level `summary` until a box is selected, then that
+node's explanation, with the diff, the coverage and the churn in collapsed cards
+beneath. It repeats nothing the right-hand panel holds: the reading order, the
+risks, the patterns and the contract each live there and nowhere else. So write
+for it:
 
 - the top-level `summary` answers "what did this change actually do" in two or
   three sentences - what a reviewer wants before they look at anything;
@@ -290,9 +293,11 @@ works offline. The side panel takes a third of the width, the explanation strip 
 quarter of the height (draggable), and nothing on the page is smaller than 14px.
 
 What the reader gets: pan and drag, wheel zoom, `Fit`; click a box and the strip
-under the graph explains it, in prose and bullets, with the relations left to the
-graph where they are already drawn; the side panel narrows its pattern cards and its
-contract rows to that selection at the same time, with `show all` to widen again; every pattern
+under the graph explains it, in prose and bullets, with three collapsed cards
+beneath for the diff, the test coverage and the churn, and the relations left to
+the graph where they are already drawn; the side panel narrows its pattern cards,
+its risks and its contract rows to that selection at the same time, with
+`show all` to widen again; every pattern
 card is collapsed to its name and confidence until it is opened, and inside it
 carries a link to what the pattern is, an `Isolate on graph` checkbox that dims
 everything but the participants, and its evidence refs; click a ref - in a pattern card, or under

@@ -977,22 +977,20 @@ svg.graph{position:absolute;top:0;left:0;overflow:visible}
 #explainer ul.bullets{margin:0 0 10px;padding-left:18px;font-size:14px;color:var(--muted);
   max-width:82ch}
 #explainer ul.bullets li{margin:2px 0}
-#explainer .body{display:flex;gap:30px;align-items:flex-start}
-#explainer .prose{flex:1 1 auto;min-width:280px}
 #explainer .prose p,#explainer .prose ul{max-width:none}
-#explainer .body:not(:has(.cols)) .prose{flex:1 1 100%}
-#explainer .cols{display:flex;gap:24px;flex-wrap:wrap;flex:1 1 46%;align-items:flex-start}
-#explainer .col{flex:1 1 190px;min-width:180px}
+#explainer .stripcards{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+#explainer .scard{margin-bottom:0;background:var(--panel-2)}
+#explainer .scard>summary{padding:8px 12px}
+#explainer .scard .count{color:var(--muted);font-size:14px;margin-left:auto}
+#explainer .scard .cardbody{padding:8px 12px 10px}
+#explainer .scard p{font-size:14px}
 #explainer .cover{margin:0 0 6px;font-size:14px}
 #explainer .churn{margin:0 0 4px;font-size:14px;color:var(--muted)}
-#explainer .start{margin:8px 0 0;font-size:14px;color:var(--muted)}
 #explainer .churn.hot{color:#e3b341}
 #explainer .owners{margin:0 0 4px;font-size:14px;color:var(--dim)}
 #explainer .cover.none{color:#f85149}
 #explainer .cover.added,#explainer .cover.existing{color:#3fb950}
 #explainer .ev{font-size:14px;color:var(--dim);margin:6px 0 0}
-#explainer .col h4{margin:0 0 4px;font-size:14px;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--dim);font-weight:600}
 #explainer .rel{margin:0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
 #explainer .rel li{padding:2px 0}
 #explainer .back{margin-left:auto}
@@ -1095,10 +1093,6 @@ aside h2:first-child{margin-top:0}
   color:var(--muted);overflow-wrap:anywhere}
 .rrow .rquestion{margin:6px 0 0;font-size:14px;font-weight:400;color:#cbd5e1}
 .rrow.hit{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-#explainer .rq{margin:2px 0 8px;font-size:14px;color:#cbd5e1}
-#explainer .sev-high{color:#ff9492}
-#explainer .sev-medium{color:#e3b341}
-#explainer .sev-low{color:var(--dim)}
 .bigcard>summary .count{color:var(--muted);font-size:14px}
 .orderlist{font-size:14px}
 .ostep{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
@@ -1371,13 +1365,6 @@ function derivedLine(id, n, outs, ins){
   return bits.join(' \u00b7 ') + '. No written explanation in the model for this one.';
 }
 
-// Flat index of every patterns[].evidence[] entry, in the order patterns_html
-// numbered them, so a ref rendered in the side panel and the same ref rendered
-// in the strip open the same view.
-function evIndex(pi, entry){
-  return (MODEL._evidence||[]).findIndex(e => e.pattern === pi && e.ref === entry.ref);
-}
-
 // A ref names a file. When that file is a node in the graph the ref becomes a
 // jump to it; when it lives outside the diff it is not a node, so the ref stays
 // plain text rather than a link to nothing. Used by tests and by the surface.
@@ -1397,15 +1384,24 @@ const COVER_WORD = {
   none: 'no test covers this'
 };
 
-const SEV_WORD = {high: 'high', medium: 'medium', low: 'low'};
+// The strip's own cards: collapsed, full width, one per kind of detail the
+// right-hand panel does not already hold. Stacking them beats a side column,
+// which had nowhere to go on a narrow window.
+function stripCards(specs){
+  const on = specs.filter(Boolean);
+  if (!on.length) return '';
+  return '<div class="stripcards">' + on.map(([title, note, body]) =>
+    `<details class="card scard"><summary><span class="name">${esc(title)}</span>`
+    + (note ? `<span class="count">${esc(note)}</span>` : '')
+    + `</summary><div class="cardbody">${body}</div></details>`).join('') + '</div>';
+}
 
-function nodeRisksHtml(id){
-  const mine = risksFor(id);
-  if (!mine.length) return '';
-  return `<ul class="rel">${mine.map(({r,i}) =>
-    `<li><b class="sev-${esc(r.severity||'medium')}">${esc(SEV_WORD[r.severity]||'')}</b> `
-    + `${esc(r.statement)}<br><button class="reflink mono" data-rjump="${i}">${esc(r.ref)}</button>`
-    + (r.question ? `<p class="rq">${esc(r.question)}</p>` : '') + '</li>').join('')}</ul>`;
+const COVER_SHORT = {added: 'covered here', existing: 'covered already', none: 'none'};
+
+function historyShort(h){
+  if (h.hotspot) return 'hotspot';
+  if (h.commits_90d != null) return `${h.commits_90d} in 90d`;
+  return '';
 }
 
 function historyHtml(h){
@@ -1511,57 +1507,28 @@ function renderExplainer(){
         ${back}
       </div>
       <div class="meta" style="margin-bottom:8px">${esc(meta)}</div>
-      <div class="body"><div class="prose">
+      <div class="prose">
       <p>${esc(n.summary || derivedLine(id, n, outs, ins))}</p>
       ${(n.details||[]).length ? `<ul class="bullets">${(n.details||[]).map(d=>`<li>${esc(d)}</li>`).join('')}</ul>` : ''}
       </div>
-      ${(hix.length || n.tests || n.history || risksFor(id).length) ? `<div class="cols">${hix.length ? `<div class="col"><h4>Changed lines</h4><ul class="rel">${
-        hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
-      }</ul></div>` : ''}${n.tests ? `<div class="col"><h4>Tests</h4>${testsHtml(n.tests)}</div>` : ''}${n.history ? `<div class="col"><h4>History</h4>${historyHtml(n.history)}</div>` : ''}${risksFor(id).length ? `<div class="col"><h4>Risks</h4>${nodeRisksHtml(id)}</div>` : ''}</div>` : ''}
-      </div>`;
-  } else if (state.pattern != null){
-    const p = MODEL.patterns[state.pattern];
-    host.innerHTML = `
-      <div class="head">
-        <span class="eyebrow">design pattern</span>
-        <span class="name">${esc(p.name)}</span>
-        <span class="meta">${esc(p.confidence||'')} confidence</span>
-        ${back}
-      </div>
-      <div class="body"><div class="prose">
-      ${p.intent ? `<p>${esc(p.intent)}</p>` : ''}
-      ${p.note ? `<p class="meta" style="font-family:inherit;font-size:14px">${esc(p.note)}</p>` : ''}
-      </div>
-      <div class="cols">
-        ${(p.participants||[]).length ? `<div class="col"><h4>Participants</h4><ul class="rel">${
-          (p.participants||[]).map(x => `<li><b>${esc(x.role||'participant')}</b>: <a href="#" data-goto="${esc(x.node)}">${esc((nodeInfo(x.node)||{}).label || x.node)}</a></li>`).join('')
-        }</ul></div>` : ''}
-        ${(p.evidence||[]).length ? `<div class="col"><h4>Evidence</h4><ul class="rel">${
-          (p.evidence||[]).map(x => `<li><button class="reflink mono" data-ev="${evIndex(state.pattern, x)}">${esc(x.ref)}</button></li>`).join('')
-        }</ul></div>` : ''}
-      </div></div>`;
+      ${stripCards([
+        hix.length ? ['Changed lines', String(hix.length), `<ul class="rel">${
+          hix.map(i => `<li><button class="reflink mono" data-ev="${i}">${esc((MODEL._evidence[i]||{}).ref)}</button></li>`).join('')
+        }</ul>`] : null,
+        n.tests ? ['Tests', COVER_SHORT[n.tests.status] || '', testsHtml(n.tests)] : null,
+        n.history ? ['History', historyShort(n.history), historyHtml(n.history)] : null
+      ])}`;
   } else {
-    const brk = (MODEL.surface||[]).map((s,i) => ({s,i})).filter(({s}) => s.breaking);
-    const first = (MODEL.reading_order||[])[0];
-    const ask = (MODEL.risks||[]).map((r,i) => ({r,i}))
-      .filter(({r}) => r.severity === 'high').slice(0, 3);
     host.innerHTML = `
       <div class="head">
         <span class="eyebrow">what this change is about</span>
         <span class="name">${esc(MODEL.title||'Code change map')}</span>
         <span class="meta">${esc(MODEL.source||'')}</span>
       </div>
-      <div class="body"><div class="prose">
+      <div class="prose">
       ${MODEL.summary ? `<p>${esc(MODEL.summary)}</p>`
         : '<p class="meta" style="font-family:inherit">No summary in the model.</p>'}
-      ${first ? `<p class="start">Start here: <button class="reflink" data-goto="${esc(first.node)}">${esc((nodeInfo(first.node)||{}).label || first.node)}</button>${first.why ? ` \u00b7 ${esc(first.why)}` : ''}</p>` : ''}
-      <p class="meta" style="font-family:inherit">Click any box or file to swap this panel for its explanation. Press <b>n</b> for the next step in the reading order.</p>
-      </div>
-      ${(brk.length || ask.length) ? `<div class="cols">${ask.length ? `<div class="col"><h4>Ask the author</h4><ul class="rel">${
-        ask.map(({r,i}) => `<li>${esc(r.question || r.statement)}<br><button class="reflink mono" data-rjump="${i}">${esc(r.ref)}</button></li>`).join('')
-      }</ul></div>` : ''}${brk.length ? `<div class="col"><h4>Breaks for callers</h4><ul class="rel">${
-        brk.map(({s,i}) => `<li><b>${esc(s.name)}</b> <span class="schange">${esc(CHANGE_WORD[s.change]||s.change||'')}</span><br><button class="reflink mono" data-sjump="${i}">${esc(s.ref)}</button></li>`).join('')
-      }</ul></div>` : ''}</div>` : ''}
+      <p class="meta" style="font-family:inherit">Click any box or file to explain it here. The panel on the right holds the reading order, the risks, the patterns and the contract. Press <b>n</b> to walk the reading order.</p>
       </div>`;
   }
 
@@ -1573,18 +1540,6 @@ function renderExplainer(){
   });
   host.querySelectorAll('[data-goto]').forEach(a => a.onclick = ev => {
     ev.preventDefault(); goTo(a.dataset.goto);
-  });
-  host.querySelectorAll('[data-rjump]').forEach(b => b.onclick = ev => {
-    ev.preventDefault();
-    const r = (MODEL.risks||[])[+b.dataset.rjump] || {};
-    const id = r.node || refNode(r.ref);
-    if (id) goTo(id);
-  });
-  host.querySelectorAll('[data-sjump]').forEach(b => b.onclick = ev => {
-    ev.preventDefault();
-    const s = (MODEL.surface||[])[+b.dataset.sjump] || {};
-    const id = refNode(s.ref);
-    if (id) goTo(id);
   });
   const b = document.getElementById('backbtn');
   if (b) b.onclick = () => {

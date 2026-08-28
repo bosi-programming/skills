@@ -36,7 +36,7 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
 const nodeInfo = id => MODEL._byId[id];
 
 const ctx = { MODEL, state, esc, nodeInfo };
-const names = ['patternsFor', 'evIndex', 'diffHtml'];
+const names = ['patternsFor', 'diffHtml'];
 const api = new Function(...Object.keys(ctx),
   names.map(grab).join('\n') + '\nreturn {' + names.join(',') + '};')(...Object.values(ctx));
 
@@ -61,10 +61,11 @@ ok('pattern evidence keeps the low indices, so old deep links still land',
 ok('every registry entry declares its kind',
    reg.every(e => e.kind === 'pattern' || e.kind === 'hunk'));
 ok('every pattern entry names its pattern', pat.every(e => e.patternName));
-ok('evIndex round-trips a ref back to its index',
-   pat.every((e, i) => api.evIndex(e.pattern, { ref: e.ref }) === i));
-ok('evIndex returns -1 for a ref that is not there',
-   api.evIndex(0, { ref: 'nowhere.ts:1' }) === -1);
+ok('a pattern ref resolves to exactly one registry slot',
+   pat.every((e, i) => reg.findIndex(
+     x => x.kind === 'pattern' && x.pattern === e.pattern && x.ref === e.ref) === i));
+ok('the page no longer needs evIndex, since only the cards number the refs',
+   !js.includes('function evIndex('));
 
 // ---- note migrated to explanation
 ok('note arrives as explanation', pat.every(e => e.explanation !== undefined));
@@ -162,8 +163,6 @@ ok('the header counts the breaking changes, and says nothing when there are none
                    : !statsbar.includes('breaking'));
 ok('selecting a node narrows the surface list the way it narrows patterns',
    js.includes('function surfaceFor(') && js.includes('function syncSurface('));
-ok('the overview names the breaking entries before anything is clicked',
-   js.includes('Breaks for callers'));
 ok('deep link surface= is handled', js.includes("h.startsWith('surface=')"));
 ok('a surface ref resolves to a node it can jump to',
    surface.some(s => refNodeExists(s.ref)));
@@ -188,7 +187,7 @@ ok('a hotspot node says so in its markup',
    (html.match(/data-hot="true"/g) || []).length === hot.length);
 ok('the header counts the hotspots',
    hot.length ? html.includes('<b>' + hot.length + '</b> hotspot') : true);
-ok('the strip has a column for churn', js.includes('<h4>History</h4>'));
+ok('the strip has a card for churn', js.includes("['History'"));
 ok('the strip only opens it when the node has history', js.includes('n.history ?'));
 ok('churn reads as a sentence, not a row of numbers',
    js.includes('function historyHtml('));
@@ -225,7 +224,6 @@ ok('the heading is not repeated inside the card',
    !opanel.includes('Read in this order'));
 ok('the order sits above the contract surface',
    html.indexOf('id="order-head"') < html.indexOf('id="surface-head"'));
-ok('the overview points at step one', js.includes('Start here'));
 ok('the strip says which step the selected node is',
    js.includes('step ${st} of'));
 ok('n and p walk the order', js.includes("e.key === 'n'") && js.includes("e.key === 'p'"));
@@ -248,9 +246,6 @@ ok('the header counts the risks, and says nothing when there are none',
                 : !statsbar.includes('risk'));
 ok('selecting a node narrows the risks the way it narrows patterns',
    js.includes('function risksFor(') && js.includes('function syncRisks('));
-ok('the overview asks the high-severity questions up front',
-   js.includes('Ask the author'));
-ok('the strip lists the risks of the selected node', js.includes('<h4>Risks</h4>'));
 ok('deep link risk= is handled', js.includes("h.startsWith('risk=')"));
 ok('a risk keeps its question where the reader can copy it',
    rpanel.includes('class="rquestion"'));
@@ -285,7 +280,13 @@ ok('the old bare heading is gone', !html.includes('<h2>Files changed</h2>'));
 
 // ---- the strip and the evidence view carry hunks
 ok('the strip lists the changed lines of the selected node',
-   js.includes('<h4>Changed lines</h4>'));
+   js.includes("['Changed lines'"));
+ok('the strip builds its details as cards', js.includes('function stripCards('));
+ok('those cards are collapsed details elements',
+   js.includes('<details class="card scard"><summary>')
+   && !js.includes('<details class="card scard" open'));
+ok('the strip stacks them instead of using a side column',
+   js.includes("'<div class=\"stripcards\">'") && !js.includes('<div class="cols">'));
 ok('the strip only opens that column when there is a hunk to show',
    js.includes('hix.length ?'));
 ok('the evidence view labels a hunk by its node, not by a pattern',
@@ -294,7 +295,7 @@ ok('the evidence view heading adapts to a hunk',
    js.includes('What this hunk does'));
 ok('the evidence view can jump from a hunk back to its node',
    js.includes('data-goto="${') && js.includes("host.querySelectorAll('[data-goto]')"));
-ok('the strip lists the tests of the selected node', js.includes('<h4>Tests</h4>'));
+ok('the strip lists the tests of the selected node', js.includes("['Tests'"));
 ok('the strip only opens that column when the node has an answer',
    js.includes('n.tests ?'));
 ok('a test ref that names a node in the graph becomes a jump',
@@ -364,11 +365,21 @@ if (override) {
 ok('the collapse marker is a real character, not a broken CSS escape',
    html.includes('summary::before{content:"\u25b8"'));
 
-// ---- the strip gives its prose the full width now that the columns are gone
-ok('the node branch has no empty column wrapper',
-   (js.match(/<div class="cols">\s*<\/div>/g) || []).length === 0);
-ok('the prose expands when nothing shares the row',
-   html.includes('.body:not(:has(.cols)) .prose{flex:1 1 100%}'));
+// ---- the strip repeats nothing the right-hand panel already holds
+ok('the strip does not re-list the risks', !js.includes('<h4>Risks</h4>')
+   && !js.includes('function nodeRisksHtml('));
+ok('the strip does not re-list the breaking surface',
+   !js.includes('Breaks for callers'));
+ok('the strip does not re-ask the risk questions', !js.includes('Ask the author'));
+ok('the strip does not repeat step one, which the order card holds',
+   !js.includes('Start here'));
+ok('a selected pattern is explained by its card, not twice',
+   !js.includes('} else if (state.pattern != null){')
+   && !js.includes('<h4>Participants</h4>') && !js.includes('<h4>Evidence</h4>'));
+ok('the strip points at the panel instead',
+   js.includes('The panel on the right holds'));
+ok('the side-column rules are gone with the columns',
+   !html.includes('#explainer .cols{') && !html.includes('#explainer .col{'));
 
 // ---- zoom
 ok('wheel deltas are normalised per device', js.includes('e.deltaMode === 1'));
