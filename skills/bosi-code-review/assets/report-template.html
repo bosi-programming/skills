@@ -191,11 +191,6 @@
   .callout p{margin:0;color:var(--fg-dim);font-size:13.5px}
   .callout p + p{margin-top:9px}
 
-  footer{border-top:1px solid var(--border);margin-top:56px;padding-top:22px;
-    color:var(--fg-faint);font-size:12.5px}
-  footer b{color:var(--fg-dim)}
-  footer ul{margin:8px 0 0;padding-left:18px}
-  footer li{margin-bottom:4px}
 
   /* tabs. Two of them, Spec then Standards. No third state, no accordion. */
   .tabs{
@@ -505,46 +500,6 @@
     <p>This is a note, not a rerank. Neither axis outranks the other here.</p>
   </div>
 </section>
-
-<!-- ============ WORST ============
-     Worst issue within each axis. Exactly one entry per axis, never a single cross-axis winner.
--->
-<section id="worst">
-  <div class="group">
-    <h3>Worst issue within each axis</h3>
-    <ul class="findings">
-      <!-- These two never collapse. They are the summary; hiding them defeats the section. -->
-      <li class="f hard no-fold">
-        <div class="t">Standards</div>
-        <div class="d">{{WORST_STANDARDS_FINDING}}</div>
-      </li>
-      <li class="f hard no-fold">
-        <div class="t">Spec</div>
-        <div class="d">{{WORST_SPEC_FINDING}}</div>
-      </li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ FOOTER ============
-     How the review was checked, and what was NOT run. State unrun checks plainly.
-     Carry the objectum residual here: what the gate could not unveil, and what would unveil it.
-     Drop the corrections line if the gate corrected nothing.
--->
-<footer>
-  <b>How this was checked.</b>
-  <ul>
-    <li>{{HOW_CITATIONS_WERE_VERIFIED}}</li>
-    <li>I checked every acceptance criterion in
-      <a href="{{ISSUE_URL}}" style="color:var(--accent)">{{ISSUE_KEY}}</a> against the code, not against the
-      PR body.</li>
-    <li>Standards came from {{STANDARDS_SOURCES}}. {{HOW_QUOTED_RULES_WERE_VERIFIED}}</li>
-    <li>I skipped anything lint, the formatter or the type-checker already catches, import order included.</li>
-    <li>{{N}} sub-agent citations were wrong and were corrected against the real file.</li>
-    <li><b>Unverified:</b> {{WHAT_COULD_NOT_BE_CHECKED_AND_WHAT_WOULD_CHECK_IT}}</li>
-    <li><b>Not run:</b> {{WHAT_WAS_NOT_EXECUTED}}. Every finding comes from reading code and standards, not from execution.</li>
-  </ul>
-</footer>
 
 </div>
 

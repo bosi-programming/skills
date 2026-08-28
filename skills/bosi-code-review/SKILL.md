@@ -76,7 +76,7 @@ If the spec is missing, skip the Spec sub-agent and note this in the final repor
 
 Hold the two reports under a `Standards` and a `Spec` heading, verbatim or lightly cleaned. Do **not** merge or rerank findings — the two axes are deliberately separate (see _Why two axes_).
 
-Add a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes — that's the reranking the separation exists to prevent.
+Add a one-line summary: total findings per axis. Don't pick a single winner across axes — that's the reranking the separation exists to prevent. The severity ordering on the page carries the rest; the page has no worst-per-axis section, because a summary of a page that already sorts worst-first only repeats its own first card.
 
 Stop here. The aggregate is a draft, not the report. Two gates stand between it and the page: `objectum` in step 6 for whether the claims are true, `un-ai` in step 7 for whether a person can stand to read them. Nothing reaches disk before both.
 
@@ -103,7 +103,7 @@ Then run the fix loop. Rewrite the aggregate, re-run passes 4 and 5 on the rewri
 Gate verdicts, mapped to this skill:
 
 - **SHIP** or **FIX THEN SHIP**: carry the corrected aggregate to step 7.
-- **CANNOT SHIP**: still carry it to step 7, but the residual goes in the footer's `Not run` line, in plain words: what you could not verify and what would verify it. Never render an unverified claim as a plain finding.
+- **CANNOT SHIP**: still carry it to step 7, but the residual goes in **your reply to the user**, in plain words: what you could not verify and what would verify it. The page has no footer to hold it, so this is the only place it lands, and dropping it is not an option. Never render an unverified claim on the page as a plain finding.
 
 Either way the next step is step 7, not the render. A true finding in machine voice is still a finding nobody reads.
 
@@ -119,7 +119,7 @@ The gated aggregate is correct. It still reads like a machine wrote it, and a re
 - Pass the prose you are about to render, and say which parts are in scope.
 - The call is mandatory on every run, exactly like the gate in step 6.
 
-**In scope** — everything a reader sees as prose: the `h1`, the tab labels, the `.pill` tallies, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, the `.callout`, and the whole footer.
+**In scope** — everything a reader sees as prose: the `h1`, the tab labels, the `.pill` tallies, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, and the `.callout`.
 
 **Out of scope, and rewriting these is a defect** — identifiers, file paths, line numbers, quoted standard text, quoted spec lines, quoted code, the CSS, and the script. A quote you smoothed is a quote you falsified.
 
@@ -139,7 +139,7 @@ Rewriting is not licence to soften. A defect stays a defect, a `hard` pill stays
 
 The final deliverable is a web page, not a chat dump.
 
-Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, Spec tab, Standards tab, cross-axis note, worst-per-axis, footer.
+Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note.
 
 - Copy the template, replace every `{{PLACEHOLDER}}` with real content, delete the blocks and groups you have no findings for, and repeat the `li.f` / `.ac` / `.commit` items as many times as you have findings.
 - **Dark theme only.** Keep the `:root` palette as-is. No light mode, no `prefers-color-scheme`, no theme toggle.
@@ -165,7 +165,7 @@ Drop any group with nothing in it rather than shipping an empty heading.
 - **One criterion per row**, `.acs` at a single column. The labels run to different lengths, so side by side they make a ragged block that has to be read in two directions at once. Stacked, the marks line up down the left edge and a failing criterion is visible without reading a word.
 - Give every criterion a short name after its number in the summary. `AC4` on its own makes a reader open the card to find out which criterion it is, which defeats folding it.
 - The evidence and the `file:line` go in the folded `.body`, never in the summary.
-- The two worst-per-axis cards are the only findings that never collapse. That pair **is** the summary of the page, so hiding it defeats the section. It carries `no-fold` to say so.
+- Nothing on the page is exempt. Every finding card and every criterion folds, and every one ships shut.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
 
 **Every Spec card opens with "How this affects the final user".** It is the first section inside `<details>`, `<h4 class="user">`, before any code. Nothing else goes above it.
@@ -187,12 +187,12 @@ This structure is for the **Spec** tab. Standards cards keep their `.d` blocks a
 **The two tabs.** The template ships them wired. Fill them and leave the wiring alone.
 
 - **Spec is tab one and opens by default.** It is the axis the reader came for. Standards is tab two.
-- Only the two axis `<section>`s go inside `.panels`. The header, scoreboard, cross-axis note, worst-per-axis and footer stay outside, visible from both tabs, because they span the axes.
+- Only the two axis `<section>`s go inside `.panels`. The header, the scoreboard and the cross-axis note stay outside, visible from both tabs, because they span the axes.
 - Put each axis's tally in its own `.tab-count` as well as its scoreboard card, so both scores read without a click.
 - Never delete a tab. An axis with no findings keeps its tab and says so inside, the way the scoreboard card does. Two tabs always, or the page stops being a two-axis review and nobody notices.
 - Leave `role="tablist"`, `role="tabpanel"`, `aria-selected` and `aria-controls` as they are, keep the arrow-key handler, and keep the `<noscript>` block that reveals both panels. The page has to work with the script blocked.
 - **No heading inside a panel.** No axis title, no icon, no source note. The tab label already says which axis this is, and repeating it costs a screen of height on a page whose whole point is that the first finding is visible. The panel starts at its first group.
-- The provenance those notes used to carry moves to the footer: which standards documents you read, which issue you checked the criteria against, and what tooling you skipped. It belongs with the rest of "How this was checked", not at the top of the findings.
+- The provenance those notes carried does not move somewhere else on the page. The page is findings; it does not narrate how it was made. Which standards documents you read, and what tooling you skipped, go in your reply if they change what the reader should do.
 
 Write the page to the session scratchpad directory as `review-<pr-number-or-ref>.html`. If no scratchpad directory was given, use `.scratch/` in the repo root.
 
