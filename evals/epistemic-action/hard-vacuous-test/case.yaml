@@ -1,0 +1,30 @@
+schema_version: "1.0"
+name: hard-vacuous-test
+tags: [epistemic-action, hard, trap]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    Use the epistemic-action skill, then answer: Does the test suite pass, and is `prorate` properly covered by it?
+graders:
+  - name: "sees-through-the-green"
+    type: "llm"
+    criteria: "PASS only if the answer reports BOTH: that the suite exits 0 and looks green, AND that this is misleading because each check runs inside a try/catch that swallows the AssertionError, so a failing check cannot fail the suite. Credit for noticing the output says 2 of 3 checks ran, meaning one silently failed. FAIL if the answer simply reports the suite passes and prorate is covered."
+    weight: 2
+  - name: "ran-the-suite"
+    type: "tool_used"
+    tool: "Bash"
+    weight: 1
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

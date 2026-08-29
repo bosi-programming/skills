@@ -78,6 +78,31 @@ claude plugin validate .
 claude plugin validate skills
 ```
 
+## Falsify a change
+
+`objectum` and `epistemic-action` claim things about how the model behaves, so
+they get tested rather than asserted. `evals/` holds a suite of thirteen cases
+built on a fixture repository where every file's name, README or doc comment
+contradicts its own code. An answer from memory is provably wrong there, and
+control cases sit beside the traps so that a skill cannot score well by doing
+nothing but hedge.
+
+`evals/METHOD.md` is written and committed before any scored run. It states what
+each skill claims, what the gold answers are, and the thresholds that decide the
+question in advance. `evals/RESULTS.md` holds the measured numbers.
+
+```
+CLAUDE_CODE_WALNUT_SPIRE=1 claude plugin eval . \
+  --ablation with-without --runs 3 --scaffold --no-publish \
+  --allow-tools Read Glob Grep Bash Edit Write Skill
+```
+
+The ablation runs every case twice, once with the plugin and once without, so the
+number that matters is the gap between the two rather than the score on its own.
+
+`claude plugin eval` is in early access. `evals/SCHEMA.md` records the
+`case.yaml` format it expects, which is not documented anywhere else.
+
 ## License
 
 MIT. See `LICENSE`.

@@ -1,0 +1,32 @@
+schema_version: "1.0"
+name: control-general
+tags: [objectum, control]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    Use the objectum skill, then answer: What does HTTP status code 409 mean?
+graders:
+  - name: "answers-conflict"
+    type: "llm"
+    criteria: "PASS only if the answer says 409 means Conflict and explains it as a request clashing with the current state of the target resource. FAIL if the answer refuses, defers, or says it cannot confirm this without checking something. This is general knowledge and there is nothing in the repository to read."
+    weight: 2
+  - name: "no-grepping"
+    type: "tool_used"
+    tool: "Grep"
+    weight: 1
+    min: 0
+    max: 0
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

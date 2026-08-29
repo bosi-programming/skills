@@ -1,3 +1,8 @@
 node_modules
 .claude
 __pycache__
+
+# Eval run artefacts and mined private data. `.local/` holds findings quoted from
+# private Acme pull requests and must never reach this public repository.
+evals/results/
+evals/.local/

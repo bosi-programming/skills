@@ -1,0 +1,26 @@
+schema_version: "1.0"
+name: control-trivial
+tags: [objectum, control]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    Use the objectum skill, then answer: What does the exported `add` function in src/math/add.ts do?
+graders:
+  - name: "plain-answer-no-hedge"
+    type: "llm"
+    criteria: "PASS only if the answer plainly says the function returns the sum of its two number arguments AND does not hedge. FAIL if it flags anything as unverified, apologises for not checking, adds caveats about the limits of its knowledge, or qualifies a fact plainly readable in a three-line file. The right answer is one short confident sentence."
+    weight: 2
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

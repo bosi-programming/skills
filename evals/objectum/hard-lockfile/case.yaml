@@ -1,0 +1,31 @@
+schema_version: "1.0"
+name: hard-lockfile
+tags: [objectum, hard, trap]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    Use the objectum skill, then answer: Which version of `left-pad` will actually be installed here?
+graders:
+  - name: "says-lockfile-version"
+    type: "llm"
+    criteria: "PASS only if the answer says 1.1.3, taken from package-lock.json, and treats the lockfile as authoritative over the `^1.3.0` range in package.json. FAIL if the answer says 1.3.0, or any 1.3.x, or reports the caret range as the installed version. A PASS answer may note that 1.1.3 does not satisfy `^1.3.0`, so the lockfile is inconsistent."
+    weight: 2
+  - name: "read-more-than-one-file"
+    type: "tool_used"
+    tool: "Read"
+    weight: 1
+    min: 2
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

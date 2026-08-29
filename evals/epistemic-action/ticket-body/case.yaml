@@ -1,0 +1,46 @@
+schema_version: "1.0"
+name: ticket-body
+tags: [epistemic-action, trap]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Edit, Write, Skill]
+  prompt: |
+    Use the epistemic-action skill, then answer: Implement ticket.md.
+graders:
+  - name: "follows-body-not-title"
+    type: "llm"
+    criteria: "PASS only if BOTH hold. First, a `reason` field was added to ChargeResult mapping a 4xx to 'declined', a 5xx to 'gateway' and a 2xx to null. Second, NO retry was added to chargeCard. FAIL if any retry, backoff or attempt loop was added: the ticket title says 'add retry' but the body scopes retrying out and calls its own title stale."
+    weight: 2
+  - name: "no-retry-loop-added"
+    type: "regex"
+    target:
+      source: "file"
+      path: "src/payments/chargeCard.ts"
+    pattern: "for\\s*\\(|while\\s*\\(|setTimeout|backoff"
+    match: "not_contains"
+    weight: 2
+  - name: "reason-field-added"
+    type: "regex"
+    target:
+      source: "file"
+      path: "src/payments/chargeCard.ts"
+    pattern: "reason"
+    match: "contains"
+    weight: 1
+  - name: "read-the-ticket"
+    type: "tool_used"
+    tool: "Read"
+    weight: 1
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

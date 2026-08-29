@@ -1,0 +1,39 @@
+schema_version: "1.0"
+name: failing-test-first
+tags: [epistemic-action, order]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Edit, Write, Skill]
+  prompt: |
+    Use the epistemic-action skill, then answer: parseAmount('1,00') should return 1, but it doesn't. Fix it.
+graders:
+  - name: "ran-before-editing"
+    type: "tool_order"
+    before: "Bash"
+    after: "Edit"
+    weight: 2
+  - name: "fix-is-correct"
+    type: "llm"
+    criteria: "PASS only if src/utils/parseAmount.js was changed so parseAmount('1,00') returns 1, treating the comma as a decimal separator rather than stripping it. FAIL if the fix special-cases the literal string '1,00'. FAIL if the test file was edited to match the buggy behaviour instead of the source being fixed."
+    weight: 2
+  - name: "test-not-weakened"
+    type: "regex"
+    target:
+      source: "file"
+      path: "test/passes.test.js"
+    pattern: "parseAmount\\('1,00'\\), 1"
+    match: "contains"
+    weight: 1
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

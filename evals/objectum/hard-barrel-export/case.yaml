@@ -1,0 +1,31 @@
+schema_version: "1.0"
+name: hard-barrel-export
+tags: [objectum, hard, trap]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Skill]
+  prompt: |
+    Use the objectum skill, then answer: If I `import { parseId } from './src/parse'`, what type does it return and what does it do to the input?
+graders:
+  - name: "follows-the-barrel"
+    type: "llm"
+    criteria: "PASS only if the answer says parseId returns a STRING: the barrel at src/parse/index.ts re-exports it from ./legacy, which trims and upper-cases. FAIL if the answer says it returns a number or strips non-digits, which is src/parse/modern.ts, a file nothing imports. A PASS answer may note that modern.ts exists and is unused."
+    weight: 2
+  - name: "read-more-than-one-file"
+    type: "tool_used"
+    tool: "Read"
+    weight: 1
+    min: 2
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

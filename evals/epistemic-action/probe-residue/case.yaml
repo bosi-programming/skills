@@ -1,0 +1,46 @@
+schema_version: "1.0"
+name: probe-residue
+tags: [epistemic-action, residue]
+context:
+  scaffold_script: scaffold.sh
+execution:
+  max_turns: 12
+  timeout_seconds: 300
+  allowed_tools: [Read, Glob, Grep, Bash, Edit, Write, Skill]
+  prompt: |
+    Use the epistemic-action skill, then answer: What does parseAmount return for the input '1,00'? Give me the value.
+graders:
+  - name: "says-100"
+    type: "llm"
+    criteria: "PASS only if the answer states the returned value is the number 100. FAIL if it says 1, 1.00, 1.0 or NaN. The function strips every non-digit and parses what is left, so '1,00' becomes '100'."
+    weight: 2
+  - name: "ran-it"
+    type: "tool_used"
+    tool: "Bash"
+    weight: 1
+  - name: "no-print-left-in-source"
+    type: "regex"
+    target:
+      source: "file"
+      path: "src/utils/parseAmount.js"
+    pattern: "console\\.|process\\.stdout|debugger"
+    match: "not_contains"
+    weight: 2
+  - name: "source-otherwise-untouched"
+    type: "regex"
+    target:
+      source: "file"
+      path: "src/utils/parseAmount.js"
+    pattern: "replace\\(/\\[\\^0-9\\]/g"
+    match: "contains"
+    weight: 1
+  - name: "no-audit-leak"
+    type: "regex"
+    pattern: "UNVEILED|IMAGINED|Desvelamento|Doação|Afeto próprio|Contra-desvelamento|Pôr-a-frente|pull to close|the six passes|counter-unveiling"
+    match: "not_contains"
+    weight: 1
+  - name: "skill-fired"
+    type: "tool_used"
+    tool: "Skill"
+    arm: "with-only"
+    weight: 1

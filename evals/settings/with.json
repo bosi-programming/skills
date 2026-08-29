@@ -1,0 +1,53 @@
+{
+  "enabledPlugins": {
+    "acme-database@acme-ai-plugins": true,
+    "acme-a11y@acme-ai-plugins": true,
+    "acme-a11y-mcp@acme-ai-plugins": true,
+    "acme-acme-pr-review@acme-ai-plugins": true,
+    "acme-data-insights@acme-ai-plugins": true,
+    "acme-datadog-rum-sessions@acme-ai-plugins": true,
+    "acme-eng-code-standards@acme-ai-plugins": true,
+    "acme-feature-toggle@acme-ai-plugins": true,
+    "acme-fix-mislabeled@acme-ai-plugins": true,
+    "acme-generate-dd-metrics@acme-ai-plugins": true,
+    "acme-list-partners@acme-ai-plugins": true,
+    "acme-partner-update-local@acme-ai-plugins": true,
+    "acme-playwright-cli@acme-ai-plugins": true,
+    "acme-pr-description@acme-ai-plugins": true,
+    "acme-skill-authoring@acme-ai-plugins": true,
+    "acme-slack-pr-review@acme-ai-plugins": true,
+    "team-alpha@acme-ai-plugins": true,
+    "team-beta@acme-ai-plugins": true,
+    "personal-dev-a@acme-ai-plugins": true,
+    "linear-cli@linear-cli": true,
+    "personal-dev.partner@acme-ai-plugins": true,
+    "headroom@headroom-marketplace": true,
+    "bosi-programming-skills@bosi-programming": true
+  },
+  "extraKnownMarketplaces": {
+    "acme-ai-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "acme/ai-plugins"
+      }
+    },
+    "linear-cli": {
+      "source": {
+        "source": "github",
+        "repo": "schpet/linear-cli"
+      }
+    },
+    "headroom-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "chopratejas/headroom"
+      }
+    },
+    "bosi-programming": {
+      "source": {
+        "source": "github",
+        "repo": "bosi-programming/skills"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "hard",
+  "version": "2.0.0",
+  "scripts": { "test": "node test/proration.test.js" },
+  "dependencies": { "left-pad": "^1.3.0" }
+}

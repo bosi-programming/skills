@@ -8,8 +8,8 @@ metadata:
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
-- **Standards** — does the code conform to this repo's documented coding standards?
-- **Spec** — does the code faithfully implement the originating issue / PRD / spec?
+- **Standards** — does the code conform to this repo's documented coding standards? Standards are on ~/dev/acme/tickets/TICK-000/engineering-docs/
+- **Spec** — does the code faithfully implement the originating issue / PRD / spec? The specs can be found inside the PR description as a link to linear. If not found there, search on the PR title for a string that is CCCC*-DDD* where c is a character and d is a digit, like TICK-000.
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings and renders them as a single dark-theme HTML page it opens in the browser. The page keeps the axes in **two tabs**, Spec first, so a reader lands on one axis at a time instead of scanning both at once.
 

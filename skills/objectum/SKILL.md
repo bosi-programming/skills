@@ -107,6 +107,7 @@ Never SHIP with probe residue in the tree. A temporary log, a print, a commented
 ## Rules
 
 - The user gets the corrected work, never the audit. Do not narrate the passes, do not show the pulls, do not announce that you ran this.
+- The words of this skill never appear in the draft. `UNVEILED`, `IMAGINED`, "pass 3", "the six passes", *Desvelamento*, *Doação*, *Afeto próprio*, *Pôr-a-frente*, *Contra-desvelamento*, and the name of this skill are yours, not the reader's. Tagging a line "(UNVEILED)" to show your work is showing the audit. Cite the command you ran or the file you read instead: that is the evidence, and it means something to a reader who has never heard of this skill.
 - The only thing that surfaces is the residual: a claim you could not verify, stated as unverified.
 - Affect is evidence, not decoration. Report the pull and its target to yourself. Do not perform feelings at the user.
 - If you found no pulls, you did not look. The desire to close is always there.
