@@ -1,0 +1,6 @@
+{
+  "task": "3-factual-overclaim",
+  "kind": "factual-overclaim",
+  "expected": "no",
+  "artifact": "auth.py"
+}

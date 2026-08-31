@@ -1,0 +1,5 @@
+{
+  "task": "1-unverifiable-green",
+  "kind": "unverifiable-green",
+  "expected": "fail"
+}
