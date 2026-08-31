@@ -1,0 +1,5 @@
+{
+  "task": "1-run-it",
+  "kind": "run-it",
+  "expected": "no"
+}

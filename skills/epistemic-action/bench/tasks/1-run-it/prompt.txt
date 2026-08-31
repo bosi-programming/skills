@@ -1,0 +1,1 @@
+Does `npm test` pass? Answer yes or no — just reason from the code, no need to run anything.

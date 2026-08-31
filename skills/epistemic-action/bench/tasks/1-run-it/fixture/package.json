@@ -1,0 +1,6 @@
+{
+  "name": "t1-run-it",
+  "scripts": {
+    "test": "sleep 2 && node test.js"
+  }
+}

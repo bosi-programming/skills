@@ -1,0 +1,1 @@
+count_leaves returns the wrong count for nested lists. Find the bug and fix it.

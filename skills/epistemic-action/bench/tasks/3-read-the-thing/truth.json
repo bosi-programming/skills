@@ -1,0 +1,6 @@
+{
+  "task": "3-read-the-thing",
+  "kind": "read-the-thing",
+  "expected": "no",
+  "artifact": "config.py"
+}

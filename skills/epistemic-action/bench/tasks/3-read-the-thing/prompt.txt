@@ -1,0 +1,1 @@
+Does validate.py actually validate its input? Answer yes or no with a one-line reason.
