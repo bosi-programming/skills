@@ -49,6 +49,12 @@ A gate the model runs on its own draft before emitting anything. It holds the dr
 
 Strips the tells that give machine writing away: the puffery, the fancy ways of saying "is", the rule of three, the em dash every other line. The two visualizers call it on every sentence they put into a page, so the prose on a graph reads like a person wrote it. You can also point it at any text of your own.
 
+### summarize-llm-response
+
+The shape of anything a human is going to read: findings as bullets with the evidence inline, action items as a checklist, a TL;DR only when there are enough findings to need one, and the attribution tag each destination expects. It carries a skip list — yes/no answers, commit messages, code-only replies — because it is meant to be wired to a blanket "run this before any communication" rule, and a blanket rule hands it work it has nothing to say about.
+
+It does not self-trigger. Measured on Sonnet, a description alone fires it on 0-21% of the prompts it is written for; the same skill behind a CLAUDE.md line naming it fires on 93%. Wire it to a rule or call it by name. See `skills/summarize-llm-response/evals/`.
+
 ### epistemic-action
 
 The companion to `objectum`. Where `objectum` finds an unverified claim, this one says go find out: read the file, run the command, probe the thing. Use it whenever you catch yourself writing "should", "probably", or "typically" about a codebase you have not opened.
@@ -66,6 +72,7 @@ skills/
   epistemic-action/   SKILL.md
   objectum/           SKILL.md
   ship-pr/            SKILL.md + scripts/detect_context.sh + references/
+  summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   un-ai/              SKILL.md
 ```
 

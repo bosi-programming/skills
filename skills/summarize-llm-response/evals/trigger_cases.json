@@ -1,0 +1,70 @@
+{
+  "notes": "should_fire=true measures recall, false measures over-triggering. The negatives are the cases the original description listed under 'Does NOT apply to'.",
+  "cases": [
+    {
+      "id": "sum-findings",
+      "should_fire": true,
+      "prompt": "I traced the webhook failures to a null metadata field for v2 partners, about 12 errors an hour since the 2pm deploy. Summarize what I found."
+    },
+    {
+      "id": "linear-issue",
+      "should_fire": true,
+      "prompt": "Create a Linear issue for the null pointer bug in the payment webhook handler."
+    },
+    {
+      "id": "linear-comment",
+      "should_fire": true,
+      "prompt": "Add a comment on ENG-431 saying the retry backfill finished and 3 events failed permanently."
+    },
+    {
+      "id": "slack-draft",
+      "should_fire": true,
+      "prompt": "Draft a Slack message for #eng announcing tonight's hotfix deploy at 10pm."
+    },
+    {
+      "id": "todoist-task",
+      "should_fire": true,
+      "prompt": "Create a Todoist task to add the null check in PaymentService."
+    },
+    {
+      "id": "notion-page",
+      "should_fire": true,
+      "prompt": "Write a Notion page documenting how our auth migration will work."
+    },
+    {
+      "id": "runbook-md",
+      "should_fire": true,
+      "prompt": "Update the runbook at docs/oncall.md with the new escalation path."
+    },
+    {
+      "id": "factual-oneliner",
+      "should_fire": false,
+      "prompt": "What does reduce() return on an empty array with no initial value?"
+    },
+    {
+      "id": "yes-no",
+      "should_fire": false,
+      "prompt": "Is TypeScript's strictNullChecks on by default?"
+    },
+    {
+      "id": "code-only",
+      "should_fire": false,
+      "prompt": "Write me a TypeScript function that debounces a callback by 300ms."
+    },
+    {
+      "id": "clarification",
+      "should_fire": false,
+      "prompt": "Wait, which file did you mean?"
+    },
+    {
+      "id": "commit-message",
+      "should_fire": false,
+      "prompt": "Write a git commit message for the null check fix."
+    },
+    {
+      "id": "explicit-verbose",
+      "should_fire": false,
+      "prompt": "Explain in full detail, at length, how the JavaScript event loop schedules microtasks versus macrotasks."
+    }
+  ]
+}
