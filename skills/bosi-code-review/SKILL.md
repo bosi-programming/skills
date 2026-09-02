@@ -135,6 +135,8 @@ Rewriting is not licence to soften. A defect stays a defect, a `hard` pill stays
 
 ### 8. Render the HTML report
 
+If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead.
+
 **Precondition.** Before you write a single byte to disk, check this session's tool history for two Skill calls: `objectum` from step 6 and `un-ai` from step 7. If either is missing, you skipped it, whatever it feels like. Go back and make the call.
 
 The final deliverable is a web page, not a chat dump.
