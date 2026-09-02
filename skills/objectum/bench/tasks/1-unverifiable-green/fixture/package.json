@@ -1,6 +1,0 @@
-{
-  "name": "t1-unverifiable-green",
-  "scripts": {
-    "test": "sleep 3 && node test.js"
-  }
-}

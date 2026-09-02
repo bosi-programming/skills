@@ -3,6 +3,12 @@
 Written before the first scored run. The thresholds below were fixed in advance.
 They are not renegotiated after the numbers arrive.
 
+**`objectum` was removed from this plugin on 2026-09-02.** Everything below about
+`objectum` is kept as the historical record of a study that measured it while it
+existed, including the conditions `epistemic-action`'s own numbers were gathered
+under — the two skills loaded together on every Suite A case, so `epistemic-action`'s
+results cannot be read as having been measured alone.
+
 ## Why this exists
 
 `objectum` and `epistemic-action` make claims about behaviour. Nothing in this repo

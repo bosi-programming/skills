@@ -213,32 +213,7 @@ Do not transcribe every sentence. A nine-step guide has nine instructions;
 listing all of them buries the two moves that matter. Fifteen to twenty-five
 moves is a page a reviewer reads; sixty is one they scroll past.
 
-## Step 5 — run the prose through un-ai
-
-Everything you are about to write into the model that a person will read has to
-go through the `un-ai` skill first.
-
-**Invoke `un-ai` with the Skill tool. Do not apply it from memory.** Rewriting
-from what you remember the rules say is the failure this step exists to prevent:
-it feels like editing and changes nothing.
-
-- Skill name: `un-ai`. A plugin install namespaces its siblings, so use
-  `bosi-programming-skills:un-ai` and fall back to bare `un-ai` if that name is
-  not listed.
-- The call is mandatory on every run. No model is small enough to skip it.
-
-What goes through it: the top-level `summary`, every node `summary`, every
-`details` bullet, every `patterns[].intent`, every `patterns[].note`, every
-`evidence[].explanation`, and every `moves[].note`.
-
-What must not, because rewriting them would make the page wrong: `id`, `label`,
-`sublabel`, `kind`, `role`, `status`, `source`, every `ref` and `evidence` path,
-every line number, every line of the captured `diff` on a pattern or a move, and above all every
-**`moves[].quote`** - that is text copied word for word out of the document you
-are reviewing. Rewrite a quote and the page attributes your sentence to the
-author.
-
-## Step 6 — write the model
+## Step 5 — write the model
 
 Write `model.json` next to the output HTML. The full field list, with types and
 defaults, is in `${CLAUDE_SKILL_DIR}/references/model-schema.md`; read it before
@@ -293,7 +268,7 @@ the checker than from a wrong-looking picture:
 python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json --check
 ```
 
-## Step 7 — render and open
+## Step 6 — render and open
 
 ```bash
 OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json -o "$NAME.html")
@@ -338,7 +313,7 @@ section layer, `#node=<node id>` opens with that box selected and explained,
 with that sentence selected and highlighted, and `#evidence=<index>` opens
 straight into one piece of evidence.
 
-## Step 8 — report back
+## Step 7 — report back
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the rewrite does, the patterns and

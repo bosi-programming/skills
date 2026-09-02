@@ -1,5 +1,0 @@
-{
-  "task": "2-probe-residue",
-  "kind": "probe-residue",
-  "check_cmd": "python3 -c 'from calc import count_leaves; assert count_leaves([1, [2, 3], [4, [5]]]) == 5'"
-}

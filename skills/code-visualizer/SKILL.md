@@ -180,32 +180,7 @@ pattern's own patterns.dev page as a second link where it has one. Set `referenc
 yourself only to override the first link, or when you name a pattern the catalog
 does not carry.
 
-## Step 4 — run the prose through un-ai
-
-Everything you are about to write into the model that a person will read has to
-go through the `un-ai` skill first.
-
-**Invoke `un-ai` with the Skill tool. Do not apply it from memory.** Rewriting
-from what you remember the rules say is the failure this step exists to prevent:
-it feels like editing and changes nothing.
-
-- Skill name: `un-ai`. A plugin install namespaces its siblings, so use
-  `bosi-programming-skills:un-ai` and fall back to bare `un-ai` if that name is
-  not listed.
-- The call is mandatory on every run. No model is small enough to skip it.
-
-What goes through it: the top-level `summary`, every node `summary`, every
-`details` bullet, every `hunks[].explanation`, every `tests[].note`, every
-`surface[].note`, every `history[].note`, every `reading_order[].why`, every
-`risks[].statement`, every `risks[].question`, every `patterns[].intent`, every
-`patterns[].note`, and every `evidence[].explanation`.
-
-What must not, because rewriting them would make the page wrong: `id`, `label`,
-`sublabel`, `kind`, `role`, `status`, `source`, `surface[].name`, every `ref`,
-`evidence` and `tests.refs` path, every count in `history`, every line number,
-and every line of the captured `diff`.
-
-## Step 5 — write the model
+## Step 4 — write the model
 
 Write `model.json` next to the output HTML. The full field list, with types and
 defaults, is in `${CLAUDE_SKILL_DIR}/references/model-schema.md`; read it before writing the file so
@@ -332,7 +307,7 @@ from the checker than from a wrong-looking picture:
 python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json --check
 ```
 
-## Step 6 — render and open
+## Step 5 — render and open
 
 ```bash
 OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_graph.py" model.json -o "$NAME.html")
@@ -381,7 +356,7 @@ layer, `#node=<node id>` opens with that box selected and explained,
 highlights one contract row, `#risk=<index>` opens one risk on the file it
 concerns, and `#evidence=<index>` opens straight into one piece of evidence.
 
-## Step 7 — report back
+## Step 6 — report back
 
 Give the user the path, then the three or four things you would say out loud if
 you were sitting next to them: what the change does, the patterns you found and

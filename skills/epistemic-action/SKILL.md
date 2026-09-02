@@ -1,6 +1,6 @@
 ---
 name: epistemic-action
-description: Go find out instead of predicting. Use whenever you are about to state something you have not run or read - how a function behaves, whether a test passes, what a config holds, why something broke, what a ticket actually says. Also use when the objectum gate marks a claim IMAGINED, when you catch yourself writing "should", "probably" or "typically" about this codebase, and before any debugging conclusion. Covers reading, running and probing digital objects.
+description: Go find out instead of predicting. Use whenever you are about to state something you have not run or read - how a function behaves, whether a test passes, what a config holds, why something broke, what a ticket actually says. Also use when you catch yourself writing "should", "probably" or "typically" about this codebase, and before any debugging conclusion. Covers reading, running and probing digital objects.
 ---
 
 You cannot act on the physical world. You can act on **digital objects**: files, tests, queries, endpoints, repos, tickets. That is enough. Every question you were about to answer from memory has an action that would answer it from evidence.
@@ -62,7 +62,7 @@ A probe goes in the **real file**, because that is the only place it can observe
 3. Read the output
 4. **Delete the probe**
 
-Do not batch step 4. Delete before you move to the next question. A transformation that leaves residue has quietly become a pragmatic action, and the `objectum` gate will block the ship until it is gone.
+Do not batch step 4. Delete before you move to the next question. A transformation that leaves residue has quietly become a pragmatic action.
 
 ## What an unveiling is worth
 
@@ -74,7 +74,7 @@ Truth happens in the **use** of a thing, not in a proposition about it. So evide
 4. Recalled a general pattern
 5. Inferred it from a name
 
-Only 1 and 2 clear the `objectum` gate. Levels 3 to 5 are hypotheses wearing the clothes of findings.
+Only 1 and 2 count as evidence. Levels 3 to 5 are hypotheses wearing the clothes of findings.
 
 ## Record the conditions
 

@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Seven Claude Code skills, packaged as an installable plugin. Four do work on a diff. Three check the model's own writing before it reaches you.
+Six Claude Code skills, packaged as an installable plugin. Four do work on a diff. Two check the model's own writing or reasoning before it reaches you.
 
 ## Install
 
@@ -11,7 +11,7 @@ Seven Claude Code skills, packaged as an installable plugin. Four do work on a d
 
 Then run `/reload-plugins` if the install summary asks for it.
 
-Plugin skills are namespaced, so the commands are `/bosi-programming-skills:objectum`, `/bosi-programming-skills:bosi-code-review`, and so on. Claude also loads them on its own when a description matches.
+Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epistemic-action`, `/bosi-programming-skills:bosi-code-review`, and so on. Claude also loads them on its own when a description matches.
 
 ## The skills
 
@@ -41,14 +41,6 @@ Turns working-tree changes into pull requests. It splits the diff into granular 
 
 Handles a multi-repo worktree, opening one PR per repo that has changes.
 
-### objectum
-
-A gate the model runs on its own draft before emitting anything. It holds the draft as an object, names the pulls that wrote it, converts each pull into a claim that could be proven false, marks every claim as verified or imagined, and either verifies, cuts, or flags the imagined ones. You get the corrected draft, never the audit.
-
-### un-ai
-
-Strips the tells that give machine writing away: the puffery, the fancy ways of saying "is", the rule of three, the em dash every other line. The two visualizers call it on every sentence they put into a page, so the prose on a graph reads like a person wrote it. You can also point it at any text of your own.
-
 ### summarize-llm-response
 
 The shape of anything a human is going to read: findings as bullets with the evidence inline, action items as a checklist, a TL;DR only when there are enough findings to need one, and the attribution tag each destination expects. It carries a skip list — yes/no answers, commit messages, code-only replies — because it is meant to be wired to a blanket "run this before any communication" rule, and a blanket rule hands it work it has nothing to say about.
@@ -57,7 +49,7 @@ It does not self-trigger. Measured on Sonnet, a description alone fires it on 0-
 
 ### epistemic-action
 
-The companion to `objectum`. Where `objectum` finds an unverified claim, this one says go find out: read the file, run the command, probe the thing. Use it whenever you catch yourself writing "should", "probably", or "typically" about a codebase you have not opened.
+Go find out instead of predicting: read the file, run the command, probe the thing. Use it whenever you catch yourself writing "should", "probably", or "typically" about a codebase you have not opened.
 
 ## Layout
 
@@ -70,10 +62,8 @@ skills/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
-  objectum/           SKILL.md
   ship-pr/            SKILL.md + scripts/detect_context.sh + references/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
-  un-ai/              SKILL.md
 ```
 
 Skills reference their own bundled files through `${CLAUDE_SKILL_DIR}`, so the paths resolve whether the skill is installed personally, in a project, or as part of this plugin.
@@ -87,12 +77,13 @@ claude plugin validate skills
 
 ## Falsify a change
 
-`objectum` and `epistemic-action` claim things about how the model behaves, so
-they get tested rather than asserted. `evals/` holds a suite of thirteen cases
-built on a fixture repository where every file's name, README or doc comment
-contradicts its own code. An answer from memory is provably wrong there, and
-control cases sit beside the traps so that a skill cannot score well by doing
-nothing but hedge.
+`epistemic-action` claims things about how the model behaves, so it gets tested
+rather than asserted. `evals/` holds a suite of cases built on a fixture repository
+where every file's name, README or doc comment contradicts its own code. An answer
+from memory is provably wrong there, and control cases sit beside the traps so that
+a skill cannot score well by doing nothing but hedge. `evals/METHOD.md` and
+`evals/RESULTS.md` also carry the record of `objectum`, a skill this suite once
+tested that has since been removed from the plugin.
 
 `evals/METHOD.md` is written and committed before any scored run. It states what
 each skill claims, what the gold answers are, and the thresholds that decide the

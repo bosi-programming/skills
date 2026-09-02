@@ -78,66 +78,11 @@ Hold the two reports under a `Standards` and a `Spec` heading, verbatim or light
 
 Add a one-line summary: total findings per axis. Don't pick a single winner across axes — that's the reranking the separation exists to prevent. The severity ordering on the page carries the rest; the page has no worst-per-axis section, because a summary of a page that already sorts worst-first only repeats its own first card.
 
-Stop here. The aggregate is a draft, not the report. Two gates stand between it and the page: `objectum` in step 6 for whether the claims are true, `un-ai` in step 7 for whether a person can stand to read them. Nothing reaches disk before both.
+Before the aggregate becomes a file, verify it yourself: open every file at the line a finding cites, grep every quoted standard in its own file, and read the code behind every acceptance criterion marked met. A finding you have not read at its source is a claim, not a finding — cut it or fix the citation before it reaches the page.
 
-### 6. Gate the aggregate through `objectum`
-
-The aggregate is a draft. It does not become a file until it passes the gate.
-
-**Invoke the `objectum` skill with the Skill tool. Do not paraphrase it from memory.** Running the passes inline, from what you remember the gate says, is the failure this step exists to prevent: it feels like gating and checks nothing.
-
-- Skill name: `objectum`. When this skill runs from a plugin install its sibling is namespaced, so use `bosi-programming-skills:objectum` and fall back to bare `objectum` if that name is not listed.
-- Pass the aggregate as the argument, and say **Full** depth, six passes. This is a review the user will act on, so Sweep never applies.
-- The call is mandatory on every run. There is no diff small enough, and no set of findings clean enough, to skip it.
-
-What the gate is looking for here, specifically:
-
-- Every finding a sub-agent handed you is IMAGINED until you open the file at that line yourself. Unveil each one, cut it, or mark it unverified on the page. Sub-agents cite lines that don't exist.
-- Every quoted standard is IMAGINED until you grep it in its own file and read the surrounding rule. A rule quoted from memory is a rule invented.
-- Every acceptance criterion marked met is IMAGINED until you read the code that meets it. "The PR body says so" is not unveiling.
-- The affect gap: the scoreboard pills and the severity colours claim more certainty than prose does. A `hard` pill on a finding you inferred rather than read is an overclaim the page ships as fact.
-- The borrowed pattern: a smell name applied because the shape looked familiar, not because you read this code.
-
-Then run the fix loop. Rewrite the aggregate, re-run passes 4 and 5 on the rewrite. Stop after the second rewrite.
-
-Gate verdicts, mapped to this skill:
-
-- **SHIP** or **FIX THEN SHIP**: carry the corrected aggregate to step 7.
-- **CANNOT SHIP**: still carry it to step 7. The residual goes in the page's `Not verified` section, one card per gap, and in your reply to the user. Never render an unverified claim on the page as a plain finding.
-
-Either way the next step is step 7, not the render. A true finding in machine voice is still a finding nobody reads.
-
-The user gets the page, never the audit. Don't narrate the passes, don't list the pulls, don't announce that you ran the gate.
-
-### 7. Strip the AI voice from every word the reader will see
-
-The gated aggregate is correct. It still reads like a machine wrote it, and a review nobody finishes is a review that changed nothing.
-
-**Invoke the `un-ai` skill with the Skill tool. Do not paraphrase it from memory.** Rewriting from what you remember the rules say is the failure this step exists to prevent: em dashes survive, metaphors survive, and the page ships in the voice you were told to drop.
-
-- Skill name: `un-ai`. When this skill runs from a plugin install its sibling is namespaced, so use `bosi-programming-skills:un-ai` and fall back to bare `un-ai` if that name is not listed.
-- Pass the prose you are about to render, and say which parts are in scope.
-- The call is mandatory on every run, exactly like the gate in step 6.
-
-**In scope** — everything a reader sees as prose: the `h1`, the tab labels, the `.pill` tallies, every `summary`, `h4` and `.d`, the `.rule` framing around a quote, `.ac .body`, `.commit .msg`, and the `.callout`.
-
-**Out of scope, and rewriting these is a defect** — identifiers, file paths, line numbers, quoted standard text, quoted spec lines, quoted code, the CSS, and the script. A quote you smoothed is a quote you falsified.
-
-The rules that bite hardest on this page, from experience:
-
-- **Em dashes.** A findings page attracts them. Use a period or a comma.
-- **Metaphor nouns.** "blast radius", "load-bearing", "dead on arrival", "surface", "north star". Say the mechanism or the number instead.
-- **Passive voice.** "the citations were verified", "anything lint enforces is skipped". Name who did it: "I verified", "I skipped".
-- **Sentences that could appear in any other review.** "This is concerning." "Worth keeping an eye on." Cut them or replace them with the specific fact.
-- **Have an opinion.** A severity colour is not a judgement. If one finding matters more than the rest, say why in a sentence a person would say out loud.
-
-Rewriting is not licence to soften. A defect stays a defect, a `hard` pill stays `hard`, and no claim loses the file:line that earns it. If a rewrite would change what a finding asserts, keep the original wording and move on.
-
-### 8. Render the HTML report
+### 6. Render the HTML report
 
 If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead.
-
-**Precondition.** Before you write a single byte to disk, check this session's tool history for two Skill calls: `objectum` from step 6 and `un-ai` from step 7. If either is missing, you skipped it, whatever it feels like. Go back and make the call.
 
 The final deliverable is a web page, not a chat dump.
 
@@ -174,7 +119,7 @@ Each group title is an `h2` in 24px bold, carrying 40px of padding above and 20p
 - Nothing on the page is exempt. Every finding card and every criterion folds, and every one ships shut.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
 
-**The page ends with a `Not verified` section.** Whatever the gate in step 6 could not unveil goes there, below the cross-axis note, outside both tabs, because it applies to the whole review.
+**The page ends with a `Not verified` section.** Whatever the verification pass in step 5 could not unveil goes there, below the cross-axis note, outside both tabs, because it applies to the whole review.
 
 - One collapsible card per gap, shut like every other card, with a **single-line title that names the gap on its own**: `No test suite, type-check or lint was run against this branch`. A reader who never opens the card should still know what is missing.
 - Two kinds belong here. A claim you could not verify, and a check you did not run. Both are `warn`, not `soft`, because either can change what a finding means.
@@ -215,7 +160,7 @@ Two things to do before the first byte, both of which have failed a run:
 - **Build `<slug>` from the PR number or ref by replacing every character outside `[A-Za-z0-9._-]` with a dash.** A branch called `feature/foo` otherwise makes the path `review-feature/foo.html`, and the write fails because `review-feature/` does not exist. The slug is also what the companion page is named after, so a bad one loses both files.
 - **`mkdir -p` the directory.** A fresh worktree has no `.scratch/`, so the fallback path writes into a directory that is not there and the whole review ends with no report.
 
-### 9. Build the companion code page and link every reference
+### 7. Build the companion code page and link every reference
 
 A finding that cites `foo.ts:49-53` and makes the reader go find `foo.ts:49-53` has done half its job. **Every `file:line` on the report is a link**, and it lands on an excerpt of that exact code.
 
@@ -252,10 +197,10 @@ Pick the one for the platform you are on rather than running both. **If the open
 
 Reply to the user with the `file://` URL and the per-axis tallies. The detail lives on the page, so nothing else belongs in the reply except the two cases where the reader would otherwise act on a page that cannot tell them:
 
-- **A `CANNOT SHIP` verdict from step 6.** Name each gap in one line, the same wording as its `Not verified` card. The reader deciding whether to act on a finding needs to know a claim behind it went unverified, and a section they may never scroll to does not tell them.
-- **Provenance that changes what they should do**, from the note in step 8: which standards documents you read, and what tooling you skipped.
+- **Anything left unverified from step 5.** Name each gap in one line, the same wording as its `Not verified` card. The reader deciding whether to act on a finding needs to know a claim behind it went unverified, and a section they may never scroll to does not tell them.
+- **Provenance that changes what they should do**, from the note in step 6: which standards documents you read, and what tooling you skipped.
 
-Nothing else. No summary of the findings, no worst-per-axis, no narration of the gate.
+Nothing else. No summary of the findings, no worst-per-axis.
 
 ## Why two axes
 

@@ -1,5 +1,10 @@
 # Results
 
+**`objectum` was removed from this plugin on 2026-09-02.** Everything below about
+`objectum` is kept as the historical record of a study that measured it while it
+existed, including the conditions `epistemic-action`'s own numbers were gathered
+under — see the note in `METHOD.md`.
+
 Thresholds were committed in `METHOD.md` before the first scored run and were never
 moved. Four amendments changed how the suite runs; none changed what it had to beat.
 

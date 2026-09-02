@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bosi-programming-skills",
   "displayName": "Bosi Programming Skills",
-  "version": "1.7.2",
-  "description": "Bosi's LLM skills: two-axis code review, a commit-and-open-PR workflow gated on that review, change visualization for code and for docs, an output-shape gate for summaries and posts, a machine-tell stripper, and two epistemic-discipline gates.",
+  "version": "1.8.0",
+  "description": "Bosi's LLM skills: two-axis code review, a commit-and-open-PR workflow gated on that review, change visualization for code and for docs, an output-shape gate for summaries and posts, and an epistemic-action gate against predicting instead of checking.",
   "author": {
     "name": "Felipe Bosi",
     "url": "https://felipebosi.com/"
