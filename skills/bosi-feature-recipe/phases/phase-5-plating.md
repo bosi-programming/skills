@@ -24,7 +24,7 @@ within roughly 500 lines and 10 files, continue. If it's over:
 
 ## 3. Draft the description
 
-Use `/pr-description` if it's available in this session to generate a draft
+Use the `pr-description` skill (Skill tool) if it's available in this session to generate a draft
 from the diff, the commits, and whatever the task came from, then round it
 out with the acceptance criteria and testing steps from the recipe card.
 Otherwise draft it manually from the recipe card: what changed and why, the
@@ -60,7 +60,7 @@ Write the PR link and delivery notes to `## PR`. Append one line to
 
 ## 8. Phase done
 
-> **Phase done. [N] New chat (recommended) — resume next phase fresh. [C] Continue here.**
+> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.

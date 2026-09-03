@@ -32,5 +32,5 @@ Present a short delivery summary: what was built, the PR link, where the
 docs landed (if any), and the recipe card's own path as the full record of
 how it got there.
 
-Tell the user the recipe is done. Don't offer a New chat / Continue menu —
+Tell the user the recipe is done. Don't offer a New session / Continue menu —
 there's no next phase to route to.

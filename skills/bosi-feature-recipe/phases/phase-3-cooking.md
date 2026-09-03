@@ -60,7 +60,7 @@ to `phasesCompleted`, `lastTouched`.
 
 ## 5. Phase done
 
-> **Phase done. [N] New chat (recommended) — resume next phase fresh. [C] Continue here.**
+> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.

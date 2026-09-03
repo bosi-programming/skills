@@ -17,7 +17,7 @@ fold it into the analysis below rather than treating it as decoration.
 
 ## 3. Visualize the code as it stands today
 
-`/code-visualizer` draws a diff, and there's no diff yet on a fresh task —
+The `code-visualizer` skill draws a diff, and there's no diff yet on a fresh task —
 so point it at a stand-in: a recent commit range scoped to the paths the task
 will likely touch (find them by searching the codebase for the area the task
 describes, then take the last handful of commits that touched them).
@@ -26,12 +26,12 @@ Skip this and say why when the task is a genuinely new module or file with
 no existing code to show the shape of — don't invoke the skill and lean on
 its own empty-diff fallback.
 
-## 4. Close every gap with /grill-me
+## 4. Close every gap with the `grill-me` skill
 
 Seed its design tree with the standard completeness dimensions for a task
 like this one: the problem it solves, who benefits and how, what's in and
 out of scope, testable acceptance criteria, edge cases and error scenarios,
-and any external dependencies. Run `/grill-me` against that tree until its
+and any external dependencies. Invoke the `grill-me` skill (Skill tool) against that tree until its
 frontier is empty — this replaces asking one or two clarifying questions at
 a time; the round-based frontier questioning gets to the same place faster
 and more completely.
@@ -53,7 +53,7 @@ frontmatter — `phase: 'reading-the-recipe'`, append to `phasesCompleted`,
 
 ## 6. Phase done
 
-> **Phase done. [N] New chat (recommended) — resume next phase fresh. [C] Continue here.**
+> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session — Phase 0 will pick up here. End the session.

@@ -5,7 +5,7 @@ opened in Phase 5 until everything here passes.
 
 ## 1. Run the review
 
-Run `/bosi-code-review` against the change and wait for the user to say what
+Invoke the `bosi-code-review` skill (Skill tool) against the change and wait for the user to say what
 should be fixed before moving on.
 
 ## 2. Detect this project's own checks
@@ -55,7 +55,7 @@ frontmatter — `phase: 'tasting'`, append to `phasesCompleted`, `lastTouched`.
 This menu only appears once every local check passes or is honestly marked
 deferred — not before.
 
-> **Phase done. [N] New chat (recommended) — resume next phase fresh. [C] Continue here.**
+> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.

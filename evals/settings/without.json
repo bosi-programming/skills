@@ -13,7 +13,6 @@
     "acme-list-partners@acme-ai-plugins": true,
     "acme-partner-update-local@acme-ai-plugins": true,
     "acme-playwright-cli@acme-ai-plugins": true,
-    "acme-pr-description@acme-ai-plugins": true,
     "acme-skill-authoring@acme-ai-plugins": true,
     "acme-slack-pr-review@acme-ai-plugins": true,
     "team-alpha@acme-ai-plugins": true,

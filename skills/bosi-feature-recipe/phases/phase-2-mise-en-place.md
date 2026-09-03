@@ -21,9 +21,9 @@ hold multiple sections in the air waiting for a final review pass.
 - **Config changes** — anything to add, change, or remove; write "none
   required" if there's nothing here rather than leaving it blank.
 
-## 2. Confirm nothing's missing with /grill-me
+## 2. Confirm nothing's missing with the `grill-me` skill
 
-Once every section above is drafted, run `/grill-me` against the whole
+Once every section above is drafted, invoke the `grill-me` skill (Skill tool) against the whole
 recipe card as it now stands — not just the newest section — so a gap
 between, say, the Implementation Plan and the Acceptance Criteria surfaces
 before code gets written. Don't move on until its frontier is empty.
@@ -55,7 +55,7 @@ Append one line to `## Decisions`. Update the frontmatter —
 
 ## 5. Phase done
 
-> **Phase done. [N] New chat (recommended) — resume next phase fresh. [C] Continue here.**
+> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.

@@ -2,7 +2,7 @@
 
 This phase is the entry gate, not a work phase. It doesn't produce anything
 worth a session break, so unlike every phase after it, it does **not** end
-with the New chat / Continue menu — it routes straight into whichever phase
+with the New session / Continue menu — it routes straight into whichever phase
 file comes next and that phase's own ending is where the user gets asked.
 
 ## 1. Find an existing recipe card
@@ -64,7 +64,7 @@ has no `.gitignore` at all, since creating one is a bigger decision than
 appending to an existing one) — the card is local scratch state, not
 something to commit.
 
-Create the card from `${CLAUDE_SKILL_DIR}/references/recipe-card-template.md`
+Create the card from `./references/recipe-card-template.md`
 at `{cardRoot}/{task-slug}.md`, with `task` set to whatever the user gave and
 every other field at its default.
 

@@ -1,8 +1,8 @@
 # Recipe card template
 
 One file per task, at `./recipes/{task-slug}.md`. `{task-slug}` is a kebab-case
-short form of the task name or issue reference — `TICK-000` becomes
-`TICK-000`, "add CSV export" becomes `add-csv-export`.
+short form of the task name or issue reference — `ABC-123` becomes
+`abc-123`, "add CSV export" becomes `add-csv-export`.
 
 Copy this whole skeleton when creating a fresh card. Each phase writes only
 its own section, below, and never rewrites a section a previous phase wrote.
