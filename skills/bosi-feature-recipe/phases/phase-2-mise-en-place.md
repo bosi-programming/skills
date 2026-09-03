@@ -57,3 +57,19 @@ Append one line to `## Decisions`. Update the frontmatter —
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-3-cooking.md`.
+#### EXECUTION RULES:
+
+- ALWAYS halt and wait for user input after presenting menu
+- Present the recommendation clearly but respect the user's choice
+
+#### Menu Handling Logic:
+
+- IF N: "**Great choice.** Your progress is saved. When you're ready, start this workflow again — it will detect your tech spec and pick up at implementation. See you in the next session!"
+  - End the workflow session gracefully. Do NOT load the next step.
+- IF C: "**Understood.** Let's continue with implementation in this session."
+  - Load, read entire file, then execute {nextStepFile}
+- IF Any other comments or queries: help user respond then [Redisplay Menu Options](#3-present-menu-options)
+
+## CRITICAL STEP COMPLETION NOTE
+
+IF user selects N: The workflow ends here. State is saved. User will resume where the current ticket stoped.

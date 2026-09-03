@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "bosi-programming-skills",
   "displayName": "Bosi Programming Skills",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Bosi's LLM skills: two-axis code review, a commit-and-open-PR workflow gated on that review, change visualization for code and for docs, an output-shape gate for summaries and posts, an epistemic-action gate against predicting instead of checking, and a phased recipe workflow from task to merged PR.",
   "author": {
     "name": "Felipe Bosi",

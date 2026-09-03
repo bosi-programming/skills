@@ -9,3 +9,7 @@ A feature delivered the way a dish gets cooked: read the recipe before you touch
 This skill carries no opinion about which issue tracker, chat tool, or docs system the project uses. It speaks in outcomes — "record this somewhere your team can see it", "get this in front of reviewers" — and leans on whatever tools are already available in the session to make that outcome real. Where nothing is available, it asks or skips.
 
 Load, read completely, then execute `./phases/phase-0-start.md` to begin.
+
+## Rules for all phases
+
+- Never, ever, comment a code unless the package.json, README.md, AGENTS.md or CLAUDE.md explicit tell the code is an external facing package. If that is the case, only document external facing code with the language specific docs comment, like TSDocs for TS.
