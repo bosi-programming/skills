@@ -43,11 +43,13 @@ lastTouched: '<date>'
 
 ## TDD Test Mapping
 
-<!-- written by Phase 2: Mise en Place -->
+<!-- written by Phase 2: Mise en Place (test case list); updated by Phase 3: Cooking as each case's test is written -->
 
 ## PR Delivery Strategy
 
-<!-- written by Phase 3: Cooking, only if the plan is large enough to warrant chunking -->
+<!-- written by Phase 5: Plating, only if the plan is large enough to warrant chunking.
+     Each chunk carries a status — pending / opened / merged — updated by
+     Plating across its (possibly multiple) runs for this card. -->
 
 ## Quality Gate Results
 
@@ -55,7 +57,8 @@ lastTouched: '<date>'
 
 ## PR
 
-<!-- written by Phase 5: Plating -->
+<!-- written by Phase 5: Plating. Appended to, not overwritten — a single PR
+     delivery gets one entry; a chunked delivery gets one entry per chunk. -->
 ```
 
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to

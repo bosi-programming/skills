@@ -28,25 +28,21 @@ recipe card as it now stands — not just the newest section — so a gap
 between, say, the Implementation Plan and the Acceptance Criteria surfaces
 before code gets written. Don't move on until its frontier is empty.
 
-## 3. Write the failing tests
+## 3. List the test cases
 
-This is where tests get written, not Cooking — cooking is where they get
-made to pass.
+This is where test cases get decided, not written — Cooking is where they
+get written (and made to pass). No code, no test-framework exploration here;
+that happens in Cooking, right before the real tests get written.
 
-1. Explore the codebase's existing test patterns first: find the test
-   framework from its config, read a couple of tests near the area this
-   task touches, and note the structure, assertion style, and any
-   factories/builders in use. Match them exactly.
-2. Work through the acceptance criteria one at a time. For each: write the
-   test(s) covering its happy path and the edge cases the Testing Strategy
-   calls for, then run it and confirm it fails. An import error for
-   something that doesn't exist yet is an expected failure; a test that
-   passes unexpectedly means the behavior may already exist — stop and
-   investigate rather than moving on.
-3. If the task is a bug fix, write the regression test first (it must fail,
-   proving the bug is real) before the tests defining the fix.
+1. Work through the acceptance criteria one at a time. For each, list the
+   test case(s) covering its happy path and the edge cases the Testing
+   Strategy calls for — a short name and a one-line description per case.
+2. If the task is a bug fix, list the regression case first (it proves the
+   bug is real) before the cases defining the fix.
+3. Present the full case list to the user, iterate until approved.
 
-Write the AC → test mapping to the `## TDD Test Mapping` section as you go.
+Write the approved AC → test-case list to the `## TDD Test Mapping` section,
+each case marked not yet written.
 
 ## 4. Close the phase
 

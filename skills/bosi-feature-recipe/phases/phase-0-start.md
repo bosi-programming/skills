@@ -5,6 +5,11 @@ worth a session break, so unlike every phase after it, it does **not** end
 with the New session / Continue menu — it routes straight into whichever phase
 file comes next and that phase's own ending is where the user gets asked.
 
+## 0. Recommend Plan mode
+
+This phase is read-and-decide work — recommend the user switch to Plan mode
+if they haven't already, then continue regardless of their answer.
+
 ## 1. Find an existing recipe card
 
 Look for `./recipes/*.md` at the project root. If the task the user named
@@ -37,8 +42,13 @@ Otherwise, map the last completed phase to the next phase file:
 | `mise-en-place` | `phase-3-cooking.md` |
 | `cooking` | `phase-4-tasting.md` |
 | `tasting` | `phase-5-plating.md` |
-| `plating` | `phase-6-documentation.md` |
+| `plating` | `phase-5-plating.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |
 | `documentation` | *(terminal — already delivered)* |
+
+A chunked delivery revisits `plating` more than once — Plating itself checks
+whether the most recently opened chunk's PR has merged before starting the
+next one (see that phase's own section 1a), so routing here only needs to
+know whether any chunk is still waiting to be opened at all.
 
 Tell the user what's already done (the `## Decisions` log, read aloud in
 brief) and what phase is next, then load, read completely, and execute that

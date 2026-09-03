@@ -5,8 +5,17 @@ opened in Phase 5 until everything here passes.
 
 ## 1. Run the review
 
-Invoke the `bosi-code-review` skill (Skill tool) against the change and wait for the user to say what
-should be fixed before moving on.
+Invoke the `bosi-code-review` skill (Skill tool) against the change, then
+triage its findings by axis without waiting for the user:
+
+- **Standards** — bosi-code-review already separates hard violations
+  (documented-standard breaches) from judgement calls (baseline-smell
+  heuristics). Fix the hard violations; log judgement calls to
+  `## Quality Gate Results` rather than acting on them.
+- **Spec** — fix "missing requirement" and "implemented but wrong" findings
+  autonomously. Never auto-remove code for a "scope creep" finding —
+  deleting work that was deliberately written is a one-way door; log those
+  to `## Quality Gate Results` for the user instead.
 
 ## 2. Detect this project's own checks
 
@@ -19,8 +28,8 @@ than running its full suite from a standing start.
 ## 3. Determine what changed
 
 List the changed files against the base branch. Filter to source and test
-files. If the recipe card has a `## PR Delivery Strategy`, scope this run to
-the current chunk rather than everything cooked so far.
+files — everything cooked so far; the PR-chunking decision hasn't been made
+yet at this point (Plating decides it in the next phase).
 
 ## 4. Run tests scoped to the change
 
