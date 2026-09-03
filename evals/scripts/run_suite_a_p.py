@@ -35,8 +35,6 @@ SCAFFOLD_HARD = EVALS / "scripts" / "scaffold_hard.sh"
 # "epistemic action" is one the model writes unprompted, so it cannot serve as
 # evidence the skill loaded.
 SKILL_MARKERS = {
-    "objectum": ["Desvelamento", "Pôr-a-frente", "Contra-desvelamento",
-                 "Afeto próprio", "Doação"],
     "epistemic-action": ["Tetris rule", "Tetris players", "probe loop",
                          "unveiling is worth"],
 }
@@ -44,7 +42,7 @@ SKILL_MARKERS = {
 # Disabling the plugin hides the skill from the Skill tool. It does not take the file
 # off disk, and a baseline run can still find and read it. That contaminates the arm,
 # so it is detected here and excluded during analysis rather than ignored.
-PLUGIN_PATH_HINTS = ["bosi-programming", "skills/objectum", "skills/epistemic-action"]
+PLUGIN_PATH_HINTS = ["bosi-programming", "skills/epistemic-action"]
 
 JUDGE = """You are grading one response against one criterion. Answer with a single \
 word, PASS or FAIL, and nothing else.
@@ -59,7 +57,6 @@ One word:"""
 
 
 SKILL_FILES = {
-    "objectum": EVALS.parent / "skills" / "objectum" / "SKILL.md",
     "epistemic-action": EVALS.parent / "skills" / "epistemic-action" / "SKILL.md",
 }
 

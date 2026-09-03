@@ -1,33 +1,33 @@
 {
   "enabledPlugins": {
-    "acme-database@acme-ai-plugins": true,
-    "acme-a11y@acme-ai-plugins": true,
-    "acme-a11y-mcp@acme-ai-plugins": true,
-    "acme-acme-pr-review@acme-ai-plugins": true,
-    "acme-data-insights@acme-ai-plugins": true,
-    "acme-datadog-rum-sessions@acme-ai-plugins": true,
-    "acme-eng-code-standards@acme-ai-plugins": true,
-    "acme-feature-toggle@acme-ai-plugins": true,
-    "acme-fix-mislabeled@acme-ai-plugins": true,
-    "acme-generate-dd-metrics@acme-ai-plugins": true,
-    "acme-list-partners@acme-ai-plugins": true,
-    "acme-partner-update-local@acme-ai-plugins": true,
-    "acme-playwright-cli@acme-ai-plugins": true,
-    "acme-skill-authoring@acme-ai-plugins": true,
-    "acme-slack-pr-review@acme-ai-plugins": true,
-    "team-alpha@acme-ai-plugins": true,
-    "team-beta@acme-ai-plugins": true,
-    "personal-dev-a@acme-ai-plugins": true,
+    "acme-database@acme-plugins": true,
+    "acme-a11y@acme-plugins": true,
+    "acme-a11y-mcp@acme-plugins": true,
+    "acme-pr-review@acme-plugins": true,
+    "acme-data-insights@acme-plugins": true,
+    "acme-rum-sessions@acme-plugins": true,
+    "acme-code-standards@acme-plugins": true,
+    "acme-feature-toggle@acme-plugins": true,
+    "acme-fix-mislabeled@acme-plugins": true,
+    "acme-generate-metrics@acme-plugins": true,
+    "acme-list-entities@acme-plugins": true,
+    "acme-update-local@acme-plugins": true,
+    "acme-playwright-cli@acme-plugins": true,
+    "acme-skill-authoring@acme-plugins": true,
+    "acme-chat-pr-review@acme-plugins": true,
+    "team-alpha@acme-plugins": true,
+    "team-beta@acme-plugins": true,
+    "personal-dev-a@acme-plugins": true,
     "linear-cli@linear-cli": true,
-    "personal-dev.partner@acme-ai-plugins": true,
+    "personal-dev-b@acme-plugins": true,
     "headroom@headroom-marketplace": true,
     "bosi-programming-skills@bosi-programming": false
   },
   "extraKnownMarketplaces": {
-    "acme-ai-plugins": {
+    "acme-plugins": {
       "source": {
         "source": "github",
-        "repo": "acme/ai-plugins"
+        "repo": "acme/plugins"
       }
     },
     "linear-cli": {

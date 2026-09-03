@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Six Claude Code skills, packaged as an installable plugin. Four do work on a diff. Two check the model's own writing or reasoning before it reaches you.
+Five Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you.
 
 ## Install
 
@@ -35,12 +35,6 @@ Handles `.md` and `.mdx` fully, and `.txt`, `.rst` and `.adoc` with sectioning d
 
 Needs `python3`. The renderer uses the standard library only.
 
-### ship-pr
-
-Turns working-tree changes into pull requests. It splits the diff into granular Conventional Commits, derives the ticket key from the branch, picks the repo's own PR template, and fills it from the diff and the Linear ticket. Two stops sit in the workflow: the first runs `bosi-code-review` over the change and waits for you to say what to fix, before anything is committed. The second waits for your go before anything is pushed.
-
-Handles a multi-repo worktree, opening one PR per repo that has changes.
-
 ### summarize-llm-response
 
 The shape of anything a human is going to read: findings as bullets with the evidence inline, action items as a checklist, a TL;DR only when there are enough findings to need one, and the attribution tag each destination expects. It carries a skip list — yes/no answers, commit messages, code-only replies — because it is meant to be wired to a blanket "run this before any communication" rule, and a blanket rule hands it work it has nothing to say about.
@@ -62,7 +56,6 @@ skills/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
-  ship-pr/            SKILL.md + scripts/detect_context.sh + references/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
 ```
 
@@ -81,13 +74,7 @@ claude plugin validate skills
 rather than asserted. `evals/` holds a suite of cases built on a fixture repository
 where every file's name, README or doc comment contradicts its own code. An answer
 from memory is provably wrong there, and control cases sit beside the traps so that
-a skill cannot score well by doing nothing but hedge. `evals/METHOD.md` and
-`evals/RESULTS.md` also carry the record of `objectum`, a skill this suite once
-tested that has since been removed from the plugin.
-
-`evals/METHOD.md` is written and committed before any scored run. It states what
-each skill claims, what the gold answers are, and the thresholds that decide the
-question in advance. `evals/RESULTS.md` holds the measured numbers.
+a skill cannot score well by doing nothing but hedge.
 
 ```
 CLAUDE_CODE_WALNUT_SPIRE=1 claude plugin eval . \
