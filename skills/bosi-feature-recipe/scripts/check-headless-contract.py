@@ -208,7 +208,7 @@ check("readme-documents-checker", "check-headless-contract" in readme, "README m
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"
-    if detail:
+    if detail and not ok:
         line += f"  {detail}"
     print(line)
 

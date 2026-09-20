@@ -10,6 +10,18 @@ This skill carries no opinion about which issue tracker, chat tool, or docs syst
 
 Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 
+## Headless runs
+
+Phases 3 to 6 can run with no human in the loop, driven by an external agent
+that answers the checkpoints and routes the phases. Phases 0 to 2 cannot — the
+grill round and the design approval are where intent enters the recipe. Start a
+headless run with `--headless`; the mode is recorded on the card so a phase
+resumed in a fresh context still knows not to wait on a person. Every headless
+phase ends its turn with one routing line for the driver to follow, and never
+opens a one-way door — no non-draft PR, no merge, no deleted work — without an
+explicit answer. The full contract is `./references/headless.md`; read it
+before running or answering a headless phase.
+
 ## Rules for all phases
 
 - Never, ever, comment a code unless the package.json, README.md, AGENTS.md or CLAUDE.md explicit tell the code is an external facing package. If that is the case, only document external facing code with the language specific docs comment, like TSDocs for TS.
