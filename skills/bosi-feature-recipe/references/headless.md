@@ -90,6 +90,23 @@ no routing logic of its own just follows it:
 
 `next=none` when the status is `terminal`.
 
+## The driver's loop
+
+A headless run is not one long turn. Phase 0 starts it; from there the driver
+runs one phase per invocation and follows `next`:
+
+1. Run the file named in `next` — or, for the first one, let Phase 0 pick it
+   from the card.
+2. Read the last line of the turn.
+3. `done`: run `next`. `needs-input` or `blocked`: deal with `question=<id>`,
+   then run `next`, which is the same phase. `terminal`: stop. Nothing else
+   ends the run.
+
+A phase that closes cleanly and hands back is a finished step, not a
+half-finished recipe — everything it did is on the card, and the recipe is done
+when a line says `terminal`. A driver that wants the whole thing in one go
+loops on that until it reads one.
+
 ## What the card says while a run is waiting
 
 A phase that stops to ask has not completed, so it leaves the card's position
