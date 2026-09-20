@@ -84,4 +84,4 @@ context reads to know not to wait on a person.
 A headless phase ends its turn with one routing line — `RECIPE phase=… status=…
 next=… card=…` — so the driver can route without parsing prose. It is part of
 the turn, not part of the card: don't store it here. The grammar, the statuses
-and the checkpoint protocol are in `./references/headless.md`.
+and the checkpoint protocol are in `./headless.md`, next to this file.
