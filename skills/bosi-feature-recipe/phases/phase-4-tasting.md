@@ -70,19 +70,24 @@ deferred — not before.
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-5-plating.md`.
-#### EXECUTION RULES:
 
-- ALWAYS halt and wait for user input after presenting menu
-- Present the recommendation clearly but respect the user's choice
+## Headless
 
-#### Menu Handling Logic:
+Read `../references/headless.md`. In a headless run:
 
-- IF N: "**Great choice.** Your progress is saved. When you're ready, start this workflow again — it will detect your tech spec and pick up at implementation. See you in the next session!"
-  - End the workflow session gracefully. Do NOT load the next step.
-- IF C: "**Understood.** Let's continue with implementation in this session."
-  - Load, read entire file, then execute {nextStepFile}
-- IF Any other comments or queries: help user respond then [Redisplay Menu Options](#3-present-menu-options)
+- Section 1's scope-creep findings are normally parked for a person to rule on.
+  Put them to the agent driving the run instead, and never delete the code they
+  describe. If no one in-process can answer, record them in
+  `## Open Questions` and end the turn with `status=needs-input` rather than
+  carrying them into Plating undecided.
+- Sections 2 to 7 are unchanged: detect the project's own checks, scope them to
+  the change, fix what fails, and write `## Quality Gate Results` — including
+  what was deferred to CI and why.
+- Section 8's menu does not apply.
 
-## CRITICAL STEP COMPLETION NOTE
+Emit one of:
 
-IF user selects N: The workflow ends here. State is saved. User will resume where the current ticket stoped.
+```
+RECIPE phase=tasting status=done next=phase-5-plating.md card=<path>
+RECIPE phase=tasting status=needs-input next=phase-4-tasting.md card=<path> question=<id>
+```

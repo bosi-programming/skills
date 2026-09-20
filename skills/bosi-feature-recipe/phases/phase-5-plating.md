@@ -99,3 +99,30 @@ Otherwise, every chunk (or the single PR) is open — show the usual menu:
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-6-documentation.md`.
+
+## Headless
+
+Read `../references/headless.md`. Headless Plating opens drafts only and never
+merges:
+
+- Section 1's chunk split and section 3's PR description both go to the agent
+  driving the run for confirmation. If no one in-process can answer, record the
+  proposal in `## Open Questions` and end the turn with `status=needs-input`.
+- Section 4 opens the PR as a draft regardless of whether Tasting deferred
+  anything to CI, and marks the chunk `opened` as usual.
+- Section 5 promotes the draft to ready once CI is green, and only then. A red
+  CI takes the same diagnose-and-fix loop as interactive; a fix that needs a
+  person stops the run instead of being guessed at.
+- Section 6 does not guess at reviewers. Where the session has no tracker or
+  review tool — the usual headless case — record the PR link and the reviewers
+  it needs on the card, and say in `## PR` that the external update is pending.
+- Section 8's outcome for a chunked delivery is `blocked`, not a menu: the next
+  chunk cannot open until this one merges, and merging is not headless's to do.
+
+Emit one of:
+
+```
+RECIPE phase=plating status=done next=phase-6-documentation.md card=<path>
+RECIPE phase=plating status=blocked next=phase-5-plating.md card=<path> question=<id>
+RECIPE phase=plating status=needs-input next=phase-5-plating.md card=<path> question=<id>
+```

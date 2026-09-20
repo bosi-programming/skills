@@ -1,5 +1,15 @@
 # Phase 2 — Mise en Place
 
+## Headless
+
+A headless run does not belong here. If `runMode` is `headless` or the
+invocation says `--headless`, stop: record the reason in `## Open Questions`
+under a short id, and end the turn with
+`RECIPE phase=mise-en-place status=blocked next=phase-2-mise-en-place.md card=<path> question=<id>`.
+The design is confirmed with a person section by section, and the test-case
+list is approved by one; a headless run cannot do either. See
+`../references/headless.md`.
+
 Get everything ready before the cooking starts: the design, and the tests
 that prove it.
 
@@ -57,19 +67,3 @@ Append one line to `## Decisions`. Update the frontmatter —
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-3-cooking.md`.
-#### EXECUTION RULES:
-
-- ALWAYS halt and wait for user input after presenting menu
-- Present the recommendation clearly but respect the user's choice
-
-#### Menu Handling Logic:
-
-- IF N: "**Great choice.** Your progress is saved. When you're ready, start this workflow again — it will detect your tech spec and pick up at implementation. See you in the next session!"
-  - End the workflow session gracefully. Do NOT load the next step.
-- IF C: "**Understood.** Let's continue with implementation in this session."
-  - Load, read entire file, then execute {nextStepFile}
-- IF Any other comments or queries: help user respond then [Redisplay Menu Options](#3-present-menu-options)
-
-## CRITICAL STEP COMPLETION NOTE
-
-IF user selects N: The workflow ends here. State is saved. User will resume where the current ticket stoped.

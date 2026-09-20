@@ -34,3 +34,22 @@ how it got there.
 
 Tell the user the recipe is done. Don't offer a New session / Continue menu —
 there's no next phase to route to.
+
+## Headless
+
+Read `../references/headless.md`. In a headless run:
+
+- Section 1's question goes to the agent driving the run. A "no" is respected
+  and logged. If no one in-process can answer, record the question and its
+  recommendation in `## Open Questions` and end the turn with
+  `status=needs-input` — this phase stays optional, so an unanswered question
+  is never a reason to write the docs anyway.
+- Section 2's draft is approved by that same agent.
+- Section 3's tracker update is skipped where no tracker is available, and the
+  card says the external update is pending rather than inventing one.
+
+Either way the recipe is finished:
+
+```
+RECIPE phase=documentation status=terminal next=none card=<path>
+```

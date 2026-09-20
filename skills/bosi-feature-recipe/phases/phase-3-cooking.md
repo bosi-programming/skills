@@ -53,3 +53,23 @@ to `phasesCompleted`, `lastTouched`.
 Unlike every other phase, this one doesn't offer the New session / Continue
 menu — Cooking and Tasting run back-to-back without user input. Load, read
 completely, and execute `phase-4-tasting.md` directly.
+
+## Headless
+
+Read `../references/headless.md`. In a headless run:
+
+- Section 3's check-in goes to the agent driving the run, not to a person.
+  Nothing there waits for a reply that will never come: if no one in-process
+  can answer it, record the deviations in `## Open Questions` and end the turn
+  asking, rather than carrying them forward undecided.
+- Section 4 is unchanged — the frontmatter is updated either way.
+- Section 5 does not apply. Cooking does not load Tasting; it ends its own turn
+  so the driver owns the boundary between the pair, which is the one place
+  headless changes the shape of the run rather than only its ending.
+
+Emit one of:
+
+```
+RECIPE phase=cooking status=done next=phase-4-tasting.md card=<path>
+RECIPE phase=cooking status=needs-input next=phase-3-cooking.md card=<path> question=<id>
+```

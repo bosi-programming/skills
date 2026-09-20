@@ -79,7 +79,9 @@ def parse_routing(line):
 def routing_lines(path):
     if path is None or not path.exists():
         return []
-    return [line for line in path.read_text().splitlines() if line.startswith("RECIPE ")]
+    # Tolerate the line being shown inline (wrapped in backticks) or fenced.
+    lines = (line.strip().strip("`").strip() for line in path.read_text().splitlines())
+    return [line for line in lines if line.startswith("RECIPE ")]
 
 
 # --- T1: one dialect for the routing line ---------------------------------
