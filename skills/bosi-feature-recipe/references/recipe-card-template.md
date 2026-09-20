@@ -21,7 +21,8 @@ lastTouched: '<date>'
 
 ## Decisions
 
-<!-- one or two lines per phase, appended as phases complete, never rewritten -->
+<!-- one or two lines per phase, appended as phases complete, never rewritten.
+     A headless run prefixes anything it decided alone with `unattended:`. -->
 
 ## Open Questions
 
@@ -81,7 +82,7 @@ write. Valid phase tokens, in order: `reading-the-recipe`, `mise-en-place`,
 against a headless card sets it back. It is what a phase resumed in a fresh
 context reads to know not to wait on a person.
 
-A headless phase ends its turn with one routing line — `RECIPE phase=… status=…
-next=… card=…` — so the driver can route without parsing prose. It is part of
-the turn, not part of the card: don't store it here. The grammar, the statuses
-and the checkpoint protocol are in `./headless.md`, next to this file.
+A headless run ends with one routing line — `RECIPE phase=… status=… next=…
+card=…` — so the driver can route without parsing prose. It is part of the turn,
+not part of the card: don't store it here. The grammar, the statuses and the
+checkpoint protocol are in `./headless.md`, next to this file.

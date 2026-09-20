@@ -12,15 +12,17 @@ Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 
 ## Headless runs
 
-Phases 3 to 6 can run with no human in the loop, driven by an external agent
-that answers the checkpoints and routes the phases. Phases 0 to 2 cannot — the
-grill round and the design approval are where intent enters the recipe. Start a
-headless run with `--headless`; the mode is recorded on the card so a phase
-resumed in a fresh context still knows not to wait on a person. Every headless
-phase ends its turn with one routing line for the driver to follow, and never
-opens a one-way door — no non-draft PR, no merge, no deleted work — without an
-explicit answer. The full contract is `./references/headless.md`; read it
-before running or answering a headless phase.
+Phases 3 to 6 can run with no human in the loop — a night run. Start one with
+`--headless` at whatever step the card is on and it carries the work through
+Cooking, Tasting, Plating and Documentation in one turn, taking the
+recommendation at each checkpoint and recording it as `unattended:`, so the
+morning can see what was decided while nobody was watching. It stops only when
+the recipe is finished or something needs a person — never at a phase boundary,
+and never to open a one-way door: no non-draft PR, no merge, no deleted work.
+The mode is recorded on the card, so a run resumed in a fresh context still
+knows not to wait on anyone. Phases 0 to 2 cannot run headless — the grill round
+and the design approval are where intent enters the recipe. The full contract is
+`./references/headless.md`; read it before running or answering a headless run.
 
 ## Rules for all phases
 

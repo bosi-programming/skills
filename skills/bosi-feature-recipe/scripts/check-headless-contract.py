@@ -21,14 +21,16 @@ SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
 
 ROUTING_KEYS = ["phase", "status", "next", "card"]
-STATUSES = ["done", "needs-input", "blocked", "terminal"]
+STATUSES = ["terminal", "needs-input", "blocked"]
 # phase number -> its own phase token, for the phases that may run headless
 HEADLESS = {3: "cooking", 4: "tasting", 5: "plating", 6: "documentation"}
 # phase number -> the routing line's `next` when the run is not blocked
+# A run that stops points back at the phase that stopped it; only the end of the
+# recipe points at nothing.
 EXPECTED_NEXT = {
-    3: ["phase-4-tasting.md"],
-    4: ["phase-5-plating.md"],
-    5: ["phase-5-plating.md", "phase-6-documentation.md"],
+    3: ["phase-3-cooking.md"],
+    4: ["phase-4-tasting.md"],
+    5: ["phase-5-plating.md"],
     6: ["none"],
 }
 FORBIDDEN = [
@@ -102,6 +104,11 @@ check(
     "contract-requires-bare-line",
     "bare" in contract_text,
     "the contract must say the line goes out unfenced, as the last line",
+)
+check(
+    "contract-runs-to-the-end",
+    "phase boundary" in contract_text and "unattended:" in contract_text,
+    "the contract must say a run crosses phase boundaries and logs its own calls",
 )
 
 ok, detail = True, []
@@ -185,6 +192,13 @@ for number, needles in ((0, ["--headless", "runMode"]), (1, ["headless", "blocke
         if needle not in text:
             ok, detail = False, detail + [f"phase-{number}: missing {needle!r}"]
 check("headless-bailouts", ok, "; ".join(detail))
+
+ok, detail = True, []
+for number, handoff in ((3, "phase-4-tasting.md"), (4, "phase-5-plating.md"), (5, "phase-6-documentation.md")):
+    text = (phase_path(number) or Path()).read_text() if phase_path(number) else ""
+    if handoff not in text:
+        ok, detail = False, detail + [f"phase-{number}: does not hand off to {handoff}"]
+check("phases-hand-off", ok, "; ".join(detail))
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 check(

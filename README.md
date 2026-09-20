@@ -27,7 +27,7 @@ Takes a task from a rough idea to a merged PR, cooked in six named phases — Re
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
-Phases 3 to 6 can also run **headless**, with an external agent driving: it answers the checkpoints and routes the phases, so the run needs nobody at the keyboard. Each headless phase ends its turn with one `RECIPE phase=… status=… next=… card=…` line for the driver to follow without parsing prose, and it never opens a non-draft PR, merges, or deletes work without an explicit answer. Start one with `--headless`; the contract is `skills/bosi-feature-recipe/references/headless.md`.
+Phases 3 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, and it carries the work through Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The whole run ends with one `RECIPE phase=… status=… next=… card=…` line for a driver to follow without parsing prose. The contract is `skills/bosi-feature-recipe/references/headless.md`.
 
 ### code-visualizer
 

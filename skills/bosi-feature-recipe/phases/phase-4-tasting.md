@@ -75,27 +75,27 @@ trigger phrase in a new session. End the session.
 
 Read `../references/headless.md`. In a headless run:
 
-- Section 1's scope-creep findings are normally parked for a person to rule on.
-  Put them to the agent driving the run instead, and never delete the code they
-  describe. If no one in-process can answer, record them in
-  `## Open Questions` and end the turn with `status=needs-input` rather than
-  carrying them into Plating undecided.
+- Section 1's scope-creep findings are logged with `unattended:` and the code
+  they describe stays where it is. Deleting work on a recommendation is a
+  one-way door, and a run stops for those rather than opening them.
 - Sections 2 to 7 are unchanged: detect the project's own checks, scope them to
   the change, fix what fails, and write `## Quality Gate Results` — including
   what was deferred to CI and why.
-- Section 8's menu does not apply.
+- Section 8 does not apply. The run does not stop here: it loads, reads
+  completely and executes `phase-5-plating.md`.
 
-Emit one of:
+Only if this phase is where the run stops does the turn's last line become:
 
 ```
-RECIPE phase=tasting status=done next=phase-5-plating.md card=<path>
 RECIPE phase=tasting status=needs-input next=phase-4-tasting.md card=<path> question=<id>
 ```
 
 ### Ending a headless turn
 
+Only the phase that ends the run writes this.
+
 1. Put the outcome on the card: the phase's own section, and `## Open Questions`
-   when a checkpoint needs an answer.
+   when the run stopped at a one-way door.
 2. Make the routing line the last line of the turn, bare, with nothing after it.
 
 Before stopping, read back your own last line. If it does not begin `RECIPE `,
