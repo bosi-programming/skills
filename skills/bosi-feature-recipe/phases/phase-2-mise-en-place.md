@@ -21,9 +21,9 @@ hold multiple sections in the air waiting for a final review pass.
 - **Config changes** — anything to add, change, or remove; write "none
   required" if there's nothing here rather than leaving it blank.
 
-## 2. Confirm nothing's missing with the `grill-me` skill
+## 2. Confirm nothing's missing with the `grill-me` secondary skill
 
-Once every section above is drafted, invoke the `grill-me` skill (Skill tool) against the whole
+Once every section above is drafted, invoke the `grill-me` secondary skill that is on `../dependencies/grill-me.md` against the whole
 recipe card as it now stands — not just the newest section — so a gap
 between, say, the Implementation Plan and the Acceptance Criteria surfaces
 before code gets written. Don't move on until its frontier is empty.

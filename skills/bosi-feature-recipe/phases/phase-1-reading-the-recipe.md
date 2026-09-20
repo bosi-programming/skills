@@ -9,13 +9,7 @@ a tool already in this session can fetch (an issue tracker link, a document),
 fetch it and present the real title, description, and any acceptance
 criteria already stated. Otherwise take the user's description as given.
 
-## 2. Architecture sketch, if there is one
-
-Ask if the user has a rough sketch — an image, a diagram, a paragraph of
-freeform intent — for what they want built. If they give one, read it and
-fold it into the analysis below rather than treating it as decoration.
-
-## 3. Visualize the code as it stands today
+## 2. Visualize the code as it stands today
 
 The `code-visualizer` skill draws a diff, and there's no diff yet on a fresh task —
 so point it at a stand-in: a recent commit range scoped to the paths the task
@@ -26,17 +20,17 @@ Skip this and say why when the task is a genuinely new module or file with
 no existing code to show the shape of — don't invoke the skill and lean on
 its own empty-diff fallback.
 
-## 4. Close every gap with the `grill-me` skill
+## 3. Close every gap with `grill-me` secondary skill
 
 Seed its design tree with the standard completeness dimensions for a task
 like this one: the problem it solves, who benefits and how, what's in and
 out of scope, testable acceptance criteria, edge cases and error scenarios,
-and any external dependencies. Invoke the `grill-me` skill (Skill tool) against that tree until its
+and any external dependencies. Invoke the `grill-me` secondary skill that is on `../dependencies/grill-me.md` against that tree until its
 frontier is empty — this replaces asking one or two clarifying questions at
 a time; the round-based frontier questioning gets to the same place faster
 and more completely.
 
-## 5. Write the Problem section
+## 4. Write the Problem section
 
 Once the design tree is settled, write the `## Problem` section of the
 recipe card: the problem statement, the acceptance criteria, edge cases, and
@@ -51,7 +45,7 @@ Append one line to `## Decisions`: what was settled and why. Update the
 frontmatter — `phase: 'reading-the-recipe'`, append to `phasesCompleted`,
 `lastTouched`.
 
-## 6. Phase done
+## 5. Phase done
 
 > **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
 
