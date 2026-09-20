@@ -14,12 +14,20 @@ phase: ''                    # last completed phase, e.g. 'mise-en-place'
 phasesCompleted: []
 status: 'in-progress'        # in-progress | pr-created | delivered
 prUrl: ''
+runMode: 'interactive'       # interactive | headless — a headless run records itself here
 lastTouched: '<date>'
 ---
 
 ## Decisions
 
 <!-- one or two lines per phase, appended as phases complete, never rewritten -->
+
+## Open Questions
+
+<!-- written by any phase that reaches a checkpoint nobody in-process can answer,
+     and by Phase 0 when a headless run starts before Mise en Place.
+     One entry per question, which the routing line refers to by its id:
+       - q1 — <phase>: <question> — options: <a | b> — recommendation: <the phase's pick> — answer: <empty until answered> -->
 
 ## Problem
 
@@ -65,3 +73,13 @@ The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
 write. Valid phase tokens, in order: `reading-the-recipe`, `mise-en-place`,
 `cooking`, `tasting`, `plating`, `documentation`.
+
+`runMode` is written when a run starts, not by every phase: Phase 0 sets
+`headless` when the invocation asks for it, and an interactive invocation
+against a headless card sets it back. It is what a phase resumed in a fresh
+context reads to know not to wait on a person.
+
+A headless phase ends its turn with one routing line — `RECIPE phase=… status=…
+next=… card=…` — so the driver can route without parsing prose. It is part of
+the turn, not part of the card: don't store it here. The grammar, the statuses
+and the checkpoint protocol are in `./references/headless.md`.
