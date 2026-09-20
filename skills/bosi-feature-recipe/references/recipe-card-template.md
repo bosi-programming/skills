@@ -10,9 +10,10 @@ its own section, below, and never rewrites a section a previous phase wrote.
 ```markdown
 ---
 task: '<short name or issue reference, whatever the user gave>'
-phase: ''                    # last completed phase, e.g. 'mise-en-place'
+phase: ''                    # last completed phase, e.g. 'mise-en-place' — a phase
+                             # that stopped to ask a question is not completed
 phasesCompleted: []
-status: 'in-progress'        # in-progress | pr-created | delivered
+status: 'in-progress'        # in-progress | pr-created | needs-input | blocked | delivered
 prUrl: ''
 runMode: 'interactive'       # interactive | headless — a headless run records itself here
 lastTouched: '<date>'
@@ -26,7 +27,8 @@ lastTouched: '<date>'
 
 <!-- written by any phase that reaches a checkpoint nobody in-process can answer,
      and by Phase 0 when a headless run starts before Mise en Place.
-     One entry per question, which the routing line refers to by its id:
+     One entry per question, which the routing line refers to by its id, and which
+     names the phase that asked so a resume routes back to it:
        - q1 — <phase>: <question> — options: <a | b> — recommendation: <the phase's pick> — answer: <empty until answered> -->
 
 ## Problem

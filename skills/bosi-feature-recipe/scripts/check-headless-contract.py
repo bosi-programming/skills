@@ -93,11 +93,16 @@ if CONTRACT.exists():
     grammar = [parse_routing(line) for line in routing_lines(CONTRACT)]
     grammar = [line for line in grammar if line]
     keys_ok = grammar and all(
-        [k for k, _ in line][: len(ROUTING_KEYS)] == ROUTING_KEYS for line in grammar
+        {k for k, _ in line} == set(ROUTING_KEYS) for line in grammar
     )
-    check("contract-declares-grammar", keys_ok, "key order phase/status/next/card")
+    check("contract-declares-grammar", keys_ok, "example line must carry all four keys")
     missing = [s for s in STATUSES if s not in contract_text]
-    check("contract-declares-statuses", not missing, f"undocumented: {missing}")
+check("contract-declares-statuses", not missing, f"undocumented: {missing}")
+check(
+    "contract-requires-bare-line",
+    "bare" in contract_text,
+    "the contract must say the line goes out unfenced, as the last line",
+)
 
 ok, detail = True, []
 for number, token in HEADLESS.items():
@@ -111,11 +116,9 @@ for number, token in HEADLESS.items():
         if pairs is None:
             ok, detail = False, detail + [f"phase-{number}: unparseable {line!r}"]
             continue
-        keys = [k for k, _ in pairs]
-        if keys[: len(ROUTING_KEYS)] != ROUTING_KEYS or any(
-            k not in ROUTING_KEYS + ["question"] for k in keys
-        ):
-            ok, detail = False, detail + [f"phase-{number}: key order {keys}"]
+        keys = {k for k, _ in pairs}
+        if not keys >= set(ROUTING_KEYS) or keys - set(ROUTING_KEYS) - {"question"}:
+            ok, detail = False, detail + [f"phase-{number}: keys {sorted(keys)}"]
         values = dict(pairs)
         if values.get("phase") != token:
             ok, detail = False, detail + [f"phase-{number}: phase={values.get('phase')}"]
@@ -164,6 +167,8 @@ for number in HEADLESS:
     path = phase_path(number)
     if path is None or not re.search(r"^#+ .*headless", path.read_text(), re.M | re.I):
         ok, detail = False, detail + [f"phase-{number}: no Headless heading"]
+    elif "last line" not in path.read_text():
+        ok, detail = False, detail + [f"phase-{number}: no end-of-turn self-check"]
 check("headless-sections", ok, "; ".join(detail))
 
 skill_text = SKILL_MD.read_text() if SKILL_MD.exists() else ""
@@ -186,6 +191,11 @@ check(
     "template-carries-contract",
     "runMode:" in template_text and "## Open Questions" in template_text,
     "template needs runMode and ## Open Questions",
+)
+check(
+    "template-knows-waiting-states",
+    "needs-input" in template_text and "blocked" in template_text,
+    "the status enum must cover a run that stopped to ask",
 )
 
 # --- T5: the README describes the repo that exists ------------------------

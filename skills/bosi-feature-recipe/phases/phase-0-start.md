@@ -27,6 +27,9 @@ contract — then:
   them.
 - Otherwise route normally. The phase handed off to emits the routing line;
   Phase 0 never emits a line of its own, and in a headless run it asks nothing.
+  When a resumed card has `status: needs-input` or `blocked`, route back to the
+  phase named in its `## Open Questions` entry rather than to the phase after
+  `phase` — that phase stopped to ask, so it has not completed.
 
 ## 1. Find an existing recipe card
 

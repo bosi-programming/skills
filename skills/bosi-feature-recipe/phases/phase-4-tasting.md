@@ -91,3 +91,14 @@ Emit one of:
 RECIPE phase=tasting status=done next=phase-5-plating.md card=<path>
 RECIPE phase=tasting status=needs-input next=phase-4-tasting.md card=<path> question=<id>
 ```
+
+### Ending a headless turn
+
+1. Put the outcome on the card: the phase's own section, and `## Open Questions`
+   when a checkpoint needs an answer.
+2. Make the routing line the last line of the turn, bare, with nothing after it.
+
+Before stopping, read back your own last line. If it does not begin `RECIPE `,
+or it sits inside a code fence, or anything comes before or after it on that
+line, the turn is not finished — fix it. The driver reads the last line and
+nothing else, so a question asked in prose leaves the run with no way forward.

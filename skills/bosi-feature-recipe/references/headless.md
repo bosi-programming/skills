@@ -42,6 +42,11 @@ neither skips them nor answers them itself.
    end the turn with `status=needs-input` and `question=<id>`. The next
    invocation answers it by id and the phase resumes from there.
 
+Answering the checkpoint yourself to get past it is the failure this whole mode
+guards against. A recommendation is not an answer: if no driver gave one, the
+checkpoint is still open, and a run that decides it quietly produces the exact
+outcome a person would have refused. Record it and ask.
+
 ## One-way doors
 
 A headless run does not open these. It stops and waits for an explicit answer
@@ -63,9 +68,15 @@ line of the response, so the driver never has to parse prose:
 RECIPE phase=<phase-token> status=<status> next=<phase-file|none> card=<path>
 ```
 
-Keys in that order, space-separated. `question=<id>` is appended when
+All four of those keys, space-separated, on one line — the driver parses them
+by name, so their order does not matter. `question=<id>` joins them when
 `status=needs-input` or `status=blocked`, and the id resolves in the card's
 `## Open Questions`.
+
+Emit it **bare**: a plain line of output, nothing after it — no closing code
+fence, no summary, no sign-off. The fenced blocks in this file are markdown for
+whoever is reading it, not part of the line. A driver that reads only the last
+line of the turn must get the routing line and nothing else.
 
 `next` is what to run *after* the status has been dealt with, so a driver with
 no routing logic of its own just follows it:
@@ -79,6 +90,18 @@ no routing logic of its own just follows it:
 
 `next=none` when the status is `terminal`.
 
+## What the card says while a run is waiting
+
+A phase that stops to ask has not completed, so it leaves the card's position
+alone: `phase` stays the last completed phase and `phasesCompleted` is not
+touched. What changes is `status` — to `needs-input` or `blocked` — and an
+entry in `## Open Questions` naming the phase that asked.
+
+That entry is what a resume routes from. When `status` is `needs-input` or
+`blocked`, Phase 0 goes back to the phase named in the question, not forward to
+the phase after `phase`; a mid-phase stop would otherwise read as "that phase
+was finished" and resume one phase too late.
+
 ## One turn per phase
 
 Interactive Cooking falls straight through into Tasting without stopping, so a
@@ -90,5 +113,9 @@ stay a single shape — run the file in `next`, read the line, act on the status
 
 - It does not load the next phase file. It names it in `next` and ends.
 - It does not write a New session / Continue menu, or wait for one.
+- It does not finish with a question in prose. The question goes to
+  `## Open Questions` and the line carries its id — a driver that reads only
+  the last line of the turn must still find something to route on. Asking
+  conversationally and stopping leaves the run with no way forward.
 - It does not invent a tracker, chat or PR link. Where such a tool is missing,
   it records the outcome on the card and says the external update is pending.
