@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Five Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you.
+Six Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request.
 
 ## Install
 
@@ -20,6 +20,14 @@ Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epis
 Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser.
 
 Based on Matt Pocock's code-review skill.
+
+### bosi-feature-recipe
+
+Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — each one meant to run in a fresh context and hand the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on. Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
+
+It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
+
+Phases 3 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, and it carries the work through Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The whole run ends with one `RECIPE phase=… status=… next=… card=…` line for a driver to follow without parsing prose. The contract is `skills/bosi-feature-recipe/references/headless.md`.
 
 ### code-visualizer
 
@@ -53,6 +61,7 @@ Go find out instead of predicting: read the file, run the command, probe the thi
   plugin.json         plugin manifest
 skills/
   bosi-code-review/   SKILL.md + assets/report-template.html
+  bosi-feature-recipe/  SKILL.md + phases/ + references/ + scripts/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
@@ -66,7 +75,13 @@ Skills reference their own bundled files through `${CLAUDE_SKILL_DIR}`, so the p
 ```
 claude plugin validate .
 claude plugin validate skills
+python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
 ```
+
+The last one is `bosi-feature-recipe`'s own check: it fails if a phase stops
+speaking the headless dialect, if the interactive endings disappear, if the old
+`b972f03` phase-end footer creeps back, or if this README stops describing the
+skills that exist. Offline, stdlib only — run it after editing a phase file.
 
 ## Falsify a change
 

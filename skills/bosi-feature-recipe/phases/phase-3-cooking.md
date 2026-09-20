@@ -53,3 +53,35 @@ to `phasesCompleted`, `lastTouched`.
 Unlike every other phase, this one doesn't offer the New session / Continue
 menu — Cooking and Tasting run back-to-back without user input. Load, read
 completely, and execute `phase-4-tasting.md` directly.
+
+## Headless
+
+Read `../references/headless.md`. In a headless run:
+
+- Section 3's check-in is taken, not asked: take the recommendation, log it to
+  `## Decisions` prefixed `unattended:`, and keep going.
+- Section 4 is unchanged — the frontmatter is updated either way.
+- Section 5 does not apply in the sense it reads here. Cooking does not stop and
+  does not wait to be told to carry on: it loads, reads completely and executes
+  `phase-4-tasting.md`, and the run continues through Tasting, Plating and
+  Documentation. A run stops at the recipe's end or at a one-way door, never at
+  a phase boundary.
+
+Only if this phase is where the run stops does the turn's last line become:
+
+```
+RECIPE phase=cooking status=needs-input next=phase-3-cooking.md card=<path> question=<id>
+```
+
+### Ending a headless turn
+
+Only the phase that ends the run writes this.
+
+1. Put the outcome on the card: the phase's own section, and `## Open Questions`
+   when the run stopped at a one-way door.
+2. Make the routing line the last line of the turn, bare, with nothing after it.
+
+Before stopping, read back your own last line. If it does not begin `RECIPE `,
+or it sits inside a code fence, or anything comes before or after it on that
+line, the turn is not finished — fix it. The driver reads the last line and
+nothing else, so a question asked in prose leaves the run with no way forward.

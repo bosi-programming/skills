@@ -1,5 +1,15 @@
 # Phase 1 — Reading the Recipe
 
+## Headless
+
+A headless run does not belong here. If `runMode` is `headless` or the
+invocation says `--headless`, stop: record the reason in `## Open Questions`
+under a short id, and end the turn with
+`RECIPE phase=reading-the-recipe status=blocked next=phase-1-reading-the-recipe.md card=<path> question=<id>`.
+The grill round is where the user's intent enters the recipe, so a phase that
+answered it for itself would be inventing requirements. See
+`../references/headless.md`.
+
 Understand the task and the code it lands on before anything gets designed.
 
 ## 1. Load the task

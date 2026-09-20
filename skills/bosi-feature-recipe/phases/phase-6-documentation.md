@@ -34,3 +34,33 @@ how it got there.
 
 Tell the user the recipe is done. Don't offer a New session / Continue menu —
 there's no next phase to route to.
+
+## Headless
+
+Read `../references/headless.md`. In a headless run:
+
+- Section 1's question is taken, not asked: take the recommendation and log it
+  `unattended:`. This phase stays optional, so a night run with no docs
+  destination already in the project skips it and says so on the card.
+- Section 2's draft, when there is one to write, is written without waiting.
+- Section 3's tracker update is skipped where no tracker is available, and the
+  card says the external update is pending rather than inventing one.
+
+This phase is where a run normally ends, so the turn's last line is:
+
+```
+RECIPE phase=documentation status=terminal next=none card=<path>
+```
+
+### Ending a headless turn
+
+Only the phase that ends the run writes this.
+
+1. Put the outcome on the card: the phase's own section, and `## Open Questions`
+   when the run stopped at a one-way door.
+2. Make the routing line the last line of the turn, bare, with nothing after it.
+
+Before stopping, read back your own last line. If it does not begin `RECIPE `,
+or it sits inside a code fence, or anything comes before or after it on that
+line, the turn is not finished — fix it. The driver reads the last line and
+nothing else, so a question asked in prose leaves the run with no way forward.

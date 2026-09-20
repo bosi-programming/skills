@@ -10,6 +10,20 @@ This skill carries no opinion about which issue tracker, chat tool, or docs syst
 
 Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 
+## Headless runs
+
+Phases 3 to 6 can run with no human in the loop — a night run. Start one with
+`--headless` at whatever step the card is on and it carries the work through
+Cooking, Tasting, Plating and Documentation in one turn, taking the
+recommendation at each checkpoint and recording it as `unattended:`, so the
+morning can see what was decided while nobody was watching. It stops only when
+the recipe is finished or something needs a person — never at a phase boundary,
+and never to open a one-way door: no non-draft PR, no merge, no deleted work.
+The mode is recorded on the card, so a run resumed in a fresh context still
+knows not to wait on anyone. Phases 0 to 2 cannot run headless — the grill round
+and the design approval are where intent enters the recipe. The full contract is
+`./references/headless.md`; read it before running or answering a headless run.
+
 ## Rules for all phases
 
 - Never, ever, comment a code unless the package.json, README.md, AGENTS.md or CLAUDE.md explicit tell the code is an external facing package. If that is the case, only document external facing code with the language specific docs comment, like TSDocs for TS.

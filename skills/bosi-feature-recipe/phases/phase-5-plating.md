@@ -99,3 +99,42 @@ Otherwise, every chunk (or the single PR) is open — show the usual menu:
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-6-documentation.md`.
+
+## Headless
+
+Read `../references/headless.md`. A night run plates; it does not ship:
+
+- Section 1's chunk split and section 3's PR description are taken, not asked:
+  take the recommendation and log it `unattended:`.
+- Section 4 opens the PR as a draft regardless of whether Tasting deferred
+  anything to CI, and marks the chunk `opened` as usual.
+- Section 5 waits for CI and does not promote. Readiness is the morning's call,
+  not a recommendation's. A red CI takes the same diagnose-and-fix loop as
+  interactive; a fix that needs a person stops the run.
+- Section 6 records the PR link and the reviewers it needs on the card, and says
+  in `## PR` that the external update is pending. A night run usually has no
+  tracker or review tool at all, and that record is the whole of it.
+- Section 8 applies only to a chunked delivery whose next chunk cannot open
+  until this one merges. That is a stop — merging is not the run's to do.
+- Otherwise the run loads, reads completely and executes
+  `phase-6-documentation.md`.
+
+Only if this phase is where the run stops does the turn's last line become one of:
+
+```
+RECIPE phase=plating status=blocked next=phase-5-plating.md card=<path> question=<id>
+RECIPE phase=plating status=needs-input next=phase-5-plating.md card=<path> question=<id>
+```
+
+### Ending a headless turn
+
+Only the phase that ends the run writes this.
+
+1. Put the outcome on the card: the phase's own section, and `## Open Questions`
+   when the run stopped at a one-way door.
+2. Make the routing line the last line of the turn, bare, with nothing after it.
+
+Before stopping, read back your own last line. If it does not begin `RECIPE `,
+or it sits inside a code fence, or anything comes before or after it on that
+line, the turn is not finished — fix it. The driver reads the last line and
+nothing else, so a question asked in prose leaves the run with no way forward.

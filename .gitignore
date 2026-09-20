@@ -6,3 +6,6 @@ __pycache__
 # private Acme pull requests and must never reach this public repository.
 evals/results/
 evals/.local/
+
+# Recipe cards are local scratch state, not something to commit.
+recipes/

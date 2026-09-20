@@ -5,6 +5,32 @@ worth a session break, so unlike every phase after it, it does **not** end
 with the New session / Continue menu — it routes straight into whichever phase
 file comes next and that phase's own ending is where the user gets asked.
 
+## 0. Headless invocations
+
+If the invocation says `--headless` or "headless", no human is in the loop and
+nothing may be asked of one. Read `../references/headless.md` — it is the
+contract — then:
+
+- Take the task from the invocation text instead of asking what it is, and take
+  the default card root instead of asking where cards go. Log both to
+  `## Decisions` prefixed `driver:`.
+- Write `runMode: headless` to the card's frontmatter. A phase resumed in a
+  fresh context reads the mode from there, since the flag does not survive the
+  reset.
+- A headless run enters at phase 3 at the earliest. If the card has not
+  completed `mise-en-place`, stop here: record the reason in `## Open Questions`
+  under a short id, and end the turn with
+
+  `RECIPE phase=start status=blocked next=phase-0-start.md card=<path> question=<id>`
+
+  Phases 1 and 2 need a person — say that in the reason rather than attempting
+  them.
+- Otherwise route normally. The phase handed off to emits the routing line;
+  Phase 0 never emits a line of its own, and in a headless run it asks nothing.
+  When a resumed card has `status: needs-input` or `blocked`, route back to the
+  phase named in its `## Open Questions` entry rather than to the phase after
+  `phase` — that phase stopped to ask, so it has not completed.
+
 ## 1. Find an existing recipe card
 
 Look for `./recipes/*.md` at the project root. If the task the user named

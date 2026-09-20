@@ -70,19 +70,35 @@ deferred — not before.
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-5-plating.md`.
-#### EXECUTION RULES:
 
-- ALWAYS halt and wait for user input after presenting menu
-- Present the recommendation clearly but respect the user's choice
+## Headless
 
-#### Menu Handling Logic:
+Read `../references/headless.md`. In a headless run:
 
-- IF N: "**Great choice.** Your progress is saved. When you're ready, start this workflow again — it will detect your tech spec and pick up at implementation. See you in the next session!"
-  - End the workflow session gracefully. Do NOT load the next step.
-- IF C: "**Understood.** Let's continue with implementation in this session."
-  - Load, read entire file, then execute {nextStepFile}
-- IF Any other comments or queries: help user respond then [Redisplay Menu Options](#3-present-menu-options)
+- Section 1's scope-creep findings are logged with `unattended:` and the code
+  they describe stays where it is. Deleting work on a recommendation is a
+  one-way door, and a run stops for those rather than opening them.
+- Sections 2 to 7 are unchanged: detect the project's own checks, scope them to
+  the change, fix what fails, and write `## Quality Gate Results` — including
+  what was deferred to CI and why.
+- Section 8 does not apply. The run does not stop here: it loads, reads
+  completely and executes `phase-5-plating.md`.
 
-## CRITICAL STEP COMPLETION NOTE
+Only if this phase is where the run stops does the turn's last line become:
 
-IF user selects N: The workflow ends here. State is saved. User will resume where the current ticket stoped.
+```
+RECIPE phase=tasting status=needs-input next=phase-4-tasting.md card=<path> question=<id>
+```
+
+### Ending a headless turn
+
+Only the phase that ends the run writes this.
+
+1. Put the outcome on the card: the phase's own section, and `## Open Questions`
+   when the run stopped at a one-way door.
+2. Make the routing line the last line of the turn, bare, with nothing after it.
+
+Before stopping, read back your own last line. If it does not begin `RECIPE `,
+or it sits inside a code fence, or anything comes before or after it on that
+line, the turn is not finished — fix it. The driver reads the last line and
+nothing else, so a question asked in prose leaves the run with no way forward.
