@@ -13,9 +13,12 @@ task: '<short name or issue reference, whatever the user gave>'
 phase: ''                    # last completed phase, e.g. 'mise-en-place' — a phase
                              # that stopped to ask a question is not completed
 phasesCompleted: []
-status: 'in-progress'        # in-progress | pr-created | needs-input | blocked | delivered
+status: 'in-progress'        # delivery status: in-progress | pr-created | delivered
 prUrl: ''
 runMode: 'interactive'       # interactive | headless — a headless run records itself here
+runStatus: ''                # what the last run did: running | terminal | needs-input | blocked
+runNext: ''                  # the phase file in flight, or none when the recipe is finished
+runQuestion: ''              # the id in ## Open Questions that stopped the run
 lastTouched: '<date>'
 ---
 
@@ -82,7 +85,9 @@ write. Valid phase tokens, in order: `reading-the-recipe`, `mise-en-place`,
 against a headless card sets it back. It is what a phase resumed in a fresh
 context reads to know not to wait on a person.
 
-A headless run ends with one routing line — `RECIPE phase=… status=… next=…
-card=…` — so the driver can route without parsing prose. It is part of the turn,
-not part of the card: don't store it here. The grammar, the statuses and the
-checkpoint protocol are in `./headless.md`, next to this file.
+A headless run carries its handoff in the frontmatter, never in what it prints —
+prose gets fenced, glued to a heading, or turned into a question, and a driver
+that reads the last line of a turn will miss it. `runStatus`, `runNext` and
+`runQuestion` are that handoff; the phase that ends a run writes them, and every
+phase sets `runNext` to its own file as it starts. The rules are in
+`./headless.md`, next to this file.

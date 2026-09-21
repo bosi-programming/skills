@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Falsify the mechanical claims bosi-feature-recipe's headless mode makes.
 
-Offline, stdlib only. Checks that the routing line has exactly one dialect
-across the contract and every phase that emits one, that the interactive
-endings survived the change, that an earlier contradictory phase-end footer
-has not crept back, and that the README still describes the skills that
-exist. Exits non-zero if any check fails.
+Offline, stdlib only. Checks that the run record is documented once and carried
+by every file that writes it, that a run is told to cross phase boundaries, that
+the interactive endings survived, that the earlier stdout handoff and the
+contradictory phase-end footer have not crept back, and that the README still
+describes the skills that exist. Exits non-zero if any check fails.
 """
 
 import re
@@ -20,20 +20,18 @@ TEMPLATE = SKILL / "references" / "recipe-card-template.md"
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
 
-ROUTING_KEYS = ["phase", "status", "next", "card"]
-STATUSES = ["terminal", "needs-input", "blocked"]
-# phase number -> its own phase token, for the phases that may run headless
+RUN_FIELDS = ["runStatus", "runNext", "runQuestion"]
+RUN_STATUSES = ["running", "terminal", "needs-input", "blocked"]
 HEADLESS = {3: "cooking", 4: "tasting", 5: "plating", 6: "documentation"}
-# phase number -> the routing line's `next` when the run is not blocked
-# A run that stops points back at the phase that stopped it; only the end of the
-# recipe points at nothing.
-EXPECTED_NEXT = {
-    3: ["phase-3-cooking.md"],
-    4: ["phase-4-tasting.md"],
-    5: ["phase-5-plating.md"],
-    6: ["none"],
+HANDOFF = {
+    3: "phase-4-tasting.md",
+    4: "phase-5-plating.md",
+    5: "phase-6-documentation.md",
 }
+# Strings that must not come back: the stdout routing line the card replaced,
+# and the stale Claude Code footer b972f03 added to phases 2 and 4.
 FORBIDDEN = [
+    "RECIPE phase=",
     "nextStepFile",
     "tech spec",
     "CRITICAL STEP COMPLETION NOTE",
@@ -66,99 +64,45 @@ def phase_path(number):
     return hits[0] if len(hits) == 1 else None
 
 
-def parse_routing(line):
-    tokens = line.strip().split()
-    if not tokens or tokens[0] != "RECIPE":
-        return None
-    pairs = []
-    for token in tokens[1:]:
-        if "=" not in token:
-            return None
-        pairs.append(tuple(token.split("=", 1)))
-    return pairs
+def phase_text(number):
+    path = phase_path(number)
+    return path.read_text() if path else ""
 
 
-def routing_lines(path):
-    if path is None or not path.exists():
-        return []
-    # Tolerate the line being shown inline (wrapped in backticks) or fenced.
-    lines = (line.strip().strip("`").strip() for line in path.read_text().splitlines())
-    return [line for line in lines if line.startswith("RECIPE ")]
-
-
-# --- T1: one dialect for the routing line ---------------------------------
+# --- the contract says what the card says ---------------------------------
 
 check("contract-exists", CONTRACT.exists(), f"{CONTRACT} missing")
+contract_text = CONTRACT.read_text() if CONTRACT.exists() else ""
 
-if CONTRACT.exists():
-    contract_text = CONTRACT.read_text()
-    grammar = [parse_routing(line) for line in routing_lines(CONTRACT)]
-    grammar = [line for line in grammar if line]
-    keys_ok = grammar and all(
-        {k for k, _ in line} == set(ROUTING_KEYS) for line in grammar
-    )
-    check("contract-declares-grammar", keys_ok, "example line must carry all four keys")
-    missing = [s for s in STATUSES if s not in contract_text]
-check("contract-declares-statuses", not missing, f"undocumented: {missing}")
+missing = [f for f in RUN_FIELDS if f not in contract_text]
+check("contract-declares-record", not missing, f"undocumented fields: {missing}")
+
+missing = [s for s in RUN_STATUSES if s not in contract_text]
+check("contract-declares-run-statuses", not missing, f"undocumented: {missing}")
+
 check(
-    "contract-requires-bare-line",
-    "bare" in contract_text,
-    "the contract must say the line goes out unfenced, as the last line",
+    "contract-puts-record-on-card",
+    "frontmatter" in contract_text and "prints" in contract_text,
+    "the record lives in the frontmatter, not in what the run prints",
 )
+
 check(
     "contract-runs-to-the-end",
     "phase boundary" in contract_text and "unattended:" in contract_text,
-    "the contract must say a run crosses phase boundaries and logs its own calls",
+    "a run crosses phase boundaries and logs the calls it took alone",
 )
 
-ok, detail = True, []
-for number, token in HEADLESS.items():
-    path = phase_path(number)
-    lines = routing_lines(path)
-    if not lines:
-        ok, detail = False, detail + [f"phase-{number}: no routing line"]
-        continue
-    for line in lines:
-        pairs = parse_routing(line)
-        if pairs is None:
-            ok, detail = False, detail + [f"phase-{number}: unparseable {line!r}"]
-            continue
-        keys = {k for k, _ in pairs}
-        if not keys >= set(ROUTING_KEYS) or keys - set(ROUTING_KEYS) - {"question"}:
-            ok, detail = False, detail + [f"phase-{number}: keys {sorted(keys)}"]
-        values = dict(pairs)
-        if values.get("phase") != token:
-            ok, detail = False, detail + [f"phase-{number}: phase={values.get('phase')}"]
-        if values.get("status") not in STATUSES:
-            ok, detail = False, detail + [f"phase-{number}: status={values.get('status')}"]
-        if values.get("status") in ("needs-input", "blocked") and "question" not in values:
-            ok, detail = False, detail + [
-                f"phase-{number}: {values.get('status')} with no question id"
-            ]
-        nxt = values.get("next")
-        if nxt != "none" and not (PHASES / nxt).exists():
-            ok, detail = False, detail + [f"phase-{number}: next={nxt} is not a phase file"]
-check("phase-routing-lines", ok, "; ".join(detail))
-
-ok, detail = True, []
-for number, allowed in EXPECTED_NEXT.items():
-    lines = routing_lines(phase_path(number))
-    seen = [dict(parse_routing(line)).get("next") for line in lines if parse_routing(line)]
-    if not any(value in allowed for value in seen):
-        ok, detail = False, detail + [f"phase-{number}: no routing line with next in {allowed}"]
-check("phase-routing-next", ok, "; ".join(detail))
-
-# --- T2: the earlier contradictory footer stays gone ----------------------
+# --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [SKILL_MD]:
+for path in sorted(PHASES.glob("*.md")) + [SKILL_MD, CONTRACT, TEMPLATE]:
     text = path.read_text()
     for needle in FORBIDDEN:
         if needle in text:
             offenders.append(f"{path.name}: {needle!r}")
-check("stale-footer-gone", not offenders, "; ".join(offenders))
+check("no-stdout-handoff", not offenders, "; ".join(offenders))
 
-# --- T3: interactive endings survived -------------------------------------
+# --- the interactive path is untouched ------------------------------------
 
 offenders = []
 for number, pattern in INTERACTIVE_ENDINGS.items():
@@ -171,12 +115,22 @@ check("interactive-endings-intact", not offenders, "; ".join(offenders))
 
 ok, detail = True, []
 for number in HEADLESS:
-    path = phase_path(number)
-    if path is None or not re.search(r"^#+ .*headless", path.read_text(), re.M | re.I):
+    text = phase_text(number)
+    if not re.search(r"^#+ .*headless", text, re.M | re.I):
         ok, detail = False, detail + [f"phase-{number}: no Headless heading"]
-    elif "last line" not in path.read_text():
-        ok, detail = False, detail + [f"phase-{number}: no end-of-turn self-check"]
+    if "### Ending a run" not in text:
+        ok, detail = False, detail + [f"phase-{number}: no ending rules"]
+    if "runNext" not in text:
+        ok, detail = False, detail + [f"phase-{number}: does not write the run record"]
 check("headless-sections", ok, "; ".join(detail))
+
+ok, detail = True, []
+for number, handoff in HANDOFF.items():
+    if handoff not in phase_text(number):
+        ok, detail = False, detail + [f"phase-{number}: does not hand off to {handoff}"]
+if "terminal" not in phase_text(6):
+    ok, detail = False, detail + ["phase-6: does not end the run"]
+check("phases-hand-off", ok, "; ".join(detail))
 
 skill_text = SKILL_MD.read_text() if SKILL_MD.exists() else ""
 check(
@@ -186,33 +140,28 @@ check(
 )
 
 ok, detail = True, []
-for number, needles in ((0, ["--headless", "runMode"]), (1, ["headless", "blocked"]), (2, ["headless", "blocked"])):
-    text = (phase_path(number) or Path()).read_text() if phase_path(number) else ""
+for number, needles in (
+    (0, ["--headless", "runStatus"]),
+    (1, ["headless", "blocked"]),
+    (2, ["headless", "blocked"]),
+):
+    text = (PHASES / "phase-0-start.md").read_text() if number == 0 else phase_text(number)
     for needle in needles:
         if needle not in text:
             ok, detail = False, detail + [f"phase-{number}: missing {needle!r}"]
 check("headless-bailouts", ok, "; ".join(detail))
 
-ok, detail = True, []
-for number, handoff in ((3, "phase-4-tasting.md"), (4, "phase-5-plating.md"), (5, "phase-6-documentation.md")):
-    text = (phase_path(number) or Path()).read_text() if phase_path(number) else ""
-    if handoff not in text:
-        ok, detail = False, detail + [f"phase-{number}: does not hand off to {handoff}"]
-check("phases-hand-off", ok, "; ".join(detail))
-
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
-check(
-    "template-carries-contract",
-    "runMode:" in template_text and "## Open Questions" in template_text,
-    "template needs runMode and ## Open Questions",
-)
+missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]
+check("template-carries-record", not missing and "## Open Questions" in template_text,
+      f"template missing: {missing}")
 check(
     "template-knows-waiting-states",
     "needs-input" in template_text and "blocked" in template_text,
-    "the status enum must cover a run that stopped to ask",
+    "runStatus must document the states a run stops in",
 )
 
-# --- T5: the README describes the repo that exists ------------------------
+# --- the README describes the repo that exists ----------------------------
 
 readme = README.read_text() if README.exists() else ""
 names = sorted(p.parent.name for p in (REPO / "skills").glob("*/SKILL.md"))
@@ -224,7 +173,8 @@ if not match:
     check("readme-skill-count", False, "no '<Word> Claude Code skills' sentence")
 else:
     counted = NUMBER_WORDS.get(match.group(1).lower())
-    check("readme-skill-count", counted == len(names), f"README says {match.group(1)}, repo has {len(names)}")
+    check("readme-skill-count", counted == len(names),
+          f"README says {match.group(1)}, repo has {len(names)}")
 
 check("readme-documents-headless", "headless" in readme.lower(), "README must mention headless mode")
 check("readme-documents-checker", "check-headless-contract" in readme, "README must name the checker")

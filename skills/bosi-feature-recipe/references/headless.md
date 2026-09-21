@@ -20,8 +20,8 @@ flag does not survive one. Phase 0 does this and then routes as usual.
 
 A run starts at the current step and does not stop at the next phase boundary.
 It may enter at phase 3 at the earliest: if the card has not completed
-`mise-en-place`, Phase 0 stops with `status=blocked` and says why, rather than
-drifting into the phases that need a person.
+`mise-en-place`, Phase 0 stops with `runStatus: blocked` and says why, rather
+than drifting into the phases that need a person.
 
 **A human in the room outranks the recorded mode.** `runMode: headless` means
 only "nobody is watching". An interactive invocation against a headless card
@@ -36,8 +36,8 @@ state in which the recipe turns a person away.
    the next phase file — the way interactive Cooking already falls through into
    Tasting — and keep going.
 3. Stop when the recipe is finished, or when something needs a person. Only the
-   phase that ends the run writes the routing line; a phase that hands the baton
-   on writes nothing.
+   phase that ends the run writes the run record; a phase that hands the baton
+   on leaves it alone.
 
 So a run from Cooking goes 3 → 4 → 5 → 6 in one turn, and ends with the recipe
 delivered rather than with a baton in the air.
@@ -47,8 +47,7 @@ delivered rather than with a baton in the air.
 The checkpoints are the ones each phase already has — Cooking's deviations log,
 Tasting's scope-creep findings, Plating's chunk split, PR description and
 reviewer routing, Documentation's "is this worth documenting". Nobody is awake
-to answer them, so the run takes the phase's own recommendation and keeps
-moving:
+to answer them, so the run takes the phase's own recommendation and keeps moving:
 
 1. Take the recommendation the phase already states for that checkpoint.
 2. Log it to `## Decisions` prefixed `unattended:`, quoting the recommendation,
@@ -73,52 +72,55 @@ and neither is a recommendation.
 - Irreversible migrations, force-pushes, history rewrites, credential and
   production changes.
 
-## The routing line
+## The run record
 
-A run ends with exactly one line, the last line of the turn, so the driver never
-has to parse prose:
+A run's result lives on the card, in the frontmatter — never in what the run
+prints. A driver that reads only the last line of a turn will miss prose that got
+fenced, glued to a heading, or turned into a question; it cannot miss a file at a
+known path with a fixed shape.
 
-```
-RECIPE phase=<phase-token> status=<status> next=<phase-file|none> card=<path>
-```
-
-All four keys, space-separated, on one line — the driver parses them by name, so
-their order does not matter. `question=<id>` joins them when `status=needs-input`
-or `status=blocked`, and the id resolves in the card's `## Open Questions`.
-
-Emit it **bare**: a plain line of output, nothing after it — no closing code
-fence, no summary, no sign-off. The fenced blocks in this file are markdown for
-whoever is reading it, not part of the line. A driver that reads only the last
-line of the turn must get the routing line and nothing else.
-
-| `status` | Means | Driver should |
+| Field | Values | Written |
 |---|---|---|
-| `terminal` | The run finished the recipe: every phase through Documentation is done. | Read the card, review the PR |
-| `needs-input` | The run stopped at a one-way door, recorded as `question=<id>`. | Answer it on the card, then re-run `next` |
-| `blocked` | The run cannot continue until something external changes. The reason is `question=<id>`. | Fix what it names, then re-run `next` |
+| `runStatus` | `running`, `terminal`, `needs-input`, `blocked` | `running` when a run starts; overwritten when it ends |
+| `runNext` | a phase file, or `none` | the phase in flight, so a dead run can be resumed; `none` only when the recipe is finished |
+| `runQuestion` | an id from `## Open Questions`, or empty | when the run stops on one |
 
-`next=none` when the status is `terminal`; otherwise `next` is the phase to
-re-run once the answer or the fix is in.
+- `terminal` — the recipe is finished, every phase through Documentation done.
+- `needs-input` — the run stopped at a one-way door. `runQuestion` names it.
+- `blocked` — the run cannot continue until something external changes.
+  `runQuestion` names what.
+- `running` — a run is in flight. A card left `running` is a run that died: pick
+  it up from `runNext`.
+
+Each phase sets `runNext` to its own file as it starts, so the field always names
+the phase in flight and a mid-phase stop needs no extra write to be resumable.
+The phase that ends the run sets `runStatus`, and `runQuestion` if it stopped
+short. `runNext` goes to `none` only when `runStatus` is `terminal`.
+
+The driver's whole loop: read the frontmatter; if `runStatus` is `needs-input` or
+`blocked`, deal with `runQuestion`; then run `runNext`, unless it is `none` or
+the status is `terminal`, in which case stop.
+
+Nothing about the end of the turn matters for routing. A run may summarise what
+it did, or ask a morning reader to look at the card, in whatever words it likes —
+the handoff already happened when the frontmatter was written.
 
 ## What the card says while a run is waiting
 
-A run that stops has not completed the phase it stopped in, so it leaves the
-card's position alone: `phase` stays the last completed phase and
-`phasesCompleted` is not touched. What changes is `status` — to `needs-input` or
-`blocked` — and an entry in `## Open Questions` naming the phase that stopped.
+A run that stops has not completed the phase it stopped in, so `phase` stays the
+last completed phase and `phasesCompleted` is not touched. The stop is recorded
+in the run record, and the question itself in `## Open Questions` under the id
+`runQuestion` names.
 
-That entry is what a resume routes from. When `status` is `needs-input` or
-`blocked`, Phase 0 goes back to the phase named in the question, not forward to
-the phase after `phase`: a mid-phase stop would otherwise read as "that phase was
-finished" and resume one phase too late.
+Resume from `runNext`, not from the phase after `phase`: a mid-phase stop would
+otherwise read as "that phase was finished" and resume one phase too late. Phase
+0 does the same when it is asked to pick a run up.
 
 ## What a headless run does not do
 
 - It does not stop at a phase boundary. Finishing Cooking means loading Tasting.
+- It does not route through what it prints. The handoff is the frontmatter.
 - It does not write a New session / Continue menu, or wait for one.
-- It does not finish with a question in prose. The question goes to
-  `## Open Questions` and the line carries its id — a driver that reads only the
-  last line of the turn must still find something to route on.
 - It does not promote a draft, merge or delete. Those wait for the morning.
 - It does not invent a tracker, chat or PR link. Where such a tool is missing, it
   records the outcome on the card and says the external update is pending.

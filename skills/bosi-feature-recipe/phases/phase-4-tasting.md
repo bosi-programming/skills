@@ -75,6 +75,7 @@ trigger phrase in a new session. End the session.
 
 Read `../references/headless.md`. In a headless run:
 
+- Set `runNext: phase-4-tasting.md` as you start.
 - Section 1's scope-creep findings are logged with `unattended:` and the code
   they describe stays where it is. Deleting work on a recommendation is a
   one-way door, and a run stops for those rather than opening them.
@@ -84,21 +85,12 @@ Read `../references/headless.md`. In a headless run:
 - Section 8 does not apply. The run does not stop here: it loads, reads
   completely and executes `phase-5-plating.md`.
 
-Only if this phase is where the run stops does the turn's last line become:
+### Ending a run
 
-```
-RECIPE phase=tasting status=needs-input next=phase-4-tasting.md card=<path> question=<id>
-```
+Only if this phase is where the run stops:
 
-### Ending a headless turn
-
-Only the phase that ends the run writes this.
-
-1. Put the outcome on the card: the phase's own section, and `## Open Questions`
-   when the run stopped at a one-way door.
-2. Make the routing line the last line of the turn, bare, with nothing after it.
-
-Before stopping, read back your own last line. If it does not begin `RECIPE `,
-or it sits inside a code fence, or anything comes before or after it on that
-line, the turn is not finished — fix it. The driver reads the last line and
-nothing else, so a question asked in prose leaves the run with no way forward.
+1. Set `runStatus: needs-input` for a one-way door or `blocked` for something
+   external that has to change, and `runQuestion` to the id of the entry you
+   wrote in `## Open Questions`. Leave `runNext` as this phase: that is what a
+   resume re-runs.
+2. Log the stop to `## Decisions`.
