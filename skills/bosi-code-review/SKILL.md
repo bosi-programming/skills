@@ -8,7 +8,7 @@ metadata:
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
-- **Standards** — does the code conform to this repo's documented coding standards? Standards sources are located in step 3 (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, or whatever the repo documents).
+- **Standards** — does the code conform to this repo's documented coding standards, and to the bundled `code-standards` catalog wherever the repo is silent? Standards sources are located in step 3 (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, or whatever the repo documents).
 - **Spec** — does the code faithfully implement the originating issue / PRD / spec? The specs can be found inside the PR description as a link to an issue tracker. If not found there, search on the PR title for a string that is CCCC*-DDD* where c is a character and d is a digit, like ABC-123.
 
 Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings and renders them as a single dark-theme HTML page it opens in the browser. The page keeps the axes in **two tabs**, Spec first, so a reader lands on one axis at a time instead of scanning both at once.
@@ -36,6 +36,16 @@ Look for the originating spec, in this order:
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
 
+Wherever the repo is silent, the Standards axis falls back to the bundled [`code-standards`](../code-standards/SKILL.md) catalog. Its files sit beside this skill, so resolve them from `${CLAUDE_SKILL_DIR}/../code-standards/` and pass the paths you need to the sub-agent in step 4:
+
+- `Common/Clean Code.md` — every review.
+- `Typescript/Imports.md` and `Typescript/Exports.md` — when the diff touches `.ts` / `.tsx`.
+- `Frontend/Accessibility.md` — when the diff touches UI that renders in a browser.
+
+Skip the files the diff cannot violate; a backend-only change gets `Common/Clean Code.md` and nothing else. If that sibling path is not where the catalog is, load the `code-standards` skill by name and take the paths it reports.
+
+A breach of the catalog is a **hard violation** only where the project documents the same rule. Where it rests on the catalog alone it is a judgement call, like every smell below.
+
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below — a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
 
 - **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
@@ -61,8 +71,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 **Standards sub-agent prompt** — include:
 
 - The full diff command and commit list.
-- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full — the sub-agent has no other access to it.
-- The brief: "Report — per file/hunk where relevant — (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls — documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+- The list of standards-source files you found in step 3, the absolute paths of the `code-standards` files that apply to what the diff touches, **plus the smell baseline from step 3** pasted in full — the sub-agent has no other access to it.
+- The brief: "Report — per file/hunk where relevant — (a) every place the diff violates a standard: cite the standard (file + the rule) and say whether it came from the repo or from the `code-standards` catalog you were given; and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls — a breach of a standard the repo documents is hard, a breach of the catalog alone is a judgement call, baseline smells are always judgement calls, and a standard documented in the repo overrides both. Skip anything tooling enforces. Under 400 words."
 
 **Spec sub-agent prompt** — include:
 
@@ -100,7 +110,7 @@ Spec tab, in order: `Implementation defects` (red), `Partial` (amber), `Acceptan
 
 Both problem groups sit **above** the criteria list on purpose. Someone opening this tab wants what broke and what fell short before the list of what passed, and a green `7 of 7` at the top buries everything underneath it. The criteria are the receipt, not the headline: they answer "did you actually check" once the reader already knows the verdict.
 
-Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (amber), `Judgement calls · smell baseline` (purple).
+Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (amber), `Judgement calls · baselines` (purple).
 
 Drop any group with nothing in it rather than shipping an empty heading.
 

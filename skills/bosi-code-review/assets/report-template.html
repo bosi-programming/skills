@@ -432,12 +432,13 @@
 </section>
 
 <!-- ============ STANDARDS ============
-     Groups, in order: "Hard violations", "Flagged, not condemned", "Judgement calls · smell baseline".
+     Groups, in order: "Hard violations", "Flagged, not condemned", "Judgement calls · baselines".
      No heading inside the panel; the tab label already says Standards. The list of standards sources
      goes in the footer, not here.
      Omit a group with no findings. Severity per finding: li.f.hard / .warn / .soft.
      .t = one-line finding title. .d = evidence, one claim per .d, with file:line in <code>.
-     .rule = the standard breached: <b>doc name</b> (line N) plus the rule text. Omit for smell findings.
+     .rule = the standard breached: <b>doc name</b> (line N) plus the rule text. Carried when the
+     finding rests on a written standard — the repo's or the code-standards catalog — omitted for a smell.
 -->
 <section id="standards" role="tabpanel" aria-labelledby="tab-standards" hidden>
   <div class="group">
@@ -468,11 +469,11 @@
   </div>
 
   <div class="group">
-    <h2>Judgement calls · smell baseline</h2>
+    <h2>Judgement calls · baselines</h2>
     <ul class="findings">
       <li class="f soft">
         <details>
-          <summary class="t">{{SMELL_NAME}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></summary>
+          <summary class="t">{{JUDGEMENT_CALL}} <span style="color:var(--fg-faint);font-weight:500">· strongest finding</span></summary>
           <div class="d">{{EVIDENCE}}</div>
         </details>
       </li>

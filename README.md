@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Six Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request.
+Seven Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One is the standards catalog the code review reads from.
 
 ## Install
 
@@ -20,6 +20,12 @@ Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epis
 Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser.
 
 Based on Matt Pocock's code-review skill.
+
+### code-standards
+
+The standards the Standards axis checks against, as four files: `Common/Clean Code.md` for naming, size, structure and immutability in any language; `Typescript/Imports.md` and `Typescript/Exports.md` for how TypeScript reaches other modules and what it publishes; `Frontend/Accessibility.md` for anything that renders in a browser. Each file is a list of rules and the failures they prevent, closing with the red flags to catch in review.
+
+`bosi-code-review` reads the catalog as its baseline and only applies the files the diff can violate. The catalog defers to the project: a standard the repo documents itself always wins, and a breach is a hard violation only where the repo documents the same rule — otherwise it is a judgement call, like any smell. It is a reference rather than a workflow, so there is nothing here to run.
 
 ### bosi-feature-recipe
 
@@ -62,6 +68,7 @@ Go find out instead of predicting: read the file, run the command, probe the thi
 skills/
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + phases/ + references/ + scripts/
+  code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
