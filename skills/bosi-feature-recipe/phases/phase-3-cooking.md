@@ -58,6 +58,8 @@ completely, and execute `phase-4-tasting.md` directly.
 
 Read `../references/headless.md`. In a headless run:
 
+- Set `runNext: phase-3-cooking.md` as you start, so a run that dies here can be
+  picked up from the card.
 - Section 3's check-in is taken, not asked: take the recommendation, log it to
   `## Decisions` prefixed `unattended:`, and keep going.
 - Section 4 is unchanged — the frontmatter is updated either way.
@@ -67,21 +69,12 @@ Read `../references/headless.md`. In a headless run:
   Documentation. A run stops at the recipe's end or at a one-way door, never at
   a phase boundary.
 
-Only if this phase is where the run stops does the turn's last line become:
+### Ending a run
 
-```
-RECIPE phase=cooking status=needs-input next=phase-3-cooking.md card=<path> question=<id>
-```
+Only if this phase is where the run stops:
 
-### Ending a headless turn
-
-Only the phase that ends the run writes this.
-
-1. Put the outcome on the card: the phase's own section, and `## Open Questions`
-   when the run stopped at a one-way door.
-2. Make the routing line the last line of the turn, bare, with nothing after it.
-
-Before stopping, read back your own last line. If it does not begin `RECIPE `,
-or it sits inside a code fence, or anything comes before or after it on that
-line, the turn is not finished — fix it. The driver reads the last line and
-nothing else, so a question asked in prose leaves the run with no way forward.
+1. Set `runStatus: needs-input` for a one-way door or `blocked` for something
+   external that has to change, and `runQuestion` to the id of the entry you
+   wrote in `## Open Questions`. Leave `runNext` as this phase: that is what a
+   resume re-runs.
+2. Log the stop to `## Decisions`.

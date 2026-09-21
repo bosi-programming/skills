@@ -20,8 +20,10 @@ morning can see what was decided while nobody was watching. It stops only when
 the recipe is finished or something needs a person — never at a phase boundary,
 and never to open a one-way door: no non-draft PR, no merge, no deleted work.
 The mode is recorded on the card, so a run resumed in a fresh context still
-knows not to wait on anyone. Phases 0 to 2 cannot run headless — the grill round
-and the design approval are where intent enters the recipe. The full contract is
+knows not to wait on anyone, and so is the run's result — `runStatus`,
+`runNext` and `runQuestion` in the frontmatter, never only in what the run
+printed. Phases 0 to 2 cannot run headless — the grill round and the design
+approval are where intent enters the recipe. The full contract is
 `./references/headless.md`; read it before running or answering a headless run.
 
 ## Rules for all phases

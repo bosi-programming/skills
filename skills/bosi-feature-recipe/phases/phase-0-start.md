@@ -18,18 +18,16 @@ contract — then:
   fresh context reads the mode from there, since the flag does not survive the
   reset.
 - A headless run enters at phase 3 at the earliest. If the card has not
-  completed `mise-en-place`, stop here: record the reason in `## Open Questions`
-  under a short id, and end the turn with
-
-  `RECIPE phase=start status=blocked next=phase-0-start.md card=<path> question=<id>`
-
-  Phases 1 and 2 need a person — say that in the reason rather than attempting
-  them.
-- Otherwise route normally. The phase handed off to emits the routing line;
-  Phase 0 never emits a line of its own, and in a headless run it asks nothing.
-  When a resumed card has `status: needs-input` or `blocked`, route back to the
-  phase named in its `## Open Questions` entry rather than to the phase after
-  `phase` — that phase stopped to ask, so it has not completed.
+  completed `mise-en-place`, stop here: write the reason to `## Open Questions`
+  under a short id, then set `runStatus: blocked`, `runQuestion: <id>` and
+  `runNext: phase-0-start.md` in the frontmatter. Phases 1 and 2 need a person —
+  say that in the reason rather than attempting them.
+- Otherwise route normally, and write the run record as you go: `runStatus:
+  running` and `runNext` set to the phase you hand off to. In a headless run
+  Phase 0 asks nothing.
+- When a card is resumed with `runStatus: needs-input` or `blocked`, route to
+  `runNext` rather than to the phase after `phase` — the phase that stopped has
+  not completed.
 
 ## 1. Find an existing recipe card
 
