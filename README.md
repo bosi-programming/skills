@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Seven Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One is the standards catalog the code review reads from.
+Eight Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents. One is the standards catalog the code review reads from.
 
 ## Install
 
@@ -29,11 +29,15 @@ The standards the Standards axis checks against, as four files: `Common/Clean Co
 
 ### bosi-feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — each one meant to run in a fresh context and hand the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on. Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
-Phases 3 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, and it carries the work through Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/bosi-feature-recipe/references/headless.md`.
+Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through Reading the Recipe, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/bosi-feature-recipe/references/headless.md`.
+
+### recipe-relay
+
+Runs `bosi-feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session only surfaces a checkpoint at the phase boundaries bosi-feature-recipe's own text flags as worth a fresh look, and only stops outright at the recipe's own one-way doors — the same contract as headless, just supervised instead of unattended.
 
 ### code-visualizer
 
@@ -67,7 +71,8 @@ Go find out instead of predicting: read the file, run the command, probe the thi
   plugin.json         plugin manifest
 skills/
   bosi-code-review/   SKILL.md + assets/report-template.html
-  bosi-feature-recipe/  SKILL.md + phases/ + references/ + scripts/
+  bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
+  recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/

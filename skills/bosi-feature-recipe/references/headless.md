@@ -6,10 +6,9 @@ starts to the end of the recipe in one go. It is built for a night run — the
 thinking phases are done and the decisions are taken, and the rest should be
 finished by morning.
 
-Phases 3 to 6 support it — Cooking, Tasting, Plating, Documentation. Phases 0 to
-2 do not: the grill round and the design approval are where intent enters the
-recipe, so a run that answered them for itself would be inventing requirements
-rather than collecting them.
+Phases 1 to 6 support it — Reading the Recipe, Mise en Place, Cooking, Tasting,
+Plating, Documentation. Only Phase 0 is exempt, and only because it is pure
+routing with nothing in it worth a recommendation.
 
 ## Starting one
 
@@ -19,9 +18,9 @@ because the recipe's premise is that every phase starts in a fresh context and a
 flag does not survive one. Phase 0 does this and then routes as usual.
 
 A run starts at the current step and does not stop at the next phase boundary.
-It may enter at phase 3 at the earliest: if the card has not completed
-`mise-en-place`, Phase 0 stops with `runStatus: blocked` and says why, rather
-than drifting into the phases that need a person.
+It may enter at phase 1 for a bare task with no card yet — the same routing an
+interactive invocation gets from Phase 0. There is no phase left that needs a
+person just to enter it.
 
 **A human in the room outranks the recorded mode.** `runMode: headless` means
 only "nobody is watching". An interactive invocation against a headless card
@@ -44,10 +43,12 @@ delivered rather than with a baton in the air.
 
 ## Checkpoints
 
-The checkpoints are the ones each phase already has — Cooking's deviations log,
-Tasting's scope-creep findings, Plating's chunk split, PR description and
-reviewer routing, Documentation's "is this worth documenting". Nobody is awake
-to answer them, so the run takes the phase's own recommendation and keeps moving:
+The checkpoints are the ones each phase already has — Reading the Recipe's
+`grill-me` frontier, Mise en Place's section drafts, cross-check and test-case
+list, Cooking's deviations log, Tasting's scope-creep findings, Plating's
+chunk split, PR description and reviewer routing, Documentation's "is this
+worth documenting". Nobody is awake to answer them, so the run takes the
+phase's own recommendation and keeps moving:
 
 1. Take the recommendation the phase already states for that checkpoint.
 2. Log it to `## Decisions` prefixed `unattended:`, quoting the recommendation,
@@ -108,9 +109,11 @@ the handoff already happened when the frontmatter was written.
 ## What the card says while a run is waiting
 
 A run that stops has not completed the phase it stopped in, so `phase` stays the
-last completed phase and `phasesCompleted` is not touched. The stop is recorded
-in the run record, and the question itself in `## Open Questions` under the id
-`runQuestion` names.
+last completed phase and `phasesCompleted` is not touched. Before setting
+`runStatus` and `runQuestion`, write the entry itself to `## Open Questions`
+first: a short id, the question or reason, any options considered, and the
+recommendation. `runQuestion` is only a pointer to that entry — it names
+nothing if the entry was never written.
 
 Resume from `runNext`, not from the phase after `phase`: a mid-phase stop would
 otherwise read as "that phase was finished" and resume one phase too late. Phase

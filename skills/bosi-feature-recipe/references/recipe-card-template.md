@@ -29,8 +29,7 @@ lastTouched: '<date>'
 
 ## Open Questions
 
-<!-- written by any phase that reaches a checkpoint nobody in-process can answer,
-     and by Phase 0 when a headless run starts before Mise en Place.
+<!-- written by any phase that reaches a checkpoint nobody in-process can answer.
      One entry per question, which the routing line refers to by its id, and which
      names the phase that asked so a resume routes back to it:
        - q1 — <phase>: <question> — options: <a | b> — recommendation: <the phase's pick> — answer: <empty until answered> -->

@@ -1,23 +1,15 @@
 # Phase 2 — Mise en Place
 
-## Headless
-
-A headless run does not belong here. If `runMode` is `headless` or the
-invocation says `--headless`, stop: write the reason to `## Open Questions` under
-a short id, then set `runStatus: blocked`, `runQuestion: <id>` and
-`runNext: phase-2-mise-en-place.md` in the frontmatter. The design is confirmed
-with a person section by section, and the test-case list is approved by one; a
-headless run cannot do either. See `../references/headless.md`.
-
 Get everything ready before the cooking starts: the design, and the tests
 that prove it.
 
 ## 1. Draft the design, section by section
 
-Read the `## Problem` section of the recipe card, then work through the
-following with the user, discussing and iterating on each before moving to
-the next. Write each to the recipe card as soon as it's approved — don't
-hold multiple sections in the air waiting for a final review pass.
+Read the `## Problem` section of the recipe card, then draft all five
+sections below in one pass — don't stop between them for approval. Present
+the whole design as one document and take one round of feedback; go back
+only to the sections the user actually flags, not the whole set. Write the
+approved version to the recipe card.
 
 - **Solution** — the overall approach, the key design decisions, how it fits
   the existing system.
@@ -30,12 +22,14 @@ hold multiple sections in the air waiting for a final review pass.
 - **Config changes** — anything to add, change, or remove; write "none
   required" if there's nothing here rather than leaving it blank.
 
-## 2. Confirm nothing's missing with the `grill-me` secondary skill
+## 2. Cross-check the card
 
-Once every section above is drafted, invoke the `grill-me` secondary skill that is on `../dependencies/grill-me.md` against the whole
-recipe card as it now stands — not just the newest section — so a gap
-between, say, the Implementation Plan and the Acceptance Criteria surfaces
-before code gets written. Don't move on until its frontier is empty.
+Once every section above is drafted, ask one closing question rather than
+running `grill-me` again: does the Implementation Plan cover every
+Acceptance Criterion, and does the Testing Strategy map to both? The
+section-by-section drafting in step 1 already caught most gaps as they were
+written — this is a single check, not another full-tree interrogation. Get
+the user's answer, fix what it turns up, and move on.
 
 ## 3. List the test cases
 
@@ -66,3 +60,33 @@ Append one line to `## Decisions`. Update the frontmatter —
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute `phase-3-cooking.md`.
+
+## Headless
+
+Read `../references/headless.md`. In a headless run:
+
+- Set `runNext: phase-2-mise-en-place.md` as you start.
+- Section 1's sections are drafted and written straight to the card without
+  waiting for approval — take the strongest design judgment, not a
+  placeholder, and log each as `unattended:` in `## Decisions`.
+- Section 2's cross-check question is answered by the run itself: fix any
+  gap it finds and log the fix, or log "no gap found."
+- Section 3's test cases are drafted and written to `## TDD Test Mapping`
+  without presenting them for approval; log the case count per acceptance
+  criterion to `## Decisions`.
+- Section 4 is unchanged — the frontmatter is updated either way.
+- Section 5 does not apply. This phase does not stop at its own boundary: it
+  loads, reads completely and executes `phase-3-cooking.md`, and the run
+  continues through Cooking, Tasting, Plating and Documentation. A run stops
+  at the recipe's end or at a one-way door, never at a phase boundary.
+
+### Ending a run
+
+Only if this phase is where the run stops — a design decision with no
+reasonable default: the ticket leaves the approach genuinely ambiguous, or a
+prerequisite fact no tool in this session can find.
+
+1. Set `runStatus: blocked` and `runQuestion` to the id of the entry you
+   wrote in `## Open Questions`. Leave `runNext` as this phase: that is what
+   a resume re-runs.
+2. Log the stop to `## Decisions`.

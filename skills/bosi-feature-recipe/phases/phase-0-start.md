@@ -12,19 +12,17 @@ nothing may be asked of one. Read `../references/headless.md` — it is the
 contract — then:
 
 - Take the task from the invocation text instead of asking what it is, and take
-  the default card root instead of asking where cards go. Log both to
-  `## Decisions` prefixed `driver:`.
+  the default card root instead of asking where cards go. If the chosen
+  directory needs a `.gitignore` entry and no `.gitignore` exists yet, create
+  one rather than asking — it's a local, easily-reverted edit, not a decision
+  worth a stop. Log all three to `## Decisions` prefixed `driver:`.
 - Write `runMode: headless` to the card's frontmatter. A phase resumed in a
   fresh context reads the mode from there, since the flag does not survive the
   reset.
-- A headless run enters at phase 3 at the earliest. If the card has not
-  completed `mise-en-place`, stop here: write the reason to `## Open Questions`
-  under a short id, then set `runStatus: blocked`, `runQuestion: <id>` and
-  `runNext: phase-0-start.md` in the frontmatter. Phases 1 and 2 need a person —
-  say that in the reason rather than attempting them.
-- Otherwise route normally, and write the run record as you go: `runStatus:
-  running` and `runNext` set to the phase you hand off to. In a headless run
-  Phase 0 asks nothing.
+- Route normally, same as an interactive invocation — a fresh card enters at
+  phase 1 — and write the run record as you go: `runStatus: running` and
+  `runNext` set to the phase you hand off to. In a headless run Phase 0 asks
+  nothing.
 - When a card is resumed with `runStatus: needs-input` or `blocked`, route to
   `runNext` rather than to the phase after `phase` — the phase that stopped has
   not completed.
@@ -45,8 +43,14 @@ in this project" for step 3, without asking again.
 ## 2. Resume, if found
 
 Read the matched card's frontmatter (`phase`, `phasesCompleted`, `status`,
-`prUrl`) and its `## Decisions` section, then read the rest of the card for
-full context.
+`prUrl`, `runMode`) and its `## Decisions` section, then read the rest of the
+card for full context.
+
+A human in the room outranks the recorded mode. If this invocation is not
+headless but `runMode` on the card is `headless`, set it back to
+`interactive` and log the switch to `## Decisions` prefixed `driver:` before
+routing further — a stalled headless run resumed by a person is no longer
+one nobody is watching.
 
 If `status` is `delivered`, the task is already done — tell the user and ask
 if they want to start a new task instead (go to step 3) rather than silently
@@ -93,7 +97,7 @@ has no `.gitignore` at all, since creating one is a bigger decision than
 appending to an existing one) — the card is local scratch state, not
 something to commit.
 
-Create the card from `./references/recipe-card-template.md`
+Create the card from `../references/recipe-card-template.md`
 at `{cardRoot}/{task-slug}.md`, with `task` set to whatever the user gave and
 every other field at its default.
 

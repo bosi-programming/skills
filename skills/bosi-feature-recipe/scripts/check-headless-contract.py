@@ -22,8 +22,17 @@ README = REPO / "README.md"
 
 RUN_FIELDS = ["runStatus", "runNext", "runQuestion"]
 RUN_STATUSES = ["running", "terminal", "needs-input", "blocked"]
-HEADLESS = {3: "cooking", 4: "tasting", 5: "plating", 6: "documentation"}
+HEADLESS = {
+    1: "reading-the-recipe",
+    2: "mise-en-place",
+    3: "cooking",
+    4: "tasting",
+    5: "plating",
+    6: "documentation",
+}
 HANDOFF = {
+    1: "phase-2-mise-en-place.md",
+    2: "phase-3-cooking.md",
     3: "phase-4-tasting.md",
     4: "phase-5-plating.md",
     5: "phase-6-documentation.md",
@@ -40,7 +49,7 @@ FORBIDDEN = [
 ]
 INTERACTIVE_ENDINGS = {
     0: r"New session / Continue",
-    1: r"New session \(recommended\)",
+    1: r"Continue here \(recommended\)",
     2: r"New session \(recommended\)",
     3: r"doesn't offer the New session",
     4: r"New session \(recommended\)",
@@ -140,16 +149,11 @@ check(
 )
 
 ok, detail = True, []
-for number, needles in (
-    (0, ["--headless", "runStatus"]),
-    (1, ["headless", "blocked"]),
-    (2, ["headless", "blocked"]),
-):
-    text = (PHASES / "phase-0-start.md").read_text() if number == 0 else phase_text(number)
-    for needle in needles:
-        if needle not in text:
-            ok, detail = False, detail + [f"phase-{number}: missing {needle!r}"]
-check("headless-bailouts", ok, "; ".join(detail))
+for needle in ["--headless", "runStatus"]:
+    text = (PHASES / "phase-0-start.md").read_text()
+    if needle not in text:
+        ok, detail = False, detail + [f"phase-0: missing {needle!r}"]
+check("phase0-headless-entry", ok, "; ".join(detail))
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]

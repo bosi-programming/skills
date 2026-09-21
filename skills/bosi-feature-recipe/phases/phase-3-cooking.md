@@ -7,6 +7,15 @@ their answer.
 
 ## 1. Implement, step by step
 
+Before writing anything, find what governs style and structure here: the
+repo's own documented standards (a `CODING_STANDARDS.md`, `CONTRIBUTING.md`,
+or whatever it documents), if any — these win wherever they conflict with
+what follows. Always load the bundled `code-standards` skill too, whether or
+not the repo has its own — resolve it from `../../code-standards/` (sibling
+to `bosi-feature-recipe`, not to this phase file), or load it by name if
+that path isn't where it lives — and read the files that govern the kind of
+code this task touches; skip the ones it can't violate.
+
 Work through the Implementation Plan one step at a time. For each step:
 
 1. Say what's about to change.
@@ -15,7 +24,8 @@ Work through the Implementation Plan one step at a time. For each step:
    exist yet is an expected failure; a test that passes unexpectedly means
    the behavior may already exist — stop and investigate rather than moving
    on. For a bug fix, write the regression case first.
-3. Make the implementation change.
+3. Make the implementation change, holding it against the standards found
+   above as you write, not as an afterpass once it's done.
 4. Run those tests again and confirm they now pass. If a gap turns up —
    behavior the existing tests don't cover — write a test for it, confirm it
    fails, then close the gap. Mark each case's test as written in
