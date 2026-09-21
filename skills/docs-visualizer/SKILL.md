@@ -15,7 +15,7 @@ never hand-write HTML or SVG.
 Two artefacts, always in this order:
 
 1. `model.json` — the change model you write. Nodes, links, patterns, moves.
-2. the HTML page — produced by `${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py` from that model.
+2. the HTML page — produced by `./scripts/render_docs_graph.py` from that model.
 
 The split matters: the model is where you can be wrong and get corrected
 cheaply, and re-rendering after a fix costs a second.
@@ -159,7 +159,7 @@ it. A pattern name with no `file:line` behind it is a guess dressed as an
 insight, and the renderer rejects a pattern with no evidence for exactly that
 reason.
 
-Read `${CLAUDE_SKILL_DIR}/references/writing-patterns.md` for the catalog: what
+Read `./references/writing-patterns.md` for the catalog: what
 each pattern's participants are called, and the concrete signals in the text that
 distinguish it from a look-alike. Consult it rather than pattern-matching on
 shape - a document with numbered steps and three lookup tables is not a how-to.
@@ -216,9 +216,9 @@ moves is a page a reviewer reads; sixty is one they scroll past.
 ## Step 5 — write the model
 
 Write `model.json` next to the output HTML. The full field list, with types and
-defaults, is in `${CLAUDE_SKILL_DIR}/references/model-schema.md`; read it before
+defaults, is in `./references/model-schema.md`; read it before
 writing the file so you are not guessing at field names.
-`${CLAUDE_SKILL_DIR}/references/example-model.json` holds a finished model for a
+`./references/example-model.json` holds a finished model for a
 small docs rewrite - skim it for the density that reads well.
 
 Two layers of nodes, both in the same `nodes` array, told apart by `layer`:
@@ -261,17 +261,21 @@ the graph (kind, status, word counts, relation counts). That fallback is a
 reminder, not a target - a graph where every box falls back is a graph nobody
 learns anything from.
 
+`$SKILL_DIR` is the directory this `SKILL.md` sits in. Set it once, from the
+path you read this file from — the commands below run from the repo being
+visualized, so a relative path would not find the script.
+
 Validate before rendering, since a bad node reference is much easier to read from
 the checker than from a wrong-looking picture:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json --check
+python3 "$SKILL_DIR/scripts/render_docs_graph.py" model.json --check
 ```
 
 ## Step 6 — render and open
 
 ```bash
-OUT=$(python3 "${CLAUDE_SKILL_DIR}/scripts/render_docs_graph.py" model.json -o "$NAME.html")
+OUT=$(python3 "$SKILL_DIR/scripts/render_docs_graph.py" model.json -o "$NAME.html")
 open "$OUT" 2>/dev/null || xdg-open "$OUT" 2>/dev/null || printf 'file://%s\n' "$OUT"
 ```
 

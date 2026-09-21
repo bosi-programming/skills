@@ -75,7 +75,7 @@ skills/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
 ```
 
-Skills reference their own bundled files through `${CLAUDE_SKILL_DIR}`, so the paths resolve whether the skill is installed personally, in a project, or as part of this plugin.
+Skills reference their own bundled files by path relative to their `SKILL.md` — `./references/patterns.md`, `../code-standards/SKILL.md` — so the paths resolve whether the skill is installed personally, in a project, or as part of this plugin, and under any agent runtime. See `AGENTS.md`.
 
 ## Validate a change
 

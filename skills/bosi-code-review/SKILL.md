@@ -36,7 +36,7 @@ Look for the originating spec, in this order:
 
 Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
 
-Wherever the repo is silent, the Standards axis falls back to the bundled [`code-standards`](../code-standards/SKILL.md) catalog. Its files sit beside this skill, so resolve them from `${CLAUDE_SKILL_DIR}/../code-standards/` and pass the paths you need to the sub-agent in step 4:
+Wherever the repo is silent, the Standards axis falls back to the bundled [`code-standards`](../code-standards/SKILL.md) catalog. Its files sit beside this skill, so resolve them from `../code-standards/` and pass the paths you need to the sub-agent in step 4:
 
 - `Common/Clean Code.md` — every review.
 - `Typescript/Imports.md` and `Typescript/Exports.md` — when the diff touches `.ts` / `.tsx`.
@@ -96,7 +96,7 @@ If the user asked for visualization or verbose, run this section. If not, ignore
 
 The final deliverable is a web page, not a chat dump.
 
-Build it from `${CLAUDE_SKILL_DIR}/assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note, `Not verified`.
+Build it from `./assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note, `Not verified`.
 
 - Copy the template, replace every `{{PLACEHOLDER}}` with real content, delete the blocks and groups you have no findings for, and repeat the `li.f` / `.ac` / `.commit` items as many times as you have findings.
 - **Dark theme only.** Keep the `:root` palette as-is. No light mode, no `prefers-color-scheme`, no theme toggle.
@@ -174,7 +174,7 @@ Two things to do before the first byte, both of which have failed a run:
 
 A finding that cites `foo.ts:49-53` and makes the reader go find `foo.ts:49-53` has done half its job. **Every `file:line` on the report is a link**, and it lands on an excerpt of that exact code.
 
-Build it from `${CLAUDE_SKILL_DIR}/assets/refs-template.html`, writing it beside the report as `review-<slug>-refs.html`, the same slug the report used, one excerpt per distinct reference, each with an `id` the report links to. Paste the report's stylesheet into it first, so the two pages match.
+Build it from `./assets/refs-template.html`, writing it beside the report as `review-<slug>-refs.html`, the same slug the report used, one excerpt per distinct reference, each with an `id` the report links to. Paste the report's stylesheet into it first, so the two pages match.
 
 Do not hand this to GitHub's line anchors instead. A blob link at least shows the file, but a PR diff anchor collapses unchanged regions, so a reference to an untouched line inside a changed file lands on a "expand" control and the reader sees nothing. Every excerpt on your own page is guaranteed to render.
 

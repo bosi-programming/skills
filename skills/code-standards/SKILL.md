@@ -10,7 +10,7 @@ Four files, grouped by what they can govern. Load the ones the code in front of 
 - `Typescript/Exports.md` — what a TypeScript module publishes.
 - `Frontend/Accessibility.md` — anything that renders in a browser and takes input.
 
-They sit beside this file under `${CLAUDE_SKILL_DIR}`.
+They sit beside this file; the paths above are relative to it.
 
 ## Checking code against it
 
