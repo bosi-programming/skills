@@ -1,0 +1,115 @@
+{
+  "skills": [
+    {
+      "name": "bosi-code-review",
+      "files": [
+        "SKILL.md",
+        "assets/refs-template.html",
+        "assets/report-template.html"
+      ],
+      "version": "3cd4a7d43505"
+    },
+    {
+      "name": "bosi-feature-recipe",
+      "files": [
+        "SKILL.md",
+        "dependencies/grill-me.md",
+        "phases/phase-0-start.md",
+        "phases/phase-1-reading-the-recipe.md",
+        "phases/phase-2-mise-en-place.md",
+        "phases/phase-3-cooking.md",
+        "phases/phase-4-tasting.md",
+        "phases/phase-5-plating.md",
+        "phases/phase-6-documentation.md",
+        "references/headless.md",
+        "references/recipe-card-template.md",
+        "scripts/check-headless-contract.py"
+      ],
+      "version": "08e7b7f45b00"
+    },
+    {
+      "name": "code-standards",
+      "files": [
+        "SKILL.md",
+        "Common/Clean Code.md",
+        "Frontend/Accessibility.md",
+        "Typescript/Exports.md",
+        "Typescript/Imports.md"
+      ],
+      "version": "60b4a799a368"
+    },
+    {
+      "name": "code-visualizer",
+      "files": [
+        "SKILL.md",
+        "references/example-model.json",
+        "references/model-schema.md",
+        "references/patterns.md",
+        "scripts/render_graph.py",
+        "scripts/test_model.py",
+        "scripts/test_render.js"
+      ],
+      "version": "94cf68c6d98a"
+    },
+    {
+      "name": "docs-visualizer",
+      "files": [
+        "SKILL.md",
+        "references/example-model.json",
+        "references/model-schema.md",
+        "references/writing-patterns.md",
+        "scripts/render_docs_graph.py",
+        "scripts/test_model.py",
+        "scripts/test_render.js"
+      ],
+      "version": "b065f0ef0e86"
+    },
+    {
+      "name": "epistemic-action",
+      "files": [
+        "SKILL.md",
+        "bench/.gitignore",
+        "bench/README.md",
+        "bench/run.py",
+        "bench/score.py",
+        "bench/tasks/1-run-it/fixture/README.md",
+        "bench/tasks/1-run-it/fixture/add.js",
+        "bench/tasks/1-run-it/fixture/package.json",
+        "bench/tasks/1-run-it/fixture/test.js",
+        "bench/tasks/1-run-it/prompt.txt",
+        "bench/tasks/1-run-it/truth.json",
+        "bench/tasks/2-failing-test-first/fixture/calc.py",
+        "bench/tasks/2-failing-test-first/fixture/test_calc.py",
+        "bench/tasks/2-failing-test-first/prompt.txt",
+        "bench/tasks/2-failing-test-first/truth.json",
+        "bench/tasks/3-read-the-thing/fixture/README.md",
+        "bench/tasks/3-read-the-thing/fixture/config.py",
+        "bench/tasks/3-read-the-thing/fixture/validate.py",
+        "bench/tasks/3-read-the-thing/prompt.txt",
+        "bench/tasks/3-read-the-thing/truth.json"
+      ],
+      "version": "365bb318b8e5"
+    },
+    {
+      "name": "recipe-relay",
+      "files": [
+        "SKILL.md"
+      ],
+      "version": "55149fd6b9f1"
+    },
+    {
+      "name": "summarize-llm-response",
+      "files": [
+        "SKILL.md",
+        "evals/.gitignore",
+        "evals/README.md",
+        "evals/evals.json",
+        "evals/run.py",
+        "evals/score.py",
+        "evals/trigger.py",
+        "evals/trigger_cases.json"
+      ],
+      "version": "2d26b3cf7b8f"
+    }
+  ]
+}

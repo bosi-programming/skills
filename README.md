@@ -2,7 +2,7 @@
 
 Eight Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents. One is the standards catalog the code review reads from.
 
-The same eight install into Codex, DeepSeek Harness and Pi, from the same `skills/` directory. One plugin source, four harnesses, nothing generated and nothing copied — so a skill cannot drift between harnesses.
+The same eight install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -41,6 +41,28 @@ pi install git:github.com/bosi-programming/skills
 ```
 
 `package.json` carries the Pi package manifest — a `pi` key whose `skills` entry points at `skills/` — alongside the `pi-package` keyword the gallery lists on. Pi resolves those paths against the package root, so the tree survives a git install intact. `pi list` shows the install and `pi config` toggles individual skills.
+
+### opencode
+
+```json
+{
+  "skills": {
+    "urls": ["https://raw.githubusercontent.com/bosi-programming/skills/main/skills/"]
+  }
+}
+```
+
+opencode fetches `<url>/index.json`, then downloads each skill's files relative to `<url>/<name>/` into `~/.cache/opencode/skills/`. No checkout, no clone. The index carries a digest per skill, and opencode only refreshes a cached skill when that digest changes — so the digest moves with the files, or an edit upstream would never reach anyone who had already installed. `opencode/build-index.py` writes it; the check in "Validate a change" fails when it goes stale. Restart opencode after editing your config, and keep the global skill directories free of same-named copies.
+
+For a plain checkout, point opencode at the tree instead and skip the index entirely:
+
+```json
+{
+  "skills": {
+    "paths": ["/absolute/path/to/the/checkout/skills"]
+  }
+}
+```
 
 ## The skills
 
@@ -106,8 +128,11 @@ dsh/
   cordis.patch.yml    DeepSeek Harness bundle layer: one row, mounting the provider
   index.js            the Cordis plugin — a skill provider over skills/
   index.test.mjs      holds that provider to the skills that actually exist
+opencode/
+  build-index.py      writes and checks skills/index.json, the list opencode fetches
 package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
+  index.json          the skill list at the root of the URL opencode downloads from
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
   recipe-relay/       SKILL.md
@@ -126,6 +151,7 @@ Skills reference their own bundled files by path relative to their `SKILL.md` �
 claude plugin validate --strict .
 node --test 'dsh/**/*.test.mjs'
 python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
+python3 opencode/build-index.py --check
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:

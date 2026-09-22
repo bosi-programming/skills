@@ -1,6 +1,6 @@
 {
   "name": "bosi-programming-skills",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "Bosi's LLM skills: two-axis code review and the code-standards catalog it checks against, change visualization for code and for docs, an output-shape gate for summaries, an epistemic-action gate against predicting instead of checking, a phased recipe workflow from task to merged PR, and a sub-agent relay that runs that recipe hands-off.",
   "author": {
     "name": "Felipe Bosi",
