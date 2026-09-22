@@ -115,8 +115,7 @@ Skills reference their own bundled files by path relative to their `SKILL.md` â€
 ## Validate a change
 
 ```
-claude plugin validate .
-claude plugin validate skills
+claude plugin validate --strict .
 node --test 'dsh/**/*.test.mjs'
 python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
 ```
