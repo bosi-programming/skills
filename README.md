@@ -2,7 +2,7 @@
 
 Eight Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents. One is the standards catalog the code review reads from.
 
-The same eight install into Codex and into DeepSeek Harness, from the same `skills/` directory. One plugin source, three manifests, nothing generated and nothing copied — so a skill cannot drift between harnesses.
+The same eight install into Codex, DeepSeek Harness and Pi, from the same `skills/` directory. One plugin source, four harnesses, nothing generated and nothing copied — so a skill cannot drift between harnesses.
 
 ## Install
 
@@ -33,6 +33,14 @@ dsh plugin --profile <name> add github:bosi-programming/skills
 ```
 
 `package.json` declares `dsh.bundle`, so the install contributes exactly one layer: a row mounting `dsh/index.js`, a Cordis plugin that registers a skill provider over `skills/`. Nothing else in the profile changes, and `dsh --profile <name> --dump-config` shows the layer. For a plain checkout, `DSH_BUNDLED_SKILL_DIR=<repo>/skills dsh` puts the same directory at the harness's bundled-skill root without installing anything.
+
+### Pi
+
+```
+pi install git:github.com/bosi-programming/skills
+```
+
+`package.json` carries the Pi package manifest — a `pi` key whose `skills` entry points at `skills/` — alongside the `pi-package` keyword the gallery lists on. Pi resolves those paths against the package root, so the tree survives a git install intact. `pi list` shows the install and `pi config` toggles individual skills.
 
 ## The skills
 
@@ -98,7 +106,7 @@ dsh/
   cordis.patch.yml    DeepSeek Harness bundle layer: one row, mounting the provider
   index.js            the Cordis plugin — a skill provider over skills/
   index.test.mjs      holds that provider to the skills that actually exist
-package.json          DeepSeek Harness bundle manifest (`dsh.bundle`)
+package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
@@ -126,6 +134,14 @@ Codex has no validator subcommand, so the nearest equivalent is a throwaway home
 home=$(mktemp -d)
 CODEX_HOME="$home" codex plugin marketplace add .
 CODEX_HOME="$home" codex plugin add bosi-programming-skills@bosi-programming
+```
+
+Pi has no validator subcommand either, but `PI_CODING_AGENT_DIR` relocates its config directory, so the same probe runs against a throwaway settings file:
+
+```
+agent=$(mktemp -d)
+PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi install .
+PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi list
 ```
 
 `check-headless-contract.py` is `bosi-feature-recipe`'s own check: it fails if a
