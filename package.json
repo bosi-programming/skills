@@ -1,0 +1,34 @@
+{
+  "name": "bosi-programming-skills",
+  "version": "1.15.0",
+  "description": "Bosi's LLM skills, packaged for Claude Code, Codex, and DeepSeek Harness",
+  "license": "MIT",
+  "homepage": "https://felipebosi.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bosi-programming/skills.git"
+  },
+  "type": "module",
+  "exports": {
+    "./dsh": "./dsh/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    ".agents",
+    ".claude-plugin",
+    ".codex-plugin",
+    "dsh",
+    "skills"
+  ],
+  "keywords": [
+    "coding-agent",
+    "skills",
+    "code-review",
+    "code-standards"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./dsh/cordis.patch.yml"
+    }
+  }
+}

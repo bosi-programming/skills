@@ -1,0 +1,20 @@
+{
+  "name": "bosi-programming",
+  "interface": {
+    "displayName": "Bosi Programming"
+  },
+  "plugins": [
+    {
+      "name": "bosi-programming-skills",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

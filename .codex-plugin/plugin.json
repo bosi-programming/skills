@@ -1,0 +1,35 @@
+{
+  "name": "bosi-programming-skills",
+  "version": "1.15.0",
+  "description": "Bosi's LLM skills: two-axis code review and the code-standards catalog it checks against, change visualization for code and for docs, an output-shape gate for summaries, an epistemic-action gate against predicting instead of checking, a phased recipe workflow from task to merged PR, and a sub-agent relay that runs that recipe hands-off.",
+  "author": {
+    "name": "Felipe Bosi",
+    "url": "https://felipebosi.com/"
+  },
+  "homepage": "https://felipebosi.com/",
+  "repository": "https://github.com/bosi-programming/skills",
+  "license": "MIT",
+  "skills": "./skills/",
+  "keywords": [
+    "engineering",
+    "skills",
+    "code-review",
+    "code-standards",
+    "documentation",
+    "writing"
+  ],
+  "interface": {
+    "displayName": "Bosi Programming Skills",
+    "shortDescription": "Code review, standards, visualization, and a task-to-PR recipe",
+    "longDescription": "Multi-harness engineering skills. Two-axis code review renders its findings as a page; the code-standards catalog is the baseline it reads; code-visualizer and docs-visualizer turn a diff into a picture; summarize-llm-response and epistemic-action gate the model's own writing and reasoning; bosi-feature-recipe carries a task to a merged pull request in six phases, and recipe-relay runs it hands-off.",
+    "developerName": "Felipe Bosi",
+    "category": "Developer Tools",
+    "capabilities": ["Write"],
+    "websiteURL": "https://felipebosi.com/",
+    "defaultPrompt": [
+      "Review the changes since main.",
+      "Visualize what changed in this pull request.",
+      "Run the feature recipe on this ticket."
+    ]
+  }
+}

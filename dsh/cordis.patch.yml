@@ -1,0 +1,6 @@
+# The layer this bundle contributes. `insert` adds a row to the composition
+# instead of overriding one, so installing the bundle mounts this provider and
+# changes nothing else about the profile.
+- insert:
+    - id: bosi-programming-skills
+      name: 'bosi-programming-skills/dsh'

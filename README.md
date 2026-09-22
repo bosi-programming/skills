@@ -2,7 +2,11 @@
 
 Eight Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents. One is the standards catalog the code review reads from.
 
+The same eight install into Codex and into DeepSeek Harness, from the same `skills/` directory. One plugin source, three manifests, nothing generated and nothing copied — so a skill cannot drift between harnesses.
+
 ## Install
+
+### Claude Code
 
 ```
 /plugin marketplace add bosi-programming/skills
@@ -12,6 +16,23 @@ Eight Claude Code skills, packaged as an installable plugin. Three do work on a 
 Then run `/reload-plugins` if the install summary asks for it.
 
 Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epistemic-action`, `/bosi-programming-skills:bosi-code-review`, and so on. Claude also loads them on its own when a description matches.
+
+### Codex
+
+```
+codex plugin marketplace add bosi-programming/skills
+codex plugin add bosi-programming-skills@bosi-programming
+```
+
+`.codex-plugin/plugin.json` is the manifest and `.agents/plugins/marketplace.json` is the catalog entry. Both keep the plugin root at the repository root, so `skills/` is what Codex reads. `codex plugin list` shows what landed.
+
+### DeepSeek Harness
+
+```
+dsh plugin --profile <name> add github:bosi-programming/skills
+```
+
+`package.json` declares `dsh.bundle`, so the install contributes exactly one layer: a row mounting `dsh/index.js`, a Cordis plugin that registers a skill provider over `skills/`. Nothing else in the profile changes, and `dsh --profile <name> --dump-config` shows the layer. For a plain checkout, `DSH_BUNDLED_SKILL_DIR=<repo>/skills dsh` puts the same directory at the harness's bundled-skill root without installing anything.
 
 ## The skills
 
@@ -66,9 +87,18 @@ Go find out instead of predicting: read the file, run the command, probe the thi
 ## Layout
 
 ```
+.agents/
+  plugins/marketplace.json  Codex marketplace catalog, one entry pointing at the repo root
 .claude-plugin/
-  marketplace.json    marketplace catalog, one entry pointing at the repo root
-  plugin.json         plugin manifest
+  marketplace.json    Claude Code marketplace catalog, one entry pointing at the repo root
+  plugin.json         Claude Code plugin manifest
+.codex-plugin/
+  plugin.json         Codex plugin manifest
+dsh/
+  cordis.patch.yml    DeepSeek Harness bundle layer: one row, mounting the provider
+  index.js            the Cordis plugin — a skill provider over skills/
+  index.test.mjs      holds that provider to the skills that actually exist
+package.json          DeepSeek Harness bundle manifest (`dsh.bundle`)
 skills/
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
@@ -87,13 +117,23 @@ Skills reference their own bundled files by path relative to their `SKILL.md` �
 ```
 claude plugin validate .
 claude plugin validate skills
+node --test 'dsh/**/*.test.mjs'
 python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
 ```
 
-The last one is `bosi-feature-recipe`'s own check: it fails if a phase stops
-speaking the headless dialect, if the interactive endings disappear, if the old
-`b972f03` phase-end footer creeps back, or if this README stops describing the
-skills that exist. Offline, stdlib only — run it after editing a phase file.
+Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
+
+```
+home=$(mktemp -d)
+CODEX_HOME="$home" codex plugin marketplace add .
+CODEX_HOME="$home" codex plugin add bosi-programming-skills@bosi-programming
+```
+
+`check-headless-contract.py` is `bosi-feature-recipe`'s own check: it fails if a
+phase stops speaking the headless dialect, if the interactive endings
+disappear, if the old `b972f03` phase-end footer creeps back, or if this README
+stops describing the skills that exist. Offline, stdlib only — run it after
+editing a phase file.
 
 ## Falsify a change
 
