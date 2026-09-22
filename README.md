@@ -54,6 +54,19 @@ pi install git:github.com/bosi-programming/skills
 
 opencode fetches `<url>/index.json`, then downloads each skill's files relative to `<url>/<name>/` into `~/.cache/opencode/skills/`. No checkout, no clone. The index carries a digest per skill, and opencode only refreshes a cached skill when that digest changes — so the digest moves with the files, or an edit upstream would never reach anyone who had already installed. `opencode/build-index.py` writes it; the check in "Validate a change" fails when it goes stale. Restart opencode after editing your config, and keep the global skill directories free of same-named copies.
 
+Skills live outside your project, so an agent that denies `external_directory`
+denies them too — `read` fails with `DeniedError` even though the skill is
+installed. opencode evaluates the *last* matching `external_directory` rule, so
+the broad deny has to come first and the skill directories after it:
+
+```json
+"external_directory": {
+  "*": "deny",
+  "~/.config/opencode/skills/**": "allow",
+  "~/.cache/opencode/skills/**": "allow"
+}
+```
+
 For a plain checkout, point opencode at the tree instead and skip the index entirely:
 
 ```json
