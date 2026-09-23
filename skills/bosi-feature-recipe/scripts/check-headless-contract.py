@@ -4,7 +4,8 @@
 Offline, stdlib only. Checks that the run record is documented once and carried
 by every file that writes it, that a run is told to cross phase boundaries, that
 the interactive endings survived, that the earlier stdout handoff and the
-contradictory phase-end footer have not crept back, and that the README still
+contradictory phase-end footer have not crept back, that Reading the Recipe
+still gates grill-me behind its grill-or-skip call, and that the README still
 describes the skills that exist. Exits non-zero if any check fails.
 """
 

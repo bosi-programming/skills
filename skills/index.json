@@ -25,7 +25,7 @@
         "references/recipe-card-template.md",
         "scripts/check-headless-contract.py"
       ],
-      "version": "08e7b7f45b00"
+      "version": "306222afb298"
     },
     {
       "name": "code-standards",

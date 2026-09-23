@@ -93,7 +93,7 @@ The standards the Standards axis checks against, as four files: `Common/Clean Co
 
 ### bosi-feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
@@ -192,7 +192,8 @@ PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi list
 
 `check-headless-contract.py` is `bosi-feature-recipe`'s own check: it fails if a
 phase stops speaking the headless dialect, if the interactive endings
-disappear, if the old `b972f03` phase-end footer creeps back, or if this README
+disappear, if the old `b972f03` phase-end footer creeps back, if Reading the
+Recipe loses its grill-or-skip call, or if this README
 stops describing the skills that exist. Offline, stdlib only — run it after
 editing a phase file.
 
