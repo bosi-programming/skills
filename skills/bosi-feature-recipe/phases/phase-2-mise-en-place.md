@@ -25,7 +25,7 @@ approved version to the recipe card.
 ## 2. Cross-check the card
 
 Once every section above is drafted, ask one closing question rather than
-running `grill-me` again: does the Implementation Plan cover every
+running `grill-me` over the design: does the Implementation Plan cover every
 Acceptance Criterion, and does the Testing Strategy map to both? The
 section-by-section drafting in step 1 already caught most gaps as they were
 written — this is a single check, not another full-tree interrogation. Get

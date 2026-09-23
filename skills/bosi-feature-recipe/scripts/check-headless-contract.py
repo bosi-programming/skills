@@ -141,6 +141,37 @@ if "terminal" not in phase_text(6):
     ok, detail = False, detail + ["phase-6: does not end the run"]
 check("phases-hand-off", ok, "; ".join(detail))
 
+phase1_text = phase_text(1)
+phase2_text = phase_text(2)
+
+missing = [s for s in ["**Complex**", "**Undefined**"] if s not in phase1_text]
+check(
+    "phase1-grill-gate",
+    not missing and re.search(r"[Uu]nsure[^\n]*grill", phase1_text),
+    f"phase-1 missing gate triggers {missing} or the unsure-means-grill rule",
+)
+
+missing = [s for s in ["grill-me skipped:", "grill it"] if s not in phase1_text]
+check("phase1-skip-path", not missing, f"phase-1 missing skip path: {missing}")
+
+check(
+    "phase1-headless-gate",
+    "unattended: grill-me skipped" in phase1_text,
+    "phase-1 Headless must log a skipped grill",
+)
+
+check(
+    "phase2-grill-agnostic",
+    "`grill-me` again" not in phase2_text,
+    "phase-2 still assumes grill-me ran in phase 1",
+)
+
+check(
+    "contract-names-grill-gate",
+    "grill-or-skip" in contract_text,
+    "references/headless.md must name the grill-or-skip checkpoint",
+)
+
 skill_text = SKILL_MD.read_text() if SKILL_MD.exists() else ""
 check(
     "skill-points-at-contract",

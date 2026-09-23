@@ -44,10 +44,10 @@ delivered rather than with a baton in the air.
 ## Checkpoints
 
 The checkpoints are the ones each phase already has — Reading the Recipe's
-`grill-me` frontier, Mise en Place's section drafts, cross-check and test-case
-list, Cooking's deviations log, Tasting's scope-creep findings, Plating's
-chunk split, PR description and reviewer routing, Documentation's "is this
-worth documenting". Nobody is awake to answer them, so the run takes the
+grill-or-skip call and `grill-me` frontier, Mise en Place's section drafts,
+cross-check and test-case list, Cooking's deviations log, Tasting's
+scope-creep findings, Plating's chunk split, PR description and reviewer
+routing, Documentation's "is this worth documenting". Nobody is awake to answer them, so the run takes the
 phase's own recommendation and keeps moving:
 
 1. Take the recommendation the phase already states for that checkpoint.
