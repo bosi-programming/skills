@@ -105,7 +105,7 @@ Runs `bosi-feature-recipe` from a live session, without touching any of its file
 
 ### maestri-workflow
 
-Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. Once the PR is open, a last recruit runs `bosi-code-review` and the orchestrator fixes what it finds.
+Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. The run never stops to ask: where recipe-relay would pause, the orchestrator takes the stated recommendation and logs it to the note, and it never merges, promotes the draft or deletes work. It ends with a draft PR, after a last recruit runs `bosi-code-review` and the orchestrator fixes what it finds, and a report of every call it made alone and every one-way door it left in the PR body.
 
 Needs Maestri and its `maestri` CLI.
 
@@ -154,7 +154,7 @@ skills/
   index.json          the skill list at the root of the URL opencode downloads from
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
-  maestri-workflow/   SKILL.md
+  maestri-workflow/   SKILL.md + scripts/
   recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
@@ -172,6 +172,7 @@ claude plugin validate --strict .
 node --test 'dsh/**/*.test.mjs'
 python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
+python3 skills/maestri-workflow/scripts/check-no-wait.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -196,6 +197,13 @@ disappear, if the old `b972f03` phase-end footer creeps back, if Reading the
 Recipe loses its grill-or-skip call, or if this README
 stops describing the skills that exist. Offline, stdlib only — run it after
 editing a phase file.
+
+`check-no-wait.py` is `maestri-workflow`'s own check: it fails if the skill
+tells the orchestrator to stop, ask or wait for the user before the end, if a
+replacement for an old stop leaves the section it belongs in, if
+`recipe-relay` loses its own checkpoints, or if a relative path in the skill
+does not resolve. Offline, stdlib only — run it after editing
+`maestri-workflow`.
 
 ## Falsify a change
 

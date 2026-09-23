@@ -93,9 +93,10 @@
     {
       "name": "maestri-workflow",
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "scripts/check-no-wait.py"
       ],
-      "version": "2ac380373700"
+      "version": "c79a0bb5d85f"
     },
     {
       "name": "recipe-relay",
