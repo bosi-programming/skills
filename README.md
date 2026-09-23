@@ -1,8 +1,8 @@
 # Bosi Programming Skills
 
-Eight Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents. One is the standards catalog the code review reads from.
+Nine Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from.
 
-The same eight install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same nine install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -103,6 +103,12 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 Runs `bosi-feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session only surfaces a checkpoint at the phase boundaries bosi-feature-recipe's own text flags as worth a fresh look, and only stops outright at the recipe's own one-way doors — the same contract as headless, just supervised instead of unattended.
 
+### maestri-workflow
+
+Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. Once the PR is open, a last recruit runs `bosi-code-review` and the orchestrator fixes what it finds.
+
+Needs Maestri and its `maestri` CLI.
+
 ### code-visualizer
 
 Turns a diff or pull request into an interactive web page that maps what changed and how the changed pieces relate. The page answers the questions a reviewer asks before reading a line: where to start, what to ask the author, which changed file ships with no test, what breaks for callers, how busy each file is and whose it is, and which design patterns the change uses or breaks. Every claim carries a `file:line` you can click through to the hunk itself, and a red mark on a box means nothing asserts what it now does. It writes a `model.json` first, so you can correct the model cheaply, then renders. Accepts a PR URL or number, a git ref range, a `.diff`/`.patch` file, or the working tree.
@@ -148,6 +154,7 @@ skills/
   index.json          the skill list at the root of the URL opencode downloads from
   bosi-code-review/   SKILL.md + assets/report-template.html
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
+  maestri-workflow/   SKILL.md
   recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/

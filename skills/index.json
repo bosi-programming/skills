@@ -91,6 +91,13 @@
       "version": "365bb318b8e5"
     },
     {
+      "name": "maestri-workflow",
+      "files": [
+        "SKILL.md"
+      ],
+      "version": "2ac380373700"
+    },
+    {
       "name": "recipe-relay",
       "files": [
         "SKILL.md"

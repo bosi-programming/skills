@@ -20,6 +20,7 @@ const SKILLS = [
   'code-visualizer',
   'docs-visualizer',
   'epistemic-action',
+  'maestri-workflow',
   'recipe-relay',
   'summarize-llm-response',
 ]
