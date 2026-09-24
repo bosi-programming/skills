@@ -120,7 +120,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "63213692b64b"
+      "version": "e9d7db976a4e"
     },
     {
       "name": "summarize-llm-response",
@@ -135,6 +135,26 @@
         "evals/trigger_cases.json"
       ],
       "version": "82790403ef1b"
+    },
+    {
+      "name": "week-summary",
+      "files": [
+        "SKILL.md",
+        "evals/.gitignore",
+        "evals/scenario-01.json",
+        "evals/scenario-02.json",
+        "evals/scenario-03.json",
+        "evals/scenario-04.json",
+        "evals/scenario-05.json",
+        "evals/scenario-06.json",
+        "evals/scenario-07.json",
+        "evals/scenario-08.json",
+        "evals/scenario-09.json",
+        "evals/scenario-10.json",
+        "evals/scenario-11.json",
+        "templates/week-review.md"
+      ],
+      "version": "1d32640c6cfa"
     },
     {
       "name": "work-summary",

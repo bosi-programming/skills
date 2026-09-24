@@ -1,6 +1,6 @@
 {
   "name": "bosi-programming-skills",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Bosi's LLM skills, packaged for Claude Code, Codex, DeepSeek Harness, Pi, and opencode",
   "license": "MIT",
   "homepage": "https://felipebosi.com/",
