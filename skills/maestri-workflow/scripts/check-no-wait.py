@@ -18,8 +18,11 @@ STOP_PHRASES = [
     "bring the open question to the user",
     "give them a beat",
 ]
-RELAY_CHECKPOINTS = [
-    "Give them a beat to interject",
+RELAY_PAUSES = [
+    "give them a beat",
+    "visible checkpoint",
+]
+RELAY_STOPS = [
     "report the open question to the user",
 ]
 RUNTIME_VARIABLE = re.compile(r"\$\{CLAUDE_SKILL_DIR\}")
@@ -108,9 +111,25 @@ check_all("single-draft-pr", three, "one draft PR", "no chunks")
 check_all("one-way-doors-in-pr-body", four, "one-way door", "never take", "## Left for you", "PR body")
 check_all("pr-stays-draft", four, "stays a draft")
 
-check_all("scope-maestri-only", preamble(three), "only under maestri-workflow", "keeps its checkpoints")
-missing_relay = [phrase for phrase in RELAY_CHECKPOINTS if flatten(phrase) not in flatten(relay)]
-check("recipe-relay-keeps-checkpoints", not missing_relay, f"missing: {missing_relay}")
+check_all("scope-maestri-only", preamble(three), "only under maestri-workflow", "keeps its stop conditions")
+found_pauses = [phrase for phrase in RELAY_PAUSES if phrase in flatten(relay)]
+check("recipe-relay-no-pause", not found_pauses, f"found: {found_pauses}")
+missing_stops = [phrase for phrase in RELAY_STOPS if flatten(phrase) not in flatten(relay)]
+check("recipe-relay-keeps-stops", not missing_stops, f"missing: {missing_stops}")
+
+relay_part = sections(relay)
+check_all(
+    "recipe-relay-review",
+    relay_part.get(5, ""),
+    "../bosi-code-review/SKILL.md",
+    "merge base",
+    "asks no questions",
+    "skips the HTML report",
+    "file:line",
+    "failing test first",
+)
+check("review-not-repeated", "bosi-code-review/SKILL.md" not in skill, "maestri-workflow briefs its own review")
+check_all("review-lane", three, "code review", "planning lane")
 
 check_all("report-lists-decisions", five, "draft PR", "default", "fallback", "Taken without asking", "one-way door")
 

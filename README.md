@@ -101,11 +101,11 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 ### recipe-relay
 
-Runs `bosi-feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session only surfaces a checkpoint at the phase boundaries bosi-feature-recipe's own text flags as worth a fresh look, and only stops outright at the recipe's own one-way doors — the same contract as headless, just supervised instead of unattended.
+Runs `bosi-feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `bosi-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
 
 ### maestri-workflow
 
-Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. The run never stops to ask: where recipe-relay would pause, the orchestrator takes the stated recommendation and logs it to the note, and it never merges, promotes the draft or deletes work. It ends with a draft PR, after a last recruit runs `bosi-code-review` and the orchestrator fixes what it finds, and a report of every call it made alone and every one-way door it left in the PR body.
+Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. The run never stops to ask: where recipe-relay would pause, the orchestrator takes the stated recommendation and logs it to the note, and it never merges, promotes the draft or deletes work. It ends with a draft PR, after recipe-relay's closing review runs in a last recruit and the orchestrator fixes what it finds, and a report of every call it made alone and every one-way door it left in the PR body.
 
 Needs Maestri and its `maestri` CLI.
 
@@ -201,8 +201,9 @@ editing a phase file.
 `check-no-wait.py` is `maestri-workflow`'s own check: it fails if the skill
 tells the orchestrator to stop, ask or wait for the user before the end, if a
 replacement for an old stop leaves the section it belongs in, if
-`recipe-relay` loses its own checkpoints, or if a relative path in the skill
-does not resolve. Offline, stdlib only — run it after editing
+`recipe-relay` pauses between units, loses its stop conditions or its closing
+`bosi-code-review` pass, if `maestri-workflow` briefs a review of its own, or if
+a relative path in the skill does not resolve. Offline, stdlib only — run it after editing
 `maestri-workflow`.
 
 ## Falsify a change

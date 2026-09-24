@@ -1,6 +1,6 @@
 ---
 name: recipe-relay
-description: Run bosi-feature-recipe phase by phase through isolated sub-agents, auto-taking every checkpoint's own stated recommendation instead of asking, while this session still gets a visible checkpoint at the phase boundaries bosi-feature-recipe itself flags as significant. Use when the user wants the feature recipe run hands-off but supervised in the current session, without a cron job and without every design decision landing back in chat.
+description: Run bosi-feature-recipe phase by phase through isolated sub-agents, auto-taking every checkpoint's own stated recommendation instead of asking, moving from one unit to the next without pausing, and ending with a headless bosi-code-review pass whose findings it fixes. Use when the user wants the feature recipe run hands-off but supervised in the current session, without a cron job and without every design decision landing back in chat.
 ---
 
 # Recipe Relay
@@ -8,8 +8,7 @@ description: Run bosi-feature-recipe phase by phase through isolated sub-agents,
 Runs `../bosi-feature-recipe/` without changing any of its files. This
 session stays live and orchestrates; each phase's actual work happens in an
 isolated sub-agent told to auto-take every checkpoint's own recommendation,
-so the only thing that reaches this chat is a phase-boundary checkpoint, not
-a design question.
+so what reaches this chat is a one-line note per unit, not a design question.
 
 ## 1. Start or resume
 
@@ -42,26 +41,42 @@ this effect:
 > instructions about chaining into the next phase file: stop and return
 > control once this unit's own closing section (frontmatter update, one line
 > to `## Decisions`) is written. Do not set `runMode` on the card. Return a
-> short summary — what got decided — plus this unit's own stated Phase-done
-> recommendation (New session or Continue), quoted from its own text.
+> short summary of what got decided.
 
-## 3. Checkpoint between units
+## 3. Move to the next unit
 
-Read the sub-agent's returned recommendation as that phase's own file states
-it, not decided by this skill:
-
-- **New session (recommended)** — post a short visible checkpoint to the
-  user: what the unit produced, in one or two lines, and which phase starts
-  next. Give them a beat to interject before continuing.
-- **Continue**, or no menu at all (Cooking/Tasting) — no checkpoint; start
-  the next unit's sub-agent straight away.
+When a sub-agent returns, start the next unit's sub-agent straight away,
+whatever its phase file recommends at Phase done. New session and Continue
+mean the same here: each unit already runs in a clean sub-agent. Post one line
+per unit to the user — what it produced and which phase starts next — without
+waiting for a reply.
 
 ## 4. Stop conditions
 
 Same as bosi-feature-recipe's own contract: stop only when the card reaches
-`terminal`, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
+`terminal` and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
 real one-way door or an ambiguity with no reasonable default — never merely
 because a unit finished. On a stop, report the open question to the user
 directly in this chat. Resuming the conversation with an answer and
 re-invoking this skill picks the card back up through Phase 0's own resume
 logic.
+
+## 5. Review and fix
+
+When the card reaches `terminal`, the branch holds the code. If the run
+stopped on `blocked` / `needs-input` instead, skip this section.
+
+1. Spawn one `general-purpose` sub-agent to run `../bosi-code-review/SKILL.md`
+   headless. The fixed point is the merge base of the work branch and the
+   default branch; if the recipe worked on the default branch itself, it is
+   the commit before the recipe's first one. The spec source is the task on
+   the card. It asks no questions, skips the HTML report, and returns every
+   finding as text with its axis and `file:line`.
+2. Work through the findings in this session, on the same branch. Read each
+   one at its `file:line` first. Write a failing test first where the finding
+   is a behaviour, then fix, then run the project's scoped tests and lint.
+   Push to the open PR and leave it in the state Plating left it. Log each
+   finding you reject to `## Decisions` as `relay:`, with the reason, instead
+   of changing the code.
+3. Tell the user, in short bullets, which findings you fixed and which you
+   rejected, with the reason.

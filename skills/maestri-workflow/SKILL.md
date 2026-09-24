@@ -86,11 +86,14 @@ The no-pause rule: wherever the recipe, Phase 0 or recipe-relay would pause for
 the user, post a checkpoint and wait, or stop on `needs-input` or `blocked`,
 you take the recommendation that text states, log it under
 `## Taken without asking`, and continue. This holds only under
-maestri-workflow. `../recipe-relay/SKILL.md` run on its own keeps its
-checkpoints and stop conditions.
+maestri-workflow. `../recipe-relay/SKILL.md` run on its own keeps its stop
+conditions.
 
 1. **Pick the lane.** Reading the Recipe, Mise en Place and Documentation take
-   the planning lane. Cooking/Tasting and Plating take the coding lane.
+   the planning lane. Cooking/Tasting and Plating take the coding lane. The
+   code review in recipe-relay's section 5 takes the planning lane, is named
+   `{ticket} code review`, and is briefed with that section's step 1 instead
+   of the section 2 prompt.
 2. **Recruit a fresh agent for the unit**, so it starts with a clean context,
    the way a sub-agent would. Name it for the ticket and the work it does,
    such as `{ticket} mise en place` or `{ticket} cooking`, and start it in
@@ -142,25 +145,14 @@ checkpoints and stop conditions.
 Leave finished recruits on the canvas, so the user can read their history.
 Only dismiss one when the user asks.
 
-## 4. Review and fix
+## 4. Close the run
 
-When recipe-relay reaches `terminal`, the branch holds the code. If a unit
-stayed stopped after its retry, or Plating could not open a PR (no remote, no
-`gh` auth), the flow ends: log it, skip the review, add any one-way doors to
-the PR body if a PR exists, and section 5 reports the stop first. Otherwise,
-before you report the run as done:
-
-1. Recruit one last planning-lane agent, named `{ticket} code review`, and
-   pin its model as in section 3.
-2. Brief it to run `../bosi-code-review/SKILL.md` against the merge base of
-   the branch and the default branch, with the ticket as the spec source. It
-   asks no questions, skips the HTML report, and returns every finding as
-   text with its `file:line` through `maestri ask "{your name}" "..."`.
-3. Work through the findings yourself, on the same branch: write a failing
-   test first where the finding is a behaviour, then fix, then run the
-   project's scoped tests and lint. Push to the open PR, which stays a draft.
-   A finding you judge wrong goes in the note with the reason, not into the
-   code.
+When recipe-relay reaches `terminal`, its section 5 reviews the branch and you
+fix what the review finds; its findings come back through `maestri ask` like
+any unit's report. If a unit stayed stopped after its retry, or Plating could
+not open a PR (no remote, no `gh` auth), the flow ends: log it, skip the
+review, add any one-way doors to the PR body if a PR exists, and section 5
+reports the stop first. The PR stays a draft through the fixes.
 
 A one-way door is a merge, promoting the draft to ready, a production write, a
 delete of deliberate work, or a force-push. You never take one, and neither

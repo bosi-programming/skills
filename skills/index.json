@@ -96,14 +96,14 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "c79a0bb5d85f"
+      "version": "7a7054e69613"
     },
     {
       "name": "recipe-relay",
       "files": [
         "SKILL.md"
       ],
-      "version": "55149fd6b9f1"
+      "version": "c8df5fab42d6"
     },
     {
       "name": "summarize-llm-response",
