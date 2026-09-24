@@ -14,12 +14,12 @@ import { apply, inject, name, parseSkill } from './index.js'
 
 /** Every skill this package must publish, in catalog order; add a skill, add it here. */
 const SKILLS = [
-  'bosi-code-review',
-  'bosi-feature-recipe',
+  'better-code-review',
   'code-standards',
   'code-visualizer',
   'docs-visualizer',
   'epistemic-action',
+  'feature-recipe',
   'maestri-workflow',
   'recipe-relay',
   'summarize-llm-response',
@@ -125,10 +125,10 @@ test('refuses frontmatter the catalog cannot use', () => {
 
 test('loads a body without its frontmatter', async () => {
   const candidates = await mount().list({})
-  const candidate = candidates.find((entry) => entry.name === 'bosi-code-review')
+  const candidate = candidates.find((entry) => entry.name === 'better-code-review')
   const definition = await mount().get(candidate, {})
 
-  assert.equal(definition.name, 'bosi-code-review')
+  assert.equal(definition.name, 'better-code-review')
   assert.equal(definition.description, candidate.description)
   assert.equal(definition.provider, 'bosi-programming-skills')
   assert.equal(definition.content.includes('adapted-by'), false)

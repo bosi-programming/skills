@@ -1,18 +1,18 @@
 ---
 name: recipe-relay
-description: Run bosi-feature-recipe phase by phase through isolated sub-agents, auto-taking every checkpoint's own stated recommendation instead of asking, moving from one unit to the next without pausing, and ending with a headless bosi-code-review pass whose findings it fixes. Use when the user wants the feature recipe run hands-off but supervised in the current session, without a cron job and without every design decision landing back in chat.
+description: Run feature-recipe phase by phase through isolated sub-agents, auto-taking every checkpoint's own stated recommendation instead of asking, moving from one unit to the next without pausing, and ending with a headless better-code-review pass whose findings it fixes. Use when the user wants the feature recipe run hands-off but supervised in the current session, without a cron job and without every design decision landing back in chat.
 ---
 
 # Recipe Relay
 
-Runs `../bosi-feature-recipe/` without changing any of its files. This
+Runs `../feature-recipe/` without changing any of its files. This
 session stays live and orchestrates; each phase's actual work happens in an
 isolated sub-agent told to auto-take every checkpoint's own recommendation,
 so what reaches this chat is a one-line note per unit, not a design question.
 
 ## 1. Start or resume
 
-Read and follow `../bosi-feature-recipe/phases/phase-0-start.md` directly in
+Read and follow `../feature-recipe/phases/phase-0-start.md` directly in
 this session — not through a sub-agent. It's pure routing, and this session
 needs the card's state to orchestrate anyway. Follow it as an interactive
 invocation: take the task from what the user already said in this
@@ -23,7 +23,7 @@ running this, just not being asked every checkpoint.
 
 Determine the next unit from the card's `phase` / `runNext`:
 
-- `phase-3-cooking.md` + `phase-4-tasting.md` are one unit — bosi-feature-recipe
+- `phase-3-cooking.md` + `phase-4-tasting.md` are one unit — feature-recipe
   already runs them back-to-back with no menu, in either of its own modes.
 - Every other phase (`phase-1-reading-the-recipe.md`, `phase-2-mise-en-place.md`,
   `phase-5-plating.md`, `phase-6-documentation.md`) is its own unit.
@@ -53,7 +53,7 @@ waiting for a reply.
 
 ## 4. Stop conditions
 
-Same as bosi-feature-recipe's own contract: stop only when the card reaches
+Same as feature-recipe's own contract: stop only when the card reaches
 `terminal` and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
 real one-way door or an ambiguity with no reasonable default — never merely
 because a unit finished. On a stop, report the open question to the user
@@ -66,7 +66,7 @@ logic.
 When the card reaches `terminal`, the branch holds the code. If the run
 stopped on `blocked` / `needs-input` instead, skip this section.
 
-1. Spawn one `general-purpose` sub-agent to run `../bosi-code-review/SKILL.md`
+1. Spawn one `general-purpose` sub-agent to run `../better-code-review/SKILL.md`
    with `--headless`. The fixed point is the merge base of the work branch and
    the default branch; if the recipe worked on the default branch itself, it
    is the commit before the recipe's first one. The spec source is the task on

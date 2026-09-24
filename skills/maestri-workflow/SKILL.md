@@ -1,6 +1,6 @@
 ---
 name: maestri-workflow
-description: Orchestrate a ticket from the Maestri canvas by running recipe-relay with each unit handed to a fresh agent terminal instead of a sub-agent, one model for planning and another for code, on any harness the canvas has a preset for. The run never stops to ask; the orchestrator takes each stated recommendation, logs it to a shared note, and ends with a draft PR after a bosi-code-review pass it fixes. Use when the user is in Maestri and asks to work a ticket, issue or task through the recipe with a team of agents, or names this workflow.
+description: Orchestrate a ticket from the Maestri canvas by running recipe-relay with each unit handed to a fresh agent terminal instead of a sub-agent, one model for planning and another for code, on any harness the canvas has a preset for. The run never stops to ask; the orchestrator takes each stated recommendation, logs it to a shared note, and ends with a draft PR after a better-code-review pass it fixes. Use when the user is in Maestri and asks to work a ticket, issue or task through the recipe with a team of agents, or names this workflow.
 ---
 
 # Maestri Workflow

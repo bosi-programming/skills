@@ -121,12 +121,12 @@ relay_part = sections(relay)
 check_all(
     "recipe-relay-review",
     relay_part.get(5, ""),
-    "../bosi-code-review/SKILL.md",
+    "../better-code-review/SKILL.md",
     "--headless",
     "merge base",
     "failing test first",
 )
-check("review-not-repeated", "bosi-code-review/SKILL.md" not in skill, "maestri-workflow briefs its own review")
+check("review-not-repeated", "better-code-review/SKILL.md" not in skill, "maestri-workflow briefs its own review")
 check_all("review-lane", three, "code review", "planning lane")
 
 check_all("report-lists-decisions", five, "draft PR", "default", "fallback", "Taken without asking", "one-way door")

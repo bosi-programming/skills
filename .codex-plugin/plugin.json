@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Bosi Programming Skills",
     "shortDescription": "Code review, standards, visualization, and a task-to-PR recipe",
-    "longDescription": "Multi-harness engineering skills. Two-axis code review renders its findings as a page; the code-standards catalog is the baseline it reads; code-visualizer and docs-visualizer turn a diff into a picture; summarize-llm-response and epistemic-action gate the model's own writing and reasoning; bosi-feature-recipe carries a task to a merged pull request in six phases, recipe-relay runs it hands-off, and maestri-workflow runs it through agent terminals on the Maestri canvas.",
+    "longDescription": "Multi-harness engineering skills. Two-axis code review renders its findings as a page; the code-standards catalog is the baseline it reads; code-visualizer and docs-visualizer turn a diff into a picture; summarize-llm-response and epistemic-action gate the model's own writing and reasoning; feature-recipe carries a task to a merged pull request in six phases, recipe-relay runs it hands-off, and maestri-workflow runs it through agent terminals on the Maestri canvas.",
     "developerName": "Felipe Bosi",
     "category": "Developer Tools",
     "capabilities": ["Write"],

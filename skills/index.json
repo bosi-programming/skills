@@ -1,32 +1,14 @@
 {
   "skills": [
     {
-      "name": "bosi-code-review",
+      "name": "better-code-review",
       "files": [
         "SKILL.md",
         "assets/refs-template.html",
         "assets/report-template.html",
         "scripts/check-headless.py"
       ],
-      "version": "36741751c3f9"
-    },
-    {
-      "name": "bosi-feature-recipe",
-      "files": [
-        "SKILL.md",
-        "dependencies/grill-me.md",
-        "phases/phase-0-start.md",
-        "phases/phase-1-reading-the-recipe.md",
-        "phases/phase-2-mise-en-place.md",
-        "phases/phase-3-cooking.md",
-        "phases/phase-4-tasting.md",
-        "phases/phase-5-plating.md",
-        "phases/phase-6-documentation.md",
-        "references/headless.md",
-        "references/recipe-card-template.md",
-        "scripts/check-headless-contract.py"
-      ],
-      "version": "55f76488bfd4"
+      "version": "8e9e6701dd02"
     },
     {
       "name": "code-standards",
@@ -92,19 +74,37 @@
       "version": "365bb318b8e5"
     },
     {
+      "name": "feature-recipe",
+      "files": [
+        "SKILL.md",
+        "dependencies/grill-me.md",
+        "phases/phase-0-start.md",
+        "phases/phase-1-reading-the-recipe.md",
+        "phases/phase-2-mise-en-place.md",
+        "phases/phase-3-cooking.md",
+        "phases/phase-4-tasting.md",
+        "phases/phase-5-plating.md",
+        "phases/phase-6-documentation.md",
+        "references/headless.md",
+        "references/recipe-card-template.md",
+        "scripts/check-headless-contract.py"
+      ],
+      "version": "c460654f8e1f"
+    },
+    {
       "name": "maestri-workflow",
       "files": [
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "bb2d9568d16e"
+      "version": "6496e92e7de2"
     },
     {
       "name": "recipe-relay",
       "files": [
         "SKILL.md"
       ],
-      "version": "f2d1f94ee9a5"
+      "version": "2247efcdfa00"
     },
     {
       "name": "summarize-llm-response",

@@ -15,7 +15,7 @@ The same nine install into Codex, DeepSeek Harness, Pi and opencode, from the sa
 
 Then run `/reload-plugins` if the install summary asks for it.
 
-Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epistemic-action`, `/bosi-programming-skills:bosi-code-review`, and so on. Claude also loads them on its own when a description matches.
+Plugin skills are namespaced, so the commands are `/bosi-programming-skills:epistemic-action`, `/bosi-programming-skills:better-code-review`, and so on. Claude also loads them on its own when a description matches.
 
 ### Codex
 
@@ -79,7 +79,7 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ## The skills
 
-### bosi-code-review
+### better-code-review
 
 Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
 
@@ -89,19 +89,19 @@ Based on Matt Pocock's code-review skill.
 
 The standards the Standards axis checks against, as four files: `Common/Clean Code.md` for naming, size, structure and immutability in any language; `Typescript/Imports.md` and `Typescript/Exports.md` for how TypeScript reaches other modules and what it publishes; `Frontend/Accessibility.md` for anything that renders in a browser. Each file is a list of rules and the failures they prevent, closing with the red flags to catch in review.
 
-`bosi-code-review` reads the catalog as its baseline and only applies the files the diff can violate. The catalog defers to the project: a standard the repo documents itself always wins, and a breach is a hard violation only where the repo documents the same rule — otherwise it is a judgement call, like any smell. It is a reference rather than a workflow, so there is nothing here to run.
+`better-code-review` reads the catalog as its baseline and only applies the files the diff can violate. The catalog defers to the project: a standard the repo documents itself always wins, and a breach is a hard violation only where the repo documents the same rule — otherwise it is a judgement call, like any smell. It is a reference rather than a workflow, so there is nothing here to run.
 
-### bosi-feature-recipe
+### feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `bosi-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
-Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through Reading the Recipe, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/bosi-feature-recipe/references/headless.md`.
+Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through Reading the Recipe, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
 
 ### recipe-relay
 
-Runs `bosi-feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `bosi-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
+Runs `feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
 
 ### maestri-workflow
 
@@ -152,8 +152,8 @@ opencode/
 package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
   index.json          the skill list at the root of the URL opencode downloads from
-  bosi-code-review/   SKILL.md + assets/report-template.html + scripts/
-  bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
+  better-code-review/ SKILL.md + assets/report-template.html + scripts/
+  feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
   maestri-workflow/   SKILL.md + scripts/
   recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
@@ -170,10 +170,10 @@ Skills reference their own bundled files by path relative to their `SKILL.md` �
 ```
 claude plugin validate --strict .
 node --test 'dsh/**/*.test.mjs'
-python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
+python3 skills/feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
 python3 skills/maestri-workflow/scripts/check-no-wait.py
-python3 skills/bosi-code-review/scripts/check-headless.py
+python3 skills/better-code-review/scripts/check-headless.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -192,7 +192,7 @@ PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi install .
 PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi list
 ```
 
-`check-headless-contract.py` is `bosi-feature-recipe`'s own check: it fails if a
+`check-headless-contract.py` is `feature-recipe`'s own check: it fails if a
 phase stops speaking the headless dialect, if the interactive endings
 disappear, if the old `b972f03` phase-end footer creeps back, if Reading the
 Recipe loses its grill-or-skip call, or if this README
@@ -203,15 +203,15 @@ editing a phase file.
 tells the orchestrator to stop, ask or wait for the user before the end, if a
 replacement for an old stop leaves the section it belongs in, if
 `recipe-relay` pauses between units, loses its stop conditions or its closing
-`bosi-code-review` pass, if `maestri-workflow` briefs a review of its own, or if
+`better-code-review` pass, if `maestri-workflow` briefs a review of its own, or if
 a relative path in the skill does not resolve. Offline, stdlib only — run it
 after editing `maestri-workflow`.
 
-`check-headless.py` is `bosi-code-review`'s own check: it fails if the
+`check-headless.py` is `better-code-review`'s own check: it fails if the
 `## Headless` section loses its entry, a default for a step that would ask,
 the text format of a finding or its closing lines, if steps 1, 2 or 6 stop
 pointing to it, or if a relative path in the skill does not resolve. Offline,
-stdlib only — run it after editing `bosi-code-review`.
+stdlib only — run it after editing `better-code-review`.
 
 ## Falsify a change
 

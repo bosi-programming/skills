@@ -5,10 +5,10 @@ opened in Phase 5 until everything here passes.
 
 ## 1. Run the review
 
-Invoke the `bosi-code-review` skill (Skill tool) against the change, then
+Invoke the `better-code-review` skill (Skill tool) against the change, then
 triage its findings by axis without waiting for the user:
 
-- **Standards** — bosi-code-review already separates hard violations
+- **Standards** — better-code-review already separates hard violations
   (documented-standard breaches) from judgement calls (baseline-smell
   heuristics). Fix the hard violations; log judgement calls to
   `## Quality Gate Results` rather than acting on them.
@@ -76,7 +76,7 @@ trigger phrase in a new session. End the session.
 Read `../references/headless.md`. In a headless run:
 
 - Set `runNext: phase-4-tasting.md` as you start.
-- Section 1 runs `bosi-code-review` with `--headless`, so the review asks
+- Section 1 runs `better-code-review` with `--headless`, so the review asks
   nothing and returns its findings as text.
 - Section 1's scope-creep findings are logged with `unattended:` and the code
   they describe stays where it is. Deleting work on a recommendation is a

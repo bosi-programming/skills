@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Falsify the mechanical claims bosi-feature-recipe's headless mode makes.
+"""Falsify the mechanical claims feature-recipe's headless mode makes.
 
 Offline, stdlib only. Checks that the run record is documented once and carried
 by every file that writes it, that a run is told to cross phase boundaries, that
@@ -155,8 +155,8 @@ check(
 tasting_headless = phase_text(4).split("\n## Headless", 1)[-1]
 check(
     "tasting-review-headless",
-    "bosi-code-review" in tasting_headless and "--headless" in tasting_headless,
-    "phase-4 ## Headless must run bosi-code-review with --headless",
+    "better-code-review" in tasting_headless and "--headless" in tasting_headless,
+    "phase-4 ## Headless must run better-code-review with --headless",
 )
 
 missing = [s for s in ["grill-me skipped:", "grill it"] if s not in phase1_text]

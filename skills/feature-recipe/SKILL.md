@@ -1,5 +1,5 @@
 ---
-name: bosi-feature-recipe
+name: feature-recipe
 description: Take a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — each one able to end in a clean context, except Reading the Recipe and Cooking/Tasting, which default to continuing straight into the next phase. Use when the user says "run the recipe", "cook this ticket", "cook this task", or "feature recipe".
 ---
 

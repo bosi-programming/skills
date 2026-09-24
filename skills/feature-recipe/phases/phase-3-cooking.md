@@ -12,7 +12,7 @@ repo's own documented standards (a `CODING_STANDARDS.md`, `CONTRIBUTING.md`,
 or whatever it documents), if any — these win wherever they conflict with
 what follows. Always load the bundled `code-standards` skill too, whether or
 not the repo has its own — resolve it from `../../code-standards/` (sibling
-to `bosi-feature-recipe`, not to this phase file), or load it by name if
+to `feature-recipe`, not to this phase file), or load it by name if
 that path isn't where it lives — and read the files that govern the kind of
 code this task touches; skip the ones it can't violate.
 

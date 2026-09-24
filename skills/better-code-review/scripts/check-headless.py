@@ -67,11 +67,11 @@ check_all("step-two-defers", step_two, "headless")
 check_all("step-six-defers", step_six, "headless")
 
 check_all("description-headless", frontmatter_description(skill), "headless")
-paragraph = block(readme, "### bosi-code-review", r"^### ")
+paragraph = block(readme, "### better-code-review", r"^### ")
 check_all("readme-paragraph", paragraph, "--headless")
 check(
     "readme-layout-scripts",
-    re.search(r"^\s*bosi-code-review/\s+SKILL\.md .*scripts/", readme, re.MULTILINE),
+    re.search(r"^\s*better-code-review/\s+SKILL\.md .*scripts/", readme, re.MULTILINE),
     "layout line must list scripts/",
 )
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-headless.py")
