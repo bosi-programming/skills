@@ -1,7 +1,7 @@
 {
   "name": "bosi-programming-skills",
   "version": "2.0.0",
-  "description": "Bosi's LLM skills: two-axis code review and the code-standards catalog it checks against, change visualization for code and for docs, an output-shape gate for summaries, an epistemic-action gate against predicting instead of checking, a phased recipe workflow from task to merged PR, a sub-agent relay that runs that recipe hands-off, and a Maestri workflow that runs it through agent terminals on the canvas.",
+  "description": "Bosi's LLM skills: three-axis code review and the code-standards catalog it checks against, change visualization for code and for docs, an output-shape gate for summaries, an epistemic-action gate against predicting instead of checking, a phased recipe workflow from task to merged PR, a sub-agent relay that runs that recipe hands-off, and a Maestri workflow that runs it through agent terminals on the canvas.",
   "author": {
     "name": "Felipe Bosi",
     "url": "https://felipebosi.com/"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Bosi Programming Skills",
     "shortDescription": "Code review, standards, visualization, and a task-to-PR recipe",
-    "longDescription": "Multi-harness engineering skills. Two-axis code review renders its findings as a page; the code-standards catalog is the baseline it reads; code-visualizer and docs-visualizer turn a diff into a picture; summarize-llm-response and epistemic-action gate the model's own writing and reasoning; feature-recipe carries a task to a merged pull request in six phases, recipe-relay runs it hands-off, and maestri-workflow runs it through agent terminals on the Maestri canvas.",
+    "longDescription": "Multi-harness engineering skills. Three-axis code review renders its findings as a page; the code-standards catalog is the baseline it reads; code-visualizer and docs-visualizer turn a diff into a picture; summarize-llm-response and epistemic-action gate the model's own writing and reasoning; feature-recipe carries a task to a merged pull request in six phases, recipe-relay runs it hands-off, and maestri-workflow runs it through agent terminals on the Maestri canvas.",
     "developerName": "Felipe Bosi",
     "category": "Developer Tools",
     "capabilities": ["Write"],

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Two-axis review · {{REPO}}#{{PR}}</title>
+<title>Three-axis review · {{REPO}}#{{PR}}</title>
 <style>
   /* Dark theme only. Do not add a light mode, a prefers-color-scheme block, or a theme toggle. */
   :root{
@@ -51,7 +51,7 @@
   h1 .mono{font-family:var(--mono);font-size:.82em;color:var(--accent);font-weight:600}
 
   /* scoreboard */
-  .board{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:28px 0 40px}
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:28px 0 40px}
   .card{
     background:linear-gradient(180deg,var(--bg-raised),#0f141d);
     border:1px solid var(--border);border-radius:12px;padding:17px 19px;position:relative;overflow:hidden
@@ -59,6 +59,7 @@
   .card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px}
   .card.standards::before{background:linear-gradient(180deg,var(--hard),var(--warn))}
   .card.spec::before{background:linear-gradient(180deg,var(--ok),var(--soft))}
+  .card.tests::before{background:linear-gradient(180deg,var(--warn),var(--accent))}
   .card h2{margin:0 0 12px;font-size:16px;font-weight:640;letter-spacing:.01em}
   .tally{display:flex;gap:6px;flex-wrap:wrap}
   .pill{
@@ -192,7 +193,7 @@
   .callout p + p{margin-top:9px}
 
 
-  /* tabs. Two of them, Spec then Standards. No third state, no accordion. */
+  /* tabs. Three of them, Spec, Standards, then Tests. No other state, no accordion. */
   .tabs{
     display:flex;gap:6px;margin:0;padding:5px;border-radius:11px;
     background:var(--bg-sunken);border:1px solid var(--border)
@@ -212,6 +213,7 @@
   .tab.is-on svg{opacity:1}
   .tab.is-on#tab-spec svg{stroke:var(--ok)}
   .tab.is-on#tab-standards svg{stroke:var(--hard)}
+  .tab.is-on#tab-tests svg{stroke:var(--warn)}
   .tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .tab-count{
     font:600 11px/1 var(--mono);letter-spacing:.06em;color:var(--fg-faint);
@@ -247,7 +249,7 @@
 -->
 <header>
   <div class="eyebrow">
-    <span>Two-axis review</span><span style="color:var(--border)">/</span>
+    <span>Three-axis review</span><span style="color:var(--border)">/</span>
     <a href="{{PR_URL}}">{{REPO}}#{{PR}}</a>
     <span style="color:var(--border)">/</span>
     <a href="{{ISSUE_URL}}">{{ISSUE_KEY}}</a>
@@ -259,6 +261,7 @@
      One card per axis, spec first. Axis name and tallies as pills, nothing else: no strapline, the tab
      under it already explains what the axis is. Severity classes: hard, warn, soft, ok.
      If the Spec axis was skipped, keep the card and give it a single pill reading "no spec available".
+     If the Tests axis was skipped, keep the card and give it a single pill reading "no tests to review".
 -->
 <div class="board">
   <div class="card spec" data-goto="spec">
@@ -278,13 +281,21 @@
       <span class="pill soft">{{N}} judgement calls</span>
     </div>
   </div>
+  <div class="card tests" data-goto="tests">
+    <h2>Tests</h2>
+    <div class="tally">
+      <span class="pill hard">{{N}} hard violations</span>
+      <span class="pill warn">{{N}} missing tests</span>
+      <span class="pill soft">{{N}} judgement calls</span>
+    </div>
+  </div>
 </div>
 
 
 <!-- ============ TABS ============
-     Two tabs, Spec first and open by default, Standards second. Never delete a tab: an axis with no
-     findings keeps its tab and says so inside. Put each axis's tally in its .tab-count so both scores
-     read without a click. Leave the ARIA attributes and the script alone.
+     Three tabs, Spec first and open by default, Standards second, Tests third. Never delete a tab: an
+     axis with no findings keeps its tab and says so inside. Put each axis's tally in its .tab-count so
+     every score reads without a click. Leave the ARIA attributes and the script alone.
 -->
 <nav class="tabs" role="tablist" aria-label="Review axes">
   <button class="tab is-on" role="tab" aria-selected="true" aria-controls="spec" id="tab-spec">
@@ -304,10 +315,19 @@
     Standards
     <span class="tab-count">{{N}} hard · {{N}} warn · {{N}} soft</span>
   </button>
+  <button class="tab" role="tab" aria-selected="false" aria-controls="tests" id="tab-tests">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/>
+      <path d="M7 15h10"/>
+    </svg>
+    Tests
+    <span class="tab-count">{{N}} hard · {{N}} missing · {{N}} soft</span>
+  </button>
 </nav>
 
-<!-- Only the two axis sections live in .panels. Header, scoreboard, cross-axis note, worst-per-axis
-     and footer stay outside, visible from both tabs, because they span the axes. -->
+<!-- Only the three axis sections live in .panels. Header, scoreboard, cross-axis note, worst-per-axis
+     and footer stay outside, visible from every tab, because they span the axes. -->
 <div class="panels">
 <!-- ============ SPEC ============
      Groups, in severity order, red first: "Implementation defects", then "Partial", then
@@ -480,10 +500,61 @@
     </ul>
   </div>
 </section>
+
+<!-- ============ TESTS ============
+     Groups, in order: "Hard violations", "Missing tests", "Judgement calls".
+     No heading inside the panel; the tab label already says Tests.
+     Omit a group with no findings. Severity per finding: li.f.hard / .warn / .soft.
+     .rule = the test standard breached: <b>doc name</b> (line N) plus the rule text, the repo's or
+     Testing/Tests.md from the code-standards catalog.
+     A missing-test card names the behaviour that has no test and the file:line where it lives.
+     If the axis was skipped, replace the whole section body with a single .callout reading
+     "no tests to review" and saying why.
+-->
+<section id="tests" role="tabpanel" aria-labelledby="tab-tests" hidden>
+  <div class="group">
+    <h2>Hard violations</h2>
+    <ul class="findings">
+      <li class="f hard">
+        <details>
+          <summary class="t">{{FINDING_TITLE}}</summary>
+          <div class="d">{{EVIDENCE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
+          <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        </details>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h2>Missing tests</h2>
+    <ul class="findings">
+      <li class="f warn">
+        <details>
+          <summary class="t">{{BEHAVIOUR_WITH_NO_TEST}}</summary>
+          <div class="d">{{WHAT_CHANGED_AND_WHERE}} at <code>{{FILE}}:{{LINE}}</code>.</div>
+          <div class="d">{{THE_TEST_THAT_WOULD_CATCH_IT}}</div>
+        </details>
+      </li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h2>Judgement calls</h2>
+    <ul class="findings">
+      <li class="f soft">
+        <details>
+          <summary class="t">{{JUDGEMENT_CALL}}</summary>
+          <div class="d">{{EVIDENCE}}</div>
+          <span class="rule"><b>{{STANDARD_DOC}}</b> (line {{N}}): {{RULE_TEXT}}</span>
+        </details>
+      </li>
+    </ul>
+  </div>
+</section>
 </div>
 
 <!-- ============ CROSS ============
-     Optional. Only when the two axes contradict each other: passing one requires failing the other.
+     Optional. Only when two axes contradict each other: passing one requires failing the other.
      Say so as a note, never as a rerank. Delete the whole section when they don't conflict.
      Prose here goes through the plain-language pass like everything else the reader sees.
 -->
@@ -495,7 +566,7 @@
         <path d="M12 9v4M12 17h.01"/>
         <path d="M10.3 3.9L2.4 17.1A2 2 0 0 0 4.1 20h15.8a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0z"/>
       </svg>
-      The two axes disagree with each other
+      Two axes disagree with each other
     </h3>
     <p>{{WHAT_THE_SPEC_PRESCRIBES_THAT_THE_STANDARD_FORBIDS}}</p>
     <p>This is a note, not a rerank. Neither axis outranks the other here.</p>
@@ -553,7 +624,7 @@
 
 <!-- ============ TAB SCRIPT ============
      Keep this inline and keep the <noscript> block. The page has to work with the script blocked,
-     so a blocked script reveals both panels rather than hiding the Standards axis.
+     so a blocked script reveals every panel rather than hiding the Standards and Tests axes.
 -->
 <noscript>
   <style>.panels > section[hidden]{display:block}.tabs{display:none}</style>
@@ -593,7 +664,7 @@
     });
 
     var want = (location.hash || '').replace('#', '');
-    if (want === 'spec' || want === 'standards') show(want);
+    if (want === 'spec' || want === 'standards' || want === 'tests') show(want);
   })();
 </script>
 </body>

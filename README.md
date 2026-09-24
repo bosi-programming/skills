@@ -81,13 +81,13 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### better-code-review
 
-Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
+Reviews the diff between `HEAD` and a fixed point you name, along three axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Tests asks whether the tests in the diff are sound, and whether every behaviour the diff changes has a test that would catch it breaking. The three axes run as parallel sub-agents so none pollutes another's context, then the findings render as a three-tab dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up and the Tests axis when there is nothing to test, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
 
 Based on Matt Pocock's code-review skill.
 
 ### code-standards
 
-The standards the Standards axis checks against, as four files: `Common/Clean Code.md` for naming, size, structure and immutability in any language; `Typescript/Imports.md` and `Typescript/Exports.md` for how TypeScript reaches other modules and what it publishes; `Frontend/Accessibility.md` for anything that renders in a browser. Each file is a list of rules and the failures they prevent, closing with the red flags to catch in review.
+The standards the Standards and Tests axes check against, as five files: `Common/Clean Code.md` for naming, size, structure and immutability in any language; `Typescript/Imports.md` and `Typescript/Exports.md` for how TypeScript reaches other modules and what it publishes; `Frontend/Accessibility.md` for anything that renders in a browser; `Testing/Tests.md` for how tests are written, tautological tests included. Each file is a list of rules and the failures they prevent, closing with the red flags to catch in review.
 
 `better-code-review` reads the catalog as its baseline and only applies the files the diff can violate. The catalog defers to the project: a standard the repo documents itself always wins, and a breach is a hard violation only where the repo documents the same rule — otherwise it is a judgement call, like any smell. It is a reference rather than a workflow, so there is nothing here to run.
 
@@ -174,6 +174,7 @@ python3 skills/feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
 python3 skills/maestri-workflow/scripts/check-no-wait.py
 python3 skills/better-code-review/scripts/check-headless.py
+python3 skills/better-code-review/scripts/check-tests-axis.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -212,6 +213,12 @@ after editing `maestri-workflow`.
 the text format of a finding or its closing lines, if steps 1, 2 or 6 stop
 pointing to it, or if a relative path in the skill does not resolve. Offline,
 stdlib only — run it after editing `better-code-review`.
+
+`check-tests-axis.py` is `better-code-review`'s other check: it fails if
+`code-standards/Testing/Tests.md` loses a rule or a red flag, if the catalog
+stops listing it, or if the Tests axis drops out of the review's process, its
+headless format, the report template, this README or the plugin manifests.
+Offline, stdlib only — run it after editing either skill.
 
 ## Falsify a change
 

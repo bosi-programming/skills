@@ -1,17 +1,19 @@
 ---
 name: better-code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and renders them as a two-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
 metadata:
   based-on: "Matt Pocock's code-review skill"
   adapted-by: Felipe Bosi
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+Three-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 - **Standards** — does the code conform to this repo's documented coding standards, and to the bundled `code-standards` catalog wherever the repo is silent? Standards sources are located in step 3 (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, or whatever the repo documents).
 - **Spec** — does the code faithfully implement the originating issue / PRD / spec? The specs can be found inside the PR description as a link to an issue tracker. If not found there, search on the PR title for a string that is CCCC*-DDD* where c is a character and d is a digit, like ABC-123.
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings and renders them as a single dark-theme HTML page it opens in the browser. The page keeps the axes in **two tabs**, Spec first, so a reader lands on one axis at a time instead of scanning both at once.
+- **Tests** — are the tests in the diff sound by this repo's documented test rules, and by the bundled `code-standards` test standard wherever the repo is silent? And does every behaviour the diff changes have a test that would catch it breaking?
+
+All three axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings and renders them as a single dark-theme HTML page it opens in the browser. The page keeps the axes in **three tabs**, Spec first, so a reader lands on one axis at a time instead of scanning them all at once.
 
 ## Process
 
@@ -21,7 +23,7 @@ Whatever the user said is the fixed point — a commit SHA, branch name, tag, `m
 
 Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here — not inside two parallel sub-agents.
+Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here — not inside three parallel sub-agents.
 
 ### 2. Identify the spec source
 
@@ -43,6 +45,8 @@ Wherever the repo is silent, the Standards axis falls back to the bundled [`code
 - `Frontend/Accessibility.md` — when the diff touches UI that renders in a browser.
 
 Skip the files the diff cannot violate; a backend-only change gets `Common/Clean Code.md` and nothing else. If that sibling path is not where the catalog is, load the `code-standards` skill by name and take the paths it reports.
+
+The **Tests axis** reads its own sources: anything the repo documents about how tests are written, such as `TESTING.md` or a testing section in `CONTRIBUTING.md`, then [`../code-standards/Testing/Tests.md`](../code-standards/Testing/Tests.md) wherever the repo is silent. It also needs the project's test layout, so note where the tests live and what the runner is.
 
 A breach of the catalog is a **hard violation** only where the project documents the same rule. Where it rests on the catalog alone it is a judgement call, like every smell below.
 
@@ -66,7 +70,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man** — a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest** — a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both sub-agents in parallel
+### 4. Spawn the three sub-agents in parallel
 
 **Standards sub-agent prompt** — include:
 
@@ -80,11 +84,17 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - The path or fetched contents of the spec.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
+**Tests sub-agent prompt** — include:
+
+- The diff command and commit list.
+- The test-standards files you found in step 3 and the absolute path of `../code-standards/Testing/Tests.md`, plus where the tests live and what the runner is.
+- The brief: "Report two things. (a) Every place a test file in the diff breaks a test standard: cite the standard (file + the rule), say whether it came from the repo or from the catalog, and quote the hunk. A breach of a standard the repo documents is hard; a breach of the catalog alone is a judgement call. (b) Every behaviour the diff adds or changes in source code that no test in the diff or the existing suite would catch breaking: name the behaviour, give its `file:line`, and mark it missing test. Read the existing tests before you call a test missing. Skip anything tooling enforces. Under 400 words."
+
+If the spec is missing, skip the Spec sub-agent and note this in the final report. If the diff touches no test file and changes no behaviour, such as a docs-only change, skip the Tests sub-agent and report "no tests to review".
 
 ### 5. Aggregate
 
-Hold the two reports under a `Standards` and a `Spec` heading, verbatim or lightly cleaned. Do **not** merge or rerank findings — the two axes are deliberately separate (see _Why two axes_).
+Hold the three reports under a `Spec`, a `Standards` and a `Tests` heading, verbatim or lightly cleaned. Do **not** merge or rerank findings — the three axes are deliberately separate (see _Why three axes_).
 
 Add a one-line summary: total findings per axis. Don't pick a single winner across axes — that's the reranking the separation exists to prevent. The severity ordering on the page carries the rest; the page has no worst-per-axis section, because a summary of a page that already sorts worst-first only repeats its own first card.
 
@@ -96,7 +106,7 @@ If the user asked for visualization or verbose, run this section. If not, ignore
 
 The final deliverable is a web page, not a chat dump.
 
-Build it from `./assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, cross-axis note, `Not verified`.
+Build it from `./assets/report-template.html`, which carries the whole dark-theme stylesheet, the tab machinery, and a commented skeleton for every block: header, scoreboard, tabs, Spec panel, Standards panel, Tests panel, cross-axis note, `Not verified`.
 
 - Copy the template, replace every `{{PLACEHOLDER}}` with real content, delete the blocks and groups you have no findings for, and repeat the `li.f` / `.ac` / `.commit` items as many times as you have findings.
 - **Dark theme only.** Keep the `:root` palette as-is. No light mode, no `prefers-color-scheme`, no theme toggle.
@@ -104,13 +114,15 @@ Build it from `./assets/report-template.html`, which carries the whole dark-them
 - No `<table>`. Use the template's `.acs` grid, `.findings` list, and `.commits` grid instead.
 - Severity classes carry the meaning: `hard` (red) for documented-standard breaches and defects, `warn` (amber) for tensions and partials, `soft` (purple) for smell-baseline judgement calls, `ok` (green) for satisfied criteria.
 
-**Order the groups by severity, worst first.** Red at the top, amber in the middle, purple at the bottom, in both tabs. A reader opening a tab should hit the bad news before anything else.
+**Order the groups by severity, worst first.** Red at the top, amber in the middle, purple at the bottom, in every tab. A reader opening a tab should hit the bad news before anything else.
 
 Spec tab, in order: `Implementation defects` (red), `Partial` (amber), `Acceptance criteria · N of N met`, `Scope`, `Notes` (purple).
 
 Both problem groups sit **above** the criteria list on purpose. Someone opening this tab wants what broke and what fell short before the list of what passed, and a green `7 of 7` at the top buries everything underneath it. The criteria are the receipt, not the headline: they answer "did you actually check" once the reader already knows the verdict.
 
 Standards tab, in order: `Hard violations` (red), `Flagged, not condemned` (amber), `Judgement calls · baselines` (purple).
+
+Tests tab, in order: `Hard violations` (red), `Missing tests` (amber), `Judgement calls` (purple). If the axis was skipped, the panel holds a single `.callout` reading "no tests to review" and saying why.
 
 Drop any group with nothing in it rather than shipping an empty heading.
 
@@ -129,7 +141,7 @@ Each group title is an `h2` in 24px bold, carrying 40px of padding above and 20p
 - Nothing on the page is exempt. Every finding card and every criterion folds, and every one ships shut.
 - Everything after `<summary>` is the folded body: the `.d` blocks and the `.rule` line. Nothing that earns a finding, no file:line and no quoted rule, belongs in the summary where it would be read as the whole story.
 
-**The page ends with a `Not verified` section.** Whatever the verification pass in step 5 could not unveil goes there, below the cross-axis note, outside both tabs, because it applies to the whole review.
+**The page ends with a `Not verified` section.** Whatever the verification pass in step 5 could not unveil goes there, below the cross-axis note, outside the tabs, because it applies to the whole review.
 
 - One collapsible card per gap, shut like every other card, with a **single-line title that names the gap on its own**: `No test suite, type-check or lint was run against this branch`. A reader who never opens the card should still know what is missing.
 - Two kinds belong here. A claim you could not verify, and a check you did not run. Both are `warn`, not `soft`, because either can change what a finding means.
@@ -149,17 +161,17 @@ Write it about a person at a keyboard, not about the code. Who sees this, on whi
 
 Every heading renders identically, `.user` included. Keep the class on the first one, since it marks the section that has to be there, but don't add styling to set it apart. Its position does that already, and a heading in its own colour reads as the only part worth reading.
 
-This structure is for the **Spec** tab. Standards cards keep their `.d` blocks and their bold lead-ins, because a standards finding is about the code and has no user on the other end of it.
+This structure is for the **Spec** tab. Standards and Tests cards keep their `.d` blocks and their bold lead-ins, because their findings are about the code and have no user on the other end of them.
 - Escape `<`, `>`, and `&` inside every code snippet you quote, or the page breaks.
 - Inline SVG only for icons, as in the template. No image files, no icon fonts, no CDN.
 
-**The two tabs.** The template ships them wired. Fill them and leave the wiring alone.
+**The three tabs.** The template ships them wired. Fill them and leave the wiring alone.
 
-- **Spec is tab one and opens by default.** It is the axis the reader came for. Standards is tab two.
-- Only the two axis `<section>`s go inside `.panels`. The header, the scoreboard and the cross-axis note stay outside, visible from both tabs, because they span the axes.
-- Put each axis's tally in its own `.tab-count` as well as its scoreboard card, so both scores read without a click.
-- Never delete a tab. An axis with no findings keeps its tab and says so inside, the way the scoreboard card does. Two tabs always, or the page stops being a two-axis review and nobody notices.
-- Leave `role="tablist"`, `role="tabpanel"`, `aria-selected` and `aria-controls` as they are, keep the arrow-key handler, and keep the `<noscript>` block that reveals both panels. The page has to work with the script blocked.
+- **Spec is tab one and opens by default.** It is the axis the reader came for. Standards is tab two, Tests tab three.
+- Only the three axis `<section>`s go inside `.panels`. The header, the scoreboard and the cross-axis note stay outside, visible from every tab, because they span the axes.
+- Put each axis's tally in its own `.tab-count` as well as its scoreboard card, so every score reads without a click.
+- Never delete a tab. An axis with no findings keeps its tab and says so inside, the way the scoreboard card does. Three tabs always, or the page stops being a three-axis review and nobody notices.
+- Leave `role="tablist"`, `role="tabpanel"`, `aria-selected` and `aria-controls` as they are, keep the arrow-key handler, and keep the `<noscript>` block that reveals every panel. The page has to work with the script blocked.
 - **No heading inside a panel.** No axis title, no icon, no source note. The tab label already says which axis this is, and repeating it costs a screen of height on a page whose whole point is that the first finding is visible. The panel starts at its first group.
 - The provenance those notes carried does not move somewhere else on the page. The page is findings; it does not narrate how it was made. Which standards documents you read, and what tooling you skipped, go in your reply if they change what the reader should do. What you could **not** check is different, and it has its own section below.
 
@@ -226,36 +238,40 @@ the default below.
 - **No spec found** by step 2's first three sources: skip the Spec axis and
   report "no spec available". A spec the caller passes counts as step 2's
   second source.
+- **Nothing to test:** when the diff touches no test file and changes no
+  behaviour, skip the Tests axis and report "no tests to review".
 - **Step 5 still runs.** Every finding is read at its source before it goes
   out.
 - **No HTML.** Skip steps 6 and 7, even if the request says verbose or asks
   for a picture.
 
-The result is the whole reply, one block per finding, Spec first:
+The result is the whole reply, one block per finding, Spec first, then Standards, then Tests:
 
 ```
-<axis: Spec | Standards> · <kind> · <file:line>
+<axis: Spec | Standards | Tests> · <kind> · <file:line>
 What: <the problem, one or two lines>
 Fix: <the change that settles it>
 Verified: yes | no — <what was not read>
 ```
 
-`<kind>` is `hard` or `judgement call` for Standards, and `missing`,
-`scope creep` or `wrong` for Spec. Close with two lines:
+`<kind>` is `hard` or `judgement call` for Standards; `missing`,
+`scope creep` or `wrong` for Spec; and `hard`, `judgement call` or
+`missing test` for Tests. Close with two lines:
 
 ```
-Totals: Spec <n>, Standards <n>
+Totals: Spec <n>, Standards <n>, Tests <n>
 Not verified: <one gap per line, or none>
 ```
 
 Print nothing else: no greeting, no summary, no per-axis winner. A caller
 parses the blocks, and prose between them is what breaks that.
 
-## Why two axes
+## Why three axes
 
-A change can pass one axis and fail the other:
+A change can pass one axis and fail another:
 
 - Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
 - Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
+- Code that does what the issue asked and follows every standard, with tests that could not fail if it broke → **Spec and Standards pass, Tests fail.**
 
-Reporting them separately stops one axis from masking the other.
+Reporting them separately stops one axis from masking another.

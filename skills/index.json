@@ -6,9 +6,10 @@
         "SKILL.md",
         "assets/refs-template.html",
         "assets/report-template.html",
-        "scripts/check-headless.py"
+        "scripts/check-headless.py",
+        "scripts/check-tests-axis.py"
       ],
-      "version": "8e9e6701dd02"
+      "version": "bd560b92034a"
     },
     {
       "name": "code-standards",
@@ -16,10 +17,11 @@
         "SKILL.md",
         "Common/Clean Code.md",
         "Frontend/Accessibility.md",
+        "Testing/Tests.md",
         "Typescript/Exports.md",
         "Typescript/Imports.md"
       ],
-      "version": "60b4a799a368"
+      "version": "5081a6b47ead"
     },
     {
       "name": "code-visualizer",
@@ -89,7 +91,7 @@
         "references/recipe-card-template.md",
         "scripts/check-headless-contract.py"
       ],
-      "version": "c460654f8e1f"
+      "version": "6abb1f206b41"
     },
     {
       "name": "maestri-workflow",

@@ -1,14 +1,15 @@
 ---
 name: code-standards
-description: The house coding standards — clean code, TypeScript import and export rules, and frontend accessibility — as a catalog to check code against. Use when code is being reviewed against these standards, when asked what the house standards are, or when writing code in a project that has adopted them.
+description: The house coding standards — clean code, TypeScript import and export rules, frontend accessibility, and how tests are written — as a catalog to check code against. Use when code is being reviewed against these standards, when asked what the house standards are, or when writing code in a project that has adopted them.
 ---
 
-Four files, grouped by what they can govern. Load the ones the code in front of you could actually violate — a backend diff has no use for the accessibility rules.
+Five files, grouped by what they can govern. Load the ones the code in front of you could actually violate — a backend diff has no use for the accessibility rules.
 
 - `Common/Clean Code.md` — language-agnostic: naming, size, structure, immutability.
 - `Typescript/Imports.md` — how TypeScript reaches other modules.
 - `Typescript/Exports.md` — what a TypeScript module publishes.
 - `Frontend/Accessibility.md` — anything that renders in a browser and takes input.
+- `Testing/Tests.md` — test code, and changed behaviour that should have a test.
 
 They sit beside this file; the paths above are relative to it.
 

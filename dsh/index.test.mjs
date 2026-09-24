@@ -132,7 +132,7 @@ test('loads a body without its frontmatter', async () => {
   assert.equal(definition.description, candidate.description)
   assert.equal(definition.provider, 'bosi-programming-skills')
   assert.equal(definition.content.includes('adapted-by'), false)
-  assert.ok(definition.content.startsWith('Two-axis review of the diff between `HEAD`'))
+  assert.ok(definition.content.startsWith('Three-axis review of the diff between `HEAD`'))
 })
 
 test('refuses a candidate whose file no longer matches it', async () => {

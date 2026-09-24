@@ -16,6 +16,9 @@ triage its findings by axis without waiting for the user:
   autonomously. Never auto-remove code for a "scope creep" finding —
   deleting work that was deliberately written is a one-way door; log those
   to `## Quality Gate Results` for the user instead.
+- **Tests** — fix the hard violations and write each missing test, failing
+  first where the behaviour allows it. Log judgement calls to
+  `## Quality Gate Results` rather than acting on them.
 
 ## 2. Detect this project's own checks
 
