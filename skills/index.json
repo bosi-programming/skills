@@ -10,7 +10,7 @@
         "scripts/check-headless.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "dc23aeb70391"
+      "version": "c730532c8981"
     },
     {
       "name": "code-standards",
@@ -94,7 +94,7 @@
         "scripts/check-headless-contract.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "a36796413022"
+      "version": "f4a09af1bdc5"
     },
     {
       "name": "maestri-workflow",
@@ -102,7 +102,7 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "82fe57f631ea"
+      "version": "1d92d70010bf"
     },
     {
       "name": "recipe-relay",
@@ -111,6 +111,16 @@
         "scripts/check-review-evidence.py"
       ],
       "version": "25412d530679"
+    },
+    {
+      "name": "setup",
+      "files": [
+        "SKILL.md",
+        "assets/bosi-skills.md",
+        "references/config.md",
+        "scripts/check-config.py"
+      ],
+      "version": "63213692b64b"
     },
     {
       "name": "summarize-llm-response",
@@ -124,7 +134,22 @@
         "evals/trigger.py",
         "evals/trigger_cases.json"
       ],
-      "version": "2d26b3cf7b8f"
+      "version": "82790403ef1b"
+    },
+    {
+      "name": "work-summary",
+      "files": [
+        "SKILL.md",
+        "evals/.gitignore",
+        "evals/README.md",
+        "evals/scenario-01.json",
+        "evals/scenario-02.json",
+        "evals/scenario-03.json",
+        "evals/scenario-04.json",
+        "evals/scenario-05.json",
+        "evals/scenario-06.json"
+      ],
+      "version": "cdb8b1fd3962"
     }
   ]
 }
