@@ -6,10 +6,11 @@
         "SKILL.md",
         "assets/refs-template.html",
         "assets/report-template.html",
+        "scripts/check-evidence.py",
         "scripts/check-headless.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "bd560b92034a"
+      "version": "dc23aeb70391"
     },
     {
       "name": "code-standards",

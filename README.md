@@ -81,7 +81,7 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### better-code-review
 
-Reviews the diff between `HEAD` and a fixed point you name, along three axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Tests asks whether the tests in the diff are sound, and whether every behaviour the diff changes has a test that would catch it breaking. The three axes run as parallel sub-agents so none pollutes another's context, then the findings render as a three-tab dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up and the Tests axis when there is nothing to test, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
+Reviews the diff between `HEAD` and a fixed point you name, along three axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Tests asks whether the tests in the diff are sound, and whether every behaviour the diff changes has a test that would catch it breaking. The three axes run as parallel sub-agents so none pollutes another's context. Before anything reaches you, the review checks each finding the way `epistemic-action` asks: it runs the project's scoped tests, lint and type-check, and proves each missing or tautological test with a probe, breaking the line in a throwaway worktree and watching whether any test turns red. Each finding says whether it was run, read or not verified. Then the findings render as a three-tab dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up and the Tests axis when there is nothing to test, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
 
 Based on Matt Pocock's code-review skill.
 
@@ -175,6 +175,7 @@ python3 opencode/build-index.py --check
 python3 skills/maestri-workflow/scripts/check-no-wait.py
 python3 skills/better-code-review/scripts/check-headless.py
 python3 skills/better-code-review/scripts/check-tests-axis.py
+python3 skills/better-code-review/scripts/check-evidence.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -219,6 +220,12 @@ stdlib only — run it after editing `better-code-review`.
 stops listing it, or if the Tests axis drops out of the review's process, its
 headless format, the report template, this README or the plugin manifests.
 Offline, stdlib only — run it after editing either skill.
+
+`check-evidence.py` is `better-code-review`'s third check: it fails if the
+review stops reading the tooling config, running the project's checks,
+probing missing and tautological tests in a throwaway worktree, tagging
+evidence as ran, read or no, or linking `epistemic-action`. Offline, stdlib
+only — run it after editing `better-code-review`.
 
 ## Falsify a change
 

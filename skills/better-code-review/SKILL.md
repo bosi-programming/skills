@@ -48,6 +48,8 @@ Skip the files the diff cannot violate; a backend-only change gets `Common/Clean
 
 The **Tests axis** reads its own sources: anything the repo documents about how tests are written, such as `TESTING.md` or a testing section in `CONTRIBUTING.md`, then [`../code-standards/Testing/Tests.md`](../code-standards/Testing/Tests.md) wherever the repo is silent. It also needs the project's test layout, so note where the tests live and what the runner is.
 
+**Read what tooling already enforces.** Open the project's lint, format and type-check config (`eslint.config.*`, `.eslintrc*`, `biome.json`, `.prettierrc*`, `tsconfig.json`, `ruff.toml`, `pyproject.toml`, or whatever the repo uses) and list the enabled rules. That list is what "tooling enforces" means for every sub-agent. When the repo has no such config, say so, and the sub-agents skip nothing on tooling's behalf.
+
 A breach of the catalog is a **hard violation** only where the project documents the same rule. Where it rests on the catalog alone it is a judgement call, like every smell below.
 
 On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below — a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
@@ -75,8 +77,9 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 **Standards sub-agent prompt** — include:
 
 - The full diff command and commit list.
+- The enabled rules from the tooling config in step 3.
 - The list of standards-source files you found in step 3, the absolute paths of the `code-standards` files that apply to what the diff touches, **plus the smell baseline from step 3** pasted in full — the sub-agent has no other access to it.
-- The brief: "Report — per file/hunk where relevant — (a) every place the diff violates a standard: cite the standard (file + the rule) and say whether it came from the repo or from the `code-standards` catalog you were given; and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls — a breach of a standard the repo documents is hard, a breach of the catalog alone is a judgement call, baseline smells are always judgement calls, and a standard documented in the repo overrides both. Skip anything tooling enforces. Under 400 words."
+- The brief: "Report — per file/hunk where relevant — (a) every place the diff violates a standard: cite the standard (file + the rule) and say whether it came from the repo or from the `code-standards` catalog you were given; and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls — a breach of a standard the repo documents is hard, a breach of the catalog alone is a judgement call, baseline smells are always judgement calls, and a standard documented in the repo overrides both. Skip anything on the enabled-rules list. Under 400 words."
 
 **Spec sub-agent prompt** — include:
 
@@ -87,8 +90,9 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 **Tests sub-agent prompt** — include:
 
 - The diff command and commit list.
+- The enabled rules from the tooling config in step 3.
 - The test-standards files you found in step 3 and the absolute path of `../code-standards/Testing/Tests.md`, plus where the tests live and what the runner is.
-- The brief: "Report two things. (a) Every place a test file in the diff breaks a test standard: cite the standard (file + the rule), say whether it came from the repo or from the catalog, and quote the hunk. A breach of a standard the repo documents is hard; a breach of the catalog alone is a judgement call. (b) Every behaviour the diff adds or changes in source code that no test in the diff or the existing suite would catch breaking: name the behaviour, give its `file:line`, and mark it missing test. Read the existing tests before you call a test missing. Skip anything tooling enforces. Under 400 words."
+- The brief: "Report two things. (a) Every place a test file in the diff breaks a test standard: cite the standard (file + the rule), say whether it came from the repo or from the catalog, and quote the hunk. A breach of a standard the repo documents is hard; a breach of the catalog alone is a judgement call. (b) Every behaviour the diff adds or changes in source code that no test in the diff or the existing suite would catch breaking: name the behaviour, give its `file:line`, and mark it missing test. Read the existing tests before you call a test missing. Skip anything on the enabled-rules list. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report. If the diff touches no test file and changes no behaviour, such as a docs-only change, skip the Tests sub-agent and report "no tests to review".
 
@@ -99,6 +103,12 @@ Hold the three reports under a `Spec`, a `Standards` and a `Tests` heading, verb
 Add a one-line summary: total findings per axis. Don't pick a single winner across axes — that's the reranking the separation exists to prevent. The severity ordering on the page carries the rest; the page has no worst-per-axis section, because a summary of a page that already sorts worst-first only repeats its own first card.
 
 Before the aggregate becomes a file, verify it yourself: open every file at the line a finding cites, grep every quoted standard in its own file, and read the code behind every acceptance criterion marked met. A finding you have not read at its source is a claim, not a finding — cut it or fix the citation before it reaches the page.
+
+Reading is the floor, not the ceiling. Verify by the rule in [`../epistemic-action/SKILL.md`](../epistemic-action/SKILL.md): only a run or a read of the source counts as evidence, and a run outranks a read. Tag every finding with the strongest evidence behind it: `ran`, `read`, or `no`.
+
+- **Run the project's checks.** Run the project's own test, lint and type-check commands at the reviewed commit, scoped to the change the way the project scopes them. A failure the diff caused is a finding on its axis. A pass settles the claims it covers. A command you could not run goes to `Not verified`, with the reason.
+- **Probe every `missing test` finding and every tautological test.** Add a throwaway worktree at the reviewed commit, `git worktree add --detach <scratch>/probe HEAD`, where `<scratch>` is a directory outside the repo: the session scratchpad, or `$(mktemp -d)`. If the tests cannot run there, say for want of installed dependencies, the probe goes to `Not verified` with the reason. For each finding, break the line it names (invert the condition, return a wrong value), run the tests that cover it, read the result, and restore the line before the next probe. Tests that stay green on broken code prove the finding: tag it `ran`. Tests that go red mean a test does catch it: cut the finding. When the probes are done, `git worktree remove --force <scratch>/probe`. Never probe in the user's working tree.
+- **Record the conditions.** Note the commit SHA and branch every run and probe used. The page footer and the headless `Reviewed:` line carry them, so a reader can tell what a finding does not cover.
 
 ### 6. Render the HTML report
 
@@ -240,8 +250,8 @@ the default below.
   second source.
 - **Nothing to test:** when the diff touches no test file and changes no
   behaviour, skip the Tests axis and report "no tests to review".
-- **Step 5 still runs.** Every finding is read at its source before it goes
-  out.
+- **Step 5 still runs**, checks and probes included. Every finding is read
+  at its source, and run where step 5 says, before it goes out.
 - **No HTML.** Skip steps 6 and 7, even if the request says verbose or asks
   for a picture.
 
@@ -251,14 +261,15 @@ The result is the whole reply, one block per finding, Spec first, then Standards
 <axis: Spec | Standards | Tests> · <kind> · <file:line>
 What: <the problem, one or two lines>
 Fix: <the change that settles it>
-Verified: yes | no — <what was not read>
+Verified: ran | read | no — <what was not run or read>
 ```
 
 `<kind>` is `hard` or `judgement call` for Standards; `missing`,
 `scope creep` or `wrong` for Spec; and `hard`, `judgement call` or
-`missing test` for Tests. Close with two lines:
+`missing test` for Tests. Close with three lines:
 
 ```
+Reviewed: <sha> on <branch>
 Totals: Spec <n>, Standards <n>, Tests <n>
 Not verified: <one gap per line, or none>
 ```
