@@ -9,21 +9,10 @@ a tool already in this session can fetch (an issue tracker link, a document),
 fetch it and present the real title, description, and any acceptance
 criteria already stated. Otherwise take the user's description as given.
 
-## 2. Visualize the code as it stands today
-
-The `code-visualizer` skill draws a diff, and there's no diff yet on a fresh task —
-so point it at a stand-in: a recent commit range scoped to the paths the task
-will likely touch (find them by searching the codebase for the area the task
-describes, then take the last handful of commits that touched them).
-
-Skip this and say why when the task is a genuinely new module or file with
-no existing code to show the shape of — don't invoke the skill and lean on
-its own empty-diff fallback.
-
-## 3. Decide whether to grill, then close the gaps with `grill-me`
+## 2. Decide whether to grill, then close the gaps with `grill-me`
 
 Make the grill-or-skip call first, against the task as loaded in section 1
-and the code read in section 2. Facts you can look up are your job and
+and the code it lands on. Facts you can look up are your job and
 never count as open.
 
 - **Complex** — any of: it touches more than one module or system; it adds
@@ -38,7 +27,7 @@ Grill when the work is Complex or Undefined. Skip only when it is simple
 and every dimension is answered. Unsure means grill.
 
 On a skip, state the call and its reason in one line and move on to
-section 4 — no confirmation question, since asking would itself be a round
+section 3 — no confirmation question, since asking would itself be a round
 of questions. Write `## Problem` from the task alone and log
 `grill-me skipped: <reason>` to `## Decisions`. If the user says "grill it",
 take the grill path below.
@@ -56,9 +45,9 @@ that tree until its frontier is empty — this replaces asking one or two
 clarifying questions at a time; the round-based frontier questioning gets to
 the same place faster and more completely.
 
-## 4. Write the Problem section
+## 3. Write the Problem section
 
-Once section 3 is done, write the `## Problem` section of the recipe card:
+Once section 2 is done, write the `## Problem` section of the recipe card:
 the problem statement, the acceptance criteria, edge cases, and
 dependencies — whichever the task already stated outright, plus whatever the
 grilling settled for the rest, if it ran. Nothing that answered a dimension
@@ -73,7 +62,7 @@ Append one line to `## Decisions`: what was settled and why. Update the
 frontmatter — `phase: 'reading-the-recipe'`, append to `phasesCompleted`,
 `lastTouched`.
 
-## 5. Phase done
+## 4. Phase done
 
 > **Phase done. [C] Continue here (recommended) — straight into Mise en Place; both phases are still pre-code. [N] New session — resume next phase fresh.**
 
@@ -88,7 +77,7 @@ Read `../references/headless.md`. In a headless run:
 
 - Set `runNext: phase-1-reading-the-recipe.md` as you start, so a run that
   dies here can be picked up from the card.
-- Section 3's grill-or-skip call is the same: Complex or Undefined means
+- Section 2's grill-or-skip call is the same: Complex or Undefined means
   grill, unsure means grill. A skip logs
   `unattended: grill-me skipped — <reason>` to `## Decisions`.
 - When the call is to grill, the grilling still builds the design tree, but
@@ -96,10 +85,10 @@ Read `../references/headless.md`. In a headless run:
   and waiting — there's nobody to answer. Log the settled tree to
   `## Decisions` prefixed `unattended:`, one line per dimension rather than
   one per question.
-- Sections 1, 2 and 4 are unchanged: load the task, visualize the code,
+- Sections 1 and 3 are unchanged: load the task,
   write `## Problem` from the task and the tree's settled answers, record
   back to the tracker if one is available.
-- Section 5 does not apply. This phase does not stop at its own boundary: it
+- Section 4 does not apply. This phase does not stop at its own boundary: it
   loads, reads completely and executes `phase-2-mise-en-place.md`, and the
   run continues through Mise en Place and on into Cooking, Tasting, Plating
   and Documentation. A run stops at the recipe's end or at a one-way door,

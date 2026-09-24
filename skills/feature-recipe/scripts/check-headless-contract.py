@@ -175,6 +175,18 @@ check(
 )
 
 check(
+    "recipe-no-code-visualizer",
+    not [n for n in range(7) if "visualiz" in phase_text(n).lower()],
+    "phases must not run code-visualizer",
+)
+
+check(
+    "phase6-work-summary",
+    "`work-summary`" in phase_text(6) and "unattended: work-summary skipped" in phase_text(6),
+    "phase-6 must run work-summary when the skill exists, and log a headless skip",
+)
+
+check(
     "contract-names-grill-gate",
     "grill-or-skip" in contract_text,
     "references/headless.md must name the grill-or-skip checkpoint",

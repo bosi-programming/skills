@@ -32,6 +32,12 @@ Present a short delivery summary: what was built, the PR link, where the
 docs landed (if any), and the recipe card's own path as the full record of
 how it got there.
 
+## 4. Summarize the session
+
+If the session has a `work-summary` skill, run it last, once the card and
+the tracker are up to date. Name the work after the recipe card's task. If
+there is no such skill, skip this without saying so.
+
 Tell the user the recipe is done. Don't offer a New session / Continue menu —
 there's no next phase to route to.
 
@@ -46,6 +52,9 @@ Read `../references/headless.md`. In a headless run:
 - Section 2's draft, when there is one to write, is written without waiting.
 - Section 3's tracker update is skipped where no tracker is available, and the
   card says the external update is pending rather than inventing one.
+- Section 4 runs `work-summary` when the skill exists, named after the
+  card's task. If it would still have to ask something, skip it and log
+  `unattended: work-summary skipped — <reason>` to `## Decisions`.
 
 ### Ending a run
 
