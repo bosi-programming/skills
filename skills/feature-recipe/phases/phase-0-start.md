@@ -5,14 +5,30 @@ worth a session break, so unlike every phase after it, it does **not** end
 with the New session / Continue menu — it routes straight into whichever phase
 file comes next and that phase's own ending is where the user gets asked.
 
+## Settings
+
+Read `../../setup/references/config.md` and resolve two keys from the settings
+file, current folder first, then `$HOME`, then the default:
+
+- `feature-recipe.cardsDir` — {cardRoot}, where recipe cards live. Default
+  `./recipes`.
+- `feature-recipe.defaultMode` — the mode when the invocation names none:
+  `regular` or `headless`. Default `regular`.
+
+The invocation wins over the file. `--headless` or "headless" makes a headless
+run; "regular" or "interactive" makes a regular one, as does a driver that runs
+this as an interactive invocation. Only when the invocation names no mode does
+`feature-recipe.defaultMode` decide. Every "headless invocation" below means
+the mode this resolves to.
+
 ## 0. Headless invocations
 
-If the invocation says `--headless` or "headless", no human is in the loop and
-nothing may be asked of one. Read `../references/headless.md` — it is the
+If the invocation is headless, no human is in the loop and nothing may be
+asked of one. Read `../references/headless.md` — it is the
 contract — then:
 
 - Take the task from the invocation text instead of asking what it is, and take
-  the default card root instead of asking where cards go. If the chosen
+  `{cardRoot}` from the settings instead of asking where cards go. If the chosen
   directory needs a `.gitignore` entry and no `.gitignore` exists yet, create
   one rather than asking — it's a local, easily-reverted edit, not a decision
   worth a stop. Log all three to `## Decisions` prefixed `driver:`.
@@ -29,11 +45,11 @@ contract — then:
 
 ## 1. Find an existing recipe card
 
-Look for `./recipes/*.md` at the project root. If the task the user named
+Look for `{cardRoot}/*.md` at the project root. If the task the user named
 matches one of these cards (by its `task` frontmatter field or an obvious
 name match), that's the card to resume.
 
-If `./recipes/` doesn't exist or has nothing matching, do one broader pass
+If `{cardRoot}` doesn't exist or has nothing matching, do one broader pass
 before concluding there's no prior work: search the project for markdown
 files carrying a `phasesCompleted:` frontmatter key (a card may have been
 placed somewhere other than the default). If one turns up for a different
@@ -84,12 +100,14 @@ whatever the user has. Take whatever tracker or source they point at as
 given; if a matching tool is available in this session, use it to pull
 details, otherwise take their description at face value.
 
-**Where should the recipe card live?** Only ask this the first time a card
-is created in this project (i.e. no `./recipes/` directory exists yet and
+**Where should the recipe card live?** Don't ask when a settings file sets
+`feature-recipe.cardsDir`: use it. Otherwise only ask the first time a card
+is created in this project (i.e. no `{cardRoot}` directory exists yet and
 step 1's broader search found nothing). Default to `./recipes/`, and if the
 user wants somewhere else, use that for every future card in this project
 too — later fresh-task runs find the answer by reading an existing card's
-location rather than re-asking.
+location rather than re-asking. Suggest the `setup` skill if they want the
+answer kept for every project.
 
 Check whether the chosen directory is covered by the project's own
 `.gitignore`. If it isn't, add an entry for it (asking first if the project

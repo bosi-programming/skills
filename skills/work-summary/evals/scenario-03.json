@@ -1,0 +1,28 @@
+{
+  "name": "multiple-tickets-asks-which",
+  "description": "When the session references more than one tracker ticket, the skill must ask which ticket to use as the primary session name instead of silently guessing. A bare model also asks questions here, so the assertions target the skill's specific ask rather than the presence of a question mark. Drafting the note alongside the ask is allowed — the skill only requires the name be confirmed, not that it stop producing output.\n",
+  "prompt": "Summarize this work session:\n- Fixed a partner sync timeout for ticket ABC-42.\n- Also patched an unrelated form-validation bug tracked in ABC-77.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "ABC-42",
+      "description": "surfaces the first ticket"
+    },
+    {
+      "type": "contains",
+      "value": "ABC-77",
+      "description": "surfaces the second ticket"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "primary",
+        "name the session",
+        "session name",
+        "name this work session"
+      ],
+      "description": "asks which ticket becomes the primary session NAME, not just any question",
+      "ignore_case": true
+    }
+  ]
+}

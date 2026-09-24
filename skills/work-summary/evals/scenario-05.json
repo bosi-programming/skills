@@ -1,0 +1,33 @@
+{
+  "name": "filename-collision-adds-suffix",
+  "description": "When the target filename already exists, the skill must insert a numeric suffix before the extension rather than overwriting. Runs with tools enabled against a seeded sandbox, so this asserts real filesystem state — the only scenario that does.\n",
+  "allow_tools": [
+    "Write",
+    "Read",
+    "Bash(date:*)",
+    "Bash(test:*)",
+    "Bash(mkdir:*)",
+    "Bash(ls:*)"
+  ],
+  "seed_files": {
+    "{DATE}-Deploy-config.md": "# Deploy config\n\nPRE-EXISTING NOTE — must not be overwritten.\n"
+  },
+  "prompt": "For this run only, {OUTPUT_DIR} is {SANDBOX} instead of ~/work-sessions.\nWrite the note there and nowhere else.\n\nSummarize this work session and save the note now — do not ask me anything:\n- Rotated the deploy credentials and restarted the worker so it picked up the new\n  environment.\n- Confirmed the worker came back healthy.\n\nName the session \"Deploy config\". Tell me the exact filename you saved.\n",
+  "assertions": [
+    {
+      "type": "file_exists",
+      "value": "{DATE}-Deploy-config.md",
+      "description": "leaves the pre-existing note in place"
+    },
+    {
+      "type": "file_exists",
+      "value": "{DATE}-Deploy-config-2.md",
+      "description": "writes the new note under the -2 collision suffix"
+    },
+    {
+      "type": "contains",
+      "value": "-2.md",
+      "description": "reports the suffixed filename it actually used"
+    }
+  ]
+}

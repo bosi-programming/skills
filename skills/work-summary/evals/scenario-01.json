@@ -1,0 +1,35 @@
+{
+  "name": "happy-path-single-ticket",
+  "description": "A session tied to one tracker ticket with no off-conversation work. The skill should produce the full markdown note using the template sections and reference the output directory.\n",
+  "prompt": "Summarize this work session:\n- Fixed a timeout in PartnerSyncService by adding exponential backoff and a circuit breaker.\n- Added two edge-case tests and updated config.yaml timeout from 30s to 10s.\n- This work was for ticket ABC-42.\n\nThere is no off-conversation work to add and you do not need to ask me anything.\nName the session after ticket ABC-42, produce the final markdown note now, and\ntell me where you would save it.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "## Summary",
+      "description": "uses the template Summary section"
+    },
+    {
+      "type": "contains",
+      "value": "## Tasks Completed",
+      "description": "uses the template Tasks Completed section"
+    },
+    {
+      "type": "contains",
+      "value": "**Date:**",
+      "description": "includes the Date field"
+    },
+    {
+      "type": "contains",
+      "value": "ABC-42",
+      "description": "names the note after the ticket"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "~/work-sessions",
+        "work-sessions"
+      ],
+      "description": "references the required output directory"
+    }
+  ]
+}

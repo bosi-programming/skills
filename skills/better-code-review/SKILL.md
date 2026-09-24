@@ -112,7 +112,7 @@ Reading is the floor, not the ceiling. Verify by the rule in [`../epistemic-acti
 
 ### 6. Render the HTML report
 
-If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead. A headless run never runs it; see _Headless_.
+If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead, unless the mode is `page` (see _Default mode_). A headless run never runs it; see _Headless_.
 
 The final deliverable is a web page, not a chat dump.
 
@@ -234,11 +234,20 @@ Reply to the user with the `file://` URL and the per-axis tallies. The detail li
 
 Nothing else. No summary of the findings, no worst-per-axis.
 
+## Default mode
+
+When the request names no output, the settings file decides. Read
+`../setup/references/config.md` and resolve `better-code-review.defaultMode`,
+current folder first, then `$HOME`: `conversation` prints the result in the
+conversation, `page` runs steps 6 and 7, `headless` runs as _Headless_ below.
+The default is `conversation`. A request that asks for a page, for verbose, or
+for headless, or a caller that names a mode, wins over the file.
+
 ## Headless
 
 For a caller with nobody to answer questions: another skill, a sub-agent, an
 agent on a canvas. Start one with `--headless`, or say "headless" in the
-request. A headless run never asks; where the steps above would ask, it takes
+request, or set `better-code-review.defaultMode` to `headless`. A headless run never asks; where the steps above would ask, it takes
 the default below.
 
 - **No fixed point given:** use the merge base of `HEAD` and the default

@@ -1,6 +1,8 @@
 # Recipe card template
 
-One file per task, at `./recipes/{task-slug}.md`. `{task-slug}` is a kebab-case
+One file per task, at `{cardRoot}/{task-slug}.md`, where `{cardRoot}` is
+`feature-recipe.cardsDir` from the settings file, `./recipes` by default.
+`{task-slug}` is a kebab-case
 short form of the task name or issue reference — `ABC-123` becomes
 `abc-123`, "add CSV export" becomes `add-csv-export`.
 

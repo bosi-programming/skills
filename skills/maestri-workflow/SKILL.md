@@ -63,8 +63,9 @@ legacy.
    From here on, `{work root}` is where every recruit starts, every card lives
    and every command runs.
 2. On a fresh start, look for an existing recipe card for this ticket under
-   `{work root}/recipes/`. Rename it to `{task-slug}.legacy.md` so Phase 0
-   opens a new one, and log the move to the note. Delete nothing: legacy
+   `{work root}`, in the folder `feature-recipe.cardsDir` names (`recipes/`
+   by default; `../setup/references/config.md` says how to read it). Rename
+   it to `{task-slug}.legacy.md` so Phase 0 opens a new one, and log the move to the note. Delete nothing: legacy
    branches, cards and PRs stay where they are.
 3. Create the shared note with two headings:
    `maestri note create "$(printf '# {ticket}\n\n## Questions and problems\n\n## Taken without asking')" --name "{ticket} questions"`.

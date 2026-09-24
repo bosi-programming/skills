@@ -3,7 +3,7 @@ name: feature-recipe
 description: Take a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — each one able to end in a clean context, except Reading the Recipe and Cooking/Tasting, which default to continuing straight into the next phase. Use when the user says "run the recipe", "cook this ticket", "cook this task", or "feature recipe".
 ---
 
-A feature delivered the way a dish gets cooked: read the recipe before you touch anything, get every ingredient ready, cook, taste before it leaves the kitchen, plate it, then write down what you made. Six phases, most defaulting to a fresh context between them — Reading the Recipe and Cooking/Tasting continue straight through instead — held together by one artifact that survives the reset either way: the **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the current project.
+A feature delivered the way a dish gets cooked: read the recipe before you touch anything, get every ingredient ready, cook, taste before it leaves the kitchen, plate it, then write down what you made. Six phases, most defaulting to a fresh context between them — Reading the Recipe and Cooking/Tasting continue straight through instead — held together by one artifact that survives the reset either way: the **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the current project, or in whatever folder the settings file names. The settings file also picks the mode a run takes when the request names none; `../setup/references/config.md` describes it.
 
 This skill carries no opinion about which issue tracker, chat tool, or docs system the project uses. It speaks in outcomes — "record this somewhere your team can see it", "get this in front of reviewers" — and leans on whatever tools are already available in the session to make that outcome real. Where nothing is available, it asks or skips.
 
@@ -12,7 +12,8 @@ Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 ## Headless runs
 
 Phases 1 to 6 can run with no human in the loop — a night run. Start one with
-`--headless` at whatever step the card is on, even a bare task with no card
+`--headless`, or make it the default with `feature-recipe.defaultMode`, at
+whatever step the card is on, even a bare task with no card
 yet, and it carries the work through Reading the Recipe, Mise en Place,
 Cooking, Tasting, Plating and Documentation in one turn, taking the
 recommendation at each checkpoint and recording it as `unattended:`, so the

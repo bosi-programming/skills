@@ -1,8 +1,8 @@
 # Bosi Programming Skills
 
-Nine Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from.
+Eleven Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from. One writes up a work session as a dated note, and one writes the settings file the others read their defaults from.
 
-The same nine install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same eleven install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -133,6 +133,14 @@ It does not self-trigger. Measured on Sonnet, a description alone fires it on 0-
 
 Go find out instead of predicting: read the file, run the command, probe the thing. Use it whenever you catch yourself writing "should", "probably", or "typically" about a codebase you have not opened.
 
+### work-summary
+
+Writes up the current session as a dated markdown note: what was done, the decisions, the problems and how they were solved, and what is left. The note opens with frontmatter another tool can read — a theme, a category and the signals the work showed, such as `tdd` or `leadership` — and, if you give it values to tag against, the values the work showed. It redacts secrets and never overwrites an older note. `feature-recipe` runs it as its last step when it is installed.
+
+### setup
+
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `feature-recipe` keeps recipe cards, and which mode `feature-recipe` and `better-code-review` run in when the request names none. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+
 ## Layout
 
 ```
@@ -161,6 +169,8 @@ skills/
   docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
+  work-summary/       SKILL.md + evals/ (scenarios)
+  setup/              SKILL.md + assets/bosi-skills.md + references/config.md + scripts/
 ```
 
 Skills reference their own bundled files by path relative to their `SKILL.md` — `./references/patterns.md`, `../code-standards/SKILL.md` — so the paths resolve whether the skill is installed personally, in a project, or as part of this plugin, and under any agent runtime. See `AGENTS.md`.
@@ -179,6 +189,7 @@ python3 skills/better-code-review/scripts/check-evidence.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/code-standards/scripts/check-tooling-rule.py
+python3 skills/setup/scripts/check-config.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -245,6 +256,13 @@ reporting that gap. Offline, stdlib only — run it after editing either skill.
 goes back to guessing what tooling enforces instead of reading the lint,
 format and type-check config, or if a catalog file it lists is missing.
 Offline, stdlib only — run it after editing `code-standards`.
+
+`check-config.py` is `setup`'s own check: it fails if the settings contract
+loses the file name, the lookup order or a key's default, if the template
+lacks a key, if a skill that reads a key stops pointing to the contract, or if
+`work-summary` or its scenarios name private content or hard-code the notes
+folder. Offline, stdlib only — run it after editing `setup`, `work-summary` or
+a skill that reads the settings.
 
 ## Falsify a change
 

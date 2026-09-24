@@ -22,7 +22,9 @@ const SKILLS = [
   'feature-recipe',
   'maestri-workflow',
   'recipe-relay',
+  'setup',
   'summarize-llm-response',
+  'work-summary',
 ]
 
 /** Mount the plugin against a stand-in registry and return the provider it registers. */

@@ -1,0 +1,31 @@
+{
+  "name": "leadership-signal-on-ticket-authoring",
+  "description": "A planning session whose output is work for other people (milestone tickets, dependency ordering, a handoff note, guide tickets for other teams) must earn the `leadership` signal. Regression guard: this signal was previously never emitted because `ownership` and `cross-functional` absorbed it, so the note must carry `leadership` and must not settle for `ownership` alone.\n",
+  "prompt": "Summarize this work session:\n- Decomposed milestone M2 of the Billing Export project into 13 tracker\n  tickets and created all of them with labels, story points and dependency links.\n- Verified the proposed emit sites against the codebase before writing any\n  ticket, which found that seven event values have no emit site at all and\n  reshaped the milestone.\n- Two of the tickets are guide tickets for the CORE and Fraud teams to pick up;\n  each event is implemented by whoever owns that surface, not by me.\n- Re-ordered the milestone so the table ships before the tickets that depend on\n  it, and wrote a handoff note for whoever takes M3.\n- No production code was written.\n\nThere is no off-conversation work to add and you do not need to ask me anything.\nName the session \"Application History M2 planning\", produce the final markdown\nnote now, and tell me where you would save it.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "leadership",
+      "description": "emits the leadership signal for work other people will execute"
+    },
+    {
+      "type": "contains",
+      "value": "planning",
+      "description": "classifies the theme as planning"
+    },
+    {
+      "type": "contains",
+      "value": "## Signal",
+      "description": "keeps the Signal section that justifies each emitted signal"
+    },
+    {
+      "type": "not_contains_any",
+      "values": [
+        "signals: [ownership]",
+        "signals: [research-first, ownership]",
+        "signals: [ownership, research-first]"
+      ],
+      "description": "does not collapse the session into ownership alone"
+    }
+  ]
+}

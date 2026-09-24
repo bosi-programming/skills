@@ -1,0 +1,32 @@
+{
+  "name": "emits-frontmatter",
+  "description": "The note must open with the YAML frontmatter block other tools read: date, ticket, and the fixed theme/category/signals enums classified from the session. With no values in the settings, it carries no values key and no Values section.\n",
+  "prompt": "Summarize this work session and produce the final markdown note now — do not ask\nme anything:\n- For ticket ABC-42, wrote failing specs for retry exhaustion and circuit-open first,\n  then added exponential backoff and a circuit breaker to PartnerSyncService.\n- Also dropped the default config.yaml timeout from 30s to 10s on my own initiative.\n\nName the session after ticket ABC-42.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "theme: delivery",
+      "description": "classifies the shipped fix under the delivery theme"
+    },
+    {
+      "type": "contains",
+      "value": "ticket: ABC-42",
+      "description": "records the ticket in machine-readable frontmatter"
+    },
+    {
+      "type": "contains",
+      "value": "signals:",
+      "description": "emits the signals list"
+    },
+    {
+      "type": "contains_any",
+      "values": ["tdd", "self-initiated"],
+      "description": "captures the process signals evidenced in the session"
+    },
+    {
+      "type": "not_contains",
+      "value": "## Values",
+      "description": "leaves the Values section out when the settings set no values"
+    }
+  ]
+}
