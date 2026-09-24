@@ -152,6 +152,13 @@ check(
     f"phase-1 missing gate triggers {missing} or the unsure-means-grill rule",
 )
 
+tasting_headless = phase_text(4).split("\n## Headless", 1)[-1]
+check(
+    "tasting-review-headless",
+    "bosi-code-review" in tasting_headless and "--headless" in tasting_headless,
+    "phase-4 ## Headless must run bosi-code-review with --headless",
+)
+
 missing = [s for s in ["grill-me skipped:", "grill it"] if s not in phase1_text]
 check("phase1-skip-path", not missing, f"phase-1 missing skip path: {missing}")
 

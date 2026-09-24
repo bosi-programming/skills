@@ -76,6 +76,8 @@ trigger phrase in a new session. End the session.
 Read `../references/headless.md`. In a headless run:
 
 - Set `runNext: phase-4-tasting.md` as you start.
+- Section 1 runs `bosi-code-review` with `--headless`, so the review asks
+  nothing and returns its findings as text.
 - Section 1's scope-creep findings are logged with `unattended:` and the code
   they describe stays where it is. Deleting work on a recommendation is a
   one-way door, and a run stops for those rather than opening them.

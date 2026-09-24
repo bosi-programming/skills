@@ -1,6 +1,6 @@
 ---
 name: bosi-code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and renders them as a two-tab dark-theme HTML page opened in the browser. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/PRD asked for?). Runs both reviews in parallel sub-agents and renders them as a two-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
 metadata:
   based-on: "Matt Pocock's code-review skill"
   adapted-by: Felipe Bosi
@@ -17,7 +17,7 @@ Both axes run as **parallel sub-agents** so they don't pollute each other's cont
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point — a commit SHA, branch name, tag, `main`, `HEAD~5`, etc. If they didn't specify one, ask for it.
+Whatever the user said is the fixed point — a commit SHA, branch name, tag, `main`, `HEAD~5`, etc. If they didn't specify one, ask for it. A headless run takes a default instead; see _Headless_.
 
 Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
 
@@ -30,7 +30,7 @@ Look for the originating spec, in this order:
 1. Issue references in the commit messages or branch name — Linear keys (`ABC-123`, `XYZ-42`) fetched with the Linear MCP `get_issue`; GitHub issues and PRs (`#123`, `Closes #45`) fetched with `gh issue view` / `gh pr view`.
 2. A path the user passed as an argument.
 3. A PRD/spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
-4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
+4. If nothing is found, ask the user where the spec is. A headless run skips the Spec axis instead; see _Headless_. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
 
 ### 3. Identify the standards sources
 
@@ -92,7 +92,7 @@ Before the aggregate becomes a file, verify it yourself: open every file at the 
 
 ### 6. Render the HTML report
 
-If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead.
+If the user asked for visualization or verbose, run this section. If not, ignore and print the result on the conversation instead. A headless run never runs it; see _Headless_.
 
 The final deliverable is a web page, not a chat dump.
 
@@ -211,6 +211,45 @@ Reply to the user with the `file://` URL and the per-axis tallies. The detail li
 - **Provenance that changes what they should do**, from the note in step 6: which standards documents you read, and what tooling you skipped.
 
 Nothing else. No summary of the findings, no worst-per-axis.
+
+## Headless
+
+For a caller with nobody to answer questions: another skill, a sub-agent, an
+agent on a canvas. Start one with `--headless`, or say "headless" in the
+request. A headless run never asks; where the steps above would ask, it takes
+the default below.
+
+- **No fixed point given:** use the merge base of `HEAD` and the default
+  branch, `git merge-base HEAD origin/<default branch>`.
+- **Bad ref or empty diff:** return one line, `review not run: <reason>`, and
+  stop.
+- **No spec found** by step 2's first three sources: skip the Spec axis and
+  report "no spec available". A spec the caller passes counts as step 2's
+  second source.
+- **Step 5 still runs.** Every finding is read at its source before it goes
+  out.
+- **No HTML.** Skip steps 6 and 7, even if the request says verbose or asks
+  for a picture.
+
+The result is the whole reply, one block per finding, Spec first:
+
+```
+<axis: Spec | Standards> · <kind> · <file:line>
+What: <the problem, one or two lines>
+Fix: <the change that settles it>
+Verified: yes | no — <what was not read>
+```
+
+`<kind>` is `hard` or `judgement call` for Standards, and `missing`,
+`scope creep` or `wrong` for Spec. Close with two lines:
+
+```
+Totals: Spec <n>, Standards <n>
+Not verified: <one gap per line, or none>
+```
+
+Print nothing else: no greeting, no summary, no per-axis winner. A caller
+parses the blocks, and prose between them is what breaks that.
 
 ## Why two axes
 

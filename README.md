@@ -81,7 +81,7 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### bosi-code-review
 
-Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser.
+Reviews the diff between `HEAD` and a fixed point you name, along two axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Both axes run as parallel sub-agents so neither pollutes the other's context, then the findings render side by side as a dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way.
 
 Based on Matt Pocock's code-review skill.
 
@@ -152,7 +152,7 @@ opencode/
 package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
   index.json          the skill list at the root of the URL opencode downloads from
-  bosi-code-review/   SKILL.md + assets/report-template.html
+  bosi-code-review/   SKILL.md + assets/report-template.html + scripts/
   bosi-feature-recipe/  SKILL.md + dependencies/ + phases/ + references/ + scripts/
   maestri-workflow/   SKILL.md + scripts/
   recipe-relay/       SKILL.md
@@ -173,6 +173,7 @@ node --test 'dsh/**/*.test.mjs'
 python3 skills/bosi-feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
 python3 skills/maestri-workflow/scripts/check-no-wait.py
+python3 skills/bosi-code-review/scripts/check-headless.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -203,8 +204,14 @@ tells the orchestrator to stop, ask or wait for the user before the end, if a
 replacement for an old stop leaves the section it belongs in, if
 `recipe-relay` pauses between units, loses its stop conditions or its closing
 `bosi-code-review` pass, if `maestri-workflow` briefs a review of its own, or if
-a relative path in the skill does not resolve. Offline, stdlib only — run it after editing
-`maestri-workflow`.
+a relative path in the skill does not resolve. Offline, stdlib only — run it
+after editing `maestri-workflow`.
+
+`check-headless.py` is `bosi-code-review`'s own check: it fails if the
+`## Headless` section loses its entry, a default for a step that would ask,
+the text format of a finding or its closing lines, if steps 1, 2 or 6 stop
+pointing to it, or if a relative path in the skill does not resolve. Offline,
+stdlib only — run it after editing `bosi-code-review`.
 
 ## Falsify a change
 

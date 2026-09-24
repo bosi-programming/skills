@@ -5,9 +5,10 @@
       "files": [
         "SKILL.md",
         "assets/refs-template.html",
-        "assets/report-template.html"
+        "assets/report-template.html",
+        "scripts/check-headless.py"
       ],
-      "version": "3cd4a7d43505"
+      "version": "36741751c3f9"
     },
     {
       "name": "bosi-feature-recipe",
@@ -25,7 +26,7 @@
         "references/recipe-card-template.md",
         "scripts/check-headless-contract.py"
       ],
-      "version": "306222afb298"
+      "version": "55f76488bfd4"
     },
     {
       "name": "code-standards",
@@ -96,14 +97,14 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "7a7054e69613"
+      "version": "bb2d9568d16e"
     },
     {
       "name": "recipe-relay",
       "files": [
         "SKILL.md"
       ],
-      "version": "c8df5fab42d6"
+      "version": "f2d1f94ee9a5"
     },
     {
       "name": "summarize-llm-response",

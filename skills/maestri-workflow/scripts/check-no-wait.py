@@ -122,10 +122,8 @@ check_all(
     "recipe-relay-review",
     relay_part.get(5, ""),
     "../bosi-code-review/SKILL.md",
+    "--headless",
     "merge base",
-    "asks no questions",
-    "skips the HTML report",
-    "file:line",
     "failing test first",
 )
 check("review-not-repeated", "bosi-code-review/SKILL.md" not in skill, "maestri-workflow briefs its own review")

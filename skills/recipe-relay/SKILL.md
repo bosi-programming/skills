@@ -67,11 +67,10 @@ When the card reaches `terminal`, the branch holds the code. If the run
 stopped on `blocked` / `needs-input` instead, skip this section.
 
 1. Spawn one `general-purpose` sub-agent to run `../bosi-code-review/SKILL.md`
-   headless. The fixed point is the merge base of the work branch and the
-   default branch; if the recipe worked on the default branch itself, it is
-   the commit before the recipe's first one. The spec source is the task on
-   the card. It asks no questions, skips the HTML report, and returns every
-   finding as text with its axis and `file:line`.
+   with `--headless`. The fixed point is the merge base of the work branch and
+   the default branch; if the recipe worked on the default branch itself, it
+   is the commit before the recipe's first one. The spec source is the task on
+   the card. Have it return the review's output as it stands.
 2. Work through the findings in this session, on the same branch. Read each
    one at its `file:line` first. Write a failing test first where the finding
    is a behaviour, then fix, then run the project's scoped tests and lint.
