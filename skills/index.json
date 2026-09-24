@@ -94,7 +94,7 @@
         "scripts/check-headless-contract.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "f4a09af1bdc5"
+      "version": "3187d5f59630"
     },
     {
       "name": "maestri-workflow",
@@ -102,7 +102,7 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "1d92d70010bf"
+      "version": "15898a148181"
     },
     {
       "name": "recipe-relay",
@@ -120,7 +120,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "e9d7db976a4e"
+      "version": "701dde1091e0"
     },
     {
       "name": "summarize-llm-response",
