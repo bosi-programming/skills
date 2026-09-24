@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where feature-recipe keeps recipe cards, and whether feature-recipe and better-code-review run regular or headless by default. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, and whether feature-recipe and better-code-review run regular or headless by default. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
@@ -32,9 +32,19 @@ the ones in `./references/config.md`:
    `valuesSource`.
 4. Any tagging guidance for `work-summary`, which goes in the body's
    `## work-summary` section.
-5. Folder for recipe cards.
-6. `feature-recipe` default mode: `regular` or `headless`.
-7. `better-code-review` default mode: `conversation`, `page` or `headless`.
+5. `week-summary`:
+   a. Folder for weekly reviews.
+   b. Folder of session notes to read, if not `work-summary`'s.
+   c. GitHub login and email, if not the ones `gh` and `git` report.
+   d. How a review cites a session note.
+   e. Day the week starts on.
+   f. Skill the Weekly Update prose goes through, or none.
+   g. Logical symbols in the terse sections: yes or no.
+   h. Heading of the values section.
+   i. Any guidance for the body's `## week-summary` section.
+6. Folder for recipe cards.
+7. `feature-recipe` default mode: `regular` or `headless`.
+8. `better-code-review` default mode: `conversation`, `page` or `headless`.
 
 An answer of "keep" or no answer leaves that key as it is.
 

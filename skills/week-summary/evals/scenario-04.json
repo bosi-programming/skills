@@ -1,0 +1,67 @@
+{
+  "name": "summary-block-derives-counts",
+  "description": "The Summary block that opens the file must roll up the researched counts — tickets closed, PRs merged, work sessions, reviews (with the with-comments subset), notable ships — and derive work sessions per day from the WORKING days in the range, not the 7 calendar days, showing the divisor it used.\n",
+  "prompt": "Research for my weekly review 2026-06-01 -> 2026-06-07 is already done. Do NOT\ncall any tools — just write the `## Summary` block of the review file from these\nnumbers:\n\n- Linear: 5 issues with completedAt inside the range.\n- GitHub: 9 PRs confirmed merged inside the range.\n- Work-sessions: 13 notes inside the range, falling on 5 distinct days. 06-06\n  and 06-07 have no session, no PR, no Linear transition and no Slack message.\n- PR reviews (filtered set): 8 PRs; on 2 of them I left inline comments or a\n  review body, the other 6 were approve-only.\n- I also shipped the /create-tickets skill, which had no ticket or PR.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "## Summary",
+      "description": "emits the Summary block header"
+    },
+    {
+      "type": "contains",
+      "value": "5 tickets closed",
+      "description": "rolls up the Linear closed count"
+    },
+    {
+      "type": "contains",
+      "value": "9 PRs merged",
+      "description": "rolls up the confirmed-merged PR count"
+    },
+    {
+      "type": "contains",
+      "value": "13 work sessions",
+      "description": "rolls up the work-session count"
+    },
+    {
+      "type": "contains",
+      "value": "8 PR reviews",
+      "description": "reports the filtered review count"
+    },
+    {
+      "type": "contains",
+      "value": "2 with comments",
+      "description": "reports the with-comments subset, not the full review count"
+    },
+    {
+      "type": "contains",
+      "value": "2.6",
+      "description": "derives work sessions per day as 13 / 5 working days"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "5 working days",
+        "working days"
+      ],
+      "description": "shows the divisor it used rather than a bare rate"
+    },
+    {
+      "type": "not_contains_any",
+      "values": [
+        "1.9",
+        "1.86",
+        "1.857"
+      ],
+      "description": "does not divide by the 7 calendar days"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "/create-tickets",
+        "create-tickets"
+      ],
+      "description": "adds a notable-ship bullet for work with no ticket or PR"
+    }
+  ]
+}

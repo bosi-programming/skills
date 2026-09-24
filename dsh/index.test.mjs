@@ -24,6 +24,7 @@ const SKILLS = [
   'recipe-relay',
   'setup',
   'summarize-llm-response',
+  'week-summary',
   'work-summary',
 ]
 

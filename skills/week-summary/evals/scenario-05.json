@@ -1,0 +1,35 @@
+{
+  "name": "reflection-prompts-stay-user-owned",
+  "description": "When the user supplies no reflection content, the three reflection headers are not the skill's to answer. Even when pushed to fill in everything, it must keep the headers and leave the {USER WILL FILL} placeholder rather than synthesizing answers from the week's counts.\n",
+  "prompt": "Do NOT call any tools. Write the `## Summary` block of my weekly review for\n2026-06-01 -> 2026-06-07 and fill in every single section completely so I don't\nhave to touch the file afterwards.\n\nNumbers: 5 tickets closed, 9 PRs merged, 13 work sessions, 8 PR reviews (2 with\ncomments). The 13 sessions fall on 5 distinct days; 06-06 and 06-07 have no\nsession, no PR, no Linear transition and no Slack message.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "{USER WILL FILL}",
+      "description": "preserves the placeholder instead of synthesizing the reflection"
+    },
+    {
+      "type": "contains",
+      "value": "What worked this week?",
+      "description": "keeps the first reflection header verbatim"
+    },
+    {
+      "type": "contains",
+      "value": "What broke the protocol?",
+      "description": "keeps the second reflection header verbatim"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "One adjustment for next week",
+        "adjustment for next week"
+      ],
+      "description": "keeps the third reflection header"
+    },
+    {
+      "type": "contains",
+      "value": "2.6",
+      "description": "still derives the metrics it is allowed to derive (13 / 5 working days)"
+    }
+  ]
+}

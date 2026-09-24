@@ -1,0 +1,65 @@
+{
+  "name": "signal-aggregates-frontmatter-values",
+  "description": "The Signal + Values sections must aggregate the signals and values frontmatter fields across the week's work-session notes, and must honestly flag the values the week neglected rather than reporting only wins. Covers the mechanical slice of Step 3 only — prose quality is a human judgement, not asserted here. Note: a plain not_contains on an absent value name does NOT work, because correctly flagging a value as neglected also mentions it.\n",
+  "prompt": "My settings set work-summary.values to four values: candor, persistence, craft, teamwork.\n\nDo NOT call any tools. My weekly review covers 2026-06-01 -> 2026-06-07. These are\nthe three work-session notes found in range, with their full frontmatter:\n\nNote 1:\n  date: 2026-06-02\n  ticket: ABC-142\n  theme: delivery\n  category: support\n  signals: [tdd, self-initiated]\n  values: [candor]\n\nNote 2:\n  date: 2026-06-04\n  ticket: ABC-155\n  theme: investigation\n  category: support\n  signals: [research-first]\n  values: [persistence]\n\nNote 3:\n  date: 2026-06-05\n  ticket: null\n  theme: artifact\n  category: tech-enablement\n  signals: [self-initiated]\n  values: [candor]\n\nLinear and GitHub corroborate: 2 support tickets closed, 3 PRs merged, no Slack\nactivity worth noting, and I worked alone all week with no design or PM contact.\n\nWrite the Signal section and the Values section only.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "tdd",
+      "description": "aggregates the tdd signal from note 1",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "self-initiated",
+        "self initiated",
+        "self-directed"
+      ],
+      "description": "aggregates the self-initiated signal appearing in notes 1 and 3",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "research-first",
+        "research first"
+      ],
+      "description": "aggregates the research-first signal from note 2",
+      "ignore_case": true
+    },
+    {
+      "type": "contains",
+      "value": "candor",
+      "description": "names the value carried by two of the three notes",
+      "ignore_case": true
+    },
+    {
+      "type": "contains",
+      "value": "persistence",
+      "description": "names the value carried by note 2",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "neglected",
+        "not evidenced",
+        "no evidence",
+        "gap",
+        "absent"
+      ],
+      "description": "honestly flags the values the week did not evidence, per the surface-gaps rule",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "support",
+        "investigation"
+      ],
+      "description": "characterises the shape of the week from the theme and category fields",
+      "ignore_case": true
+    }
+  ]
+}

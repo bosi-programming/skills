@@ -1,0 +1,44 @@
+{
+  "name": "explicit-range-resolves-target",
+  "description": "When the user gives an explicit date range, the skill uses it verbatim, states the resolved range, and targets the one-file-per-week path under the reviews directory using the correct section order — Summary first, then Performance.\n",
+  "prompt": "Give me a weekly summary from 2026-06-01 to 2026-06-05.\n\nYou have no network or tool access in this environment — do NOT call any tools.\nJust tell me the resolved date range, the exact target file path you would write\nto, and the section order of the review from top to bottom.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "2026-06-01",
+      "description": "uses the start date verbatim"
+    },
+    {
+      "type": "contains",
+      "value": "2026-06-05",
+      "description": "uses the end date verbatim"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "reviews/2026-06-01_2026-06-05.md",
+        "~/week-reviews",
+        "reviews"
+      ],
+      "description": "targets the per-week file under the reviews directory"
+    },
+    {
+      "type": "contains",
+      "value": "Summary",
+      "description": "names the Summary block that opens the file"
+    },
+    {
+      "type": "contains",
+      "value": "Signal",
+      "description": "includes the Signal section in the described order"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "Values",
+        "Values"
+      ],
+      "description": "closes the order with the Values section"
+    }
+  ]
+}

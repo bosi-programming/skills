@@ -1,0 +1,32 @@
+{
+  "name": "summary-counts-use-filtered-sets",
+  "description": "The Summary counts must come from the filtered sets, not the naive search results — reviews filtered by in-range submitted_at, and PRs filtered by the merge-date fallback. Over-counting here inflates the whole review.\n",
+  "prompt": "Do NOT call any tools. For my weekly review 2026-06-01 -> 2026-06-07 the raw\nresearch came back like this:\n\n- `gh search prs --reviewed-by=@me --updated=` returned 29 candidate PRs, but\n  after checking each PR's reviews only 6 had a review I submitted inside the\n  range. 1 of those 6 had inline comments from me.\n- `gh search prs --author=@me --merged-at=` returned 11 PRs, but confirming\n  `merged_at` per PR via the API showed only 7 actually merged inside the range —\n  the other 4 merged the following week.\n\nWrite the `## Summary` block work bullets and state which numbers you used.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "6 PR reviews",
+      "description": "uses the submitted_at-filtered review count"
+    },
+    {
+      "type": "not_contains",
+      "value": "29 PR reviews",
+      "description": "never reports the naive candidate count as reviews"
+    },
+    {
+      "type": "contains",
+      "value": "7 PRs merged",
+      "description": "uses the merge-date-confirmed PR count"
+    },
+    {
+      "type": "not_contains",
+      "value": "11 PRs merged",
+      "description": "never reports the unconfirmed --merged-at count"
+    },
+    {
+      "type": "contains",
+      "value": "1 with comments",
+      "description": "reports the with-comments subset from the filtered set"
+    }
+  ]
+}

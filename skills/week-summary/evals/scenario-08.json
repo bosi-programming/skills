@@ -1,0 +1,38 @@
+{
+  "name": "reflection-transcribed-not-derived",
+  "description": "When the user states some reflection content, those headers get the user's own words — but an unstated header must stay {USER WILL FILL}. The skill must not extrapolate the third answer from the two it was given, even when the inference is obvious.\n",
+  "prompt": "Do NOT call any tools. Write the `## Summary` block of my weekly review for\n2026-06-01 -> 2026-06-07.\n\nNumbers: 5 tickets closed, 9 PRs merged, 13 work sessions, 8 PR reviews (2 with\ncomments).\n\nOn how the week went: the TDD habit held all week, and I got through a lot of\nsupport tickets. I did skip my own protocol on two rushed PRs.\n\nI have not decided what to change next week — do not decide it for me.\n",
+  "assertions": [
+    {
+      "type": "contains_any",
+      "values": [
+        "TDD",
+        "tdd"
+      ],
+      "description": "transcribes the user's own words under What worked this week?"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "rushed",
+        "protocol on two",
+        "two rushed PRs"
+      ],
+      "description": "transcribes the user's own words under What broke the protocol?"
+    },
+    {
+      "type": "contains",
+      "value": "{USER WILL FILL}",
+      "description": "leaves the unstated third reflection as the placeholder"
+    },
+    {
+      "type": "not_contains_any",
+      "values": [
+        "I derived",
+        "derived it from",
+        "inferred from"
+      ],
+      "description": "does not derive the adjustment and then disclose the derivation"
+    }
+  ]
+}

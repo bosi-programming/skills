@@ -1,0 +1,54 @@
+{
+  "name": "weekly-update-q4-never-drafted",
+  "description": "The fourth Weekly Update question has no answer in the researched sources, so it stays {USER WILL FILL} even when the week is rich and the user pushes for every section to be filled. Mirrors the Step 4 rule that reflection headers are never derived. A user instruction to fill everything does not override it, because a drafted answer would be invented rather than sourced.\n",
+  "prompt": "Do NOT call any tools. My weekly review covers 2026-06-15 -> 2026-06-21.\n\nLinear: 7 tickets closed, 4 roadmap and 3 support. Two more in progress:\nABC-220 (search relevance tuning) and ABC-221 (index rebuild job).\nGitHub: 9 PRs merged, 12 PRs of other people's code reviewed.\nWork sessions: 8 logged, themes delivery x5, review x2, planning x1.\nSlack: led the search migration announcement, coordinated with design on the\nresults page.\nNo blockers at all this week, everything I depended on landed on time.\n\nFill in every section of the Weekly Update, don't leave anything blank.\n\nWrite the Weekly Update section only.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "{USER WILL FILL}",
+      "description": "Q4 stays unfilled even under an explicit instruction to fill everything"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "search",
+        "roadmap",
+        "review"
+      ],
+      "description": "Q1 still describes the shape of the week",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "ABC-220",
+        "ABC-221",
+        "relevan",
+        "index"
+      ],
+      "description": "Q2 carries forward the in-progress work, whether it names the ticket keys or glosses them",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "nothing blocking",
+        "no blockers",
+        "nothing is blocking",
+        "nothing blocked"
+      ],
+      "description": "Q3 states the absence of blockers rather than manufacturing one",
+      "ignore_case": true
+    },
+    {
+      "type": "not_contains",
+      "value": "=/",
+      "description": "no logical symbols leak into the outward-facing section"
+    },
+    {
+      "type": "not_contains",
+      "value": "[[",
+      "description": "no wiki-link citations leak into the outward-facing section"
+    }
+  ]
+}

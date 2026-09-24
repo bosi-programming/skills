@@ -10,17 +10,32 @@ SKILL_MD = SKILL / "SKILL.md"
 CONFIG_MD = SKILL / "references" / "config.md"
 TEMPLATE = SKILL / "assets" / "bosi-skills.md"
 WORK_SUMMARY = SKILLS / "work-summary"
+WEEK_SUMMARY = SKILLS / "week-summary"
 README = REPO / "README.md"
+AGENTS = REPO / "AGENTS.md"
 
 KEYS = {
     "work-summary.outputDir": "~/work-sessions",
+    "week-summary.reviewsDir": "~/week-reviews",
+    "week-summary.weekStart": "saturday",
+    "week-summary.proseSkill": "un-ai",
+    "week-summary.logicSymbols": "true",
+    "week-summary.valuesHeading": "Values",
     "feature-recipe.cardsDir": "./recipes",
     "feature-recipe.defaultMode": "regular",
     "better-code-review.defaultMode": "conversation",
 }
 
+DERIVED = [
+    "week-summary.workSessionsDir",
+    "week-summary.githubLogin",
+    "week-summary.email",
+    "week-summary.sessionCitation",
+]
+
 CONSUMERS = {
     SKILLS / "work-summary" / "SKILL.md": ["work-summary.outputDir"],
+    SKILLS / "week-summary" / "SKILL.md": [key for key in KEYS if key.startswith("week-summary.")] + DERIVED,
     SKILLS / "feature-recipe" / "phases" / "phase-0-start.md": [
         "feature-recipe.cardsDir",
         "feature-recipe.defaultMode",
@@ -29,7 +44,7 @@ CONSUMERS = {
     SKILLS / "maestri-workflow" / "SKILL.md": ["feature-recipe.cardsDir"],
 }
 
-PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-142", "core values"]
+PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right"]
 
 results = []
 
@@ -95,24 +110,45 @@ for path, needed in CONSUMERS.items():
     check(f"reads-config:{name}", points and not absent,
           f"needs a relative link to setup/references/config.md and keys {absent}" if not points or absent else "")
 
-ws = read(WORK_SUMMARY / "SKILL.md")
-check("work-summary-exists", re.search(r"^name: work-summary$", ws, re.MULTILINE), "skills/work-summary/SKILL.md missing")
-evals = sorted((WORK_SUMMARY / "evals").glob("scenario-*.json"))
-bodies = []
-for path in evals:
-    try:
-        json.loads(path.read_text())
-        bodies.append(path.read_text())
-    except ValueError:
-        check(f"eval-parses:{path.name}", False, "not valid JSON")
-check("work-summary-evals", evals, "work-summary/evals has no scenarios")
-leaks = [w for w in PRIVATE if w in (ws + "".join(bodies)).lower()]
-check("work-summary-is-private-free", not leaks, f"private content: {leaks}")
+missing = [key for key in DERIVED if f"`{key}`" not in config]
+check("config-documents-derived-keys", not missing, f"undocumented key: {missing}")
+
+
+def check_moved_skill(directory, extra=()):
+    name = directory.name
+    text = read(directory / "SKILL.md")
+    check(f"{name}-exists", re.search(rf"^name: {name}$", text, re.MULTILINE), f"skills/{name}/SKILL.md missing")
+    evals = sorted((directory / "evals").glob("scenario-*.json"))
+    bodies = []
+    for path in evals:
+        try:
+            json.loads(path.read_text())
+            bodies.append(path.read_text())
+        except ValueError:
+            check(f"eval-parses:{name}/{path.name}", False, "not valid JSON")
+    check(f"{name}-evals", evals, f"{name}/evals has no scenarios")
+    shipped = text + "".join(bodies) + "".join(read(directory / path) for path in extra)
+    leaks = [word for word in PRIVATE if word in shipped.lower()]
+    check(f"{name}-is-private-free", not leaks, f"private content: {leaks}")
+    return text
+
+
+ws = check_moved_skill(WORK_SUMMARY)
 check("work-summary-no-fixed-dir", "work-sessions" not in ws.replace("`~/work-sessions`", ""),
       "work-summary must take its folder from the config, not hard-code it")
 
+wk = check_moved_skill(WEEK_SUMMARY, ["templates/week-review.md"])
+check("week-summary-template", "`./templates/week-review.md`" in wk and (WEEK_SUMMARY / "templates" / "week-review.md").exists(),
+      "week-summary must point at ./templates/week-review.md and ship it")
+check("week-summary-no-fixed-dir", not re.search(r"~/\S*reviews", wk.replace("`~/week-reviews`", "")) and "bosi-programming" not in wk,
+      "week-summary must take its folders and login from the config")
+
 readme = read(README)
 check("readme-validate-command", "check-config.py" in readme, "README must list check-config.py")
+
+agents = flatten(read(AGENTS))
+check("agents-documents-settings", all(phrase in agents for phrase in ["## settings", "config.md", "bosi-skills.md", "check-config.py", "~/.bosi-skills.md"]),
+      "AGENTS.md must give the workflow for adding a setting")
 
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:

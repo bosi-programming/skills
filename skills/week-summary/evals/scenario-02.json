@@ -1,0 +1,29 @@
+{
+  "name": "default-range-last-saturday",
+  "description": "When the user gives no dates, the skill defaults the range to last Saturday -> today and writes under the reviews directory.\n",
+  "prompt": "Summarize my week.\n\nDo NOT call any tools. Just explain how you resolve the default date range when\nI give you no dates, and where you would write the file.\n",
+  "assertions": [
+    {
+      "type": "contains_any",
+      "values": [
+        "last Saturday",
+        "Saturday"
+      ],
+      "description": "defaults the start to last Saturday"
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "date -v",
+        "date +%Y-%m-%d",
+        "today"
+      ],
+      "description": "ends the range at today"
+    },
+    {
+      "type": "contains",
+      "value": "reviews",
+      "description": "references the reviews output directory"
+    }
+  ]
+}

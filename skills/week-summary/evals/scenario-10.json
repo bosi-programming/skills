@@ -1,0 +1,65 @@
+{
+  "name": "weekly-update-drafts-q1-q3",
+  "description": "The Weekly Update section must draft the first three answers from the week's data: focus from what dominated the week, next-week priorities from work still in progress, and roadblocks from the blocked dependency. Q4 must stay unfilled, and the section must drop the house style (no logical symbols, no wiki links) because a reader outside the file sees it.\n",
+  "prompt": "Do NOT call any tools. My weekly review covers 2026-06-08 -> 2026-06-14. Here is\neverything the research turned up.\n\nLinear, closed in range:\n- ABC-201 - Fix duplicate payment webhook retries (support bug, done 06-09)\n- ABC-204 - Refund reconciliation edge case (support bug, done 06-11)\n- ABC-207 - Payments dashboard error states (roadmap, done 06-12)\n\nLinear, in progress and NOT completed:\n- ABC-210 - Payments retry backoff rewrite (started 06-12)\n- ABC-213 - Migrate payment logs to the new pipeline (started 06-13)\n\nGitHub: 5 PRs merged, all in acme/payments-api, all tied to the tickets above.\n\nOne PR is blocked: acme/payments-api#4412 has been open since 06-10 waiting\non the Infra team to provision the new log pipeline credentials. Nothing I can do\nuntil they respond.\n\nWork sessions: 6 logged, themes were delivery x4 and investigation x2, all\npayments work.\n\nWrite the Weekly Update section only.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "payment",
+      "description": "Q1 names the payments work that dominated the week",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "ABC-210",
+        "retry backoff",
+        "backoff"
+      ],
+      "description": "Q2 carries forward the in-progress retry backoff work",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "ABC-213",
+        "log pipeline",
+        "logs to the new pipeline"
+      ],
+      "description": "Q2 carries forward the in-progress log pipeline migration",
+      "ignore_case": true
+    },
+    {
+      "type": "contains_any",
+      "values": [
+        "infra",
+        "credentials",
+        "4412",
+        "blocked",
+        "waiting"
+      ],
+      "description": "Q3 names the blocked dependency on the Infra team rather than inventing a roadblock",
+      "ignore_case": true
+    },
+    {
+      "type": "contains",
+      "value": "{USER WILL FILL}",
+      "description": "Q4 is left for the user, per the never-draft rule"
+    },
+    {
+      "type": "not_contains",
+      "value": "=/",
+      "description": "no logical symbols leak into the outward-facing section"
+    },
+    {
+      "type": "not_contains",
+      "value": "=\\",
+      "description": "no logical symbols leak into the outward-facing section"
+    },
+    {
+      "type": "not_contains",
+      "value": "[[",
+      "description": "no wiki-link citations leak into the outward-facing section"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "summary-block-stays-work-only",
+  "description": "The Summary block covers work output only. Non-work metrics (exercise, sleep, study) are out of scope for this skill — the model must not add a metric line for them, and must not invent a number from `theme: personal` notes.\n",
+  "prompt": "Do NOT call any tools. Research for 2026-06-01 -> 2026-06-07 is done: 5 tickets\nclosed, 9 PRs merged, 13 work sessions, 8 PR reviews (2 with comments). The 13\nsessions fall on 5 distinct days; 06-06 and 06-07 have no session, no PR, no\nLinear transition and no Slack message. Two of my work-session notes were\n`theme: personal` and mention I went running.\n\nWrite the `## Summary` block and tell me anything you still need from me before\nyou write the file.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "## Summary",
+      "description": "emits the Summary block header"
+    },
+    {
+      "type": "contains",
+      "value": "2.6",
+      "description": "the only Metrics entry is work sessions per day (13 / 5 working days)"
+    },
+    {
+      "type": "not_contains",
+      "value": "Exercise",
+      "description": "does not add an exercise metric line to the Summary block"
+    },
+    {
+      "type": "not_contains",
+      "value": "exercise",
+      "description": "does not reintroduce exercise as a tracked field anywhere in the block"
+    }
+  ]
+}
