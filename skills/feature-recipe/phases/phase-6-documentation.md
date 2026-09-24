@@ -3,11 +3,21 @@
 The last phase. This one is terminal — it ends the recipe, not with a
 session-break menu but with a plain close.
 
+## Settings
+
+Read `../../setup/references/config.md` and resolve two keys from the settings
+file, current folder first, then `$HOME`, then the default:
+
+- `feature-recipe.docsDestination` — where docs go. Default `''`: work it out
+  as section 1 says.
+- `feature-recipe.runWorkSummary` — whether section 4 runs. Default `true`.
+
 ## 1. Ask if this needs documenting
 
 Ask the user whether this feature is worth documenting for the team, and
-respect a no — this step is optional. If yes, work out where this team
-already keeps docs: notice it from the project's own conventions (a `docs/`
+respect a no — this step is optional. If yes and `feature-recipe.docsDestination`
+is set, that is where the docs go; say so and don't ask. Otherwise work out
+where this team already keeps docs: notice it from the project's own conventions (a `docs/`
 folder, a documented convention in a README or CONTRIBUTING file) if it's
 evident, or ask if it isn't. Don't assume any particular destination and
 don't force a choice between named systems — wherever this team's docs
@@ -34,6 +44,8 @@ how it got there.
 
 ## 4. Summarize the session
 
+Skip this section when `feature-recipe.runWorkSummary` is `false`.
+
 If the session has a `work-summary` skill, run it last, once the card and
 the tracker are up to date. Name the work after the recipe card's task. If
 there is no such skill, skip this without saying so.
@@ -48,7 +60,7 @@ Read `../references/headless.md`. In a headless run:
 - Set `runNext: phase-6-documentation.md` as you start.
 - Section 1's question is taken, not asked: take the recommendation and log it
   `unattended:`. This phase stays optional, so a night run with no docs
-  destination already in the project skips it and says so on the card.
+  destination in the settings or the project skips it and says so on the card.
 - Section 2's draft, when there is one to write, is written without waiting.
 - Section 3's tracker update is skipped where no tracker is available, and the
   card says the external update is pending rather than inventing one.

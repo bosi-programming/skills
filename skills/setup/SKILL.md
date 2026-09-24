@@ -43,8 +43,13 @@ the ones in `./references/config.md`:
    h. Heading of the values section.
    i. Any guidance for the body's `## week-summary` section.
 6. Folder for recipe cards.
-7. `feature-recipe` default mode: `regular` or `headless`.
-8. `better-code-review` default mode: `conversation`, `page` or `headless`.
+7. `feature-recipe`:
+   a. Default mode: `regular` or `headless`.
+   b. Run `work-summary` when a recipe ends: yes or no.
+   c. Where feature docs go, or ask each time.
+8. `maestri-workflow` models for the planning and coding lanes, or let the
+   skill pick.
+9. `better-code-review` default mode: `conversation`, `page` or `headless`.
 
 An answer of "keep" or no answer leaves that key as it is.
 

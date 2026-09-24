@@ -65,6 +65,10 @@ every key.
 | `week-summary.valuesHeading` | `Values` | Heading of the section that sums up `work-summary.values` across the week. |
 | `feature-recipe.cardsDir` | `./recipes` | Folder recipe cards go in, relative to the project root. |
 | `feature-recipe.defaultMode` | `regular` | Mode a recipe runs in when the request names none: `regular` or `headless`. |
+| `feature-recipe.runWorkSummary` | `true` | Run `work-summary` at the end of Documentation, when the session has it. `false` skips it. |
+| `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. |
+| `maestri-workflow.planningModel` | `''` | Model for the planning lane. Empty means the most capable reasoning model the presets offer. |
+| `maestri-workflow.codingModel` | `''` | Model for the coding lane. Empty means a faster coding model from the presets. |
 | `better-code-review.defaultMode` | `conversation` | Output a review gives when the request names none: `conversation`, `page` or `headless`. |
 
 ## What the request says wins

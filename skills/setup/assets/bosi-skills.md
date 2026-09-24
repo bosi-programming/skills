@@ -17,6 +17,11 @@ week-summary:
 feature-recipe:
   cardsDir: ./recipes
   defaultMode: regular
+  runWorkSummary: true
+  docsDestination: ''
+maestri-workflow:
+  planningModel: ''
+  codingModel: ''
 better-code-review:
   defaultMode: conversation
 ---
@@ -48,6 +53,12 @@ only needs the keys it changes.
 - `week-summary.valuesHeading` — heading of the values section.
 - `feature-recipe.cardsDir` — folder recipe cards go in.
 - `feature-recipe.defaultMode` — `regular` or `headless`.
+- `feature-recipe.runWorkSummary` — `true` or `false`: write a session note
+  when the recipe ends.
+- `feature-recipe.docsDestination` — where the feature's docs go; empty means
+  ask.
+- `maestri-workflow.planningModel` and `maestri-workflow.codingModel` — the
+  models for each lane; empty lets the skill pick from the presets.
 - `better-code-review.defaultMode` — `conversation`, `page` or `headless`.
 
 A request that names a mode, such as `--headless`, beats the default here.

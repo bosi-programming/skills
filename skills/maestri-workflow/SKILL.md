@@ -37,7 +37,11 @@ You need four things before anything starts:
   legacy to leave behind.
 
 Run `maestri preset list` to see which harnesses the canvas can launch. If the
-user named a lane, use it. If they did not, take the recommended lanes:
+user named a lane, use it. If they did not, read the settings file as
+`../setup/references/config.md` says: `maestri-workflow.planningModel` and
+`maestri-workflow.codingModel` name each lane's model, both `''` by default.
+A lane with a model set uses it. Where neither the user nor the file names one,
+take the recommended lanes:
 planning on the most capable reasoning model the presets offer, coding on a
 faster coding model, both on the harness you run on. The note does not exist
 yet, so hold the choice and log it under `## Taken without asking` as the

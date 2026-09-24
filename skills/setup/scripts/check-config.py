@@ -24,6 +24,10 @@ KEYS = {
     "feature-recipe.cardsDir": "./recipes",
     "feature-recipe.defaultMode": "regular",
     "better-code-review.defaultMode": "conversation",
+    "feature-recipe.runWorkSummary": "true",
+    "feature-recipe.docsDestination": "''",
+    "maestri-workflow.planningModel": "''",
+    "maestri-workflow.codingModel": "''",
 }
 
 DERIVED = [
@@ -41,7 +45,15 @@ CONSUMERS = {
         "feature-recipe.defaultMode",
     ],
     SKILLS / "better-code-review" / "SKILL.md": ["better-code-review.defaultMode"],
-    SKILLS / "maestri-workflow" / "SKILL.md": ["feature-recipe.cardsDir"],
+    SKILLS / "maestri-workflow" / "SKILL.md": [
+        "feature-recipe.cardsDir",
+        "maestri-workflow.planningModel",
+        "maestri-workflow.codingModel",
+    ],
+    SKILLS / "feature-recipe" / "phases" / "phase-6-documentation.md": [
+        "feature-recipe.runWorkSummary",
+        "feature-recipe.docsDestination",
+    ],
 }
 
 PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right"]
