@@ -20,9 +20,10 @@
         "Frontend/Accessibility.md",
         "Testing/Tests.md",
         "Typescript/Exports.md",
-        "Typescript/Imports.md"
+        "Typescript/Imports.md",
+        "scripts/check-tooling-rule.py"
       ],
-      "version": "5081a6b47ead"
+      "version": "d2f81862f49e"
     },
     {
       "name": "code-visualizer",
@@ -90,9 +91,10 @@
         "phases/phase-6-documentation.md",
         "references/headless.md",
         "references/recipe-card-template.md",
-        "scripts/check-headless-contract.py"
+        "scripts/check-headless-contract.py",
+        "scripts/check-tasting-evidence.py"
       ],
-      "version": "6abb1f206b41"
+      "version": "a36796413022"
     },
     {
       "name": "maestri-workflow",
@@ -100,14 +102,15 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "6496e92e7de2"
+      "version": "82fe57f631ea"
     },
     {
       "name": "recipe-relay",
       "files": [
-        "SKILL.md"
+        "SKILL.md",
+        "scripts/check-review-evidence.py"
       ],
-      "version": "2247efcdfa00"
+      "version": "25412d530679"
     },
     {
       "name": "summarize-llm-response",

@@ -176,6 +176,9 @@ python3 skills/maestri-workflow/scripts/check-no-wait.py
 python3 skills/better-code-review/scripts/check-headless.py
 python3 skills/better-code-review/scripts/check-tests-axis.py
 python3 skills/better-code-review/scripts/check-evidence.py
+python3 skills/feature-recipe/scripts/check-tasting-evidence.py
+python3 skills/recipe-relay/scripts/check-review-evidence.py
+python3 skills/code-standards/scripts/check-tooling-rule.py
 ```
 
 Codex has no validator subcommand, so the nearest equivalent is a throwaway home. This installs the plugin for real and leaves your own Codex config untouched:
@@ -226,6 +229,22 @@ review stops reading the tooling config, running the project's checks,
 probing missing and tautological tests in a throwaway worktree, tagging
 evidence as ran, read or no, or linking `epistemic-action`. Offline, stdlib
 only — run it after editing `better-code-review`.
+
+`check-tasting-evidence.py` is `feature-recipe`'s second check: it fails if
+Tasting stops keeping the review's `Reviewed:` line and `Not verified:`
+entries, runs the checks again on code the review already ran them on, or if
+the rule against code comments loses its exception. Offline, stdlib only — run
+it after editing Tasting or the skill's rules.
+
+`check-review-evidence.py` is `recipe-relay`'s own check: it fails if the
+closing review pass stops sorting findings by `ran`, `read` or `no`, stops
+logging what the review left not verified, or if `maestri-workflow` stops
+reporting that gap. Offline, stdlib only — run it after editing either skill.
+
+`check-tooling-rule.py` is `code-standards`' own check: it fails if the catalog
+goes back to guessing what tooling enforces instead of reading the lint,
+format and type-check config, or if a catalog file it lists is missing.
+Offline, stdlib only — run it after editing `code-standards`.
 
 ## Falsify a change
 

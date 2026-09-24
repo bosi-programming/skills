@@ -71,11 +71,15 @@ stopped on `blocked` / `needs-input` instead, skip this section.
    the default branch; if the recipe worked on the default branch itself, it
    is the commit before the recipe's first one. The spec source is the task on
    the card. Have it return the review's output as it stands.
-2. Work through the findings in this session, on the same branch. Read each
-   one at its `file:line` first. Write a failing test first where the finding
-   is a behaviour, then fix, then run the project's scoped tests and lint.
-   Push to the open PR and leave it in the state Plating left it. Log each
-   finding you reject to `## Decisions` as `relay:`, with the reason, instead
-   of changing the code.
+2. Work through the findings in this session, on the same branch, by their
+   `Verified:` tag. A `ran` finding is proved: go to the fix. A `read` finding
+   gets read at its `file:line` first. A `no` finding: verify it first, by
+   running or reading what it names, and reject it if it does not hold. Write
+   a failing test first where the finding is a behaviour, then fix, then run
+   the project's scoped tests and lint. Push to the open PR and leave it in
+   the state Plating left it. Log each finding you reject to `## Decisions` as
+   `relay:`, with the reason, instead of changing the code. Log the review's
+   `Reviewed:` line and each `Not verified:` entry there too, so the gap stays
+   on the card.
 3. Tell the user, in short bullets, which findings you fixed and which you
-   rejected, with the reason.
+   rejected, with the reason, and what the review left not verified.

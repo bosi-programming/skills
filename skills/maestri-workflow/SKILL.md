@@ -170,5 +170,6 @@ This is the one place the run stops. Tell the user, in short bullets:
 - every line under `## Taken without asking`: defaults taken, each fallback,
   each recommendation taken;
 - every one-way door left for the user, as listed in the PR body;
-- which review findings you fixed and which you rejected, with the reason;
+- which review findings you fixed and which you rejected, with the reason, and
+  what the review left not verified;
 - every open entry left under `## Questions and problems`.

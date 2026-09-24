@@ -20,4 +20,4 @@ Read the file that governs the code you are looking at, then hold the change aga
 Two rules bind the whole catalog:
 
 - **The repo overrides.** A standard the project documents itself always wins; where the project endorses something this catalog would flag, this catalog says nothing.
-- **Tooling has already had its say.** Skip anything a formatter, linter, or type-checker enforces. This catalog exists for what machines do not catch.
+- **Tooling has already had its say.** Open the project's lint, format and type-check config (`eslint.config.*`, `.eslintrc*`, `biome.json`, `.prettierrc*`, `tsconfig.json`, `ruff.toml`, `pyproject.toml`, or whatever the repo uses) and list the enabled rules. Skip what that list covers; this catalog exists for what machines do not catch. When the repo has no such config, say so, and skip nothing on tooling's behalf.

@@ -28,4 +28,4 @@ read it before running or answering a headless run.
 
 ## Rules for all phases
 
-- Never, ever, comment a code unless the package.json, README.md, AGENTS.md or CLAUDE.md explicit tell the code is an external facing package. If that is the case, only document external facing code with the language specific docs comment, like TSDocs for TS.
+- Never comment code. The one exception: when `package.json`, `README.md`, `AGENTS.md` or `CLAUDE.md` says the code is a package others consume, document its public surface, and only that, in the language's doc-comment format, such as TSDoc for TypeScript.

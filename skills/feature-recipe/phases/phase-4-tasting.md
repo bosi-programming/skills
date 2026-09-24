@@ -20,7 +20,16 @@ triage its findings by axis without waiting for the user:
   first where the behaviour allows it. Log judgement calls to
   `## Quality Gate Results` rather than acting on them.
 
+The review already ran the project's scoped tests, lint and type-check at the
+commit on its `Reviewed:` line, and tags each finding `ran`, `read` or `no`.
+Keep that result: copy the `Reviewed:` line and every `Not verified:` entry to
+`## Quality Gate Results`.
+
 ## 2. Detect this project's own checks
+
+Where `HEAD` is still the commit on the review's `Reviewed:` line, sections 2
+to 5 run only the checks the review lists as not verified; the rest already
+ran on this exact code. Once a fix from section 1 moves `HEAD`, run them all.
 
 Don't assume a specific test runner, linter, or scoping convention — read
 what this repo actually has: `package.json` scripts, CI workflow files, any
