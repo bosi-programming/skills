@@ -69,6 +69,11 @@ every key.
 | `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. |
 | `maestri-workflow.planningModel` | `''` | Model for the planning lane. Empty means the most capable reasoning model the presets offer. |
 | `maestri-workflow.codingModel` | `''` | Model for the coding lane. Empty means a faster coding model from the presets. |
+| `ship-pr.titleFormat` | `type(scope): subject [KEY]` | Shape of every commit header and PR title; the other common shape is `[KEY] type(scope): subject`. |
+| `ship-pr.approvalGate` | `true` | Pause for approval before `git push` and `gh pr create`. `false` pushes and opens the PR without asking. |
+| `ship-pr.draft` | `false` | Open the PR as a draft. |
+| `ship-pr.validateCommands` | `[]` | Commands run from each repo's root before its commits, such as lint or tests; a failure aborts the commit. |
+| `ship-pr.trackerServer` | `''` | MCP server that reads tickets. Empty skips the ticket lookup and describes the problem from the diff. |
 | `better-code-review.defaultMode` | `conversation` | Output a review gives when the request names none: `conversation`, `page` or `headless`. |
 
 ## What the request says wins
@@ -76,7 +81,8 @@ every key.
 A mode set in the file is only the default. A request that names a mode
 overrides it: `--headless` or "headless" gives a headless run, "regular" or
 "interactive" gives a regular one, "page", "visualize" or "verbose" gives
-`better-code-review` its page. A driver that runs a skill in a stated mode,
+`better-code-review` its page. "Ask me first" or "just push it" overrides
+`ship-pr.approvalGate`, and "draft" overrides `ship-pr.draft`. A driver that runs a skill in a stated mode,
 the way `recipe-relay` runs `feature-recipe` as an interactive invocation,
 counts as the request naming it.
 

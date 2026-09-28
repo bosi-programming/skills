@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, and whether feature-recipe and better-code-review run regular or headless by default. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, and how ship-pr titles, gates and validates a PR. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
@@ -50,6 +50,13 @@ the ones in `./references/config.md`:
 8. `maestri-workflow` models for the planning and coding lanes, or let the
    skill pick.
 9. `better-code-review` default mode: `conversation`, `page` or `headless`.
+10. `ship-pr`:
+    a. Title format: `type(scope): subject [KEY]` or `[KEY] type(scope): subject`.
+    b. Pause for approval before push and PR: yes or no.
+    c. Open PRs as drafts: yes or no.
+    d. Commands to run before each commit, or none.
+    e. MCP server that reads tickets, or none.
+    f. Any guidance for the body's `## ship-pr` section.
 
 An answer of "keep" or no answer leaves that key as it is.
 

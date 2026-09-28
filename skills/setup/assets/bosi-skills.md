@@ -22,6 +22,12 @@ feature-recipe:
 maestri-workflow:
   planningModel: ''
   codingModel: ''
+ship-pr:
+  titleFormat: type(scope): subject [KEY]
+  approvalGate: true
+  draft: false
+  validateCommands: []
+  trackerServer: ''
 better-code-review:
   defaultMode: conversation
 ---
@@ -59,6 +65,12 @@ only needs the keys it changes.
   ask.
 - `maestri-workflow.planningModel` and `maestri-workflow.codingModel` — the
   models for each lane; empty lets the skill pick from the presets.
+- `ship-pr.titleFormat` — shape of commit headers and PR titles.
+- `ship-pr.approvalGate` — `true` pauses before push and PR; `false` does not.
+- `ship-pr.draft` — `true` opens PRs as drafts.
+- `ship-pr.validateCommands` — commands run before each repo's commits, such
+  as lint or tests.
+- `ship-pr.trackerServer` — MCP server that reads tickets; empty skips it.
 - `better-code-review.defaultMode` — `conversation`, `page` or `headless`.
 
 A request that names a mode, such as `--headless`, beats the default here.
@@ -67,6 +79,11 @@ A request that names a mode, such as `--headless`, beats the default here.
 
 Guidance `work-summary` follows when it tags a session. Leave this section out
 if there is none.
+
+## ship-pr
+
+Guidance `ship-pr` follows when it ships, such as which validate command
+belongs to which repo. Leave this section out if there is none.
 
 ## week-summary
 

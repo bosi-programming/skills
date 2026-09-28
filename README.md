@@ -143,9 +143,15 @@ Writes a review of one week, one file per week: tickets closed, PRs merged and c
 
 Needs the `gh` CLI for GitHub.
 
+### ship-pr
+
+Turns working-tree changes into pull requests. It finds every repo in the folder with changes, plans one Conventional Commit per stage with a body that gives context and trade-offs, fills the repo's own PR template from the diff and the ticket, and ticks a checklist box only when the diff proves it. A revert keeps the branch's own ticket key in the header and names the reverted ticket in the body. It commits from a message file, opens one PR per repo, never stacks PRs, and by default pauses for your approval before any push.
+
+Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the commands to run before each commit and the MCP server that reads tickets are settings; see `setup`.
+
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, and which mode `feature-recipe` and `better-code-review` run in when the request names none. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, and how `ship-pr` titles, gates and validates a PR. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -177,6 +183,7 @@ skills/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   work-summary/       SKILL.md + evals/ (scenarios)
   week-summary/       SKILL.md + templates/week-review.md + evals/ (scenarios)
+  ship-pr/            SKILL.md + references/conventions.md + scripts/detect_context.sh + evals/ (scenarios)
   setup/              SKILL.md + assets/bosi-skills.md + references/config.md + scripts/
 ```
 

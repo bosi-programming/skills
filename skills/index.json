@@ -120,7 +120,19 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "701dde1091e0"
+      "version": "5c62d7310a14"
+    },
+    {
+      "name": "ship-pr",
+      "files": [
+        "SKILL.md",
+        "evals/scenario-01.json",
+        "evals/scenario-02.json",
+        "evals/scenario-03.json",
+        "references/conventions.md",
+        "scripts/detect_context.sh"
+      ],
+      "version": "74efc32e7654"
     },
     {
       "name": "summarize-llm-response",

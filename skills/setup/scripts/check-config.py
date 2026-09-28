@@ -11,6 +11,7 @@ CONFIG_MD = SKILL / "references" / "config.md"
 TEMPLATE = SKILL / "assets" / "bosi-skills.md"
 WORK_SUMMARY = SKILLS / "work-summary"
 WEEK_SUMMARY = SKILLS / "week-summary"
+SHIP_PR = SKILLS / "ship-pr"
 README = REPO / "README.md"
 AGENTS = REPO / "AGENTS.md"
 
@@ -28,6 +29,11 @@ KEYS = {
     "feature-recipe.docsDestination": "''",
     "maestri-workflow.planningModel": "''",
     "maestri-workflow.codingModel": "''",
+    "ship-pr.titleFormat": "type(scope): subject [KEY]",
+    "ship-pr.approvalGate": "true",
+    "ship-pr.draft": "false",
+    "ship-pr.validateCommands": "[]",
+    "ship-pr.trackerServer": "''",
 }
 
 DERIVED = [
@@ -54,9 +60,10 @@ CONSUMERS = {
         "feature-recipe.runWorkSummary",
         "feature-recipe.docsDestination",
     ],
+    SKILLS / "ship-pr" / "SKILL.md": [key for key in KEYS if key.startswith("ship-pr.")],
 }
 
-PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right"]
+PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]
 
 results = []
 
@@ -154,6 +161,12 @@ check("week-summary-template", "`./templates/week-review.md`" in wk and (WEEK_SU
       "week-summary must point at ./templates/week-review.md and ship it")
 check("week-summary-no-fixed-dir", not re.search(r"~/\S*reviews", wk.replace("`~/week-reviews`", "")) and "bosi-programming" not in wk,
       "week-summary must take its folders and login from the config")
+
+sp = check_moved_skill(SHIP_PR, ["references/conventions.md", "scripts/detect_context.sh"])
+check("ship-pr-no-fixed-path", "~/.claude" not in sp and "CLAUDE_SKILL_DIR" not in sp and "$SKILL_DIR/scripts/detect_context.sh" in sp,
+      "ship-pr must run its script through $SKILL_DIR")
+check("ship-pr-script-ships", (SHIP_PR / "scripts" / "detect_context.sh").exists(), "ship-pr must ship scripts/detect_context.sh")
+check("ship-pr-commits-from-file", "commit -F" in sp and "commit -m" not in sp, "ship-pr must commit with a message file")
 
 readme = read(README)
 check("readme-validate-command", "check-config.py" in readme, "README must list check-config.py")
