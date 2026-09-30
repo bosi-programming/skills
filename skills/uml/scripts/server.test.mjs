@@ -88,8 +88,15 @@ test('server: POST writes source and returns svg', async () => {
   const response = await post(url, 'class', { source: '@startuml\nclass Cart\n@enduml\n' })
   assert.deepEqual(
     [response.status, await response.json(), await readFile(join(outputDir, 'class.puml'), 'utf8')],
-    [200, { svg: '<svg>new</svg>' }, '@startuml\nclass Cart\n@enduml\n']
+    [200, { svg: '<svg>new</svg>', densityWarning: null }, '@startuml\nclass Cart\n@enduml\n']
   )
+})
+
+test('server: a save of a dense source sends the density warning back', async () => {
+  const { url } = await start()
+  const source = ['@startuml', ...Array.from({ length: 13 }, (_, index) => `class C${index}`), '@enduml'].join('\n')
+  const reply = await (await post(url, 'class', { source })).json()
+  assert.equal(reply.densityWarning, 'Hard to read: 0 arrows and 13 elements. Keep a diagram to at most 15 arrows and 12 elements.')
 })
 
 test('server: the renderer gets the posted source and its type', async () => {
@@ -109,7 +116,7 @@ test('server: file on disk holds no theme lines after write-back', async () => {
 test('server: parse error saves file and returns error', async () => {
   const { url } = await start({ render: async () => ({ error: 'Syntax Error?' }) })
   const response = await post(url, 'class', { source: 'class {' })
-  assert.deepEqual([await response.json(), await readFile(join(outputDir, 'class.puml'), 'utf8')], [{ error: 'Syntax Error?' }, 'class {'])
+  assert.deepEqual([await response.json(), await readFile(join(outputDir, 'class.puml'), 'utf8')], [{ error: 'Syntax Error?', densityWarning: null }, 'class {'])
 })
 
 test('server: after a parse error the page keeps the last good svg, dimmed', async () => {

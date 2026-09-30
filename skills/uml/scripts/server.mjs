@@ -1,5 +1,6 @@
 import { createServer } from 'node:http'
 
+import { densityWarning } from './density.mjs'
 import { resolveSource } from './guard.mjs'
 import { renderPage } from './page.mjs'
 
@@ -94,7 +95,7 @@ export const createSaveRoute = ({ outputDir, manifest, render, writeFile, cache 
   await writeFile(writable.path, source)
   const result = await render(source, type)
   cache.remember(type, source, result)
-  sendJson(response, 200, result)
+  sendJson(response, 200, { ...result, densityWarning: densityWarning(source) })
 }
 
 export const createUmlServer = ({ outputDir, manifest, render, readFile, writeFile, smetana, onRequest }) => {

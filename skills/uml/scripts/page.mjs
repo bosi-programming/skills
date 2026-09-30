@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 
+import { densityWarning } from './density.mjs'
 import { ACCENTS, NOTICES, PALETTE } from './theme.mjs'
 
 const CLIENT = readFileSync(new URL('./page-client.js', import.meta.url), 'utf8')
@@ -35,8 +36,7 @@ nav a { color: var(--fg); text-decoration: none; border: 1px solid var(--line); 
 nav a:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .warning { border: 1px solid ${NOTICES.warningBorder}; background: ${NOTICES.warningBackground}; color: ${NOTICES.warningText}; border-radius: 6px; padding: 8px 12px; }
 .diagram { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 8px; padding: 16px 20px; margin: 0 0 24px; }
-.diagram h2 { margin: 0 0 8px; font-size: 18px; color: var(--accent); }
-.why, .note, .status { color: var(--muted); }
+.diagram h2 { margin: 0 0 8px; font-size: 18px; color: var(--accent); }.why, .note, .status { color: var(--muted); }
 .no-basis { font-weight: 600; }
 .drawing { overflow: auto; background: var(--bg); border-radius: 6px; padding: 12px; transition: opacity .2s; }
 .drawing svg { max-width: 100%; height: auto; }
@@ -64,9 +64,15 @@ const noBasisBody = (diagram, origin) =>
   `<p class="no-basis">Nothing in the ${ORIGIN_WORDS[origin]} supports this diagram.</p>
 <p class="note">${escapeHtml(diagram.noBasis)}</p>`
 
+const densityLine = (source) => {
+  const warning = densityWarning(source ?? '')
+  return `<p class="warning density" role="note"${warning ? '' : ' hidden'}>${escapeHtml(warning)}</p>`
+}
+
 const drawnBody = (diagram, result = {}) => {
   const failed = Boolean(result.error)
-  return `<div class="drawing${failed ? ' stale' : ''}">${result.svg ?? ''}</div>
+  return `${densityLine(result.source)}
+<div class="drawing${failed ? ' stale' : ''}">${result.svg ?? ''}</div>
 <pre class="render-error"${failed ? '' : ' hidden'}>${escapeHtml(result.error)}</pre>
 <details open>
 <summary>Edit the PlantUML source (saved to <code>${escapeHtml(diagram.file)}</code>)</summary>

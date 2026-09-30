@@ -33,9 +33,12 @@ const fakeSection = () => {
   const drawing = { innerHTML: '<svg>old</svg>', classList: { add: (name) => classes.add(name), remove: (name) => classes.delete(name) } }
   const error = { hidden: true, textContent: '' }
   const status = { textContent: '' }
-  const parts = { '.drawing': drawing, '.render-error': error, '.status': status }
-  return { section: { querySelector: (selector) => parts[selector] }, drawing, error, status, classes }
+  const density = { hidden: true, textContent: '' }
+  const parts = { '.drawing': drawing, '.render-error': error, '.status': status, '.density': density }
+  return { section: { querySelector: (selector) => parts[selector] }, drawing, error, status, density, classes }
 }
+
+const DENSE = ['@startuml', ...Array.from({ length: 16 }, (_, index) => `A${index} --> B${index}`), '@enduml'].join('\n')
 
 const applyResult = (html) => new Function(`${grab(scriptOf(html), 'applyResult')}\nreturn applyResult`)()
 
@@ -62,6 +65,16 @@ test('page: a section shows what the diagram left out', () => {
 test('page: a section with nothing left out shows no left-out line', () => {
   const html = page({ diagrams: [drawn('package')], results: {} })
   assert.equal(section(html, 'package').includes('Left out'), false)
+})
+
+test('page: a dense source shows the density warning in its section', () => {
+  const html = page({ diagrams: [drawn('class')], results: { class: { source: DENSE, svg: SVG } } })
+  assert.match(section(html, 'class'), /<p class="warning density" role="note">Hard to read: 16 arrows and 0 elements\. Keep a diagram to at most 15 arrows and 12 elements\.<\/p>/)
+})
+
+test('page: a source inside the limits has a hidden, empty density warning', () => {
+  const html = page({ diagrams: [drawn('class')], results: { class: { source: '@startuml\nA --> B\n@enduml', svg: SVG } } })
+  assert.ok(section(html, 'class').includes('<p class="warning density" role="note" hidden></p>'))
 })
 
 test('page: noBasis section shows code text and note, no svg', () => {
@@ -223,6 +236,22 @@ test('page: client swaps in a new svg and clears the error', () => {
   fake.classes.add('stale')
   applyResult(html)(fake.section, { svg: '<svg>new</svg>' })
   assert.deepEqual([fake.drawing.innerHTML, fake.classes.has('stale'), fake.error.hidden], ['<svg>new</svg>', false, true])
+})
+
+test('page: client shows the density warning a save sends back', () => {
+  const html = page({ diagrams: [drawn('class')] })
+  const fake = fakeSection()
+  applyResult(html)(fake.section, { svg: '<svg>new</svg>', densityWarning: 'Hard to read: 16 arrows and 0 elements.' })
+  assert.deepEqual([fake.density.hidden, fake.density.textContent], [false, 'Hard to read: 16 arrows and 0 elements.'])
+})
+
+test('page: client hides the density warning once a save brings it inside the limits', () => {
+  const html = page({ diagrams: [drawn('class')] })
+  const fake = fakeSection()
+  fake.density.hidden = false
+  fake.density.textContent = 'Hard to read.'
+  applyResult(html)(fake.section, { error: 'Syntax Error?', densityWarning: null })
+  assert.deepEqual([fake.density.hidden, fake.density.textContent], [true, ''])
 })
 
 test('page: an empty code source is shown as the repo root', () => {

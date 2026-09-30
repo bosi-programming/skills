@@ -4,6 +4,9 @@ function applyResult(section, result) {
   var drawing = section.querySelector('.drawing')
   var error = section.querySelector('.render-error')
   var status = section.querySelector('.status')
+  var density = section.querySelector('.density')
+  density.hidden = !result.densityWarning
+  density.textContent = result.densityWarning || ''
   if (result.svg) {
     drawing.innerHTML = result.svg
     drawing.classList.remove('stale')
