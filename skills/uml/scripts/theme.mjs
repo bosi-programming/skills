@@ -59,6 +59,19 @@ const ELEMENTS = [
   'card',
 ]
 
+export const SIZES = Object.freeze({
+  nodesep: 40,
+  ranksep: 70,
+  defaultFontSize: 12,
+  noteFontSize: 10,
+  ArrowFontSize: 10,
+  titleFontSize: 16,
+})
+
+const PADDING = 4
+
+const sizeLines = () => Object.entries(SIZES).map(([name, value]) => `skinparam ${name} ${value}`)
+
 const START = '@startuml'
 const END = '@enduml'
 const SMETANA = '!pragma layout smetana'
@@ -84,6 +97,7 @@ const meaningLines = () => [
 
 const styleLines = () => [
   '<style>',
+  `root { Padding ${PADDING} }`,
   'stateDiagram {',
   `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
   `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
@@ -98,6 +112,7 @@ const themeLines = (type, { smetana }) => {
     `skinparam defaultFontColor ${PALETTE.text}`,
     'skinparam shadowing false',
     'skinparam roundCorner 8',
+    ...sizeLines(),
     `skinparam ArrowColor ${accent}`,
     `skinparam ArrowFontColor ${PALETTE.muted}`,
     `skinparam sequenceLifeLineBorderColor ${PALETTE.muted}`,

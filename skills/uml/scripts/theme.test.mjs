@@ -38,20 +38,50 @@ test('theme: meaning colours present for interface, abstract and enum', () => {
 test('theme: start and end states are coloured through a style block', () => {
   const themed = injectTheme('@startuml\n[*] --> Open\nOpen --> [*]\n@enduml', 'state', { smetana: false })
   const expected = [
-    '<style>',
     'stateDiagram {',
     `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
     `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
     '}',
-    '</style>',
   ].join('\n')
-  assert.ok(themed.includes(expected))
+  const style = themed.slice(themed.indexOf('<style>'), themed.indexOf('</style>'))
+  assert.ok(style.includes(expected))
+})
+
+test('theme: every style rule sits in one style block', () => {
+  const themed = injectTheme(SOURCE, 'class', { smetana: false })
+  assert.deepEqual([themed.split('<style>').length, themed.split('</style>').length], [2, 2])
 })
 
 test('theme: no start or end skinparam that PlantUML ignores', () => {
   const themed = injectTheme('@startuml\n[*] --> Open\n@enduml', 'state', { smetana: false })
   assert.equal(/skinparam state(Start|End)Color/.test(themed), false)
 })
+
+test('theme: spacing and font sizes are set', () => {
+  const themed = injectTheme(SOURCE, 'class', { smetana: false })
+  const expected = [
+    'skinparam nodesep 40',
+    'skinparam ranksep 70',
+    'skinparam defaultFontSize 12',
+    'skinparam noteFontSize 10',
+    'skinparam ArrowFontSize 10',
+    'skinparam titleFontSize 16',
+    'root { Padding 4 }',
+  ]
+  assert.deepEqual(expected.filter((line) => !themed.split('\n').includes(line)), [])
+})
+
+test('theme: padding goes through the style block, as skinparam padding prints a warning in the drawing', () => {
+  assert.equal(/skinparam padding/i.test(injectTheme(SOURCE, 'class', { smetana: false })), false)
+})
+
+for (const type of Object.keys(ACCENTS)) {
+  test(`theme: ${type} output never sets a line type`, () => {
+    for (const smetana of [false, true]) {
+      assert.equal(/linetype/i.test(injectTheme(SOURCE, type, { smetana })), false)
+    }
+  })
+}
 
 test('theme: smetana adds pragma', () => {
   const themed = injectTheme(SOURCE, 'class', { smetana: true })
