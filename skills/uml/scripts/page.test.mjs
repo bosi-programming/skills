@@ -124,9 +124,32 @@ test('page: loads nothing from outside the page', () => {
   assert.equal(/<(script|link)[^>]+(src|href)=/.test(html), false)
 })
 
-test('page: the editor posts 600 ms after the last keystroke', () => {
+const typeInEditor = (context, keystrokeGaps, waitAfter) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
   const html = page({ diagrams: [drawn('class')] })
-  assert.match(scriptOf(html), /SAVE_DELAY_MS = 600/)
+  const saves = []
+  const listeners = []
+  const editor = { value: '', addEventListener: (event, listener) => listeners.push(listener) }
+  const status = { textContent: '' }
+  const section = { dataset: { type: 'class' }, querySelector: (selector) => (selector === 'textarea' ? editor : status) }
+  const document = { querySelectorAll: () => [section] }
+  const fetch = (url, options) => saves.push([url, JSON.parse(options.body).source]) && new Promise(() => {})
+  new Function('document', 'fetch', 'setTimeout', 'clearTimeout', scriptOf(html))(document, fetch, setTimeout, clearTimeout)
+  keystrokeGaps.forEach((gap, index) => {
+    context.mock.timers.tick(gap)
+    editor.value += String(index)
+    listeners.forEach((listener) => listener())
+  })
+  context.mock.timers.tick(waitAfter)
+  return saves
+}
+
+test('page: the editor posts 600 ms after the last keystroke', (context) => {
+  assert.deepEqual(typeInEditor(context, [0, 300, 300], 600), [['/api/diagram/class', '012']])
+})
+
+test('page: the editor waits the full 600 ms before posting', (context) => {
+  assert.deepEqual(typeInEditor(context, [0], 599), [])
 })
 
 test('page: client keeps last svg dimmed on error', () => {

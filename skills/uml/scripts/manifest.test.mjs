@@ -73,6 +73,15 @@ test('manifest: missing file reported as missing', async () => {
   assert.deepEqual(result, { state: 'missing' })
 })
 
+test('manifest: a read error other than a missing file is unreadable', async () => {
+  const result = await readManifest('/out', {
+    readFile: async () => {
+      throw Object.assign(new Error('permission denied'), { code: 'EACCES' })
+    },
+  })
+  assert.deepEqual(result, { state: 'unreadable', error: 'uml.json: permission denied' })
+})
+
 test('manifest: bad JSON reported as unreadable', async () => {
   const result = await readManifest('/out', { readFile: async () => '{ not json' })
   assert.equal(result.state, 'unreadable')

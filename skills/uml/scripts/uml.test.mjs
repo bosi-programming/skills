@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
+import { connect } from 'node:net'
 import { PassThrough } from 'node:stream'
 import { test } from 'node:test'
 
@@ -197,6 +198,34 @@ test('uml: a child that dies before it reports a URL is an error', async () => {
   const { deps: d, err } = deps({ exists: () => true, spawn: () => child })
   const code = await run(['serve'], d)
   assert.deepEqual([code, /page server stopped before it started/.test(err.join(''))], [1, true])
+})
+
+const foreground = async () => {
+  const { deps: d, out } = deps({ fetch: async () => new Response('<svg/>') })
+  const code = await run(['serve-foreground', '--server', 'https://plantuml.example', '--idle-minutes', '1'], d)
+  return { code, url: new URL(JSON.parse(out.join('')).url) }
+}
+
+const refuses = (port) =>
+  new Promise((resolve) => {
+    const socket = connect(port, '127.0.0.1')
+    socket.once('connect', () => socket.destroy() && resolve(false))
+    socket.once('error', () => resolve(true))
+  })
+
+test('uml: serve-foreground listens on 127.0.0.1', async (context) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
+  const { code, url } = await foreground()
+  context.mock.timers.tick(60_000)
+  assert.deepEqual([code, url.hostname, Number(url.port) > 0], [0, '127.0.0.1', true])
+})
+
+test('uml: serve-foreground stops after the idle minutes', async (context) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
+  const { url } = await foreground()
+  context.mock.timers.tick(60_000)
+  context.mock.timers.reset()
+  assert.equal(await refuses(Number(url.port)), true)
 })
 
 test('uml: an unknown subcommand prints usage', async () => {

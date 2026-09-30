@@ -133,6 +133,12 @@ test('server: a no-basis type is 403', async () => {
   assert.equal(response.status, 403)
 })
 
+test('server: a body over 1 MiB is 413 and writes nothing', async () => {
+  const { url } = await start()
+  const response = await post(url, 'class', { source: 'x'.repeat(1_048_577) })
+  assert.deepEqual([response.status, await readFile(join(outputDir, 'class.puml'), 'utf8')], [413, CLASS_SOURCE])
+})
+
 test('server: a body that is not JSON is 400', async () => {
   const { url } = await start()
   const response = await post(url, 'class', '{ nope')
