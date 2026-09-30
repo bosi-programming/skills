@@ -152,6 +152,42 @@ test('page: the editor waits the full 600 ms before posting', (context) => {
   assert.deepEqual(typeInEditor(context, [0], 599), [])
 })
 
+const saveWith = async (context, reply) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
+  const html = page({ diagrams: [drawn('class')] })
+  const fake = fakeSection()
+  const listeners = []
+  const editor = { value: '', addEventListener: (event, listener) => listeners.push(listener) }
+  const parts = { textarea: editor }
+  const section = { dataset: { type: 'class' }, querySelector: (selector) => parts[selector] ?? fake.section.querySelector(selector) }
+  const document = { querySelectorAll: () => [section] }
+  const fetch = () => Promise.resolve(reply)
+  new Function('document', 'fetch', 'setTimeout', 'clearTimeout', scriptOf(html))(document, fetch, setTimeout, clearTimeout)
+  editor.value = 'class {'
+  listeners.forEach((listener) => listener())
+  context.mock.timers.tick(600)
+  await new Promise((resolve) => setImmediate(resolve))
+  return fake
+}
+
+test('page: a failed save says not saved and keeps the drawing', async (context) => {
+  const fake = await saveWith(context, { ok: false, status: 500, json: () => ({ error: 'disk full' }) })
+  assert.deepEqual(
+    [fake.status.textContent, fake.drawing.innerHTML, fake.classes.has('stale'), fake.error.hidden],
+    ['Not saved: disk full', '<svg>old</svg>', false, true]
+  )
+})
+
+test('page: a failed save with no error text names the status', async (context) => {
+  const fake = await saveWith(context, { ok: false, status: 413, json: () => ({}) })
+  assert.equal(fake.status.textContent, 'Not saved: HTTP 413')
+})
+
+test('page: a good save applies the result', async (context) => {
+  const fake = await saveWith(context, { ok: true, status: 200, json: () => ({ svg: '<svg>new</svg>' }) })
+  assert.deepEqual([fake.status.textContent, fake.drawing.innerHTML], ['Saved.', '<svg>new</svg>'])
+})
+
 test('page: client keeps last svg dimmed on error', () => {
   const html = page({ diagrams: [drawn('class')] })
   const fake = fakeSection()

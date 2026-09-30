@@ -27,9 +27,15 @@ function save(section, source) {
     body: JSON.stringify({ source: source }),
   })
     .then(function (response) {
-      return response.json()
+      return Promise.all([response, response.json()])
     })
-    .then(function (result) {
+    .then(function (reply) {
+      var response = reply[0]
+      var result = reply[1]
+      if (!response.ok) {
+        status.textContent = 'Not saved: ' + (result.error || 'HTTP ' + response.status)
+        return
+      }
       applyResult(section, result)
     })
     .catch(function () {
