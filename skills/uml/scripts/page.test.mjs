@@ -72,6 +72,12 @@ test('page: a dense source shows the density warning in its section', () => {
   assert.match(section(html, 'class'), /<p class="warning density" role="note">Hard to read: 16 arrows and 0 elements\. Keep a diagram to at most 15 arrows and 12 elements\.<\/p>/)
 })
 
+test('page: an activity section counts its actions as elements', () => {
+  const source = ['@startuml', 'start', ...Array.from({ length: 13 }, (_, index) => `:step ${index};`), 'stop', '@enduml'].join('\n')
+  const html = page({ diagrams: [drawn('activity', { why: 'placeOrder.' })], results: { activity: { source, svg: SVG } } })
+  assert.match(section(html, 'activity'), /Hard to read: 0 arrows and 13 elements\./)
+})
+
 test('page: a source inside the limits has a hidden, empty density warning', () => {
   const html = page({ diagrams: [drawn('class')], results: { class: { source: '@startuml\nA --> B\n@enduml', svg: SVG } } })
   assert.ok(section(html, 'class').includes('<p class="warning density" role="note" hidden></p>'))

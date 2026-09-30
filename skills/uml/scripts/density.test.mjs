@@ -53,3 +53,58 @@ test('density: too many arrows names the counts and the limits', () => {
 test('density: too many elements warns too', () => {
   assert.match(densityWarning(lines(...classes(13))) ?? '', /^Hard to read: 0 arrows and 13 elements\./)
 })
+
+test('density: activity actions are elements, one line or several', () => {
+  const source = lines('start', ':POST /orders;', ':check the cart', 'and the stock;', ':charge card;', ':charge card;', 'stop')
+  assert.equal(countDensity(source, 'activity').elements, 4)
+})
+
+test('density: activity arrows are the paths out of branches, forks and loops', () => {
+  const source = lines(
+    'if (cart empty?) then (yes)',
+    '  :reject;',
+    'elseif (stock short?) then (yes)',
+    '  :wait;',
+    'else (no)',
+    'endif',
+    'fork',
+    '  :reserve;',
+    'fork again',
+    '  :charge;',
+    'end fork',
+    'repeat',
+    '  :send;',
+    'repeat while (failed?) is (yes) -> no;',
+    'while (items left?) is (yes)',
+    '  :ship;',
+    'endwhile (no)'
+  )
+  assert.equal(countDensity(source, 'activity').arrows, 7)
+})
+
+test('density: activity guards, labels and swimlanes are not counted as arrows or elements', () => {
+  const source = lines('|Client|', 'start', '-> submit;', ':send order;', '|Api|', 'if (a -> b?) then (yes)', 'endif', 'note right: x --> y', 'stop')
+  assert.deepEqual(countDensity(source, 'activity'), { arrows: 1, elements: 1 })
+})
+
+test('density: too many activity actions warn', () => {
+  const source = lines('start', ...Array.from({ length: 13 }, (_, index) => `:step ${index};`), 'stop')
+  assert.match(densityWarning(source, 'activity') ?? '', /^Hard to read: 0 arrows and 13 elements\./)
+})
+
+test('density: er entities are elements and crow-foot lines are arrows', () => {
+  const source = lines(
+    'entity customers {',
+    '  *id : bigint <<PK>>',
+    '  --',
+    '  email : varchar',
+    '}',
+    'entity orders',
+    'entity "line_items" as items',
+    'customers ||--o{ orders : places',
+    'orders ||..|{ items',
+    'items }o--|| products',
+    'a |o--o| b'
+  )
+  assert.deepEqual(countDensity(source, 'er'), { arrows: 4, elements: 3 })
+})

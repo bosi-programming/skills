@@ -66,14 +66,14 @@ const noBasisBody = (diagram, origin) =>
   `<p class="no-basis">Nothing in the ${ORIGIN_WORDS[origin]} supports this diagram.</p>
 <p class="note">${escapeHtml(diagram.noBasis)}</p>`
 
-const densityLine = (source) => {
-  const warning = densityWarning(source ?? '')
+const densityLine = (source, type) => {
+  const warning = densityWarning(source ?? '', type)
   return `<p class="warning density" role="note"${warning ? '' : ' hidden'}>${escapeHtml(warning)}</p>`
 }
 
 const drawnBody = (diagram, result = {}) => {
   const failed = Boolean(result.error)
-  return `${densityLine(result.source)}
+  return `${densityLine(result.source, diagram.type)}
 <div class="drawing${failed ? ' stale' : ''}">${result.svg ?? ''}</div>
 <pre class="render-error"${failed ? '' : ' hidden'}>${escapeHtml(result.error)}</pre>
 <details open>

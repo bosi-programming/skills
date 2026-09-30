@@ -95,7 +95,7 @@ export const createSaveRoute = ({ outputDir, manifest, render, writeFile, cache 
   await writeFile(writable.path, source)
   const result = await render(source, type)
   cache.remember(type, source, result)
-  sendJson(response, 200, { ...result, densityWarning: densityWarning(source) })
+  sendJson(response, 200, { ...result, densityWarning: densityWarning(source, type) })
 }
 
 export const createUmlServer = ({ outputDir, manifest, render, readFile, writeFile, smetana, onRequest }) => {
