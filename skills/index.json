@@ -190,7 +190,7 @@
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "d2ad3d3a6f2e"
+      "version": "d58abced0de9"
     },
     {
       "name": "week-summary",
