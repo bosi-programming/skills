@@ -1,5 +1,5 @@
 import { encodePlantUml } from './encode.mjs'
-import { LOCAL_SERVER, chooseLayout } from './layout.mjs'
+import { LOCAL_SERVER, usesSmetana } from './layout.mjs'
 import { injectTheme } from './theme.mjs'
 
 export const NO_JAVA =
@@ -83,7 +83,7 @@ export const renderRemote = async (source, { server, fetch }) => {
 }
 
 export const createRenderer = ({ server, jar, dotPath, spawn, fetch }) => {
-  const smetana = chooseLayout({ dotPath, server }) === 'smetana'
+  const smetana = usesSmetana({ dotPath, server })
   return (source, type) => {
     const themed = injectTheme(source, type, { smetana })
     if (server === LOCAL_SERVER) return renderLocal(themed, { jar, dotPath, spawn })

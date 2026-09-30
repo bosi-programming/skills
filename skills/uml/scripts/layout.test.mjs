@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { chooseLayout, findOnPath } from './layout.mjs'
+import { chooseLayout, findOnPath, usesSmetana } from './layout.mjs'
 
 test('layout: dot found means graphviz', () => {
   assert.equal(chooseLayout({ dotPath: '/usr/bin/dot', server: 'local' }), 'graphviz')
@@ -13,6 +13,15 @@ test('layout: dot missing means smetana', () => {
 
 test('layout: a remote server lays out with its own graphviz', () => {
   assert.equal(chooseLayout({ dotPath: null, server: 'https://plantuml.example' }), 'graphviz')
+})
+
+test('layout: usesSmetana is true only for a local render with no dot', () => {
+  const cases = [
+    { dotPath: null, server: 'local' },
+    { dotPath: '/usr/bin/dot', server: 'local' },
+    { dotPath: null, server: 'https://plantuml.example' },
+  ]
+  assert.deepEqual(cases.map(usesSmetana), [true, false, false])
 })
 
 test('layout: findOnPath returns the first folder holding the command', () => {

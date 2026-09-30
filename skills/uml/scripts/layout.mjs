@@ -15,3 +15,5 @@ export const findOnPath = (command, { pathEnv, exists, platform }) => {
 
 export const chooseLayout = ({ dotPath, server }) =>
   server !== LOCAL_SERVER || dotPath ? 'graphviz' : 'smetana'
+
+export const usesSmetana = (setup) => chooseLayout(setup) === 'smetana'

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { parseInvocation } from './args.mjs'
 import { createIdleTimer } from './idle.mjs'
 import { cachedJarPath, downloadJar, expandHome, hasJava, locateJar } from './jar.mjs'
-import { LOCAL_SERVER, chooseLayout, findOnPath } from './layout.mjs'
+import { LOCAL_SERVER, chooseLayout, findOnPath, usesSmetana } from './layout.mjs'
 import { readManifest } from './manifest.mjs'
 import { planSources } from './plan.mjs'
 import { MISSING_JAR, NO_JAVA, createRenderer } from './render.mjs'
@@ -165,7 +165,7 @@ const serveForeground = async (argv, deps) => {
   const ready = await readyToServe(deps, options)
   if (ready.error) return fail(deps, ready.error)
   const render = createRenderer({ server: options.server, jar: ready.jar, dotPath: ready.dot, spawn: deps.spawn, fetch: deps.fetch })
-  const smetana = chooseLayout({ dotPath: ready.dot, server: options.server }) === 'smetana'
+  const smetana = usesSmetana({ dotPath: ready.dot, server: options.server })
   let idle = null
   const server = createUmlServer({
     outputDir: ready.outputDir,
