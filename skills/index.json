@@ -180,17 +180,20 @@
         "scripts/page-client.js",
         "scripts/page.mjs",
         "scripts/page.test.mjs",
+        "scripts/plan.mjs",
+        "scripts/plan.test.mjs",
         "scripts/render.mjs",
         "scripts/render.test.mjs",
         "scripts/server.mjs",
         "scripts/server.test.mjs",
         "scripts/structure.test.mjs",
+        "scripts/test-helpers.mjs",
         "scripts/theme.mjs",
         "scripts/theme.test.mjs",
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "d58abced0de9"
+      "version": "43ccb4bb49fb"
     },
     {
       "name": "week-summary",
