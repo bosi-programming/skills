@@ -54,6 +54,16 @@ test('page: sequence section shows why', () => {
   assert.ok(section(html, 'sequence').includes('Checkout is the flow every order takes.'))
 })
 
+test('page: a section shows what the diagram left out', () => {
+  const html = page({ diagrams: [drawn('package', { omitted: 'The barrel <index> and test imports.' })], results: {} })
+  assert.ok(section(html, 'package').includes('<strong>Left out:</strong> The barrel &lt;index&gt; and test imports.'))
+})
+
+test('page: a section with nothing left out shows no left-out line', () => {
+  const html = page({ diagrams: [drawn('package')], results: {} })
+  assert.equal(section(html, 'package').includes('Left out'), false)
+})
+
 test('page: noBasis section shows code text and note, no svg', () => {
   const html = page({
     diagrams: [drawn('profile', { file: null, noBasis: 'The code defines no stereotypes.' })],

@@ -43,6 +43,21 @@ test('manifest: a no-basis sequence needs no why', () => {
   assert.equal(result.ok, true)
 })
 
+test('manifest: an omitted note is accepted and kept', () => {
+  const result = validateManifest(valid([drawn('package', { omitted: 'The barrel index and 30 test imports.' })]))
+  assert.equal(result.manifest.diagrams[0].omitted, 'The barrel index and 30 test imports.')
+})
+
+test('manifest: omitted may be null', () => {
+  const result = validateManifest(valid([drawn('package', { omitted: null })]))
+  assert.equal(result.ok, true)
+})
+
+test('manifest: omitted that is not a string rejected', () => {
+  const result = validateManifest(valid([drawn('package', { omitted: ['index'] })]))
+  assert.equal(result.error, 'uml.json: package "omitted" must be a string or null.')
+})
+
 test('manifest: unknown type rejected', () => {
   const result = validateManifest(valid([drawn('activity')]))
   assert.equal(result.error, 'uml.json: unknown diagram type "activity".')

@@ -58,6 +58,8 @@ const accentStyle = (type) => `style="--accent: ${ACCENTS[type]}"`
 
 const whyLine = (why) => (why ? `<p class="why"><strong>Chosen:</strong> ${escapeHtml(why)}</p>` : '')
 
+const omittedLine = (omitted) => (omitted ? `<p class="why"><strong>Left out:</strong> ${escapeHtml(omitted)}</p>` : '')
+
 const noBasisBody = (diagram, origin) =>
   `<p class="no-basis">Nothing in the ${ORIGIN_WORDS[origin]} supports this diagram.</p>
 <p class="note">${escapeHtml(diagram.noBasis)}</p>`
@@ -79,6 +81,7 @@ const sectionHtml = (diagram, results, origin) => {
   return `<section class="diagram" id="${diagram.type}" data-type="${diagram.type}"${editable} ${accentStyle(diagram.type)}>
 <h2>${TITLES[diagram.type]}</h2>
 ${whyLine(diagram.why)}
+${omittedLine(diagram.omitted)}
 ${body}
 </section>`
 }

@@ -9,8 +9,9 @@ const NEEDS_WHY = ['sequence', 'state']
 const PREFIX = `${MANIFEST_FILE}:`
 
 const diagramError = (diagram, seen) => {
-  const { type, file, why, noBasis } = diagram ?? {}
+  const { type, file, why, noBasis, omitted } = diagram ?? {}
   if (!DIAGRAM_TYPES.includes(type)) return `${PREFIX} unknown diagram type "${type}".`
+  if (omitted != null && typeof omitted !== 'string') return `${PREFIX} ${type} "omitted" must be a string or null.`
   if (seen.has(type)) return `${PREFIX} ${type} is listed twice.`
   if (noBasis && file) return `${PREFIX} ${type} has both a file and a noBasis note; a no-basis diagram has file null.`
   if (!noBasis && !file) return `${PREFIX} ${type} needs a file or a noBasis note.`
