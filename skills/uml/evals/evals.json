@@ -7,18 +7,19 @@
       "mode": "code",
       "prompt": "/uml",
       "files": ["a small TypeScript shop: src/orders (Order, LineItem, OrderStatus enum), src/payments (Payment, CardPayment), a Dockerfile and a docker-compose.yml with postgres"],
-      "expected_output": "Nine .puml files or no-basis entries and a uml.json under docs/uml, origin code, source '.', then the page served.",
+      "expected_output": "Eleven .puml files or no-basis entries and a uml.json under docs/uml, origin code, source '.', then the page served.",
       "assertions": [
         "check_ran_first — the first script call is `uml.mjs check` with no text",
         "origin_code — uml.json has origin \"code\" and source \".\"",
-        "nine_types — uml.json lists all nine types, each once",
+        "eleven_types — uml.json lists all eleven types, each once",
         "sequence_why — the sequence entry names a real flow (for example checkout) and says why",
         "state_why — the state entry names Order or Payment and cites the status enum",
         "deployment_from_files — the deployment diagram shows the app and postgres from docker-compose.yml, nothing more",
         "profile_no_basis — profile has noBasis set and file null",
         "no_html — no .html file was written by the LLM",
         "no_theme_lines — no .puml file contains skinparam, !theme or colour lines",
-        "serve_reported — the reply passes on the URL, the PID and the kill command"
+        "serve_reported — the reply passes on the URL, the PID and the kill command",
+        "er_no_invention — the er entry has noBasis set, since the shop holds no migration, DDL or ORM entity, or draws only columns the code declares"
       ]
     },
     {
@@ -62,12 +63,12 @@
     {
       "id": 5,
       "mode": "code",
-      "prompt": "/uml --diagrams=activity",
+      "prompt": "/uml --diagrams=usecase",
       "files": ["the same shop as case 1"],
-      "expected_output": "Stops before any work with the list of nine valid types.",
+      "expected_output": "Stops before any work with the list of eleven valid types.",
       "assertions": [
         "stops_early — no file under docs/uml was written",
-        "lists_valid — the reply lists the nine valid types"
+        "lists_valid — the reply lists the eleven valid types, activity and er among them"
       ]
     },
     {
@@ -136,6 +137,49 @@
       "assertions": [
         "asks_first — the reply asks before `download-jar` runs",
         "names_source — the question names the PlantUML GitHub releases"
+      ]
+    },
+    {
+      "id": 12,
+      "mode": "code",
+      "prompt": "/uml --diagrams=activity",
+      "files": ["a small TypeScript service: src/orders/place-order.handler.ts, whose execute() returns early when the cart is empty or the customer is blocked, reserves stock and charges the card, and retries sendReceipt up to three times; src/orders/order.ts with an OrderStatus enum"],
+      "expected_output": "One activity diagram of PlaceOrderHandler.execute, with its branches and the retry loop, and a why naming it.",
+      "assertions": [
+        "activity_only — uml.json lists exactly activity",
+        "activity_why — the activity entry's why names PlaceOrderHandler.execute (or place-order) and says it is chosen for its branches or retries",
+        "new_syntax — activity.puml uses start, :action; and stop, and no (*) legacy arrows",
+        "branches_from_code — the if guards are the empty cart and the blocked customer, as the code tests them, and nothing more",
+        "retry_loop — the receipt retry is a repeat ... repeat while loop, or a while loop, with the limit of three",
+        "one_flow — no step from any other handler appears",
+        "no_theme_lines — activity.puml has no skinparam, !theme or colour lines"
+      ]
+    },
+    {
+      "id": 13,
+      "mode": "code",
+      "prompt": "/uml --diagrams=er",
+      "files": ["a small TypeORM app: src/entities/customer.entity.ts (@Entity('customers') with id, email, name), src/entities/order.entity.ts (@Entity('orders') with id, status, @ManyToOne customer), src/entities/line-item.entity.ts (@Entity('line_items') with id, quantity, @ManyToOne order and product), src/entities/product.entity.ts (@Entity('products') with id, sku)"],
+      "expected_output": "One ER diagram with the four entities, their keys and columns as the entities declare them, and crow's-foot lines from the relations.",
+      "assertions": [
+        "er_only — uml.json lists exactly er",
+        "four_entities — er.puml declares customers, orders, line_items and products with entity, named as the @Entity decorators name them",
+        "no_invented_columns — every column in er.puml is declared in the entity files; nothing such as created_at is added",
+        "keys_marked — each id is marked <<PK>> and each @ManyToOne column is marked <<FK>>",
+        "crows_feet — relations use IE notation such as ||--o{, not class arrows such as *-- or -->",
+        "no_theme_lines — er.puml has no skinparam, !theme or colour lines"
+      ]
+    },
+    {
+      "id": 14,
+      "mode": "code",
+      "prompt": "/uml --diagrams=er",
+      "files": ["a command-line tool in Go with no database: cmd/main.go and internal/format/format.go, which read stdin and print to stdout; no migrations, SQL files or ORM models"],
+      "expected_output": "No ER drawing; a no-basis note says the code persists nothing.",
+      "assertions": [
+        "er_no_basis — the er entry has noBasis set to one sentence saying the repo has no migrations, DDL or ORM entities, and file null",
+        "no_invention — no er.puml was written",
+        "still_serves — serve ran and the reply gives the URL"
       ]
     }
   ]

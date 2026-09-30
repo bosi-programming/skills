@@ -4,10 +4,12 @@ description: >-
   Draw UML diagrams of a codebase or of a described system with PlantUML, and
   serve them on a local dark-theme page where each diagram can be edited live
   and the edit is saved back to its source. Covers class, sequence, state,
-  profile, composite structure, component, deployment, object and package
-  diagrams. Use when the user asks for UML, a class diagram, a sequence
-  diagram, a state machine, a deployment or package view of a repo or a
-  folder, or wants a system they describe drawn as UML, or says "/uml".
+  profile, composite structure, component, deployment, object, package and
+  activity diagrams, and entity-relationship diagrams of the schema. Use when
+  the user asks for UML, a class diagram, a sequence diagram, a state machine,
+  an activity diagram or flowchart of a flow, an ER diagram of the database, a
+  deployment or package view of a repo or a folder, or wants a system they
+  describe drawn as UML, or says "/uml".
 ---
 
 # UML
@@ -39,7 +41,9 @@ folder this file sits in.
 - `/uml src/orders`: only that path.
 - `/uml an order service where carts become orders`: draw from the
   description.
-- `--diagrams=class,state`: only those types. With no flag, all nine.
+- `--diagrams=class,state`: only those types, from `class`, `sequence`,
+  `state`, `profile`, `composite`, `component`, `deployment`, `object`,
+  `package`, `activity` and `er`. With no flag, all eleven.
 - `--regenerate`: write new sources even when some are on disk.
 
 ## Run it
@@ -107,7 +111,9 @@ folder this file sits in.
    - No arrow label that only repeats the arrow's kind.
    - Notes about the whole diagram in the legend, none floating in the body.
    - Names as the code writes them.
-   - One flow in the sequence diagram, one entity in the state diagram.
+   - One flow in the sequence diagram, one entity in the state diagram, one
+     flow in the activity diagram.
+   - In the ER diagram, only entities and columns the schema declares.
    - No `skinparam`, `!theme`, colour or `linetype` lines.
 
 6. In local mode (`uml.plantumlServer` is `local`):
@@ -164,7 +170,7 @@ with the command `serve` printed and run step 7 again.
 
 The page always shows the selected types in this order. For each, draw it when
 the source gives a basis, and otherwise set `noBasis` to one sentence on what
-is missing. Activity and use-case diagrams are not offered.
+is missing. Use-case diagrams are not offered.
 
 ### Class
 
@@ -220,10 +226,30 @@ How the code is grouped and which groups depend on which. Basis: more than
 one folder, module or namespace with imports between them.
 `./references/package.md`.
 
+### Activity
+
+One flow as steps, with its branches, loops, parallel steps and actors. Pick
+the flow with the most of these, and say which and why in `why`. Basis: a flow
+in the code that branches, loops, runs steps in parallel or passes between
+several actors, such as a command handler with validation branches or a job
+with retries. A straight call path is not enough: draw it as the sequence
+diagram and give this one the no-basis note. `./references/activity.md`.
+
+### Entity-relationship
+
+The tables or persisted entities, their keys and columns, and how many rows
+match on each side. Not UML: it uses crow's-foot notation. Basis: migrations,
+SQL DDL, or ORM entities and models (`@Entity`, `@Table`, TypeORM, Sequelize,
+Prisma schemas). Never invent a column; use entity and column names as
+written. A repo with no persistence has no basis. `./references/er.md`.
+
 ## Rules
 
 - Use the names the code uses, as written.
-- One flow per sequence diagram and one entity per state diagram.
+- One flow per sequence diagram and per activity diagram, and one entity per
+  state diagram.
+- The ER diagram holds only entities and columns the schema declares, named
+  as written.
 - At most about 15 arrows and 12 elements per diagram, one arrow per pair of
   packages or components, no barrel or re-export files, no label that only
   repeats the arrow's kind. Past the budget, cut and fill in `omitted`.
@@ -233,5 +259,6 @@ one folder, module or namespace with imports between them.
   states or clearly implies, and give the no-basis note for the rest.
 - The `.puml` files hold diagram text only. The script injects the dark theme,
   the type's accent colour, the colours for interfaces, abstract classes,
-  enums and final states, one colour per arrow kind, the group and legend
-  styles, and the spacing at render time, so the files stay clean.
+  enums, entities, start and final states and activity start and stop, one
+  colour per arrow kind, the group and legend styles, and the spacing at
+  render time, so the files stay clean.
