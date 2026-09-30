@@ -127,6 +127,8 @@ Needs `python3`. The renderer uses the standard library only.
 
 Draws UML diagrams of a repo, a folder or a system you describe, with PlantUML, and serves them on a local dark-theme page. It covers class, sequence, state, profile, composite structure, component, deployment, object and package diagrams; `--diagrams=class,state` picks some. For the sequence and state diagrams it picks the central flow and entity and says which and why, and a type the source gives no basis for gets a note instead of an invented drawing. The LLM writes only the `.puml` sources and a `uml.json` manifest; a Node script with no dependencies themes them, renders them and serves the page, where each diagram has an editor that saves back to its source and redraws. The server listens on `127.0.0.1` only and stops after 30 idle minutes.
 
+`/uml` draws the current repo, `/uml src/orders` draws one path, and `/uml an order service where carts become orders` draws from the text. The sources land in `docs/uml` by default and stay there: a second run only renders them, and `--regenerate` writes them anew. Stop the server early with the `kill <pid>` line it prints.
+
 Needs Node, and either Java with the PlantUML jar (the skill offers to download it) or a PlantUML server URL. Graphviz is optional. The output folder, jar path, server and idle time are settings; see `setup`.
 
 ### summarize-llm-response
