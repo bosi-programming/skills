@@ -277,3 +277,31 @@ test('uml: browser opener on Linux is xdg-open', () => {
 test('uml: browser opener on Windows is start', () => {
   assert.deepEqual(openerFor('win32', 'http://x'), { command: 'cmd', args: ['/c', 'start', '', 'http://x'] })
 })
+
+test('uml: serve lets go of the child output once it has the URL', async () => {
+  const children = []
+  const spawn = (command) => {
+    const child = fakeChild({ line: command === '/usr/bin/node' ? JSON.stringify({ url: 'http://127.0.0.1:5123' }) : null })
+    children.push(child)
+    return child
+  }
+  const { deps: d } = deps({ exists: () => true, spawn })
+  await run(['serve'], d)
+  assert.equal(children[0].stdout.destroyed, true)
+})
+
+const closed = (socket) => new Promise((resolve) => socket.once('close', () => resolve(true)))
+
+test('uml: the idle stop closes a connection that is still open', async (context) => {
+  context.mock.timers.enable({ apis: ['setTimeout'] })
+  const { url } = await foreground()
+  const socket = connect(Number(url.port), '127.0.0.1').on('error', () => {})
+  await new Promise((resolve) => socket.once('connect', resolve))
+  socket.write('GET / HTTP/1.1\r\nHost: 127.0.0.1\r\n')
+  await new Promise((resolve) => setImmediate(resolve))
+  context.mock.timers.tick(60_000)
+  context.mock.timers.reset()
+  const outcome = await Promise.race([closed(socket), new Promise((resolve) => setTimeout(() => resolve(false), 500))])
+  socket.destroy()
+  assert.equal(outcome, true)
+})

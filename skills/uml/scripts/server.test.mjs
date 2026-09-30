@@ -202,3 +202,13 @@ test('server: imports only node: modules', async () => {
   const specifiers = texts.flatMap((text) => [...text.matchAll(/^import .* from '([^']+)'/gm)].map((match) => match[1]))
   assert.deepEqual(specifiers.filter((specifier) => !specifier.startsWith('node:') && !specifier.startsWith('./')), [])
 })
+
+test('server: an error after the headers went out only ends the response', async () => {
+  const server = createUmlServer({ outputDir, manifest, render: async () => ({ svg: SVG }), readFile, writeFile, smetana: false, onRequest: () => {} })
+  running = server
+  const response = { headersSent: true, writeHead: mock.fn(), end: mock.fn() }
+  const ended = new Promise((resolve) => response.end.mock.mockImplementation(resolve))
+  server.emit('request', { headers: { host: 'evil.example' }, url: '/', method: 'GET' }, response)
+  await ended
+  assert.deepEqual([response.writeHead.mock.callCount(), response.end.mock.callCount()], [0, 1])
+})

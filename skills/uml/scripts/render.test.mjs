@@ -139,3 +139,15 @@ test('render: error text from the svg has its entities decoded', async () => {
   const result = await renderLocal('@startuml\n@enduml', { jar: '/j.jar', dotPath: null, spawn })
   assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? at "A -> \"B\" & C"' })
 })
+
+test('render: remote returns the svg without the xml prolog', async () => {
+  const fetch = async () => new Response(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>${SVG}`)
+  const result = await renderRemote('A -> B', { server: 'https://plantuml.example', fetch })
+  assert.deepEqual(result, { svg: SVG })
+})
+
+test('render: a spawn error other than ENOENT is a render failure', async () => {
+  const { spawn } = fakeSpawn({ error: Object.assign(new Error('spawn java EACCES'), { code: 'EACCES' }) })
+  const result = await renderLocal('@startuml\n@enduml', { jar: '/j.jar', dotPath: null, spawn })
+  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: spawn java EACCES' })
+})

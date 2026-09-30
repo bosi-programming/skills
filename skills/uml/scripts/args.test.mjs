@@ -104,3 +104,8 @@ test('args: an unknown flag is an error', () => {
   const result = parseInvocation(['--colour=red'], { exists: nothingExists })
   assert.equal(result.error, 'Unknown flag: --colour=red. Valid flags: --diagrams=a,b and --regenerate.')
 })
+
+test('args: diagram names are trimmed', () => {
+  const result = parseInvocation(['--diagrams= state , class '], { exists: nothingExists })
+  assert.deepEqual(result.diagrams, ['class', 'state'])
+})

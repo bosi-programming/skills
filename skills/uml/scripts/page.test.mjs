@@ -205,3 +205,8 @@ test('page: client swaps in a new svg and clears the error', () => {
   applyResult(html)(fake.section, { svg: '<svg>new</svg>' })
   assert.deepEqual([fake.drawing.innerHTML, fake.classes.has('stale'), fake.error.hidden], ['<svg>new</svg>', false, true])
 })
+
+test('page: an empty code source is shown as the repo root', () => {
+  const html = page({ diagrams: [drawn('class')], source: '' })
+  assert.match(html, /Drawn from the code in <code>\.<\/code>/)
+})
