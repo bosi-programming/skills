@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { inflateRawSync } from 'node:zlib'
 
-import { decodeBase64, encodePlantUml } from './encode.mjs'
+import { encodePlantUml } from './encode.mjs'
+import { decodeBase64 } from './test-helpers.mjs'
 
 test('encode: known vector', () => {
   assert.equal(encodePlantUml('Bob -> Alice : hello'), 'SyfFKj2rKt3CoKnELR1Io4ZDoSa70000')

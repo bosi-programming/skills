@@ -5,8 +5,8 @@ import { test } from 'node:test'
 
 import { inflateRawSync } from 'node:zlib'
 
-import { decodeBase64 } from './encode.mjs'
 import { MISSING_JAR, NO_JAVA, createRenderer, renderLocal, renderRemote } from './render.mjs'
+import { decodeBase64 } from './test-helpers.mjs'
 
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'
 const ERROR_SVG = ['Add your own dedication into PlantUML', 'PlantUML version 1.2026.9', '[From string (line 73) ]', 'skinparam noteFontColor #e6edf3', '[*] --&gt;', 'Syntax Error? (Assumed diagram type: sequence)']
