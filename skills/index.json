@@ -165,6 +165,10 @@
         "references/state.md",
         "scripts/args.mjs",
         "scripts/args.test.mjs",
+        "scripts/arrows.mjs",
+        "scripts/arrows.test.mjs",
+        "scripts/density.mjs",
+        "scripts/density.test.mjs",
         "scripts/encode.mjs",
         "scripts/encode.test.mjs",
         "scripts/guard.mjs",
@@ -193,7 +197,7 @@
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "43ccb4bb49fb"
+      "version": "79990ff3fe58"
     },
     {
       "name": "week-summary",
