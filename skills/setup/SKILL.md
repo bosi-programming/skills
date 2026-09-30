@@ -57,6 +57,11 @@ the ones in `./references/config.md`:
     d. Commands to run before each commit, or none.
     e. MCP server that reads tickets, or none.
     f. Any guidance for the body's `## ship-pr` section.
+11. `uml`:
+    a. Folder for the UML sources and `uml.json`.
+    b. Path to the PlantUML jar, or the cache folder.
+    c. Render with the local jar, or the URL of a PlantUML server.
+    d. Minutes with no request before the page server stops.
 
 An answer of "keep" or no answer leaves that key as it is.
 

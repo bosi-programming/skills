@@ -75,6 +75,10 @@ every key.
 | `ship-pr.validateCommands` | `[]` | Commands run from each repo's root before its commits, such as lint or tests; a failure aborts the commit. |
 | `ship-pr.trackerServer` | `''` | MCP server that reads tickets. Empty skips the ticket lookup and describes the problem from the diff. |
 | `better-code-review.defaultMode` | `conversation` | Output a review gives when the request names none: `conversation`, `page` or `headless`. |
+| `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
+| `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
+| `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |
+| `uml.idleMinutes` | `30` | Minutes with no request before the `uml` page server stops itself. |
 
 ## What the request says wins
 
