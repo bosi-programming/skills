@@ -24,15 +24,19 @@ const sendJson = (response, status, value) => send(response, status, `${JSON_TYP
 
 const isLocalHost = (hostHeader = '') => LOCAL_HOSTS.includes(hostHeader.replace(/:\d+$/, ''))
 
-const readBody = (request) =>
+export const readBody = (request) =>
   new Promise((resolve, reject) => {
     const chunks = []
     let size = 0
-    request.on('data', (chunk) => {
+    const collect = (chunk) => {
       size += chunk.length
-      if (size > MAX_BODY_BYTES) reject(new HttpError(413, 'The source is too large.'))
-      chunks.push(chunk)
-    })
+      if (size <= MAX_BODY_BYTES) return chunks.push(chunk)
+      request.off('data', collect)
+      request.resume()
+      chunks.length = 0
+      reject(new HttpError(413, 'The source is too large.'))
+    }
+    request.on('data', collect)
     request.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')))
     request.on('error', reject)
   })

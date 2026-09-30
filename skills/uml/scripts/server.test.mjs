@@ -2,9 +2,10 @@ import assert from 'node:assert/strict'
 import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { PassThrough } from 'node:stream'
 import { afterEach, beforeEach, mock, test } from 'node:test'
 
-import { createUmlServer, listen } from './server.mjs'
+import { createUmlServer, listen, readBody } from './server.mjs'
 
 const SCRIPTS = new URL('.', import.meta.url)
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'
@@ -137,6 +138,15 @@ test('server: a body over 1 MiB is 413 and writes nothing', async () => {
   const { url } = await start()
   const response = await post(url, 'class', { source: 'x'.repeat(1_048_577) })
   assert.deepEqual([response.status, await readFile(join(outputDir, 'class.puml'), 'utf8')], [413, CLASS_SOURCE])
+})
+
+test('server: readBody stops collecting once the body passes 1 MiB', async () => {
+  const request = new PassThrough()
+  const reading = readBody(request)
+  request.write(Buffer.alloc(1_048_577))
+  await assert.rejects(reading, { status: 413 })
+  request.write(Buffer.alloc(16))
+  assert.deepEqual([request.listenerCount('data'), request.readableFlowing], [0, true])
 })
 
 test('server: a body that is not JSON is 400', async () => {
