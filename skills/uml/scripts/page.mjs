@@ -15,6 +15,8 @@ const TITLES = Object.freeze({
   deployment: 'Deployment diagram',
   object: 'Object diagram',
   package: 'Package diagram',
+  activity: 'Activity diagram',
+  er: 'Entity-relationship diagram',
 })
 
 const ORIGIN_WORDS = Object.freeze({ code: 'code', description: 'description' })

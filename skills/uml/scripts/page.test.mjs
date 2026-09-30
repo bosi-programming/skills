@@ -103,7 +103,15 @@ test('page: all sections noBasis still renders', () => {
   const html = page({ diagrams: DIAGRAM_TYPES.map((type) => drawn(type, { file: null, noBasis: 'Empty repo.' })) })
   assert.deepEqual(
     [html.startsWith('<!doctype html>'), html.trimEnd().endsWith('</html>'), html.match(/Nothing in the code supports this diagram/g).length],
-    [true, true, 9]
+    [true, true, 11]
+  )
+})
+
+test('page: activity and er sections carry their titles', () => {
+  const html = page({ diagrams: [drawn('activity', { why: 'placeOrder.' }), drawn('er')], results: {} })
+  assert.deepEqual(
+    [section(html, 'activity').includes('<h2>Activity diagram</h2>'), section(html, 'er').includes('<h2>Entity-relationship diagram</h2>')],
+    [true, true]
   )
 })
 

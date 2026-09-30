@@ -59,8 +59,18 @@ test('manifest: omitted that is not a string rejected', () => {
 })
 
 test('manifest: unknown type rejected', () => {
+  const result = validateManifest(valid([drawn('usecase')]))
+  assert.equal(result.error, 'uml.json: unknown diagram type "usecase".')
+})
+
+test('manifest: activity without why rejected', () => {
   const result = validateManifest(valid([drawn('activity')]))
-  assert.equal(result.error, 'uml.json: unknown diagram type "activity".')
+  assert.equal(result.error, 'uml.json: activity needs a "why" naming the flow or entity chosen and why.')
+})
+
+test('manifest: activity and er are accepted and sorted after package', () => {
+  const result = validateManifest(valid([drawn('er'), drawn('activity', { why: 'placeOrder: it branches on stock.' }), drawn('package')]))
+  assert.deepEqual(result.manifest.diagrams.map((diagram) => diagram.type), ['package', 'activity', 'er'])
 })
 
 test('manifest: duplicate type rejected', () => {
