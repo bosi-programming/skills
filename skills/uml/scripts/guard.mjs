@@ -9,7 +9,7 @@ const isInside = (folder, path) => {
   return fromFolder !== '' && !fromFolder.startsWith('..') && !isAbsolute(fromFolder)
 }
 
-export const resolveWritable = (outputDir, manifest, type) => {
+export const resolveSource = (outputDir, manifest, type) => {
   const diagram = manifest.diagrams.find((entry) => entry.type === type)
   if (!diagram?.file) return { error: `${MANIFEST_FILE} names no file for ${type}.` }
   if (!diagram.file.endsWith(SOURCE_EXTENSION)) return { error: `${type} file ${diagram.file} is not a ${SOURCE_EXTENSION} file.` }

@@ -1,6 +1,6 @@
 import { createServer } from 'node:http'
 
-import { resolveWritable } from './guard.mjs'
+import { resolveSource } from './guard.mjs'
 import { renderPage } from './page.mjs'
 
 const MAX_BODY_BYTES = 1_048_576
@@ -52,13 +52,13 @@ const parseSource = (text) => {
   return value.source
 }
 
-export const createUmlServer = ({ outputDir, manifest, render, readFile, writeFile, smetana, onRequest }) => {
+export const createResultCache = ({ outputDir, manifest, render, readFile }) => {
   const results = new Map()
 
   const drawnDiagrams = () => manifest.diagrams.filter((diagram) => diagram.file && !diagram.noBasis)
 
   const readSource = async (diagram) => {
-    const readable = resolveWritable(outputDir, manifest, diagram.type)
+    const readable = resolveSource(outputDir, manifest, diagram.type)
     if (readable.error) return { source: '', error: readable.error }
     try {
       return { source: await readFile(readable.path, 'utf8') }
@@ -73,21 +73,37 @@ export const createUmlServer = ({ outputDir, manifest, render, readFile, writeFi
     results.set(diagram.type, loaded.error ? loaded : { source: loaded.source, ...(await render(loaded.source, diagram.type)) })
   }
 
-  const servePage = async (response) => {
+  const all = async () => {
     await Promise.all(drawnDiagrams().map(loadResult))
-    send(response, 200, 'text/html; charset=utf-8', renderPage({ manifest, results: Object.fromEntries(results), smetana }))
+    return Object.fromEntries(results)
   }
 
-  const saveDiagram = async (request, response, type) => {
-    if (!(request.headers['content-type'] ?? '').startsWith(JSON_TYPE)) throw new HttpError(415, `Send the source as ${JSON_TYPE}.`)
-    const writable = resolveWritable(outputDir, manifest, type)
-    if (writable.error) throw new HttpError(403, writable.error)
-    const source = parseSource(await readBody(request))
-    await writeFile(writable.path, source)
-    const result = await render(source, type)
+  const remember = (type, source, result) => {
     const lastSvg = results.get(type)?.svg
     results.set(type, result.svg ? { source, svg: result.svg } : { source, svg: lastSvg, error: result.error })
-    sendJson(response, 200, result)
+  }
+
+  return { all, remember }
+}
+
+export const createSaveRoute = ({ outputDir, manifest, render, writeFile, cache }) => async (request, response, type) => {
+  if (!(request.headers['content-type'] ?? '').startsWith(JSON_TYPE)) throw new HttpError(415, `Send the source as ${JSON_TYPE}.`)
+  const writable = resolveSource(outputDir, manifest, type)
+  if (writable.error) throw new HttpError(403, writable.error)
+  const source = parseSource(await readBody(request))
+  await writeFile(writable.path, source)
+  const result = await render(source, type)
+  cache.remember(type, source, result)
+  sendJson(response, 200, result)
+}
+
+export const createUmlServer = ({ outputDir, manifest, render, readFile, writeFile, smetana, onRequest }) => {
+  const cache = createResultCache({ outputDir, manifest, render, readFile })
+  const saveDiagram = createSaveRoute({ outputDir, manifest, render, writeFile, cache })
+
+  const servePage = async (response) => {
+    const results = await cache.all()
+    send(response, 200, 'text/html; charset=utf-8', renderPage({ manifest, results, smetana }))
   }
 
   const route = async (request, response) => {
