@@ -44,16 +44,18 @@ folder this file sits in.
 
 ## Run it
 
-1. Check the invocation. Pass the person's words through unchanged:
+1. Check the invocation. Pass the output folder before `--` and the person's
+   words, unchanged, after it:
 
    ```bash
-   node "$SKILL_DIR/scripts/uml.mjs" check --diagrams=class,state src/orders
+   node "$SKILL_DIR/scripts/uml.mjs" check --output-dir docs/uml -- --diagrams=class,state src/orders
    ```
 
    It prints JSON: `mode` (`repo`, `path` or `description`), `target`,
-   `diagrams` in page order and `regenerate`. On an unknown diagram type, an
-   unknown flag or a path that does not exist, it exits non-zero with a
-   message: show that message and stop, before any other work.
+   `diagrams` in page order, `regenerate`, and `sources` (`reuse` or `write`)
+   with the `reason` for a `write`. On an unknown diagram type, an unknown
+   flag or a path that does not exist, it exits non-zero with a message: show
+   that message and stop, before any other work.
 
 2. Check what is on disk and on this machine:
 
@@ -64,12 +66,15 @@ folder this file sits in.
    It prints JSON with `manifest` (`ok`, `missing` or `unreadable`),
    `manifestError`, `java`, `dot`, `layout`, `jar` and `jarCachePath`.
 
-3. Decide whether to write sources:
-   - `manifest` is `ok` and there is no `--regenerate`: render only. Skip to
-     step 5, and tell the person you reused the sources on disk.
-   - `--regenerate`: write new sources (step 4), overwriting the old ones.
-   - `manifest` is `missing` or `unreadable`: write sources (step 4), and say
-     so, quoting `manifestError` when there is one.
+3. Follow `sources` from step 1:
+   - `reuse`: `manifest` is `ok`, there is no `--regenerate`, and `uml.json`
+     holds the same diagram types and was drawn from the same path or
+     description. Render only: skip to step 5, and tell the person you reused
+     the sources on disk.
+   - `write`: write sources (step 4), overwriting the old ones, and tell the
+     person why, quoting `reason`. It names `--regenerate`, a `missing` or
+     `unreadable` manifest (with its error), or the types or target that
+     differ from `uml.json`.
 
 4. Write the sources. Read the code (or the description), then for each type
    in `diagrams`, in order:

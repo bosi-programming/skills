@@ -11,15 +11,17 @@ import { createIdleTimer } from './idle.mjs'
 import { cachedJarPath, downloadJar, expandHome, hasJava, locateJar } from './jar.mjs'
 import { LOCAL_SERVER, chooseLayout, findOnPath } from './layout.mjs'
 import { readManifest } from './manifest.mjs'
+import { planSources } from './plan.mjs'
 import { MISSING_JAR, NO_JAVA, createRenderer } from './render.mjs'
 import { createUmlServer, listen } from './server.mjs'
 
 const DEFAULTS = Object.freeze({ 'output-dir': 'docs/uml', jar: '', server: LOCAL_SERVER, 'idle-minutes': '30' })
 const HOST = '127.0.0.1'
 const USAGE_EXIT = 2
+const WORDS_START = '--'
 
 const USAGE = `Usage: uml.mjs <command>
-  check [--diagrams=a,b] [--regenerate] [path or description]
+  check [--output-dir D] -- [--diagrams=a,b] [--regenerate] [path or description]
   status [--output-dir D] [--jar J] [--server S]
   download-jar [--jar J]
   serve [--output-dir D] [--jar J] [--server S] [--idle-minutes N]
@@ -62,11 +64,18 @@ const probe = (deps, options) => {
 
 const outputDirOf = (deps, options) => resolve(deps.cwd, expandHome(options['output-dir'], deps.homedir))
 
-const check = (argv, deps) => {
-  const exists = (path) => deps.exists(resolve(deps.cwd, expandHome(path, deps.homedir)))
-  const result = parseInvocation(argv, { exists })
+const splitAtDashes = (argv) => {
+  const at = argv.indexOf(WORDS_START)
+  return at === -1 ? { own: [], words: argv } : { own: argv.slice(0, at), words: argv.slice(at + 1) }
+}
+
+const check = async (argv, deps) => {
+  const { own, words } = splitAtDashes(argv)
+  const resolvePath = (path) => resolve(deps.cwd, expandHome(path, deps.homedir))
+  const result = parseInvocation(words, { exists: (path) => deps.exists(resolvePath(path)) })
   if (result.error) return fail(deps, result.error)
-  printJson(deps, result)
+  const manifest = await readManifest(outputDirOf(deps, parseOptions(own)), { readFile: deps.readFile })
+  printJson(deps, { ...result, ...planSources({ invocation: result, manifest, resolvePath }) })
   return 0
 }
 

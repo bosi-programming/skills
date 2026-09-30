@@ -55,7 +55,39 @@ const jsonOut = (out) => JSON.parse(out.join(''))
 test('uml: check prints the parsed invocation as JSON', async () => {
   const { deps: d, out } = deps()
   const code = await run(['check', '--diagrams=state,class'], d)
-  assert.deepEqual([code, jsonOut(out)], [0, { mode: 'repo', target: null, diagrams: ['class', 'state'], regenerate: false }])
+  assert.deepEqual([code, jsonOut(out)], [
+    0,
+    { mode: 'repo', target: null, diagrams: ['class', 'state'], regenerate: false, sources: 'write', reason: 'uml.json holds class, but this run asks for class, state.' },
+  ])
+})
+
+test('uml: check reuses the sources when the request matches uml.json', async () => {
+  const { deps: d, out } = deps()
+  await run(['check', '--output-dir', 'docs/uml', '--', '--diagrams=class'], d)
+  assert.deepEqual([jsonOut(out).sources, jsonOut(out).reason], ['reuse', null])
+})
+
+test('uml: check reads uml.json from the output folder given before --', async () => {
+  const paths = []
+  const { deps: d } = deps({ readFile: async (path) => paths.push(path) && MANIFEST })
+  await run(['check', '--output-dir', 'out/diagrams', '--', 'src'], d)
+  assert.deepEqual(paths, ['/repo/out/diagrams/uml.json'])
+})
+
+test('uml: check writes sources when the target differs from uml.json', async () => {
+  const { deps: d, out } = deps({ exists: () => true })
+  await run(['check', '--', '--diagrams=class', 'src/orders'], d)
+  assert.deepEqual(
+    [jsonOut(out).sources, jsonOut(out).reason],
+    ['write', 'uml.json was drawn from the code in ., but this run asks for the code in src/orders.']
+  )
+})
+
+test('uml: check expands ~ in a path before it looks for it', async () => {
+  const checked = []
+  const { deps: d, out } = deps({ exists: (path) => checked.push(path) })
+  await run(['check', '~/notes/orders'], d)
+  assert.deepEqual([checked, jsonOut(out).mode], [['/home/ana/notes/orders'], 'path'])
 })
 
 test('uml: check resolves a path against the working folder', async () => {
