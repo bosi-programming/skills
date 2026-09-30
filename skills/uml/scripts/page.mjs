@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 
-import { ACCENTS, PALETTE } from './theme.mjs'
+import { ACCENTS, NOTICES, PALETTE } from './theme.mjs'
 
 const CLIENT = readFileSync(new URL('./page-client.js', import.meta.url), 'utf8')
 
@@ -32,7 +32,7 @@ code { background: var(--element); padding: 1px 5px; border-radius: 4px; }
 nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 nav a { color: var(--fg); text-decoration: none; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; padding: 2px 10px; }
 nav a:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.warning { border: 1px solid #d29922; background: #26200f; color: #e3b341; border-radius: 6px; padding: 8px 12px; }
+.warning { border: 1px solid ${NOTICES.warningBorder}; background: ${NOTICES.warningBackground}; color: ${NOTICES.warningText}; border-radius: 6px; padding: 8px 12px; }
 .diagram { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 8px; padding: 16px 20px; margin: 0 0 24px; }
 .diagram h2 { margin: 0 0 8px; font-size: 18px; color: var(--accent); }
 .why, .note, .status { color: var(--muted); }
@@ -40,7 +40,7 @@ nav a:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); 
 .drawing { overflow: auto; background: var(--bg); border-radius: 6px; padding: 12px; transition: opacity .2s; }
 .drawing svg { max-width: 100%; height: auto; }
 .drawing.stale { opacity: .35; }
-.render-error { white-space: pre-wrap; color: #ff7b72; background: #2a1315; border: 1px solid #f85149; border-radius: 6px; padding: 8px 12px; }
+.render-error { white-space: pre-wrap; color: ${NOTICES.errorText}; background: ${NOTICES.errorBackground}; border: 1px solid ${NOTICES.errorBorder}; border-radius: 6px; padding: 8px 12px; }
 textarea { width: 100%; min-height: 180px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
 summary { cursor: pointer; color: var(--muted); margin: 12px 0 8px; }
 `

@@ -7,6 +7,15 @@ export const PALETTE = Object.freeze({
   muted: '#8b98a9',
 })
 
+export const NOTICES = Object.freeze({
+  warningBorder: '#d29922',
+  warningBackground: '#26200f',
+  warningText: '#e3b341',
+  errorBorder: '#f85149',
+  errorBackground: '#2a1315',
+  errorText: '#ff7b72',
+})
+
 export const ACCENTS = Object.freeze({
   class: '#58a6ff',
   sequence: '#3fb950',
