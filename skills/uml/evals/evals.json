@@ -1,0 +1,142 @@
+{
+  "skill_name": "uml",
+  "notes": "Graded by a person or an LLM judge, not in CI. Each case runs the skill in a scratch copy of a small repo with Node on PATH. `mode` is the source the diagrams come from: `code` for the repo or a path, `description` for text. The unit tests under scripts/ cover the script; these cases cover what only the LLM decides: the origin, the flow and entity chosen, no-basis notes instead of invented drawings, no HTML written, and the re-run branches.",
+  "evals": [
+    {
+      "id": 1,
+      "mode": "code",
+      "prompt": "/uml",
+      "files": ["a small TypeScript shop: src/orders (Order, LineItem, OrderStatus enum), src/payments (Payment, CardPayment), a Dockerfile and a docker-compose.yml with postgres"],
+      "expected_output": "Nine .puml files or no-basis entries and a uml.json under docs/uml, origin code, source '.', then the page served.",
+      "assertions": [
+        "check_ran_first — the first script call is `uml.mjs check` with no text",
+        "origin_code — uml.json has origin \"code\" and source \".\"",
+        "nine_types — uml.json lists all nine types, each once",
+        "sequence_why — the sequence entry names a real flow (for example checkout) and says why",
+        "state_why — the state entry names Order or Payment and cites the status enum",
+        "deployment_from_files — the deployment diagram shows the app and postgres from docker-compose.yml, nothing more",
+        "profile_no_basis — profile has noBasis set and file null",
+        "no_html — no .html file was written by the LLM",
+        "no_theme_lines — no .puml file contains skinparam, !theme or colour lines",
+        "serve_reported — the reply passes on the URL, the PID and the kill command"
+      ]
+    },
+    {
+      "id": 2,
+      "mode": "code",
+      "prompt": "/uml src/payments",
+      "files": ["the same shop as case 1"],
+      "expected_output": "Diagrams drawn from src/payments only.",
+      "assertions": [
+        "path_mode — `check` reports mode path and target src/payments",
+        "origin_code_path — uml.json has origin \"code\" and source \"src/payments\"",
+        "scoped — no class from src/orders appears in the class diagram except as a named dependency"
+      ]
+    },
+    {
+      "id": 3,
+      "mode": "description",
+      "prompt": "/uml a library where members borrow books; a loan is open, overdue or returned, and a member with two overdue loans cannot borrow",
+      "files": [],
+      "expected_output": "Diagrams drawn from the description, origin description, no invented infrastructure.",
+      "assertions": [
+        "origin_description — uml.json has origin \"description\" and the description word for word as source",
+        "class_from_text — the class diagram has Member, Book and Loan",
+        "state_is_loan — the state diagram is for Loan with open, overdue and returned, and why says so",
+        "deployment_no_basis — deployment has a noBasis note, not a guessed server",
+        "object_no_basis — object has a noBasis note or uses only values the description states"
+      ]
+    },
+    {
+      "id": 4,
+      "mode": "code",
+      "prompt": "/uml --diagrams=state,class,class",
+      "files": ["the same shop as case 1"],
+      "expected_output": "Only class and state, in that order.",
+      "assertions": [
+        "subset — uml.json lists exactly class and state",
+        "page_order — the page shows class before state",
+        "dedupe_silent — the duplicate is dropped without an error"
+      ]
+    },
+    {
+      "id": 5,
+      "mode": "code",
+      "prompt": "/uml --diagrams=activity",
+      "files": ["the same shop as case 1"],
+      "expected_output": "Stops before any work with the list of nine valid types.",
+      "assertions": [
+        "stops_early — no file under docs/uml was written",
+        "lists_valid — the reply lists the nine valid types"
+      ]
+    },
+    {
+      "id": 6,
+      "mode": "code",
+      "prompt": "/uml ./src/missing",
+      "files": ["the same shop as case 1"],
+      "expected_output": "Stops naming the missing path.",
+      "assertions": [
+        "names_path — the reply names ./src/missing as not found",
+        "stops_early — no file under docs/uml was written"
+      ]
+    },
+    {
+      "id": 7,
+      "mode": "code",
+      "prompt": "/uml",
+      "files": ["an empty repo with only a README"],
+      "expected_output": "Every section has a no-basis note, and the page still serves.",
+      "assertions": [
+        "all_no_basis — every uml.json entry has noBasis set and file null",
+        "no_invention — no .puml file was written",
+        "still_serves — serve ran and the reply gives the URL"
+      ]
+    },
+    {
+      "id": 8,
+      "mode": "code",
+      "prompt": "/uml",
+      "files": ["the same shop as case 1, with docs/uml already holding a valid uml.json and its .puml files"],
+      "expected_output": "Renders what is on disk without rewriting it.",
+      "assertions": [
+        "render_only — no .puml file or uml.json changed",
+        "says_reused — the reply says the sources on disk were reused"
+      ]
+    },
+    {
+      "id": 9,
+      "mode": "code",
+      "prompt": "/uml --regenerate",
+      "files": ["the same shop as case 8"],
+      "expected_output": "Writes new sources over the old ones, then serves.",
+      "assertions": [
+        "rewrites — uml.json and the .puml files were written again",
+        "serves — the reply gives the URL"
+      ]
+    },
+    {
+      "id": 10,
+      "mode": "code",
+      "prompt": "/uml",
+      "files": ["the same shop as case 1, on a machine with no Java and uml.plantumlServer left at local"],
+      "expected_output": "Stops before serving with one message naming Java and uml.plantumlServer.",
+      "assertions": [
+        "names_java — the reply says a Java runtime is needed",
+        "names_setting — the reply names uml.plantumlServer as the way round",
+        "no_install — no attempt to install Java"
+      ]
+    },
+    {
+      "id": 11,
+      "mode": "code",
+      "prompt": "/uml",
+      "files": ["the same shop as case 1, with Java but no jar in the cache folder"],
+      "expected_output": "Asks before downloading the jar.",
+      "assertions": [
+        "asks_first — the reply asks before `download-jar` runs",
+        "names_source — the question names the PlantUML GitHub releases"
+      ]
+    }
+  ]
+}

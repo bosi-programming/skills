@@ -23,7 +23,9 @@ const SKILLS = [
   'maestri-workflow',
   'recipe-relay',
   'setup',
+  'ship-pr',
   'summarize-llm-response',
+  'uml',
   'week-summary',
   'work-summary',
 ]

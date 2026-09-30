@@ -1,8 +1,8 @@
 # Bosi Programming Skills
 
-Twelve Claude Code skills, packaged as an installable plugin. Three do work on a diff. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
+Fourteen Claude Code skills, packaged as an installable plugin. Three do work on a diff, and one draws UML diagrams of a codebase or a description. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
 
-The same twelve install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -123,6 +123,14 @@ Handles `.md` and `.mdx` fully, and `.txt`, `.rst` and `.adoc` with sectioning d
 
 Needs `python3`. The renderer uses the standard library only.
 
+### uml
+
+Draws UML diagrams of a repo, a folder or a system you describe, with PlantUML, and serves them on a local dark-theme page. It covers class, sequence, state, profile, composite structure, component, deployment, object and package diagrams; `--diagrams=class,state` picks some. For the sequence and state diagrams it picks the central flow and entity and says which and why, and a type the source gives no basis for gets a note instead of an invented drawing. The LLM writes only the `.puml` sources and a `uml.json` manifest; a Node script with no dependencies themes them, renders them and serves the page, where each diagram has an editor that saves back to its source and redraws. The server listens on `127.0.0.1` only and stops after 30 idle minutes.
+
+`/uml` draws the current repo, `/uml src/orders` draws one path, and `/uml an order service where carts become orders` draws from the text. The sources land in `docs/uml` by default and stay there: a second run with the same types and target only renders them, a run that asks for other types or another target writes them anew and says why, and so does `--regenerate`. Stop the server early with the `kill <pid>` line it prints.
+
+Needs Node, and either Java with the PlantUML jar (the skill offers to download it) or a PlantUML server URL. Graphviz is optional. The output folder, jar path, server and idle time are settings; see `setup`.
+
 ### summarize-llm-response
 
 The shape of anything a human is going to read: findings as bullets with the evidence inline, action items as a checklist, a TL;DR only when there are enough findings to need one, and the attribution tag each destination expects. It carries a skip list — yes/no answers, commit messages, code-only replies — because it is meant to be wired to a blanket "run this before any communication" rule, and a blanket rule hands it work it has nothing to say about.
@@ -151,7 +159,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, and how `ship-pr` titles, gates and validates a PR. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, and where `uml` keeps its sources and how it renders them. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -184,6 +192,7 @@ skills/
   work-summary/       SKILL.md + evals/ (scenarios)
   week-summary/       SKILL.md + templates/week-review.md + evals/ (scenarios)
   ship-pr/            SKILL.md + references/conventions.md + scripts/detect_context.sh + evals/ (scenarios)
+  uml/                SKILL.md + references/ (notation per diagram type) + scripts/uml.mjs + evals/
   setup/              SKILL.md + assets/bosi-skills.md + references/config.md + scripts/
 ```
 
@@ -194,6 +203,7 @@ Skills reference their own bundled files by path relative to their `SKILL.md` �
 ```
 claude plugin validate --strict .
 node --test 'dsh/**/*.test.mjs'
+node --test 'skills/uml/scripts/*.test.mjs'
 python3 skills/feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
 python3 skills/maestri-workflow/scripts/check-no-wait.py

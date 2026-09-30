@@ -30,6 +30,11 @@ ship-pr:
   trackerServer: ''
 better-code-review:
   defaultMode: conversation
+uml:
+  outputDir: docs/uml
+  plantumlJar: ''
+  plantumlServer: local
+  idleMinutes: 30
 ---
 
 # Settings for bosi-programming-skills
@@ -72,6 +77,11 @@ only needs the keys it changes.
   as lint or tests.
 - `ship-pr.trackerServer` — MCP server that reads tickets; empty skips it.
 - `better-code-review.defaultMode` — `conversation`, `page` or `headless`.
+- `uml.outputDir` — folder the UML sources and `uml.json` go in.
+- `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
+- `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML
+  server.
+- `uml.idleMinutes` — minutes with no request before the page server stops.
 
 A request that names a mode, such as `--headless`, beats the default here.
 
