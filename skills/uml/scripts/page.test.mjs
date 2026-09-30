@@ -72,6 +72,12 @@ test('page: a dense source shows the density warning in its section', () => {
   assert.match(section(html, 'class'), /<p class="warning density" role="note">Hard to read: 16 arrows and 0 elements\. Keep a diagram to at most 15 arrows and 12 elements\.<\/p>/)
 })
 
+test('page: an activity section counts its actions as elements', () => {
+  const source = ['@startuml', 'start', ...Array.from({ length: 13 }, (_, index) => `:step ${index};`), 'stop', '@enduml'].join('\n')
+  const html = page({ diagrams: [drawn('activity', { why: 'placeOrder.' })], results: { activity: { source, svg: SVG } } })
+  assert.match(section(html, 'activity'), /Hard to read: 0 arrows and 13 elements\./)
+})
+
 test('page: a source inside the limits has a hidden, empty density warning', () => {
   const html = page({ diagrams: [drawn('class')], results: { class: { source: '@startuml\nA --> B\n@enduml', svg: SVG } } })
   assert.ok(section(html, 'class').includes('<p class="warning density" role="note" hidden></p>'))
@@ -103,7 +109,15 @@ test('page: all sections noBasis still renders', () => {
   const html = page({ diagrams: DIAGRAM_TYPES.map((type) => drawn(type, { file: null, noBasis: 'Empty repo.' })) })
   assert.deepEqual(
     [html.startsWith('<!doctype html>'), html.trimEnd().endsWith('</html>'), html.match(/Nothing in the code supports this diagram/g).length],
-    [true, true, 9]
+    [true, true, 11]
+  )
+})
+
+test('page: activity and er sections carry their titles', () => {
+  const html = page({ diagrams: [drawn('activity', { why: 'placeOrder.' }), drawn('er')], results: {} })
+  assert.deepEqual(
+    [section(html, 'activity').includes('<h2>Activity diagram</h2>'), section(html, 'er').includes('<h2>Entity-relationship diagram</h2>')],
+    [true, true]
   )
 })
 

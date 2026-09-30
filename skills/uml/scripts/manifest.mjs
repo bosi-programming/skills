@@ -5,7 +5,7 @@ import { DIAGRAM_TYPES } from './args.mjs'
 export const MANIFEST_FILE = 'uml.json'
 
 const ORIGINS = ['code', 'description']
-const NEEDS_WHY = ['sequence', 'state']
+const NEEDS_WHY = ['sequence', 'state', 'activity']
 const PREFIX = `${MANIFEST_FILE}:`
 
 const diagramError = (diagram, seen) => {

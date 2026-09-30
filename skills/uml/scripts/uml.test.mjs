@@ -99,8 +99,8 @@ test('uml: check resolves a path against the working folder', async () => {
 
 test('uml: check exits non-zero on error', async () => {
   const { deps: d, err } = deps()
-  const code = await run(['check', '--diagrams=activity'], d)
-  assert.deepEqual([code, /Unknown diagram type: activity/.test(err.join(''))], [1, true])
+  const code = await run(['check', '--diagrams=usecase'], d)
+  assert.deepEqual([code, /Unknown diagram type: usecase/.test(err.join(''))], [1, true])
 })
 
 test('uml: status reports java, dot, jar and manifest state as JSON', async () => {

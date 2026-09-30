@@ -21,7 +21,7 @@ test('theme: a source with no @startuml is wrapped', () => {
 })
 
 test('theme: accent differs per type', () => {
-  assert.equal(new Set(Object.values(ACCENTS)).size, 9)
+  assert.deepEqual([Object.keys(ACCENTS).length, new Set(Object.values(ACCENTS)).size], [11, 11])
 })
 
 test('theme: the type accent colours borders and arrows', () => {
@@ -121,17 +121,70 @@ test('theme: arrows with no kind, a stereotype of their own, or in notes stay as
   assert.deepEqual(bodyOf(['@startuml', ...body, '@enduml'].join('\n'), 'component'), [...body, '@enduml'])
 })
 
-for (const type of ['sequence', 'state']) {
+for (const type of ['sequence', 'state', 'activity', 'er']) {
   test(`theme: ${type} arrows are not tagged`, () => {
     const body = ['A --> B : go', 'B ..> C']
     assert.deepEqual(bodyOf(['@startuml', ...body, '@enduml'].join('\n'), type), [...body, '@enduml'])
   })
 }
 
+test('theme: activity lines with arrows inside them stay as written', () => {
+  const body = ['if (stock -> reserved?) then (yes)', 'repeat while (failed?) is (yes) -> no;', '-> retry;', ':charge card;']
+  assert.deepEqual(bodyOf(['@startuml', ...body, '@enduml'].join('\n'), 'activity'), [...body, '@enduml'])
+})
+
+test('theme: er relation lines stay as written', () => {
+  const body = ['Customer ||--o{ Order : places', 'Order }|..|| Product', 'Order ||--|{ LineItem']
+  assert.deepEqual(bodyOf(['@startuml', ...body, '@enduml'].join('\n'), 'er'), [...body, '@enduml'])
+})
+
 const styleOf = (type) => {
   const themed = injectTheme(SOURCE, type, { smetana: false })
   return themed.slice(themed.indexOf('<style>'), themed.indexOf('</style>')).split('\n')
 }
+
+const skinparams = (type) => injectTheme(SOURCE, type, { smetana: false }).split('\n').filter((line) => line.startsWith('skinparam '))
+
+test('theme: activity actions, diamonds, bars and swimlanes are themed', () => {
+  const expected = [
+    `skinparam activityBackgroundColor ${PALETTE.element}`,
+    `skinparam activityBorderColor ${ACCENTS.activity}`,
+    `skinparam activityFontColor ${PALETTE.text}`,
+    `skinparam activityDiamondBackgroundColor ${PALETTE.element}`,
+    `skinparam activityDiamondBorderColor ${ACCENTS.activity}`,
+    `skinparam activityDiamondFontColor ${PALETTE.text}`,
+    `skinparam activityBarColor ${ACCENTS.activity}`,
+    `skinparam swimlaneBorderColor ${PALETTE.muted}`,
+    `skinparam swimlaneTitleFontColor ${PALETTE.text}`,
+  ]
+  assert.deepEqual(expected.filter((line) => !skinparams('activity').includes(line)), [])
+})
+
+test('theme: activity start, stop and end take the state start and end colours through a style block', () => {
+  const expected = [
+    'activityDiagram {',
+    `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
+    `stop { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
+    `end { LineColor ${MEANINGS.finalState} }`,
+    '}',
+  ].join('\n')
+  const style = styleOf('activity').join('\n')
+  assert.deepEqual([style.includes(expected), /skinparam activity(Start|End)Color/.test(injectTheme(SOURCE, 'activity', { smetana: false }))], [true, false])
+})
+
+test('theme: er entities are themed like classes', () => {
+  const expected = [
+    `skinparam entityBackgroundColor ${PALETTE.element}`,
+    `skinparam entityBorderColor ${ACCENTS.er}`,
+    `skinparam entityFontColor ${PALETTE.text}`,
+  ]
+  assert.deepEqual([expected.filter((line) => !skinparams('er').includes(line)), styleOf('er').includes(`spotEntity { BackgroundColor ${MEANINGS.class} }`)], [[], true])
+})
+
+test('theme: er mandatory-field markers show on the dark panel, and only in er diagrams', () => {
+  const rule = `visibilityIcon { BackgroundColor ${PALETTE.text}; LineColor ${PALETTE.text} }`
+  assert.deepEqual([styleOf('er').includes(rule), styleOf('class').includes(rule)], [true, false])
+})
 
 test('theme: every container kind shares one dashed group style', () => {
   const rule = `{ LineStyle 4-4; LineColor ${PALETTE.muted}; FontColor ${PALETTE.muted}; BackgroundColor ${PALETTE.panel}; RoundCorner 8 }`

@@ -24,8 +24,8 @@ const manifest = {
   ],
 }
 
-const start = async ({ render = async () => ({ svg: SVG }), onRequest = () => {} } = {}) => {
-  const server = createUmlServer({ outputDir, manifest, render, readFile, writeFile, smetana: false, onRequest })
+const start = async ({ render = async () => ({ svg: SVG }), onRequest = () => {}, diagrams = manifest } = {}) => {
+  const server = createUmlServer({ outputDir, manifest: diagrams, render, readFile, writeFile, smetana: false, onRequest })
   running = server
   return listen(server, { host: '127.0.0.1' })
 }
@@ -96,6 +96,14 @@ test('server: a save of a dense source sends the density warning back', async ()
   const { url } = await start()
   const source = ['@startuml', ...Array.from({ length: 13 }, (_, index) => `class C${index}`), '@enduml'].join('\n')
   const reply = await (await post(url, 'class', { source })).json()
+  assert.equal(reply.densityWarning, 'Hard to read: 0 arrows and 13 elements. Keep a diagram to at most 15 arrows and 12 elements.')
+})
+
+test('server: a save counts density by the diagram type', async () => {
+  const activity = { ...manifest, diagrams: [{ type: 'activity', file: 'activity.puml', why: 'placeOrder.', noBasis: null }] }
+  const { url } = await start({ diagrams: activity })
+  const source = ['@startuml', 'start', ...Array.from({ length: 13 }, (_, index) => `:step ${index};`), 'stop', '@enduml'].join('\n')
+  const reply = await (await post(url, 'activity', { source })).json()
   assert.equal(reply.densityWarning, 'Hard to read: 0 arrows and 13 elements. Keep a diagram to at most 15 arrows and 12 elements.')
 })
 

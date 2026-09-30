@@ -153,10 +153,12 @@
       "files": [
         "SKILL.md",
         "evals/evals.json",
+        "references/activity.md",
         "references/class.md",
         "references/component.md",
         "references/composite.md",
         "references/deployment.md",
+        "references/er.md",
         "references/manifest.md",
         "references/object.md",
         "references/package.md",
@@ -197,7 +199,7 @@
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "79990ff3fe58"
+      "version": "aaa9b9011ac0"
     },
     {
       "name": "week-summary",

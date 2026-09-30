@@ -28,6 +28,8 @@ export const ACCENTS = Object.freeze({
   deployment: '#db61a2',
   object: '#ff7b72',
   package: '#a5d6ff',
+  activity: '#7ee787',
+  er: '#f2cc60',
 })
 
 export const MEANINGS = Object.freeze({
@@ -66,6 +68,9 @@ const ELEMENTS = [
   'collections',
   'queue',
   'card',
+  'activity',
+  'activityDiamond',
+  'entity',
 ]
 
 export const SIZES = Object.freeze({
@@ -92,6 +97,12 @@ const elementLines = (accent) =>
     `skinparam ${element}FontColor ${PALETTE.text}`,
   ])
 
+const activityLines = (accent) => [
+  `skinparam activityBarColor ${accent}`,
+  `skinparam swimlaneBorderColor ${PALETTE.muted}`,
+  `skinparam swimlaneTitleFontColor ${PALETTE.text}`,
+]
+
 const meaningLines = () => [
   `skinparam stereotypeCBackgroundColor ${MEANINGS.class}`,
   `skinparam stereotypeIBackgroundColor ${MEANINGS.interface}`,
@@ -104,7 +115,7 @@ const meaningLines = () => [
   `skinparam noteFontColor ${PALETTE.text}`,
 ]
 
-const UNTAGGED_TYPES = ['sequence', 'state']
+const UNTAGGED_TYPES = ['sequence', 'state', 'activity', 'er']
 
 const stereotypeOf = (kind) => `uml${kind[0].toUpperCase()}${kind.slice(1)}`
 
@@ -127,15 +138,29 @@ const groupStyleLines = () =>
 const legendStyleLine = () =>
   `legend { BackgroundColor ${PALETTE.panel}; LineColor ${PALETTE.line}; FontColor ${PALETTE.text}; FontSize ${SIZES.noteFontSize} }`
 
-const styleLines = () => [
+const entityStyleLines = (type) =>
+  type === 'er'
+    ? [
+        `spotEntity { BackgroundColor ${MEANINGS.class} }`,
+        `visibilityIcon { BackgroundColor ${PALETTE.text}; LineColor ${PALETTE.text} }`,
+      ]
+    : []
+
+const styleLines = (type) => [
   '<style>',
   `root { Padding ${PADDING} }`,
   ...arrowStyleLines(),
   ...groupStyleLines(),
   legendStyleLine(),
+  ...entityStyleLines(type),
   'stateDiagram {',
   `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
   `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
+  '}',
+  'activityDiagram {',
+  `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
+  `stop { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
+  `end { LineColor ${MEANINGS.finalState} }`,
   '}',
   '</style>',
 ]
@@ -180,8 +205,9 @@ const themeLines = (type, { smetana }) => {
     `skinparam sequenceGroupBorderColor ${accent}`,
     `skinparam sequenceGroupBackgroundColor ${PALETTE.panel}`,
     ...elementLines(accent),
+    ...activityLines(accent),
     ...meaningLines(),
-    ...styleLines(),
+    ...styleLines(type),
     ...(smetana ? [SMETANA] : []),
   ]
 }

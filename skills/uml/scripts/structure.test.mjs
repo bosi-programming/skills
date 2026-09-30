@@ -11,7 +11,7 @@ const REPO = resolve(SKILL_DIR, '..', '..')
 const SKILL_MD = join(SKILL_DIR, 'SKILL.md')
 const CONFIG_MD = resolve(REPO, 'skills', 'setup', 'references', 'config.md')
 
-const TITLES = ['Class', 'Sequence', 'State', 'Profile', 'Composite structure', 'Component', 'Deployment', 'Object', 'Package']
+const TITLES = ['Class', 'Sequence', 'State', 'Profile', 'Composite structure', 'Component', 'Deployment', 'Object', 'Package', 'Activity', 'Entity-relationship']
 const SETTINGS = [['uml.outputDir', 'docs/uml'], ['uml.plantumlJar', "''"], ['uml.plantumlServer', 'local'], ['uml.idleMinutes', '30']]
 const IGNORED = ['node_modules', '__pycache__', 'runs']
 
@@ -49,10 +49,32 @@ test('structure: SKILL.md links config and names four keys with defaults', () =>
   assert.deepEqual([linked.includes(CONFIG_MD), missing], [true, []])
 })
 
-test('structure: selection guide covers nine types', () => {
+test('structure: selection guide covers eleven types, in page order', () => {
   const guide = section(skill, 'Diagram selection guide')
   const missing = TITLES.filter((title) => !guide.includes(`\n### ${title}\n`))
-  assert.deepEqual([missing, /^#+ .*(activity|use case)/im.test(skill)], [[], false])
+  const at = TITLES.map((title) => guide.indexOf(`\n### ${title}\n`))
+  assert.deepEqual([missing, at.every((index, place) => place === 0 || index > at[place - 1]), /^#+ .*use case/im.test(skill)], [[], true, false])
+})
+
+test('structure: SKILL.md description and asks name activity and er', () => {
+  const description = skill.slice(0, skill.indexOf('\n---', 4))
+  const asks = section(skill, 'What the person can ask')
+  assert.deepEqual([/activity/.test(description), /entity-relationship/.test(description), /all eleven/.test(asks)], [true, true, true])
+})
+
+test('structure: activity and er references hold an example and a budget', () => {
+  const lacking = ['activity', 'er'].filter((type) => {
+    const text = read(join(SKILL_DIR, 'references', `${type}.md`))
+    return !text.includes('```plantuml\n@startuml') || !text.includes('\n## Budget\n')
+  })
+  assert.deepEqual(lacking, [])
+})
+
+test('evals: activity from code, er from entities, and er with no persistence', () => {
+  const evals = JSON.parse(read(join(SKILL_DIR, 'evals', 'evals.json')) || '{}').evals ?? []
+  const asks = (type) => evals.filter((entry) => entry.prompt.includes(`--diagrams=${type}`))
+  const noBasis = asks('er').some((entry) => entry.assertions.some((line) => line.startsWith('er_no_basis')))
+  assert.deepEqual([asks('activity').length > 0, asks('er').length > 1, noBasis], [true, true, true])
 })
 
 test('structure: SKILL.md states the LLM never writes HTML', () => {
@@ -128,7 +150,7 @@ test('listing: README, both plugin.json list uml', () => {
   const claude = JSON.parse(read(join(REPO, '.claude-plugin', 'plugin.json')))
   const codex = JSON.parse(read(join(REPO, '.codex-plugin', 'plugin.json')))
   assert.deepEqual(
-    [readme.includes('\n### uml\n'), readme.includes("node --test 'skills/uml/scripts/*.test.mjs'"), /UML/.test(claude.description), /UML/.test(codex.description), /uml/.test(codex.interface.longDescription)],
-    [true, true, true, true, true]
+    [readme.includes('\n### uml\n'), readme.includes("node --test 'skills/uml/scripts/*.test.mjs'"), /UML/.test(claude.description), /UML/.test(codex.description), /uml/.test(codex.interface.longDescription), readme.includes('activity diagrams') && readme.includes('entity-relationship diagrams')],
+    [true, true, true, true, true, true]
   )
 })

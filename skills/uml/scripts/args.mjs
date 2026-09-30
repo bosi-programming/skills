@@ -8,6 +8,8 @@ export const DIAGRAM_TYPES = Object.freeze([
   'deployment',
   'object',
   'package',
+  'activity',
+  'er',
 ])
 
 const DIAGRAMS_FLAG = '--diagrams'

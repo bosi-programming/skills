@@ -3,7 +3,7 @@ import { test } from 'node:test'
 
 import { DIAGRAM_TYPES, parseInvocation } from './args.mjs'
 
-const NINE = ['class', 'sequence', 'state', 'profile', 'composite', 'component', 'deployment', 'object', 'package']
+const ELEVEN = ['class', 'sequence', 'state', 'profile', 'composite', 'component', 'deployment', 'object', 'package', 'activity', 'er']
 const nothingExists = () => false
 const everythingExists = () => true
 
@@ -27,18 +27,18 @@ test('args: flags are pulled out of the text', () => {
   assert.deepEqual([result.mode, result.target, result.diagrams], ['description', 'a shop', ['class']])
 })
 
-test('args: no flag selects nine in page order', () => {
+test('args: no flag selects eleven in page order', () => {
   const result = parseInvocation([], { exists: nothingExists })
-  assert.deepEqual(result.diagrams, NINE)
+  assert.deepEqual(result.diagrams, ELEVEN)
 })
 
-test('args: the exported types are the nine in page order', () => {
-  assert.deepEqual(DIAGRAM_TYPES, NINE)
+test('args: the exported types are the eleven in page order', () => {
+  assert.deepEqual(DIAGRAM_TYPES, ELEVEN)
 })
 
-test('args: activity is unknown', () => {
-  const result = parseInvocation(['--diagrams=activity'], { exists: nothingExists })
-  assert.match(result.error, /Unknown diagram type: activity/)
+test('args: activity and er are accepted, in page order', () => {
+  const result = parseInvocation(['--diagrams=er,activity,class'], { exists: nothingExists })
+  assert.deepEqual(result.diagrams, ['class', 'activity', 'er'])
 })
 
 test('args: usecase is unknown', () => {
@@ -65,7 +65,7 @@ test('args: unknown name lists valid names', () => {
   const result = parseInvocation(['--diagrams=class,flow'], { exists: nothingExists })
   assert.equal(
     result.error,
-    'Unknown diagram type: flow. Valid types: class, sequence, state, profile, composite, component, deployment, object, package.'
+    'Unknown diagram type: flow. Valid types: class, sequence, state, profile, composite, component, deployment, object, package, activity, er.'
   )
 })
 
