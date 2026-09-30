@@ -114,10 +114,25 @@ const arrowStyleLines = () => [
   '}',
 ]
 
+const GROUPS = ['package', 'frame', 'node', 'rectangle', 'folder']
+
+const CORNER = 8
+
+const groupStyleLines = () =>
+  GROUPS.map(
+    (group) =>
+      `${group} { LineStyle 4-4; LineColor ${PALETTE.muted}; FontColor ${PALETTE.muted}; BackgroundColor ${PALETTE.panel}; RoundCorner ${CORNER} }`
+  )
+
+const legendStyleLine = () =>
+  `legend { BackgroundColor ${PALETTE.panel}; LineColor ${PALETTE.line}; FontColor ${PALETTE.text}; FontSize ${SIZES.noteFontSize} }`
+
 const styleLines = () => [
   '<style>',
   `root { Padding ${PADDING} }`,
   ...arrowStyleLines(),
+  ...groupStyleLines(),
+  legendStyleLine(),
   'stateDiagram {',
   `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
   `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
@@ -157,7 +172,7 @@ const themeLines = (type, { smetana }) => {
     `skinparam backgroundColor ${PALETTE.background}`,
     `skinparam defaultFontColor ${PALETTE.text}`,
     'skinparam shadowing false',
-    'skinparam roundCorner 8',
+    `skinparam roundCorner ${CORNER}`,
     ...sizeLines(),
     `skinparam ArrowColor ${accent}`,
     `skinparam ArrowFontColor ${PALETTE.muted}`,

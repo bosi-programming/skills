@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { ACCENTS, ARROW_COLOURS, MEANINGS, injectTheme } from './theme.mjs'
+import { ACCENTS, ARROW_COLOURS, MEANINGS, PALETTE, injectTheme } from './theme.mjs'
 
 const SOURCE = '@startuml\nclass Order\n@enduml\n'
 
@@ -127,6 +127,21 @@ for (const type of ['sequence', 'state']) {
     assert.deepEqual(bodyOf(['@startuml', ...body, '@enduml'].join('\n'), type), [...body, '@enduml'])
   })
 }
+
+const styleOf = (type) => {
+  const themed = injectTheme(SOURCE, type, { smetana: false })
+  return themed.slice(themed.indexOf('<style>'), themed.indexOf('</style>')).split('\n')
+}
+
+test('theme: every container kind shares one dashed group style', () => {
+  const rule = `{ LineStyle 4-4; LineColor ${PALETTE.muted}; FontColor ${PALETTE.muted}; BackgroundColor ${PALETTE.panel}; RoundCorner 8 }`
+  const missing = ['package', 'frame', 'node', 'rectangle', 'folder'].filter((name) => !styleOf('deployment').includes(`${name} ${rule}`))
+  assert.deepEqual(missing, [])
+})
+
+test('theme: the legend sits on a panel with a line-colour border', () => {
+  assert.ok(styleOf('package').includes(`legend { BackgroundColor ${PALETTE.panel}; LineColor ${PALETTE.line}; FontColor ${PALETTE.text}; FontSize 10 }`))
+})
 
 test('theme: smetana adds pragma', () => {
   const themed = injectTheme(SOURCE, 'class', { smetana: true })
