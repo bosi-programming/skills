@@ -114,12 +114,14 @@ test('page: each section carries its type accent', () => {
   assert.match(section(html, 'component'), /style="--accent: #f0883e"/)
 })
 
-test('page: main has no max width', () => {
-  const html = page({ diagrams: [drawn('class')] })
-  const mainRules = html.match(/(^|\n)[^{}\n]*\bmain\b[^{}\n]*\{[^}]*\}/g) ?? []
-  assert.ok(mainRules.length > 0)
-  assert.equal(mainRules.some((rule) => /max-width/.test(rule)), false)
-})
+for (const element of ['main', 'header']) {
+  test(`page: ${element} has no max width`, () => {
+    const html = page({ diagrams: [drawn('class')] })
+    const rules = html.match(new RegExp(`(^|\\n)[^{}\\n]*\\b${element}\\b[^{}\\n]*\\{[^}]*\\}`, 'g')) ?? []
+    assert.ok(rules.length > 0)
+    assert.equal(rules.some((rule) => /max-width/.test(rule)), false)
+  })
+}
 
 test('page: the header names the origin and source', () => {
   const html = page({ diagrams: [drawn('class')], source: 'src/orders' })

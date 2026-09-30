@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { ACCENTS, injectTheme } from './theme.mjs'
+import { ACCENTS, MEANINGS, injectTheme } from './theme.mjs'
 
 const SOURCE = '@startuml\nclass Order\n@enduml\n'
 
@@ -35,9 +35,22 @@ test('theme: meaning colours present for interface, abstract and enum', () => {
   assert.deepEqual(spots.filter((name) => !themed.includes(`skinparam ${name} `)), [])
 })
 
-test('theme: meaning colours present for final states', () => {
+test('theme: start and end states are coloured through a style block', () => {
   const themed = injectTheme('@startuml\n[*] --> Open\nOpen --> [*]\n@enduml', 'state', { smetana: false })
-  assert.ok(themed.includes('skinparam stateEndColor '))
+  const expected = [
+    '<style>',
+    'stateDiagram {',
+    `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
+    `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
+    '}',
+    '</style>',
+  ].join('\n')
+  assert.ok(themed.includes(expected))
+})
+
+test('theme: no start or end skinparam that PlantUML ignores', () => {
+  const themed = injectTheme('@startuml\n[*] --> Open\n@enduml', 'state', { smetana: false })
+  assert.equal(/skinparam state(Start|End)Color/.test(themed), false)
 })
 
 test('theme: smetana adds pragma', () => {

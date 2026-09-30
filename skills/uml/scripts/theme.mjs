@@ -77,11 +77,18 @@ const meaningLines = () => [
   `skinparam stereotypeEBackgroundColor ${MEANINGS.enum}`,
   `skinparam interfaceBackgroundColor ${PALETTE.element}`,
   `skinparam interfaceBorderColor ${MEANINGS.interface}`,
-  `skinparam stateStartColor ${MEANINGS.initialState}`,
-  `skinparam stateEndColor ${MEANINGS.finalState}`,
   `skinparam noteBackgroundColor ${MEANINGS.note}`,
   `skinparam noteBorderColor ${MEANINGS.noteBorder}`,
   `skinparam noteFontColor ${PALETTE.text}`,
+]
+
+const styleLines = () => [
+  '<style>',
+  'stateDiagram {',
+  `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
+  `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
+  '}',
+  '</style>',
 ]
 
 const themeLines = (type, { smetana }) => {
@@ -98,6 +105,7 @@ const themeLines = (type, { smetana }) => {
     `skinparam sequenceGroupBackgroundColor ${PALETTE.panel}`,
     ...elementLines(accent),
     ...meaningLines(),
+    ...styleLines(),
     ...(smetana ? [SMETANA] : []),
   ]
 }

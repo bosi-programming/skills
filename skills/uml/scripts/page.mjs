@@ -26,7 +26,7 @@ const STYLE = `
 :root { --bg: ${PALETTE.background}; --panel: ${PALETTE.panel}; --element: ${PALETTE.element}; --line: ${PALETTE.line}; --fg: ${PALETTE.text}; --muted: ${PALETTE.muted}; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
-header { max-width: 1200px; margin: 0 auto; padding: 24px; }
+header { padding: 24px; }
 main { padding: 24px; }
 h1 { margin: 0 0 4px; font-size: 22px; }
 code { background: var(--element); padding: 1px 5px; border-radius: 4px; }
