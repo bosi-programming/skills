@@ -1,3 +1,5 @@
+import { findArrow, freeText } from './arrows.mjs'
+
 export const PALETTE = Object.freeze({
   background: '#0b0e14',
   panel: '#11151d',
@@ -37,6 +39,13 @@ export const MEANINGS = Object.freeze({
   finalState: '#f85149',
   note: '#26200f',
   noteBorder: '#d29922',
+})
+
+export const ARROW_COLOURS = Object.freeze({
+  inheritance: '#bc8cff',
+  wholePart: '#f0883e',
+  association: '#58a6ff',
+  dependency: '#8b98a9',
 })
 
 const ELEMENTS = [
@@ -95,15 +104,52 @@ const meaningLines = () => [
   `skinparam noteFontColor ${PALETTE.text}`,
 ]
 
+const UNTAGGED_TYPES = ['sequence', 'state']
+
+const stereotypeOf = (kind) => `uml${kind[0].toUpperCase()}${kind.slice(1)}`
+
+const arrowStyleLines = () => [
+  'arrow {',
+  ...Object.entries(ARROW_COLOURS).map(([kind, colour]) => `.${stereotypeOf(kind)} { LineColor ${colour} }`),
+  '}',
+]
+
 const styleLines = () => [
   '<style>',
   `root { Padding ${PADDING} }`,
+  ...arrowStyleLines(),
   'stateDiagram {',
   `start { BackgroundColor ${MEANINGS.initialState}; LineColor ${MEANINGS.initialState} }`,
   `end { BackgroundColor ${MEANINGS.finalState}; LineColor ${MEANINGS.finalState} }`,
   '}',
   '</style>',
 ]
+
+const labelStart = (line, from) => {
+  let quoted = false
+  for (let index = from; index < line.length; index += 1) {
+    if (line[index] === '"') quoted = !quoted
+    if (line[index] === ':' && !quoted) return index
+  }
+  return line.length
+}
+
+const tagArrow = (line) => {
+  const arrow = findArrow(line)
+  if (!arrow?.kind) return line
+  const cut = labelStart(line, arrow.end)
+  const ends = line.slice(0, cut).trimEnd()
+  if (ends.slice(arrow.end).includes('<<')) return line
+  const label = line.slice(cut)
+  return `${ends} <<${stereotypeOf(arrow.kind)}>>${label ? ` ${label}` : ''}`
+}
+
+const tagArrows = (source, type) => {
+  if (UNTAGGED_TYPES.includes(type)) return source
+  const lines = source.split('\n')
+  const skipped = freeText(lines)
+  return lines.map((line, index) => (skipped[index] ? line : tagArrow(line))).join('\n')
+}
 
 const themeLines = (type, { smetana }) => {
   const accent = ACCENTS[type]
@@ -127,8 +173,9 @@ const themeLines = (type, { smetana }) => {
 
 export const injectTheme = (source, type, options) => {
   const block = themeLines(type, options).join('\n')
-  const lines = source.split('\n')
+  const tagged = tagArrows(source, type)
+  const lines = tagged.split('\n')
   const start = lines.findIndex((line) => line.trim().startsWith(START))
-  if (start === -1) return `${START}\n${block}\n${source}\n${END}\n`
+  if (start === -1) return `${START}\n${block}\n${tagged}\n${END}\n`
   return [...lines.slice(0, start + 1), block, ...lines.slice(start + 1)].join('\n')
 }
