@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, and how ship-pr titles, gates and validates a PR. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, and where uml keeps its diagram sources and how it renders them. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
