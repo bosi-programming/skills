@@ -94,7 +94,7 @@
         "scripts/check-headless-contract.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "3187d5f59630"
+      "version": "70463938261c"
     },
     {
       "name": "maestri-workflow",
@@ -120,7 +120,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "5c62d7310a14"
+      "version": "76ea62b9a2f1"
     },
     {
       "name": "ship-pr",
@@ -147,6 +147,50 @@
         "evals/trigger_cases.json"
       ],
       "version": "82790403ef1b"
+    },
+    {
+      "name": "uml",
+      "files": [
+        "SKILL.md",
+        "evals/evals.json",
+        "references/class.md",
+        "references/component.md",
+        "references/composite.md",
+        "references/deployment.md",
+        "references/manifest.md",
+        "references/object.md",
+        "references/package.md",
+        "references/profile.md",
+        "references/sequence.md",
+        "references/state.md",
+        "scripts/args.mjs",
+        "scripts/args.test.mjs",
+        "scripts/encode.mjs",
+        "scripts/encode.test.mjs",
+        "scripts/guard.mjs",
+        "scripts/guard.test.mjs",
+        "scripts/idle.mjs",
+        "scripts/idle.test.mjs",
+        "scripts/jar.mjs",
+        "scripts/jar.test.mjs",
+        "scripts/layout.mjs",
+        "scripts/layout.test.mjs",
+        "scripts/manifest.mjs",
+        "scripts/manifest.test.mjs",
+        "scripts/page-client.js",
+        "scripts/page.mjs",
+        "scripts/page.test.mjs",
+        "scripts/render.mjs",
+        "scripts/render.test.mjs",
+        "scripts/server.mjs",
+        "scripts/server.test.mjs",
+        "scripts/structure.test.mjs",
+        "scripts/theme.mjs",
+        "scripts/theme.test.mjs",
+        "scripts/uml.mjs",
+        "scripts/uml.test.mjs"
+      ],
+      "version": "d2ad3d3a6f2e"
     },
     {
       "name": "week-summary",
