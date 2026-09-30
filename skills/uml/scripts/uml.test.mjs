@@ -159,6 +159,20 @@ test('uml: serve opens the page in the browser', async () => {
   assert.deepEqual([spawned[1].command, spawned[1].args], ['xdg-open', ['http://127.0.0.1:5123']])
 })
 
+test('uml: serve still reports the URL when no browser opener exists', async () => {
+  const children = []
+  const spawn = (command) => {
+    const child = fakeChild({ line: command === '/usr/bin/node' ? JSON.stringify({ url: 'http://127.0.0.1:5123' }) : null })
+    children.push(child)
+    if (command !== '/usr/bin/node') setImmediate(() => child.emit('error', Object.assign(new Error('spawn xdg-open ENOENT'), { code: 'ENOENT' })))
+    return child
+  }
+  const { deps: d, out } = deps({ exists: () => true, spawn })
+  const code = await run(['serve'], d)
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.deepEqual([code, out.join('').includes('http://127.0.0.1:5123')], [0, true])
+})
+
 test('uml: serve with no java in local mode stops with the no-Java message', async () => {
   const { deps: d, err, spawned } = deps({ exists: () => true, spawnSync: () => ({ status: 1 }) })
   const code = await run(['serve'], d)

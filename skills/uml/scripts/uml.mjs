@@ -144,7 +144,9 @@ const serve = async (argv, deps) => {
   child.unref()
   if (!url) return fail(deps, 'The page server stopped before it started. Run serve-foreground with the same flags to see why.')
   const opener = openerFor(deps.platform, url)
-  deps.spawn(opener.command, opener.args, { detached: true, stdio: 'ignore' }).unref()
+  const browser = deps.spawn(opener.command, opener.args, { detached: true, stdio: 'ignore' })
+  browser.on('error', () => deps.stdout(`Could not open a browser; open ${url} by hand.\n`))
+  browser.unref()
   deps.stdout(`UML page: ${url}\nServer PID: ${child.pid}\nStop it with: kill ${child.pid}\nIt stops by itself after ${options['idle-minutes']} minutes with no request.\n`)
   return 0
 }

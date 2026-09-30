@@ -9,7 +9,9 @@ import { decodeBase64 } from './encode.mjs'
 import { MISSING_JAR, NO_JAVA, createRenderer, renderLocal, renderRemote } from './render.mjs'
 
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'
-const ERROR_SVG = '<svg><text>Syntax Error?</text><text>(line 2)</text></svg>'
+const ERROR_SVG = ['Add your own dedication into PlantUML', 'PlantUML version 1.2026.9', '[From string (line 73) ]', 'skinparam noteFontColor #e6edf3', '[*] --&gt;', 'Syntax Error? (Assumed diagram type: sequence)']
+  .map((text) => `<text x="1">${text}</text>`)
+  .join('')
 
 const fakeSpawn = ({ stdout = '', stderr = '', code = 0, error = null } = {}) => {
   const calls = []
@@ -60,7 +62,7 @@ test('render: local returns the svg without the xml prolog', async () => {
 test('render: a local syntax error returns the error text', async () => {
   const { spawn } = fakeSpawn({ stdout: ERROR_SVG, code: 200 })
   const result = await renderLocal('@startuml\nA ->\n@enduml', { jar: '/j.jar', dotPath: null, spawn })
-  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? (line 2)' })
+  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? (Assumed diagram type: sequence) at "[*] -->"' })
 })
 
 test('render: a local failure with stderr returns stderr', async () => {
@@ -94,7 +96,13 @@ test('render: remote GETs server/svg/encoded', async () => {
 test('render: remote syntax error returns the error text', async () => {
   const fetch = async () => new Response(ERROR_SVG, { status: 400 })
   const result = await renderRemote('A ->', { server: 'https://plantuml.example', fetch })
-  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? (line 2)' })
+  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? (Assumed diagram type: sequence) at "[*] -->"' })
+})
+
+test('render: an error svg with no error line keeps its last text', async () => {
+  const { spawn } = fakeSpawn({ stdout: '<svg><text>one</text><text>Cannot find Graphviz</text></svg>', code: 200 })
+  const result = await renderLocal('@startuml\n@enduml', { jar: '/j.jar', dotPath: null, spawn })
+  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Cannot find Graphviz' })
 })
 
 test('render: remote unreachable gives one message naming the server', async () => {
@@ -127,7 +135,7 @@ test('render: the renderer sends a themed source to a remote server', async () =
 })
 
 test('render: error text from the svg has its entities decoded', async () => {
-  const { spawn } = fakeSpawn({ stdout: '<svg><text>A -&gt; &quot;B&quot; &amp; C</text></svg>', code: 200 })
+  const { spawn } = fakeSpawn({ stdout: '<svg><text>A -&gt; &quot;B&quot; &amp; C</text><text>Syntax Error?</text></svg>', code: 200 })
   const result = await renderLocal('@startuml\n@enduml', { jar: '/j.jar', dotPath: null, spawn })
-  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: A -> "B" & C' })
+  assert.deepEqual(result, { error: 'PlantUML could not render this diagram: Syntax Error? at "A -> \"B\" & C"' })
 })

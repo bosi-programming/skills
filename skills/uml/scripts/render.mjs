@@ -20,11 +20,18 @@ const ENTITIES = Object.freeze({ '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;
 
 const decodeEntities = (text) => text.replace(/&(lt|gt|quot|#39|apos|amp);/g, (entity) => ENTITIES[entity])
 
-const svgText = (svg) =>
-  [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)]
-    .map((match) => decodeEntities(match[1]).trim())
-    .filter(Boolean)
-    .join(' ')
+const ERROR_LINE = /error/i
+
+const svgTexts = (svg) =>
+  [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((match) => decodeEntities(match[1]).trim()).filter(Boolean)
+
+const svgText = (svg) => {
+  const texts = svgTexts(svg)
+  const errorAt = texts.findLastIndex((text) => ERROR_LINE.test(text))
+  if (errorAt === -1) return texts.at(-1) ?? ''
+  const offending = texts[errorAt - 1]
+  return offending ? `${texts[errorAt]} at "${offending}"` : texts[errorAt]
+}
 
 const failure = (detail) => ({ error: detail ? `${RENDER_FAILED}: ${detail}` : `${RENDER_FAILED}.` })
 
