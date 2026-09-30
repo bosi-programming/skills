@@ -40,4 +40,5 @@ Pod --> Sqs : publish
 | Infrastructure guessed from the language | Invents machines | Draw only what deploy files or config state; otherwise give the no-basis note. |
 | Links with no protocol | The reader cannot tell how they talk | Label each path: HTTPS, gRPC, TCP 5432, publish. |
 | Components drawn instead of nodes | Mixes views | Nodes are where things run; the artifact names what runs there. |
-| Every environment at once | Repeats the same picture | Draw production, or the one environment the files describe, and note the others. |
+| Every environment at once | Repeats the same picture | Draw production, or the one environment the files describe, and name the others in the legend. |
+| Over the budget | Past about 15 links or 12 nodes the lines tangle | Keep the nodes the system runs on, and say what you left out in `omitted`. |
