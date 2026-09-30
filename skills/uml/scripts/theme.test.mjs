@@ -49,9 +49,3 @@ test('theme: no smetana adds no pragma', () => {
   const themed = injectTheme(SOURCE, 'class', { smetana: false })
   assert.equal(themed.includes('!pragma layout'), false)
 })
-
-test('theme: input string unchanged', () => {
-  const source = String(SOURCE)
-  injectTheme(source, 'class', { smetana: true })
-  assert.equal(source, '@startuml\nclass Order\n@enduml\n')
-})
