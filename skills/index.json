@@ -10,7 +10,7 @@
         "scripts/check-headless.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "c730532c8981"
+      "version": "76d52cb9fc87"
     },
     {
       "name": "code-standards",
@@ -102,15 +102,16 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "15898a148181"
+      "version": "05615ab06501"
     },
     {
       "name": "recipe-relay",
       "files": [
         "SKILL.md",
-        "scripts/check-review-evidence.py"
+        "scripts/check-review-evidence.py",
+        "scripts/check-split-cooking.py"
       ],
-      "version": "25412d530679"
+      "version": "39096125adac"
     },
     {
       "name": "setup",
@@ -120,7 +121,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "76ea62b9a2f1"
+      "version": "5d782e8d7357"
     },
     {
       "name": "ship-pr",

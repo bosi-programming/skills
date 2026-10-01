@@ -94,8 +94,10 @@ you take the recommendation that text states, log it under
 maestri-workflow. `../recipe-relay/SKILL.md` run on its own keeps its stop
 conditions.
 
-1. **Pick the lane.** Reading the Recipe, Mise en Place and Documentation take
-   the planning lane. Cooking/Tasting and Plating take the coding lane. The
+1. **Pick the lane.** Reading the Recipe, Mise en Place, Interfaces and
+   Documentation take the planning lane. The test writers, code writers, the
+   fix-and-taste unit and Plating take the coding lane, which stands in for
+   `recipe-relay.codingModel`. The
    code review in recipe-relay's section 5 takes the planning lane, is named
    `{ticket} code review`, and is briefed with that section's step 1 instead
    of the section 2 prompt.
@@ -104,6 +106,9 @@ conditions.
    such as `{ticket} mise en place` or `{ticket} cooking`, and start it in
    the work root:
    `maestri recruit "{name}" --preset "{lane preset}" --dir "{work root}"`.
+   For a repo's test writer and code writer, recruit both before waiting on
+   either, each with `--dir` set to its own worktree from recipe-relay's
+   _Cooking in parallel_, and wait for both reports before the merge.
 3. **Pin the lane's model.** Use the first method that works:
    - a preset that already pins the model;
    - `--command` with the harness's own model flag, read from that harness's

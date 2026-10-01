@@ -30,6 +30,9 @@ ship-pr:
   trackerServer: ''
 better-code-review:
   defaultMode: conversation
+  reviewerModel: ''
+recipe-relay:
+  codingModel: ''
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -77,6 +80,10 @@ only needs the keys it changes.
   as lint or tests.
 - `ship-pr.trackerServer` — MCP server that reads tickets; empty skips it.
 - `better-code-review.defaultMode` — `conversation`, `page` or `headless`.
+- `better-code-review.reviewerModel` — the model for the three review
+  sub-agents; empty keeps the model the review runs on.
+- `recipe-relay.codingModel` — the model for the sub-agents that write tests
+  and code; empty keeps the model the relay runs on.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML
