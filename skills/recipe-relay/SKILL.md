@@ -23,8 +23,8 @@ running this, just not being asked every checkpoint.
 
 Determine the next unit from the card's `phase` / `runNext`:
 
-- `phase-3-cooking.md` + `phase-4-tasting.md` are one unit — feature-recipe
-  already runs them back-to-back with no menu, in either of its own modes.
+- `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
+  parallel_ below.
 - Every other phase (`phase-1-reading-the-recipe.md`, `phase-2-mise-en-place.md`,
   `phase-5-plating.md`, `phase-6-documentation.md`) is its own unit.
 
@@ -42,6 +42,52 @@ this effect:
 > control once this unit's own closing section (frontmatter update, one line
 > to `## Decisions`) is written. Do not set `runMode` on the card. Return a
 > short summary of what got decided.
+
+### Cooking in parallel
+
+Cooking splits so that tests and code get written at the same time, by
+agents that cannot shape one to the other. Run the units below in order,
+every time Cooking comes up, even when the task touches one repo. Run each
+test writer, code writer and fix agent on the model
+`recipe-relay.codingModel` names, read from the settings file as
+`../setup/references/config.md` says. Its default, `''`, keeps the model this
+session runs on.
+
+1. **Interfaces.** One sub-agent reads the card's Solution, Implementation
+   Plan and `## TDD Test Mapping`, and writes a `## Interfaces` section to the
+   card before either writer starts. For each repo the plan touches, it lists
+   the public names, their signatures and the files they live in. Both
+   writers code to that section and nothing else. A plan too vague to name
+   them stops the run with `runStatus: needs-input`, as section 4 says.
+2. **Worktrees.** For each repo in `## Interfaces`, add two worktrees at its
+   current `HEAD`, each on its own branch, in a scratch folder outside the
+   repo: `git -C {repo} worktree add -b {branch}-tests {scratch}/{repo}-tests HEAD`,
+   and the same with `-code`. `{branch}` is the branch the repo is on.
+3. **Writers.** For each repo, spawn its test writer and its code writer at
+   the same time, each in its own worktree. Start every pair before waiting on
+   any of them.
+   - The **test writer** reads the Acceptance Criteria, Testing Strategy,
+     `## TDD Test Mapping` and `## Interfaces`, and never sees the code. It
+     writes the tests for its repo, runs them against the base, and confirms
+     they fail; an import error for a name that does not exist yet counts as
+     a fail. It commits and marks each case written in `## TDD Test Mapping`.
+     A test that already passes against the base gets logged to
+     `## Decisions` as `relay:`, with its name; the writer leaves it in and
+     carry on.
+   - The **code writer** reads the Solution, Implementation Plan, Config
+     changes and `## Interfaces`, and never sees the tests. It writes the code
+     for its repo and commits, without adding tests. It follows section 1 of
+     `phase-3-cooking.md` for standards and plan drift, minus the test steps.
+4. **Merge.** Once both writers of a repo return, merge the `-code` branch and
+   then the `-tests` branch into `{branch}`, and remove both worktrees with
+   `git worktree remove`. A merge conflict goes to the fix agent as it
+   stands.
+5. **Fix and taste.** One sub-agent loads `phase-3-cooking.md` and
+   `phase-4-tasting.md`, as the section 2 prompt says, with the tests and code
+   already in place. It starts at step 4 of Cooking's section 1: run the
+   tests, make the red ones pass by fixing the code, not the test, unless the
+   test contradicts `## Interfaces` or the Acceptance Criteria. Then it runs
+   the rest of Cooking and all of Tasting.
 
 ## 3. Move to the next unit
 

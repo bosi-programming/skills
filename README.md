@@ -101,7 +101,7 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 ### recipe-relay
 
-Runs `feature-recipe` from a live session, without touching any of its files. Each phase (or phase-pair, for Cooking/Tasting) runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
+Runs `feature-recipe` from a live session, without touching any of its files. Each phase runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. Cooking splits: one sub-agent names the interfaces, then for each repo a test writer and a code writer work at the same time in their own worktrees, neither seeing the other's work, and a last sub-agent merges them, makes the tests pass and runs Tasting. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
 
 ### maestri-workflow
 
@@ -212,6 +212,7 @@ python3 skills/better-code-review/scripts/check-tests-axis.py
 python3 skills/better-code-review/scripts/check-evidence.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
+python3 skills/recipe-relay/scripts/check-split-cooking.py
 python3 skills/code-standards/scripts/check-tooling-rule.py
 python3 skills/setup/scripts/check-config.py
 ```
@@ -275,6 +276,14 @@ it after editing Tasting or the skill's rules.
 closing review pass stops sorting findings by `ran`, `read` or `no`, stops
 logging what the review left not verified, or if `maestri-workflow` stops
 reporting that gap. Offline, stdlib only — run it after editing either skill.
+
+`check-split-cooking.py` is `recipe-relay`'s other check: it fails if Cooking
+stops naming its interfaces first, starting a test writer and a code writer
+per repo at the same time in their own worktrees, keeping each blind to the
+other's work, or merging them before Tasting; if either skill drops its model
+setting; or if `maestri-workflow` stops recruiting both writers of a pair.
+Offline, stdlib only — run it after editing `recipe-relay`,
+`maestri-workflow` or step 4 of `better-code-review`.
 
 `check-tooling-rule.py` is `code-standards`' own check: it fails if the catalog
 goes back to guessing what tooling enforces instead of reading the lint,

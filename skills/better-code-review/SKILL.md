@@ -74,6 +74,8 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn the three sub-agents in parallel
 
+Run them on the model `better-code-review.reviewerModel` names, read from the settings file as `../setup/references/config.md` says. Its default, `''`, keeps the model this review runs on. They read and report, and step 5 checks every finding at its source, so a faster model does the job.
+
 **Standards sub-agent prompt** — include:
 
 - The full diff command and commit list.

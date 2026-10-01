@@ -47,9 +47,13 @@ the ones in `./references/config.md`:
    a. Default mode: `regular` or `headless`.
    b. Run `work-summary` when a recipe ends: yes or no.
    c. Where feature docs go, or ask each time.
+   d. Model for the `recipe-relay` sub-agents that write tests and code, or
+      the one the relay runs on.
 8. `maestri-workflow` models for the planning and coding lanes, or let the
    skill pick.
-9. `better-code-review` default mode: `conversation`, `page` or `headless`.
+9. `better-code-review`:
+   a. Default mode: `conversation`, `page` or `headless`.
+   b. Model for the three review sub-agents, or the one the review runs on.
 10. `ship-pr`:
     a. Title format: `type(scope): subject [KEY]` or `[KEY] type(scope): subject`.
     b. Pause for approval before push and PR: yes or no.
