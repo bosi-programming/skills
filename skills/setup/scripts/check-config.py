@@ -27,6 +27,7 @@ KEYS = {
     "better-code-review.defaultMode": "conversation",
     "better-code-review.reviewerModel": "''",
     "recipe-relay.codingModel": "''",
+    "recipe-relay.uiReviewerModel": "''",
     "feature-recipe.runWorkSummary": "true",
     "feature-recipe.docsDestination": "''",
     "maestri-workflow.planningModel": "''",
@@ -57,7 +58,7 @@ CONSUMERS = {
         "feature-recipe.defaultMode",
     ],
     SKILLS / "better-code-review" / "SKILL.md": ["better-code-review.defaultMode", "better-code-review.reviewerModel"],
-    SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel"],
+    SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel"],
     SKILLS / "maestri-workflow" / "SKILL.md": [
         "feature-recipe.cardsDir",
         "maestri-workflow.planningModel",

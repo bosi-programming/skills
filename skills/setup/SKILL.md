@@ -49,6 +49,7 @@ the ones in `./references/config.md`:
    c. Where feature docs go, or ask each time.
    d. Model for the `recipe-relay` sub-agents that write tests and code, or
       the one the relay runs on.
+   e. Model for the `recipe-relay` UI reviewer, or the one the relay runs on.
 8. `maestri-workflow` models for the planning and coding lanes, or let the
    skill pick.
 9. `better-code-review`:
