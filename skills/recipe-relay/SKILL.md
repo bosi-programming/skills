@@ -24,7 +24,8 @@ running this, just not being asked every checkpoint.
 Determine the next unit from the card's `phase` / `runNext`:
 
 - `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
-  parallel_ below.
+  parallel_ below, and its last unit runs beside the _UI review in parallel_
+  below.
 - Every other phase (`phase-1-reading-the-recipe.md`, `phase-2-mise-en-place.md`,
   `phase-5-plating.md`, `phase-6-documentation.md`) is its own unit.
 
@@ -88,6 +89,52 @@ session runs on.
    tests, make the red ones pass by fixing the code, not the test, unless the
    test contradicts `## Interfaces` or the Acceptance Criteria. Then it runs
    the rest of Cooking and all of Tasting.
+
+### UI review in parallel
+
+A UI review compares what the change renders with the design the task
+carries. It runs only when the card's Solution changes a surface a person sees
+in the browser; for any other change, skip this section and log the skip to
+`## Decisions` as `relay:`.
+
+1. **Two agents at once.** Start the UI reviewer at the same time as the fix
+   and taste agent from step 5 of _Cooking in parallel_, and wait on both.
+   The reviewer never starts the app and takes no screenshots: it judges the
+   ones the fix and taste agent captures, so the two never fight over one
+   running app.
+2. **Screenshots and the signal.** Tell the fix and taste agent, in its prompt,
+   to do this once Tasting's checks pass. Bring the change up the way the
+   project already does, and screenshot every state of the changed surface
+   the Acceptance Criteria name into `{scratch}/ui-review/`. Then write
+   `{scratch}/ui-review/screenshots.done` with one line per repo:
+   `<repo> <sha>`, the sha from `git rev-parse HEAD` in that repo. When it
+   cannot bring the surface up, it writes the same file with a first line
+   `none: <reason>` above the sha lines. It deletes the file as it starts, so
+   a signal from an earlier round never survives into this one.
+3. **The reviewer waits.** It polls for `screenshots.done` for up to 90
+   minutes. A sha that differs from the repo's `HEAD` is stale, from an
+   earlier round, so it should keep waiting. A `none:` line, or no fresh signal in
+   time, makes the verdict `inconclusive`.
+4. **The design.** The design is the image attached to the task, read with
+   whatever tool the session has for the tracker. A design-tool frame the task
+   links may settle a region the image leaves unclear, but never stands in
+   for a missing image. No design at all makes the verdict `inconclusive`.
+   The reviewer never guesses the design from the task's text.
+5. **The comparison.** Walk the design top to bottom and name, for each
+   difference, the design region and the screenshot it comes from. Rate it:
+   critical when the changed surface is missing, blank or broken; major for a
+   wrong component or structure, a missing or extra field, wrong content or
+   order, or a state the design shows that the build lacks; minor for small
+   spacing, colour or weight drift and anything the image cannot settle.
+   Judge what a person sees, not the code. Write the verdict and the findings
+   to a `## UI Review` section on the card.
+6. **Route the result.** Critical and major findings go back to the fix
+   agent, with the screenshots' paths, in a new fix and taste round that runs
+   beside a new review; do this at most twice. A third round with critical or
+   major findings stops the run with `runStatus: needs-input`, as section 4
+   says. Minor findings never send work back: log them to
+   `## Quality Gate Results`. An `inconclusive` verdict goes on the card with
+   its reason, logged as `relay:`, and the run moves on to Plating.
 
 ## 3. Move to the next unit
 

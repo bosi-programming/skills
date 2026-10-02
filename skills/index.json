@@ -109,9 +109,10 @@
       "files": [
         "SKILL.md",
         "scripts/check-review-evidence.py",
-        "scripts/check-split-cooking.py"
+        "scripts/check-split-cooking.py",
+        "scripts/check-ui-review.py"
       ],
-      "version": "39096125adac"
+      "version": "f9d24a1ab6e7"
     },
     {
       "name": "setup",
