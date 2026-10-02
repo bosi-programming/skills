@@ -99,6 +99,9 @@ in the browser; for any other change, skip this section and log the skip to
 
 1. **Two agents at once.** Start the UI reviewer at the same time as the fix
    and taste agent from step 5 of _Cooking in parallel_, and wait on both.
+   Run the reviewer on the model `recipe-relay.uiReviewerModel` names, read
+   from the settings file as `../setup/references/config.md` says. Its
+   default, `''`, keeps the model this session runs on.
    The reviewer never starts the app and takes no screenshots: it judges the
    ones the fix and taste agent captures, so the two never fight over one
    running app.

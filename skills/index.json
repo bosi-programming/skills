@@ -112,7 +112,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "f9d24a1ab6e7"
+      "version": "b2aa356503f8"
     },
     {
       "name": "setup",
@@ -122,7 +122,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "5d782e8d7357"
+      "version": "36965e3786ef"
     },
     {
       "name": "ship-pr",
