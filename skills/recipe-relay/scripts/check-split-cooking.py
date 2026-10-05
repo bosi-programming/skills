@@ -49,12 +49,13 @@ spawn = block(review, "### 4. Spawn the three sub-agents in parallel", r"^### ")
 check("split-section-exists", split, "recipe-relay must have a `### Cooking in parallel` section")
 check_all("interfaces-first", split, "`## Interfaces`", "before either writer starts")
 check_all("pair-per-repo", split, "for each repo", "test writer", "code writer", "at the same time")
-check_all("own-worktree", split, "worktree add", "its own branch")
+check_all("shared-worktree", split, "same branch and worktree", "only the files it wrote")
+check("no-writer-worktree", "worktree" not in flatten(split).replace("same branch and worktree", ""),
+      "the writers must not get worktrees of their own")
 check_all("writers-blind", split, "never sees the code", "never sees the tests")
-check_all("red-against-base", split, "against the base", "fail")
+check_all("red-first", split, "confirms they fail")
 check_all("green-on-base-logged", split, "already pass", "`relay:`", "carry on")
-check_all("merge-then-finish", split, "merge", "`phase-3-cooking.md`", "`phase-4-tasting.md`")
-check_all("worktrees-removed", split, "git worktree remove")
+check_all("writers-then-finish", split, "once both writers", "`phase-3-cooking.md`", "`phase-4-tasting.md`")
 check_all("single-repo-splits", split, "even when the task touches one repo")
 check_all("coding-model", split, "`recipe-relay.codingModel`")
 check("no-old-cooking-unit", "are one unit" not in flatten(block(skill, "## 2.", r"^### ")),
@@ -63,6 +64,8 @@ check("no-old-cooking-unit", "are one unit" not in flatten(block(skill, "## 2.",
 check_all("reviewer-model", spawn, "`better-code-review.reviewerModel`")
 
 check_all("maestri-pair", maestri, "test writer", "code writer", "recruit both")
+check("maestri-no-writer-worktree", "its own worktree" not in flatten(maestri),
+      "maestri-workflow still gives each writer its own worktree")
 
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-split-cooking.py")
 

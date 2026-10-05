@@ -101,7 +101,7 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 ### recipe-relay
 
-Runs `feature-recipe` from a live session, without touching any of its files. Each phase runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. Cooking splits: one sub-agent names the interfaces, then for each repo a test writer and a code writer work at the same time in their own worktrees, neither seeing the other's work, and a last sub-agent merges them, makes the tests pass and runs Tasting. When the change reaches a screen, a UI reviewer runs beside that last sub-agent: it waits for the screenshots Tasting captures, compares them with the design attached to the task, and sends critical and major differences back for up to two more rounds. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
+Runs `feature-recipe` from a live session, without touching any of its files. Each phase runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. Cooking splits: one sub-agent names the interfaces, then for each repo a test writer and a code writer work at the same time on the same branch and worktree, neither opening the other's files, and a last sub-agent makes the tests pass and runs Tasting. When the change reaches a screen, a UI reviewer runs beside that last sub-agent: it waits for the screenshots Tasting captures, compares them with the design attached to the task, and sends critical and major differences back for up to two more rounds. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected.
 
 ### maestri-workflow
 
@@ -280,8 +280,8 @@ reporting that gap. Offline, stdlib only — run it after editing either skill.
 
 `check-split-cooking.py` is `recipe-relay`'s other check: it fails if Cooking
 stops naming its interfaces first, starting a test writer and a code writer
-per repo at the same time in their own worktrees, keeping each blind to the
-other's work, or merging them before Tasting; if either skill drops its model
+per repo at the same time on the same branch and worktree, or keeping each
+blind to the other's work; if it gives the writers worktrees of their own; if either skill drops its model
 setting; or if `maestri-workflow` stops recruiting both writers of a pair.
 Offline, stdlib only — run it after editing `recipe-relay`,
 `maestri-workflow` or step 4 of `better-code-review`.

@@ -60,35 +60,31 @@ session runs on.
    the public names, their signatures and the files they live in. Both
    writers code to that section and nothing else. A plan too vague to name
    them stops the run with `runStatus: needs-input`, as section 4 says.
-2. **Worktrees.** For each repo in `## Interfaces`, add two worktrees at its
-   current `HEAD`, each on its own branch, in a scratch folder outside the
-   repo: `git -C {repo} worktree add -b {branch}-tests {scratch}/{repo}-tests HEAD`,
-   and the same with `-code`. `{branch}` is the branch the repo is on.
-3. **Writers.** For each repo, spawn its test writer and its code writer at
-   the same time, each in its own worktree. Start every pair before waiting on
-   any of them.
+2. **Writers.** For each repo, spawn its test writer and its code writer at
+   the same time, both on the same branch and worktree the code runs from: the
+   repo's own checkout, on `{branch}`, the branch the repo is on. Start every
+   pair before waiting on any of them. Each writer stages and commits only the
+   files it wrote, by path, and retries a commit that hits `index.lock`.
    - The **test writer** reads the Acceptance Criteria, Testing Strategy,
-     `## TDD Test Mapping` and `## Interfaces`, and never sees the code. It
-     writes the tests for its repo, runs them against the base, and confirms
-     they fail; an import error for a name that does not exist yet counts as
-     a fail. It commits and marks each case written in `## TDD Test Mapping`.
-     A test that already passes against the base gets logged to
+     `## TDD Test Mapping` and `## Interfaces`, and never sees the code: it
+     opens no file the code writer touches. It writes the tests for its repo,
+     runs them, and confirms they fail; an import error for a name that does
+     not exist yet counts as a fail. It commits and marks each case written in
+     `## TDD Test Mapping`. A test that already passes gets logged to
      `## Decisions` as `relay:`, with its name; the writer leaves it in and
      carry on.
    - The **code writer** reads the Solution, Implementation Plan, Config
-     changes and `## Interfaces`, and never sees the tests. It writes the code
-     for its repo and commits, without adding tests. It follows section 1 of
-     `phase-3-cooking.md` for standards and plan drift, minus the test steps.
-4. **Merge.** Once both writers of a repo return, merge the `-code` branch and
-   then the `-tests` branch into `{branch}`, and remove both worktrees with
-   `git worktree remove`. A merge conflict goes to the fix agent as it
-   stands.
-5. **Fix and taste.** One sub-agent loads `phase-3-cooking.md` and
-   `phase-4-tasting.md`, as the section 2 prompt says, with the tests and code
-   already in place. It starts at step 4 of Cooking's section 1: run the
-   tests, make the red ones pass by fixing the code, not the test, unless the
-   test contradicts `## Interfaces` or the Acceptance Criteria. Then it runs
-   the rest of Cooking and all of Tasting.
+     changes and `## Interfaces`, and never sees the tests: it opens no test
+     file. It writes the code for its repo and commits, without adding tests.
+     It follows section 1 of `phase-3-cooking.md` for standards and plan
+     drift, minus the test steps.
+3. **Fix and taste.** Once both writers of every repo return, one sub-agent
+   loads `phase-3-cooking.md` and `phase-4-tasting.md`, as the section 2
+   prompt says, with the tests and code already in place on `{branch}`. It
+   starts at step 4 of Cooking's section 1: run the tests, make the red ones
+   pass by fixing the code, not the test, unless the test contradicts
+   `## Interfaces` or the Acceptance Criteria. Then it runs the rest of
+   Cooking and all of Tasting.
 
 ### UI review in parallel
 
@@ -98,7 +94,7 @@ in the browser; for any other change, skip this section and log the skip to
 `## Decisions` as `relay:`.
 
 1. **Two agents at once.** Start the UI reviewer at the same time as the fix
-   and taste agent from step 5 of _Cooking in parallel_, and wait on both.
+   and taste agent from step 3 of _Cooking in parallel_, and wait on both.
    Run the reviewer on the model `recipe-relay.uiReviewerModel` names, read
    from the settings file as `../setup/references/config.md` says. Its
    default, `''`, keeps the model this session runs on.

@@ -107,8 +107,8 @@ conditions.
    the work root:
    `maestri recruit "{name}" --preset "{lane preset}" --dir "{work root}"`.
    For a repo's test writer and code writer, recruit both before waiting on
-   either, each with `--dir` set to its own worktree from recipe-relay's
-   _Cooking in parallel_, and wait for both reports before the merge.
+   either, both with `--dir` set to the work root, as recipe-relay's
+   _Cooking in parallel_ says, and wait for both reports before fix and taste.
 3. **Pin the lane's model.** Use the first method that works:
    - a preset that already pins the model;
    - `--command` with the harness's own model flag, read from that harness's

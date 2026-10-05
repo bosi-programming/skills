@@ -102,7 +102,7 @@
         "SKILL.md",
         "scripts/check-no-wait.py"
       ],
-      "version": "05615ab06501"
+      "version": "f1aed16bdd22"
     },
     {
       "name": "recipe-relay",
@@ -112,7 +112,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "b2aa356503f8"
+      "version": "e48c2afd0eb3"
     },
     {
       "name": "setup",
