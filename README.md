@@ -252,8 +252,10 @@ after editing `maestri-workflow`.
 `check-headless.py` is `better-code-review`'s own check: it fails if the
 `## Headless` section loses its entry, a default for a step that would ask,
 the text format of a finding or its closing lines, if steps 1, 2 or 6 stop
-pointing to it, or if a relative path in the skill does not resolve. Offline,
-stdlib only — run it after editing `better-code-review`.
+pointing to it, if _Default mode_ loses its grep for the key, if the run
+stops stating its mode and where it came from before step 1, or if a relative
+path in the skill does not resolve. Offline, stdlib only — run it after
+editing `better-code-review`.
 
 `check-tests-axis.py` is `better-code-review`'s other check: it fails if
 `code-standards/Testing/Tests.md` loses a rule or a red flag, if the catalog

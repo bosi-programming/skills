@@ -66,6 +66,12 @@ check_all("step-one-defers", step_one, "headless")
 check_all("step-two-defers", step_two, "headless")
 check_all("step-six-defers", step_six, "headless")
 
+default_mode = block(skill, "\n## Default mode\n", r"^## ")
+process_start = block(skill, "\n## Process\n", r"^### 1\. ")
+check_all("default-mode-lookup", default_mode, "grep -n -A3 '^better-code-review:' .bosi-skills.md ~/.bosi-skills.md")
+check_all("default-mode-no-truncated-read", default_mode, "head", "sed -n 1,40p")
+check_all("mode-stated-before-step-one", process_start, "defaultMode: page (from ~/.bosi-skills.md:43)", "default mode", "headless")
+
 check_all("description-headless", frontmatter_description(skill), "headless")
 paragraph = block(readme, "### better-code-review", r"^### ")
 check_all("readme-paragraph", paragraph, "--headless")

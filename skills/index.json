@@ -10,7 +10,7 @@
         "scripts/check-headless.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "76d52cb9fc87"
+      "version": "2718e89a4c33"
     },
     {
       "name": "code-standards",

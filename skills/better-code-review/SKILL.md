@@ -17,6 +17,17 @@ All three axes run as **parallel sub-agents** so they don't pollute each other's
 
 ## Process
 
+Before step 1, resolve the mode as _Default mode_ says and state it in one
+line, with where it came from:
+
+```
+defaultMode: page (from ~/.bosi-skills.md:43)
+```
+
+The source is the `file:line` the grep printed, `request` when the request or
+a caller named the mode, or `built-in default` when neither file sets it. A
+headless run skips this line, since _Headless_ allows nothing but findings.
+
 ### 1. Pin the fixed point
 
 Whatever the user said is the fixed point — a commit SHA, branch name, tag, `main`, `HEAD~5`, etc. If they didn't specify one, ask for it. A headless run takes a default instead; see _Headless_.
@@ -244,6 +255,16 @@ current folder first, then `$HOME`: `conversation` prints the result in the
 conversation, `page` runs steps 6 and 7, `headless` runs as _Headless_ below.
 The default is `conversation`. A request that asks for a page, for verbose, or
 for headless, or a caller that names a mode, wins over the file.
+
+Look the key up with this command, from the repository under review:
+
+```bash
+grep -n -A3 '^better-code-review:' .bosi-skills.md ~/.bosi-skills.md
+```
+
+Take the `defaultMode:` line under the first file that has one. Do not read
+the files with `head` or `sed -n 1,40p`: those stop at a fixed line, and the
+key can sit below it. A grep for the key cannot be cut off that way.
 
 ## Headless
 
