@@ -82,6 +82,7 @@ every key.
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |
 | `uml.idleMinutes` | `30` | Minutes with no request before the `uml` page server stops itself. |
+| `non-functional-requirements.docsDir` | `docs/projects` | Folder, relative to the docs repo root, that holds one folder per project; the NFR doc is `<docsDir>/<project>/nfr.md`. |
 
 ## What the request says wins
 

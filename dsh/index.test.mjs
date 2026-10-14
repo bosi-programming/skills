@@ -21,6 +21,7 @@ const SKILLS = [
   'epistemic-action',
   'feature-recipe',
   'maestri-workflow',
+  'non-functional-requirements',
   'recipe-relay',
   'setup',
   'ship-pr',

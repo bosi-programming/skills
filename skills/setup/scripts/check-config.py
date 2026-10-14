@@ -41,6 +41,7 @@ KEYS = {
     "uml.plantumlJar": "''",
     "uml.plantumlServer": "local",
     "uml.idleMinutes": "30",
+    "non-functional-requirements.docsDir": "docs/projects",
 }
 
 DERIVED = [
@@ -70,6 +71,7 @@ CONSUMERS = {
     ],
     SKILLS / "ship-pr" / "SKILL.md": [key for key in KEYS if key.startswith("ship-pr.")],
     SKILLS / "uml" / "SKILL.md": [key for key in KEYS if key.startswith("uml.")],
+    SKILLS / "non-functional-requirements" / "SKILL.md": ["non-functional-requirements.docsDir"],
 }
 
 PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]

@@ -105,6 +105,18 @@
       "version": "f1aed16bdd22"
     },
     {
+      "name": "non-functional-requirements",
+      "files": [
+        "SKILL.md",
+        "references/iso-quality-models.md",
+        "references/nfr-template.md",
+        "references/observability.md",
+        "references/review-workflow.md",
+        "references/standards.md"
+      ],
+      "version": "1b5eb59a6415"
+    },
+    {
       "name": "recipe-relay",
       "files": [
         "SKILL.md",
@@ -122,7 +134,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "36965e3786ef"
+      "version": "b0df94b8e970"
     },
     {
       "name": "ship-pr",
