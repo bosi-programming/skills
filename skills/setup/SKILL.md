@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, and where uml keeps its diagram sources and how it renders them. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, where uml keeps its diagram sources and how it renders them, and where non-functional-requirements writes its NFR docs. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
@@ -67,6 +67,8 @@ the ones in `./references/config.md`:
     b. Path to the PlantUML jar, or the cache folder.
     c. Render with the local jar, or the URL of a PlantUML server.
     d. Minutes with no request before the page server stops.
+12. Folder that holds one folder per project, where
+    `non-functional-requirements` writes each project's `nfr.md`.
 
 An answer of "keep" or no answer leaves that key as it is.
 

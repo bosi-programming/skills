@@ -39,6 +39,8 @@ uml:
   plantumlJar: ''
   plantumlServer: local
   idleMinutes: 30
+non-functional-requirements:
+  docsDir: docs/projects
 ---
 
 # Settings for bosi-programming-skills
@@ -92,6 +94,8 @@ only needs the keys it changes.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML
   server.
 - `uml.idleMinutes` — minutes with no request before the page server stops.
+- `non-functional-requirements.docsDir` — folder that holds one folder per
+  project; the NFR doc goes in `<docsDir>/<project>/nfr.md`.
 
 A request that names a mode, such as `--headless`, beats the default here.
 

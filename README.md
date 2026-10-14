@@ -131,6 +131,12 @@ Draws UML diagrams of a repo, a folder or a system you describe, with PlantUML, 
 
 Needs Node, and either Java with the PlantUML jar (the skill offers to download it) or a PlantUML server URL. Graphviz is optional. The output folder, jar path, server and idle time are settings; see `setup`.
 
+### non-functional-requirements
+
+Writes or reviews the non-functional requirements of a project. Each NFR names an ISO/IEC 25010:2023 or 25019:2023 characteristic and subcharacteristic, states a target with a number, a unit and a window or percentile, has acceptance criteria that pass or fail, links to a user story, business rule or issue, and notes its architectural impact and MoSCoW priority. An NFR measured at runtime carries an observability plan in the project's monitoring tool, such as Datadog or Sentry: logs, metrics, a dashboard widget and a monitor. Write mode drafts or updates `<docsDir>/<project>/nfr.md` from docs pages, issues, the codebase and the monitoring tool; a value no source supports becomes `TBD — needs input from <role>`, and the skill asks for all of them in one round. Review mode audits a doc or a draft in four layers (standards, template, observability, coverage) and returns findings by severity, changing nothing unless you name the fixes.
+
+The docs folder is a setting; see `setup`.
+
 ### summarize-llm-response
 
 The shape of anything a human is going to read: findings as bullets with the evidence inline, action items as a checklist, a TL;DR only when there are enough findings to need one, and the attribution tag each destination expects. It carries a skip list — yes/no answers, commit messages, code-only replies — because it is meant to be wired to a blanket "run this before any communication" rule, and a blanket rule hands it work it has nothing to say about.
@@ -159,7 +165,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, and where `uml` keeps its sources and how it renders them. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, and where `non-functional-requirements` writes its NFR docs. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -193,6 +199,7 @@ skills/
   week-summary/       SKILL.md + templates/week-review.md + evals/ (scenarios)
   ship-pr/            SKILL.md + references/conventions.md + scripts/detect_context.sh + evals/ (scenarios)
   uml/                SKILL.md + references/ (notation per diagram type) + scripts/uml.mjs + evals/
+  non-functional-requirements/  SKILL.md + references/ (standards, ISO models, template, observability, review)
   setup/              SKILL.md + assets/bosi-skills.md + references/config.md + scripts/
 ```
 
