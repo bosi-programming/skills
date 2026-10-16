@@ -1,9 +1,13 @@
 # Phase 5 — Plating
 
 Get the change ready to hand off for review. This phase opens **at most one
-PR per run**, in line with the standing rule to never stack PRs and to only
-start the next after the previous one merges. A chunked delivery revisits
-this phase multiple times — once per chunk.
+PR per run**, and by default never stacks PRs: it only starts the next after
+the previous one merges. A chunked delivery revisits this phase multiple
+times — once per chunk.
+
+When a driver names a base branch for the PR, such as `open-restaurant` does
+for a sub-issue blocked by an unmerged one in the same repo, the PR targets
+that branch and stacks on it. The base branch below is then that branch.
 
 ## 1. Decide the PR delivery strategy
 

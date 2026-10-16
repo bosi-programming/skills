@@ -22,6 +22,7 @@ const SKILLS = [
   'feature-recipe',
   'maestri-workflow',
   'non-functional-requirements',
+  'open-restaurant',
   'recipe-relay',
   'setup',
   'ship-pr',

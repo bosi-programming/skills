@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Fourteen Claude Code skills, packaged as an installable plugin. Three do work on a diff, and one draws UML diagrams of a codebase or a description. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it through agent terminals on the Maestri canvas. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
+Sixteen Claude Code skills, packaged as an installable plugin. Three do work on a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, one runs it through agent terminals on the Maestri canvas, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
 
 The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
@@ -93,7 +93,7 @@ The standards the Standards and Tests axes check against, as five files: `Common
 
 ### feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them unless a driver names a base branch; Documentation closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
@@ -108,6 +108,12 @@ Runs `feature-recipe` from a live session, without touching any of its files. Ea
 Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. The run never stops to ask: where recipe-relay would pause, the orchestrator takes the stated recommendation and logs it to the note, and it never merges, promotes the draft or deletes work. It ends with a draft PR, after recipe-relay's closing review runs in a last recruit and the orchestrator fixes what it finds, and a report of every call it made alone and every one-way door it left in the PR body.
 
 Needs Maestri and its `maestri` CLI.
+
+### open-restaurant
+
+Delivers a parent issue and every sub-issue under it. It gates the parent on readiness first: a lint, then a judge for open decisions and missing shapes, and a gap stops the run with a `## Not ready` comment and a blocking issue. It writes the contract of shapes the sub-issues pass to each other, then runs each sub-issue through `recipe-relay` on its own recipe card, to one draft PR linked to that sub-issue. Sub-issues in different repos cook at the same time; those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens. Once every card ends, it merges the branches into a local integration branch, runs one QA pass on one env, fixes failures on the owning sub-issue's branch (fast-forward only, at most two rounds), writes proof to each PR and the parent, and stops at a human gate before marking PRs ready and again before merging in blocks order.
+
+Needs a tracker tool in the session and one repo checkout per repo in the folder it runs from. Team-specific steps (the readiness lint, QA skill, env, review groups) go in the settings file's `## open-restaurant` section; see `setup`.
 
 ### code-visualizer
 
@@ -165,7 +171,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, and where `non-functional-requirements` writes its NFR docs. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, and how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -189,6 +195,7 @@ skills/
   better-code-review/ SKILL.md + assets/report-template.html + scripts/
   feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
   maestri-workflow/   SKILL.md + scripts/
+  open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
   code-visualizer/    SKILL.md + scripts/render_graph.py + references/
@@ -221,6 +228,7 @@ python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py
 python3 skills/recipe-relay/scripts/check-ui-review.py
+python3 skills/open-restaurant/scripts/check-open-restaurant.py
 python3 skills/code-standards/scripts/check-tooling-rule.py
 python3 skills/setup/scripts/check-config.py
 ```
@@ -301,6 +309,16 @@ own screenshots, loses the `screenshots.done` signal or its stale-signal rule,
 guesses a design it was not given, or stops sending critical and major
 findings back at most twice. Offline, stdlib only — run it after editing
 `recipe-relay`.
+
+`check-open-restaurant.py` is `open-restaurant`'s own check: it fails if a
+section goes missing, if the readiness gate stops blocking on gaps, if the
+contract may invent a shape, if same-repo sub-issues stop running one at a
+time, if the early unblock loses its note file, follow-up or change rule, if
+the integration branch may be pushed or a fix forced, if the QA limits or the
+human review and merge gates go, if the skill names private content, if
+Plating stops taking a named base branch, or if this README or the DeepSeek
+Harness test stops listing the skill. Offline, stdlib only — run it after
+editing `open-restaurant` or Plating.
 
 `check-tooling-rule.py` is `code-standards`' own check: it fails if the catalog
 goes back to guessing what tooling enforces instead of reading the lint,

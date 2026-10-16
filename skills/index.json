@@ -94,7 +94,7 @@
         "scripts/check-headless-contract.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "70463938261c"
+      "version": "92efb23405a9"
     },
     {
       "name": "maestri-workflow",
@@ -117,6 +117,14 @@
       "version": "1b5eb59a6415"
     },
     {
+      "name": "open-restaurant",
+      "files": [
+        "SKILL.md",
+        "scripts/check-open-restaurant.py"
+      ],
+      "version": "5795b04c66d2"
+    },
+    {
       "name": "recipe-relay",
       "files": [
         "SKILL.md",
@@ -134,7 +142,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "b0df94b8e970"
+      "version": "3e48562476b2"
     },
     {
       "name": "ship-pr",

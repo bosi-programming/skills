@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, where uml keeps its diagram sources and how it renders them, and where non-functional-requirements writes its NFR docs. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, where uml keeps its diagram sources and how it renders them, where non-functional-requirements writes its NFR docs, and how open-restaurant maps sub-issues to repos, names its QA env, moves tracker states, asks for review and picks its models. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
@@ -69,6 +69,16 @@ the ones in `./references/config.md`:
     d. Minutes with no request before the page server stops.
 12. Folder that holds one folder per project, where
     `non-functional-requirements` writes each project's `nfr.md`.
+13. `open-restaurant`:
+    a. Map from sub-issue label to repo folder, or take the repo from the
+       sub-issue's text.
+    b. State a sub-issue moves to once its draft PR opens, or none.
+    c. State for merged sub-issues and a fully proved parent.
+    d. Name of the QA env, with `{parent}` for the parent identifier.
+    e. Chat channel for the review request, or none.
+    f. Models for the readiness judge, the QA agent and the QA fix agent, or
+       the one the session runs on.
+    g. Any team steps for the body's `## open-restaurant` section.
 
 An answer of "keep" or no answer leaves that key as it is.
 

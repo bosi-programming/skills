@@ -83,6 +83,14 @@ every key.
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |
 | `uml.idleMinutes` | `30` | Minutes with no request before the `uml` page server stops itself. |
 | `non-functional-requirements.docsDir` | `docs/projects` | Folder, relative to the docs repo root, that holds one folder per project; the NFR doc is `<docsDir>/<project>/nfr.md`. |
+| `open-restaurant.repoByLabel` | `{}` | Map from a sub-issue label to the folder of the repo it works in. Empty means take the repo from the sub-issue's text. |
+| `open-restaurant.implementedState` | `''` | Tracker state a sub-issue moves to once its draft PR is open. Empty means no move. |
+| `open-restaurant.doneState` | `Done` | State a merged sub-issue, and a parent with no open criterion, moves to. |
+| `open-restaurant.envName` | `{parent}` | Name of the one QA env per parent; `{parent}` stands for the parent identifier in lower case. |
+| `open-restaurant.reviewChannel` | `''` | Chat channel the review request goes to once the PRs are ready. Empty skips the request. |
+| `open-restaurant.judgeModel` | `''` | Model for the readiness judge and the contract. Empty means the model the session runs on. |
+| `open-restaurant.qaModel` | `''` | Model for the parent QA agent. Empty means the model the session runs on. |
+| `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria. Empty means the model the session runs on. |
 
 ## What the request says wins
 

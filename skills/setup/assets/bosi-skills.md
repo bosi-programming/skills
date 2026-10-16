@@ -41,6 +41,15 @@ uml:
   idleMinutes: 30
 non-functional-requirements:
   docsDir: docs/projects
+open-restaurant:
+  repoByLabel: {}
+  implementedState: ''
+  doneState: Done
+  envName: '{parent}'
+  reviewChannel: ''
+  judgeModel: ''
+  qaModel: ''
+  fixModel: ''
 ---
 
 # Settings for bosi-programming-skills
@@ -96,6 +105,19 @@ only needs the keys it changes.
 - `uml.idleMinutes` — minutes with no request before the page server stops.
 - `non-functional-requirements.docsDir` — folder that holds one folder per
   project; the NFR doc goes in `<docsDir>/<project>/nfr.md`.
+- `open-restaurant.repoByLabel` — map from a sub-issue label to its repo's
+  folder; empty takes the repo from the sub-issue's text.
+- `open-restaurant.implementedState` — state a sub-issue moves to once its
+  draft PR is open; empty means no move.
+- `open-restaurant.doneState` — state merged sub-issues and a fully proved
+  parent move to.
+- `open-restaurant.envName` — name of the QA env; `{parent}` is the parent
+  identifier in lower case.
+- `open-restaurant.reviewChannel` — chat channel for the review request;
+  empty skips it.
+- `open-restaurant.judgeModel`, `open-restaurant.qaModel`,
+  `open-restaurant.fixModel` — models for the readiness judge and contract,
+  the QA agent and the QA fix agent; empty keeps the session's model.
 
 A request that names a mode, such as `--headless`, beats the default here.
 
@@ -108,6 +130,13 @@ if there is none.
 
 Guidance `ship-pr` follows when it ships, such as which validate command
 belongs to which repo. Leave this section out if there is none.
+
+## open-restaurant
+
+The team's own steps: how to make the repo checkouts, the readiness standard
+and lint command, the bug marker, repos out of scope, the QA scope, skill, env
+and checks, the fix check, and how to wait for checks and map review groups.
+Leave this section out to take the skill's defaults.
 
 ## week-summary
 
