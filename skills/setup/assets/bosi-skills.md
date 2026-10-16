@@ -14,6 +14,7 @@ week-summary:
   proseSkill: un-ai
   logicSymbols: true
   valuesHeading: Values
+  bragFile: ''
 feature-recipe:
   cardsDir: ./recipes
   defaultMode: regular
@@ -77,6 +78,8 @@ only needs the keys it changes.
   empty skips it.
 - `week-summary.logicSymbols` — `true` or `false`.
 - `week-summary.valuesHeading` — heading of the values section.
+- `week-summary.bragFile` — brag file whose entries dated inside the week
+  become the Weekly Update's last answer; empty leaves it for you to fill.
 - `feature-recipe.cardsDir` — folder recipe cards go in.
 - `feature-recipe.defaultMode` — `regular` or `headless`.
 - `feature-recipe.runWorkSummary` — `true` or `false`: write a session note

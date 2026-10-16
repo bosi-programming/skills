@@ -32,6 +32,8 @@ file, current folder first, then `$HOME`, then the default:
   therefore, `=\` because, `!` not, `<>` possibly, `[]` necessarily, `==`
   equality, `~` about. When false, plain words.
 - `week-summary.valuesHeading` — {VALUES_HEADING}. Default `Values`.
+- `week-summary.bragFile` — {BRAG_FILE}, a dated log of wins that Weekly
+  Update Q4 is drafted from. Default empty.
 - `work-summary.values` — the values the session notes are tagged against.
   With none set, drop the values section and its synthesis.
 - The `## week-summary` section of the settings file's body, if there is one:
@@ -215,7 +217,8 @@ blank. Your own reading of the week goes in Signal and the values section.
 ## Step 5 — Draft the Weekly Update
 
 The template ends with `## Weekly Update`: four questions a reader outside this
-file will see. Draft the first three from Steps 2 and 3, with no new research.
+file will see. Draft the first three from Steps 2 and 3, with no new research,
+and the fourth from {BRAG_FILE}.
 
 - **Q1 `What did you focus on this week?`** — the shape of the week from
   Signal: tickets closed by category, PRs merged, session themes. Name the two
@@ -228,10 +231,11 @@ file will see. Draft the first three from Steps 2 and 3, with no new research.
   items and gaps from Step 3: competing priorities, blocked or closed PRs,
   waiting on other people. Write `Nothing blocking.` when the week showed
   none; do not invent a roadblock to fill the header.
-- **Q4 `Is there anything else on your mind you'd like to share?`** — always
-  the literal `{USER WILL FILL}`, on every run, whatever the other three say.
-  The sources hold no evidence for it, so drafting it puts words in the
-  user's mouth.
+- **Q4 `Is there anything else on your mind you'd like to share?`** — the
+  week's wins from {BRAG_FILE}, as a numbered list under the lead-in
+  `A few things from this week I'm proud of:`. When {BRAG_FILE} is empty or
+  missing, or has no entries in range, the literal `{USER WILL FILL}`,
+  whatever the other three say. _Q4 from the brag file_ below decides which.
 
 Voice, in this section only:
 
@@ -246,10 +250,59 @@ Voice, in this section only:
 Echo the finished section in your reply as well as the file, so the user can
 paste it wherever the update goes.
 
+### Q4 from the brag file
+
+The skill only reads {BRAG_FILE}; it never writes to it.
+
+**Selecting entries**
+
+- Keep an entry when the event it describes happened inside
+  [{START}, {END}]. Use the date in the entry's text (`on 2026-10-15`,
+  `merged 2026-10-16`), not the month heading (`2026/10`) above it: one
+  month heading holds several weeks.
+- A sub-bullet counts on its own. Brag files nest new bullets inside older
+  blocks, such as a tech call on 10-15 inside a block headed "Tech
+  initiatives, state on 2026-10-09". Take the in-range sub-bullet and leave
+  the rest of that block out.
+- Leave out entries dated before {START}, even under the same month heading.
+- An entry with no date in its text and no in-range PR or ticket behind it
+  is out. Do not guess its week.
+
+**Writing each item**
+
+- One numbered item per entry, in the order the file lists them. A
+  sub-bullet pulled out of an older block is its own item.
+- First person, past tense, short prose sentences, two to five an item.
+- Remove everything that only makes sense inside the user's own files:
+  - file paths and line references (`brag.md:8-11`);
+  - wiki links and session-note citations (`[[...]]`, "Same session note");
+  - evidence markers such as `[unbacked]` and the notes that explain them
+    ("no work session records it");
+  - remarks about the file itself ("this is the one just added", "it sits
+    inside the ... block").
+- Keep PR numbers (`web#1271`), counts and names a reader can check. Keep
+  ticket keys only with a plain gloss, as the voice rules above say.
+- Turn names private to the file into plain words: "written to ADR-011 and
+  ADR-012" becomes "written to our two planning ADRs".
+
+**Checking facts before writing**
+
+- Recount every number of people or things against the week's sources. "Gave
+  each of four people an action item" is wrong when the chat shows four
+  action items with three other owners plus the user; write "gave each of
+  its four action items an owner ... I took one myself".
+- An entry the week's sources contradict goes in the Step 7 reply as a flag,
+  not into Q4.
+
+**Later entries**
+
+- If the user adds entries after the review is written, re-draft Q4 from the
+  updated file when they ask.
+
 ## Step 6 — Run the Weekly Update through {PROSE_SKILL}
 
 Skip this step when {PROSE_SKILL} is empty, when the session lists no skill by
-that name, or when all three of Q1-Q3 came out `{USER WILL FILL}`. Otherwise it
+that name, or when all four answers came out `{USER WILL FILL}`. Otherwise it
 is required.
 
 **Invoke it with the Skill tool; do not apply it from memory.** Rewriting from
@@ -257,9 +310,10 @@ what you remember its rules say is the failure this step exists to stop: it
 feels like editing and changes nothing. A plugin install may namespace it, so
 look for `{plugin}:{PROSE_SKILL}` before the bare name.
 
-What goes through it: the drafted Q1, Q2 and Q3. Nothing else — not the other
-sections, not the four headers, not any `{USER WILL FILL}`, and not the user's
-words written into the reflection headers. The terse sections are the house
+What goes through it: the drafted Q1, Q2 and Q3, and Q4 when it came from
+{BRAG_FILE}. Nothing else — not the other sections, not the four headers, not
+any `{USER WILL FILL}`, and not the user's words written into the reflection
+headers. The terse sections are the house
 style, and rewriting the user's words puts your sentences in their mouth.
 
 When the step is skipped, hold the drafts to the voice rules in Step 5
@@ -272,6 +326,9 @@ yourself.
 - Fill `./templates/week-review.md`: every `{placeholder}` from the research,
   every header kept, with `{VALUES_HEADING}` as the values heading.
 - Check the write, then reply: "Wrote {START} -> {END} to: {full path}".
+- When Q4 came from {BRAG_FILE}, say in the reply how many entries fed it, and
+  which in-range entries were left out and why, including any the week's
+  sources contradict.
 
 Section order: Summary -> Performance (Tracker -> GitHub -> PR Reviews ->
 Work-sessions -> Chat -> Signal -> {VALUES_HEADING}) -> Weekly Update.

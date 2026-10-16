@@ -1,0 +1,52 @@
+{
+  "name": "weekly-update-q4-from-brag-file",
+  "description": "With week-summary.bragFile set and entries dated inside the week, Q4 becomes a numbered list of those wins under the 'proud of' lead-in. Only entries whose own text dates them inside the range count: the 2026-06-10 entry under the same month heading stays out, and from a block headed 2026-06-12 only its in-range tech-call sub-bullet is taken. File references, wiki links, evidence markers and remarks about the file itself are stripped.\n",
+  "prompt": "Do NOT call any tools. My weekly review covers 2026-06-13 -> 2026-06-19.\n\nLinear: 5 tickets closed, 3 roadmap and 2 support. In progress: ABC-310\n(export retry queue).\nGitHub: web#1271 and api#884 merged 2026-06-18, both fixing the flaky export\ntest. 6 PRs of other people's code reviewed.\nSlack: posted the export incident write-up; the tech call thread lists four\naction items, three owned by others and one owned by me.\n\nweek-summary.bragFile is ~/notes/brag.md. Its contents:\n\n- 2026/06 - Flaky export test fixed at the source\n  - Traced the flaky export step to a missing translation load and a fixed\n    10 second poll. Fixed both: web#1271 & api#884, both merged 2026-06-18.\n    [[work-sessions/2026-06-18-export-flake]]\n  - Filed ABC-312 for two more screens with the same gap. Same session note.\n    `[unbacked]`: no work session records the filing.\n- 2026/06 - Export retry queue designed\n  - Designed the retry queue on 2026-06-16: 2 milestones, 9 issues, written\n    to ADR-021 and ADR-022. See brag.md:14-18.\n- 2026/06 - Billing dashboard moved to Grafana on 2026-06-10\n- 2026/06 - Q2 tech initiatives, state on 2026-06-12\n  - Opened the roadmap survey on 2026-06-11.\n  - Ran the tech call on 2026-06-18 and posted one owner per action item.\n    This is the one just added.\n\nWrite the Weekly Update section only.\n",
+  "assertions": [
+    {
+      "type": "contains",
+      "value": "proud of",
+      "description": "Q4 opens with the brag-file lead-in",
+      "ignore_case": true
+    },
+    {
+      "type": "not_contains",
+      "value": "{USER WILL FILL}",
+      "description": "Q4 is drafted and Q1-Q3 have sources, so no placeholder remains in the Weekly Update"
+    },
+    {
+      "type": "not_contains_any",
+      "values": [
+        "[unbacked]",
+        "[[",
+        "brag.md",
+        "Same session note",
+        "just added"
+      ],
+      "description": "no file paths, wiki links, evidence markers or remarks about the file leak into Q4"
+    },
+    {
+      "type": "contains",
+      "value": "tech call",
+      "description": "the in-range sub-bullet inside the out-of-range block is taken on its own",
+      "ignore_case": true
+    },
+    {
+      "type": "not_contains",
+      "value": "Grafana",
+      "description": "the entry dated the week before stays out, even under the same month heading",
+      "ignore_case": true
+    },
+    {
+      "type": "not_contains",
+      "value": "survey",
+      "description": "the out-of-range sub-bullet of the older block stays out",
+      "ignore_case": true
+    },
+    {
+      "type": "not_contains",
+      "value": "=/",
+      "description": "no logical symbols leak into the outward-facing section"
+    }
+  ]
+}

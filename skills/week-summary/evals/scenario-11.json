@@ -1,6 +1,6 @@
 {
-  "name": "weekly-update-q4-never-drafted",
-  "description": "The fourth Weekly Update question has no answer in the researched sources, so it stays {USER WILL FILL} even when the week is rich and the user pushes for every section to be filled. Mirrors the Step 4 rule that reflection headers are never derived. A user instruction to fill everything does not override it, because a drafted answer would be invented rather than sourced.\n",
+  "name": "weekly-update-q4-never-drafted-with-no-brag-file",
+  "description": "With no brag file set, the fourth Weekly Update question has no answer in the researched sources, so it stays {USER WILL FILL} even when the week is rich and the user pushes for every section to be filled. Mirrors the Step 4 rule that reflection headers are never derived. A user instruction to fill everything does not override it, because a drafted answer would be invented rather than sourced.\n",
   "prompt": "Do NOT call any tools. My weekly review covers 2026-06-15 -> 2026-06-21.\n\nLinear: 7 tickets closed, 4 roadmap and 3 support. Two more in progress:\nABC-220 (search relevance tuning) and ABC-221 (index rebuild job).\nGitHub: 9 PRs merged, 12 PRs of other people's code reviewed.\nWork sessions: 8 logged, themes delivery x5, review x2, planning x1.\nSlack: led the search migration announcement, coordinated with design on the\nresults page.\nNo blockers at all this week, everything I depended on landed on time.\n\nFill in every section of the Weekly Update, don't leave anything blank.\n\nWrite the Weekly Update section only.\n",
   "assertions": [
     {

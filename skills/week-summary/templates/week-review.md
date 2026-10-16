@@ -68,4 +68,4 @@
 {2-4 sentences, drafted from the Signal gaps — or "Nothing blocking." when the week showed none}
 
 ### Is there anything else on your mind you'd like to share?
-{USER WILL FILL}
+{brag-file wins for the week, or USER WILL FILL — see Step 5}

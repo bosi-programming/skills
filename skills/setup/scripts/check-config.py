@@ -22,6 +22,7 @@ KEYS = {
     "week-summary.proseSkill": "un-ai",
     "week-summary.logicSymbols": "true",
     "week-summary.valuesHeading": "Values",
+    "week-summary.bragFile": "''",
     "feature-recipe.cardsDir": "./recipes",
     "feature-recipe.defaultMode": "regular",
     "better-code-review.defaultMode": "conversation",

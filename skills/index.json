@@ -122,7 +122,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "5795b04c66d2"
+      "version": "974a39edb5ef"
     },
     {
       "name": "recipe-relay",
@@ -142,7 +142,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "3e48562476b2"
+      "version": "a5aa44d1d328"
     },
     {
       "name": "ship-pr",
@@ -239,9 +239,10 @@
         "evals/scenario-09.json",
         "evals/scenario-10.json",
         "evals/scenario-11.json",
+        "evals/scenario-12.json",
         "templates/week-review.md"
       ],
-      "version": "1d32640c6cfa"
+      "version": "ed3496ef3b5d"
     },
     {
       "name": "work-summary",

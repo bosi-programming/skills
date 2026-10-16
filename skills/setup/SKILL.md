@@ -41,7 +41,8 @@ the ones in `./references/config.md`:
    f. Skill the Weekly Update prose goes through, or none.
    g. Logical symbols in the terse sections: yes or no.
    h. Heading of the values section.
-   i. Any guidance for the body's `## week-summary` section.
+   i. Brag file to draft the Weekly Update's last answer from, or none.
+   j. Any guidance for the body's `## week-summary` section.
 6. Folder for recipe cards.
 7. `feature-recipe`:
    a. Default mode: `regular` or `headless`.
