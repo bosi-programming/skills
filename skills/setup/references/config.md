@@ -92,6 +92,10 @@ every key.
 | `open-restaurant.judgeModel` | `''` | Model for the readiness judge and the contract. Empty means the model the session runs on. |
 | `open-restaurant.qaModel` | `''` | Model for the parent QA agent. Empty means the model the session runs on. |
 | `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria. Empty means the model the session runs on. |
+| `pause-work.destination` | `''` | MCP server or CLI the paused-work task goes to, such as `Todoist`, `Linear` or `gh`. A ticket tool gets a comment on the ticket. Empty means ask to use the one to-do or tracker tool the session has, else print the task. |
+| `pause-work.project` | `''` | Project, list or team the task goes in. Empty means the tool's inbox or default. |
+| `pause-work.due` | `tomorrow` | Due date of the task, in the words the tool takes. |
+| `pause-work.labels` | `[]` | Labels added to the task. |
 
 ## What the request says wins
 

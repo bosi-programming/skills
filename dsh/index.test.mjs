@@ -23,6 +23,7 @@ const SKILLS = [
   'maestri-workflow',
   'non-functional-requirements',
   'open-restaurant',
+  'pause-work',
   'recipe-relay',
   'setup',
   'ship-pr',

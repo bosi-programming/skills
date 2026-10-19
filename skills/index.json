@@ -125,6 +125,19 @@
       "version": "974a39edb5ef"
     },
     {
+      "name": "pause-work",
+      "files": [
+        "SKILL.md",
+        "evals/.gitignore",
+        "evals/README.md",
+        "evals/scenario-01.json",
+        "evals/scenario-02.json",
+        "evals/scenario-03.json",
+        "evals/scenario-04.json"
+      ],
+      "version": "227f7ee07c5f"
+    },
+    {
       "name": "recipe-relay",
       "files": [
         "SKILL.md",
@@ -142,7 +155,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "a5aa44d1d328"
+      "version": "92ad3a5631c7"
     },
     {
       "name": "ship-pr",

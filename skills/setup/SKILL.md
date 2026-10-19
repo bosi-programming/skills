@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, where uml keeps its diagram sources and how it renders them, where non-functional-requirements writes its NFR docs, and how open-restaurant maps sub-issues to repos, names its QA env, moves tracker states, asks for review and picks its models. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
+description: Write or change the settings file the skills in this plugin read — where work-summary saves its notes, which values it tags a session against, where week-summary writes its reviews and who it counts as you, where feature-recipe keeps recipe cards, whether feature-recipe and better-code-review run regular or headless by default, how ship-pr titles, gates and validates a PR, where uml keeps its diagram sources and how it renders them, where non-functional-requirements writes its NFR docs, and how open-restaurant maps sub-issues to repos, names its QA env, moves tracker states, asks for review and picks its models, and where pause-work saves the task for tomorrow. Use when the user wants to set up, configure or change the defaults of these skills, says "setup", or asks where a skill saves its files and wants that changed.
 ---
 
 Writes `.bosi-skills.md`, the one file the other skills here read their
@@ -80,6 +80,12 @@ the ones in `./references/config.md`:
     f. Models for the readiness judge, the QA agent and the QA fix agent, or
        the one the session runs on.
     g. Any team steps for the body's `## open-restaurant` section.
+14. `pause-work`:
+    a. Tool the paused-work task goes to, such as `Todoist`, `Linear` or
+       `gh`, or ask each time.
+    b. Project, list or team in that tool, or its inbox.
+    c. Due date.
+    d. Labels, or none.
 
 An answer of "keep" or no answer leaves that key as it is.
 

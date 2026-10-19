@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Sixteen Claude Code skills, packaged as an installable plugin. Three do work on a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, one runs it through agent terminals on the Maestri canvas, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
+Seventeen Claude Code skills, packaged as an installable plugin. Three do work on a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, one runs it through agent terminals on the Maestri canvas, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one parks half-done work as a task for tomorrow, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
 
 The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
@@ -157,6 +157,12 @@ Go find out instead of predicting: read the file, run the command, probe the thi
 
 Writes up the current session as a dated markdown note: what was done, the decisions, the problems and how they were solved, and what is left. The note opens with frontmatter another tool can read — a theme, a category and the signals the work showed, such as `tdd` or `leadership` — and, if you give it values to tag against, the values the work showed. It redacts secrets and never overwrites an older note. `feature-recipe` runs it as its last step when it is installed.
 
+### pause-work
+
+Parks half-done work for tomorrow. It reads the folder, branch and git state, finds the ticket key on the branch or in the conversation (or writes `none`, never a made-up key), and writes one task: the ticket, the absolute folder, where the work stopped, what is left as a checklist starting with the very next action, and the open questions as a numbered list. It saves the task due tomorrow in the to-do tool the settings name, such as Todoist, or as a comment on the ticket in a ticket tool such as Linear or GitHub, then reads it back to check it landed. With no tool set or found, it prints the task.
+
+The tool, project, due date and labels are settings; see `setup`.
+
 ### week-summary
 
 Writes a review of one week, one file per week: tickets closed, PRs merged and confirmed by their real merge date, reviews of other people's PRs counted by when you submitted them, one line per work-session note, and chat activity by theme. A Signal section reads across all four for patterns, gaps included, and a Summary block rolls up the counts, with sessions per day divided by working days, not calendar days. Your reflection headers and the last Weekly Update question stay yours to fill. It reads the notes `work-summary` writes, and skips any source the session has no tool for.
@@ -171,7 +177,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, and how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models, and where `pause-work` saves the task for tomorrow. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -203,6 +209,7 @@ skills/
   epistemic-action/   SKILL.md
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   work-summary/       SKILL.md + evals/ (scenarios)
+  pause-work/         SKILL.md + evals/ (scenarios)
   week-summary/       SKILL.md + templates/week-review.md + evals/ (scenarios)
   ship-pr/            SKILL.md + references/conventions.md + scripts/detect_context.sh + evals/ (scenarios)
   uml/                SKILL.md + references/ (notation per diagram type) + scripts/uml.mjs + evals/

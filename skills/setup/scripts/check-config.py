@@ -51,6 +51,10 @@ KEYS = {
     "open-restaurant.judgeModel": "''",
     "open-restaurant.qaModel": "''",
     "open-restaurant.fixModel": "''",
+    "pause-work.destination": "''",
+    "pause-work.project": "''",
+    "pause-work.due": "tomorrow",
+    "pause-work.labels": "[]",
 }
 
 DERIVED = [
@@ -82,6 +86,7 @@ CONSUMERS = {
     SKILLS / "uml" / "SKILL.md": [key for key in KEYS if key.startswith("uml.")],
     SKILLS / "non-functional-requirements" / "SKILL.md": ["non-functional-requirements.docsDir"],
     SKILLS / "open-restaurant" / "SKILL.md": [key for key in KEYS if key.startswith("open-restaurant.")],
+    SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
 }
 
 PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]
@@ -188,6 +193,8 @@ check("ship-pr-no-fixed-path", "~/.claude" not in sp and "CLAUDE_SKILL_DIR" not 
       "ship-pr must run its script through $SKILL_DIR")
 check("ship-pr-script-ships", (SHIP_PR / "scripts" / "detect_context.sh").exists(), "ship-pr must ship scripts/detect_context.sh")
 check("ship-pr-commits-from-file", "commit -F" in sp and "commit -m" not in sp, "ship-pr must commit with a message file")
+
+check_moved_skill(SKILLS / "pause-work")
 
 readme = read(README)
 check("readme-validate-command", "check-config.py" in readme, "README must list check-config.py")

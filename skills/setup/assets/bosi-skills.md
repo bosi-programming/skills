@@ -51,6 +51,11 @@ open-restaurant:
   judgeModel: ''
   qaModel: ''
   fixModel: ''
+pause-work:
+  destination: ''
+  project: ''
+  due: tomorrow
+  labels: []
 ---
 
 # Settings for bosi-programming-skills
@@ -121,6 +126,12 @@ only needs the keys it changes.
 - `open-restaurant.judgeModel`, `open-restaurant.qaModel`,
   `open-restaurant.fixModel` — models for the readiness judge and contract,
   the QA agent and the QA fix agent; empty keeps the session's model.
+- `pause-work.destination` — MCP server or CLI the paused-work task goes
+  to, such as `Todoist`, `Linear` or `gh`; empty asks, or prints the task.
+- `pause-work.project` — project, list or team in that tool; empty is its
+  inbox or default.
+- `pause-work.due` — due date in the tool's own words.
+- `pause-work.labels` — labels added to the task.
 
 A request that names a mode, such as `--headless`, beats the default here.
 
