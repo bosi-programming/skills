@@ -232,6 +232,7 @@ python3 skills/better-code-review/scripts/check-headless.py
 python3 skills/better-code-review/scripts/check-tests-axis.py
 python3 skills/better-code-review/scripts/check-evidence.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
+python3 skills/feature-recipe/scripts/check-goal-and-measure.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py
 python3 skills/recipe-relay/scripts/check-ui-review.py
@@ -296,6 +297,13 @@ Tasting stops keeping the review's `Reviewed:` line and `Not verified:`
 entries, runs the checks again on code the review already ran them on, or if
 the rule against code comments loses its exception. Offline, stdlib only — run
 it after editing Tasting or the skill's rules.
+
+`check-goal-and-measure.py` is `feature-recipe`'s third check: it fails if the
+recipe card loses `## Goal & measure` or moves it away from `## Problem`, if
+Reading the Recipe stops grilling on how we will know it worked, stops writing
+the three bullets, allows an invented metric, or drops the headless gap log, or
+if Plating stops carrying the section into the PR. Offline, stdlib only — run
+it after editing Reading the Recipe, Plating or the card template.
 
 `check-review-evidence.py` is `recipe-relay`'s own check: it fails if the
 closing review pass stops sorting findings by `ran`, `read` or `no`, stops

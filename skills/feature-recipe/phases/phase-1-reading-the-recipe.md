@@ -20,8 +20,9 @@ never count as open.
   key, event); it has more than one reasonable design; it includes a
   one-way door; it depends on another team.
 - **Undefined** — a completeness dimension (the problem, who benefits,
-  scope, testable acceptance criteria, edge cases, dependencies) that the
-  task does not state and the code cannot settle.
+  how we will know it worked, scope, testable acceptance criteria, edge
+  cases, dependencies) that the task does not state and the code cannot
+  settle.
 
 Grill when the work is Complex or Undefined. Skip only when it is simple
 and every dimension is answered. Unsure means grill.
@@ -37,7 +38,8 @@ anything — a ticket that already gives a stated benefit, scope, or
 acceptance criteria has answered that dimension; don't reopen it from
 scratch. Seed the design tree with only the dimensions still open, drawn
 from the standard completeness set for a task like this one: the problem
-it solves, who benefits and how, what's in and out of scope, testable
+it solves, who benefits and how, how we will know it worked, what's in and
+out of scope, testable
 acceptance criteria, edge cases and error scenarios, and any external
 dependencies. Invoke the
 `grill-me` secondary skill that is on `../dependencies/grill-me.md` against
@@ -52,6 +54,22 @@ the problem statement, the acceptance criteria, edge cases, and
 dependencies — whichever the task already stated outright, plus whatever the
 grilling settled for the rest, if it ran. Nothing that answered a dimension
 gets dropped just because it didn't come from a question.
+
+Then write `## Goal & measure`, so every later phase and every agent knows
+what done means beyond the tests:
+
+- **What changes for whom** — the outcome, and the user, customer or team it
+  reaches.
+- **Where we see it** — the dashboard, query, metric or report that shows the
+  change, named as the source names it.
+- **After release** — the signal to watch and the direction or target that
+  counts as success.
+
+When the change has no product signal (a refactor, a chore, internal
+tooling), write one `No product metric:` line instead, with the indirect
+benefit and how to check it. Never invent a dashboard, a metric or a target:
+a bullet nothing supports stays out, and the gap goes to
+`## Open Questions`.
 
 If the task came from a tracker with validated, agreed content, record that
 validated version back there too — as an outcome ("update the ticket with
@@ -86,8 +104,11 @@ Read `../references/headless.md`. In a headless run:
   `## Decisions` prefixed `unattended:`, one line per dimension rather than
   one per question.
 - Sections 1 and 3 are unchanged: load the task,
-  write `## Problem` from the task and the tree's settled answers, record
-  back to the tracker if one is available.
+  write `## Problem` and `## Goal & measure` from the task and the tree's
+  settled answers, record back to the tracker if one is available.
+- A Goal & measure bullet no source supports is not a reason to stop: leave
+  it out and log `unattended: goal & measure gap — <what is missing>` to
+  `## Decisions`, so the reviewer sees it in the PR.
 - Section 4 does not apply. This phase does not stop at its own boundary: it
   loads, reads completely and executes `phase-2-mise-en-place.md`, and the
   run continues through Mise en Place and on into Cooking, Tasting, Plating

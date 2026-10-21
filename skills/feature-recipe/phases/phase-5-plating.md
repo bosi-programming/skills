@@ -51,10 +51,10 @@ them into review.
 
 Use the `pr-description` skill (Skill tool) if it's available in this session to generate a draft
 from the diff, the commits, and whatever the task came from, then round it
-out with the acceptance criteria and testing steps from the recipe card.
-Otherwise draft it manually from the recipe card: what changed and why, the
-acceptance criteria it satisfies, how to test it, links back to wherever the
-task lives. Get the user's approval before opening anything.
+out with the goal & measure, the acceptance criteria and the testing steps
+from the recipe card. Otherwise draft it manually from the recipe card: what
+changed and why, the goal & measure, the acceptance criteria it satisfies,
+how to test it, links back to wherever the task lives. Get the user's approval before opening anything.
 
 ## 4. Open the PR
 

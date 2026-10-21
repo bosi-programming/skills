@@ -40,6 +40,12 @@ lastTouched: '<date>'
 
 <!-- written by Phase 1: Reading the Recipe -->
 
+## Goal & measure
+
+<!-- written by Phase 1: Reading the Recipe. What changes for whom, where we
+     see it, and what to watch after release — or one `No product metric:`
+     line with the indirect benefit and how to check it. -->
+
 ## Solution
 
 <!-- written by Phase 2: Mise en Place -->
