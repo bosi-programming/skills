@@ -27,6 +27,9 @@ KEYS = {
     "feature-recipe.defaultMode": "regular",
     "better-code-review.defaultMode": "conversation",
     "better-code-review.reviewerModel": "''",
+    "better-code-review.reviewMode": "fast",
+    "better-code-review.commentReaction": "speech_balloon",
+    "better-code-review.approveReaction": "white_check_mark",
     "recipe-relay.codingModel": "''",
     "recipe-relay.uiReviewerModel": "''",
     "feature-recipe.runWorkSummary": "true",
@@ -71,7 +74,7 @@ CONSUMERS = {
         "feature-recipe.cardsDir",
         "feature-recipe.defaultMode",
     ],
-    SKILLS / "better-code-review" / "SKILL.md": ["better-code-review.defaultMode", "better-code-review.reviewerModel"],
+    SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
     SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel"],
     SKILLS / "maestri-workflow" / "SKILL.md": [
         "feature-recipe.cardsDir",

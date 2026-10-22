@@ -8,9 +8,10 @@
         "assets/report-template.html",
         "scripts/check-evidence.py",
         "scripts/check-headless.py",
+        "scripts/check-slack.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "2718e89a4c33"
+      "version": "b63a4fc2104e"
     },
     {
       "name": "code-standards",
@@ -91,10 +92,11 @@
         "phases/phase-6-documentation.md",
         "references/headless.md",
         "references/recipe-card-template.md",
+        "scripts/check-goal-and-measure.py",
         "scripts/check-headless-contract.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "92efb23405a9"
+      "version": "20a76ae67ae4"
     },
     {
       "name": "maestri-workflow",
@@ -155,7 +157,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "92ad3a5631c7"
+      "version": "82be0781cb6f"
     },
     {
       "name": "ship-pr",

@@ -1,6 +1,6 @@
 ---
 name: better-code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. With `--slack <link>`, reviews every PR a Slack message links to, comments or approves on GitHub, and reacts on the message. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
 metadata:
   based-on: "Matt Pocock's code-review skill"
   adapted-by: Felipe Bosi
@@ -254,7 +254,8 @@ When the request names no output, the settings file decides. Read
 current folder first, then `$HOME`: `conversation` prints the result in the
 conversation, `page` runs steps 6 and 7, `headless` runs as _Headless_ below.
 The default is `conversation`. A request that asks for a page, for verbose, or
-for headless, or a caller that names a mode, wins over the file.
+for headless, or a caller that names a mode, wins over the file. A Slack link
+or `--slack` runs _Slack_ below, whatever the file says.
 
 Look the key up with this command, from the repository under review:
 
@@ -308,6 +309,169 @@ Not verified: <one gap per line, or none>
 
 Print nothing else: no greeting, no summary, no per-axis winner. A caller
 parses the blocks, and prose between them is what breaks that.
+
+## Slack
+
+Reviews every PR a Slack message links to, posts the result on GitHub, and
+marks the message with a reaction. Start it with `--slack <link>`, or put a
+`slack.com/archives/...` link in the request. A Slack run is one _Headless_
+run per PR plus the posting: it never asks, and it posts without asking,
+because naming the mode is the go-ahead.
+
+### 1. Read the message
+
+Take the channel ID and the timestamp from the link. In
+`.../archives/C0123ABCD/p1729600000123456` the channel is `C0123ABCD` and the
+timestamp is `1729600000.123456`: put a dot before the last six digits.
+
+Read the message with the Slack MCP `slack_read_thread` and keep only the
+linked message, not the thread. Replies tend to hold answers and PRs someone
+already reviewed. Collect every `github.com/<owner>/<repo>/pull/<n>` URL in
+its text, once each. If there is none, return
+`review not run: no PR link in the message` and stop.
+
+### 2. Pick the PRs to review
+
+For each PR, run `gh pr view <url> --json state,author,headRefOid,baseRefName,reviews`
+and skip it when:
+
+- it is closed or merged;
+- it is your own, its author being the login `gh api user --jq .login`
+  returns, because GitHub refuses an approval of your own PR;
+- it is already approved by you, a review of yours in state `APPROVED`.
+
+A skipped PR gets no review and no say in the reaction. Note why it was
+skipped for the reply.
+
+### 3. Review each PR
+
+Each PR gets a fresh clone of its repo, made for this review and deleted after
+it. Never use a clone you find on the machine: its working tree is someone's
+work in progress. Clone into the session scratchpad, or into `$(mktemp -d)`,
+check the PR out and fetch the base branch:
+
+```bash
+gh repo clone "$OWNER/$REPO" "$CLONE" -- --filter=blob:none
+git -C "$CLONE" fetch origin "$BASE"
+(cd "$CLONE" && gh pr checkout "$NUMBER" --detach)
+```
+
+`--filter=blob:none` downloads file contents only when a command needs them,
+so a large repo clones in seconds. A clone that fails skips the PR with the
+reason `clone failed: <error>`.
+
+Confirm `git -C "$CLONE" rev-parse HEAD` equals `headRefOid`, then run the
+review as _Headless_ from the clone with `origin/<baseRefName>` as the fixed
+point. The spec is the issue the PR description links to, else the key in the
+PR title, as the top of this skill says. When the review is done,
+`rm -rf "$CLONE"`.
+
+A fresh clone has no installed dependencies. `better-code-review.reviewMode`,
+read as [`../setup/references/config.md`](../setup/references/config.md)
+says, decides what happens:
+
+- `fast`, the default: install nothing. Checks that need dependencies land in
+  `Not verified` with that reason, as step 5 says.
+- `slow`: before the review, install with the package manager the lockfile
+  names (`pnpm-lock.yaml` → `pnpm install --frozen-lockfile`,
+  `yarn.lock` → `yarn install --frozen-lockfile`, `package-lock.json` →
+  `npm ci`, `uv.lock` → `uv sync`, `poetry.lock` → `poetry install`). With no
+  lockfile, or an install that fails, carry on as `fast` and put the reason
+  in `Not verified`.
+
+Review the PRs one after another, not in parallel. Each review starts three
+sub-agents and runs the project's checks, and two at once fight over ports and
+the machine. A review that returns `review not run: <reason>` counts as a
+skipped PR with that reason.
+
+### What gets a comment
+
+From the headless blocks:
+
+- **Spec:** `missing`, a requirement that is missing or partial; `scope creep`;
+  `wrong`, a requirement implemented with a defect.
+- **Standards:** `hard`, a hard violation.
+- **Tests:** `hard`, a hard violation.
+
+`judgement call` and `missing test` findings never get a comment. They stay
+in the reply only.
+
+### 4. Post on GitHub
+
+A PR with at least one finding that gets a comment gets one review with
+`"event": "COMMENT"`. A finding whose `file:line` falls on a line the PR diff
+shows becomes an inline comment on that line. GitHub refuses a comment on a
+line outside the diff, so every other finding goes in the body of the review,
+with its `file:line` written out. Each comment reads `<axis> · <kind>`, then
+the finding's `What:` and `Fix:` lines.
+
+Post nothing the PR's author cannot act on. The body holds the findings with
+no line in the diff and nothing else: no summary of the review, no count of
+findings, no list of axes, no note on how the review ran. With every finding
+inline, leave the body empty.
+
+Write the review to a file in the scratchpad and post it with `--input`:
+
+```json
+{
+  "commit_id": "<headRefOid>",
+  "event": "COMMENT",
+  "body": "<findings with no line in the diff, or empty>",
+  "comments": [
+    {"path": "src/a.ts", "line": 42, "side": "RIGHT", "body": "<axis> · <kind>\n<What>\n<Fix>"}
+  ]
+}
+```
+
+```bash
+gh api "repos/$OWNER/$REPO/pulls/$NUMBER/reviews" --method POST --input "$REVIEW_FILE"
+```
+
+A PR with no finding that gets a comment is approved:
+
+```bash
+gh pr review "$URL" --approve
+```
+
+Verify each post landed before the next PR: the last review from
+`gh api "repos/$OWNER/$REPO/pulls/$NUMBER/reviews"` is yours, on `headRefOid`,
+in state `COMMENTED` or `APPROVED`. When a post fails, check this before
+posting again, since a post that did land and is sent twice leaves two
+reviews.
+
+### 5. React on Slack
+
+One reaction per message: `better-code-review.commentReaction`, default
+`speech_balloon`, when any PR got a review with comments, else
+`better-code-review.approveReaction`, default `white_check_mark`, both read
+as [`../setup/references/config.md`](../setup/references/config.md) says.
+With no PR reviewed, add none.
+
+The Slack MCP has no reaction tool, so add it through the browser with
+`claude-in-chrome`, loading its tools the way that skill says:
+
+1. Open the link in a new tab.
+2. If your reaction is already under the message, leave it: a second click
+   takes it away.
+3. Hover the message, click its "Add reaction" button, type the emoji name and
+   press Enter.
+4. Read the page again and confirm the reaction sits under the message.
+
+If the browser tools fail twice, or the reaction does not show, the reply
+says the reaction was not added and names the emoji to add by hand.
+
+### Reply
+
+```
+<PR url> · commented <n> · <m> not posted
+<PR url> · approved · <m> not posted
+Not verified: <PR number>: <gap>, one per line, or none
+Reaction: :<emoji>: added | not added — <reason>
+Skipped: <PR url> — <reason>, one per line, or none
+```
+
+`not posted` counts the `judgement call` and `missing test` findings that
+stayed off GitHub. Print nothing else.
 
 ## Why three axes
 
