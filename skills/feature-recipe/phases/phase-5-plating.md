@@ -63,6 +63,29 @@ deferred any verification to CI, open it as a draft so the full suite runs
 there. If this is a chunked delivery, mark the active chunk `opened` in
 `## PR Delivery Strategy`.
 
+## 4a. Attach the screenshots
+
+Gather the screenshots of the change this run already has: the ones the
+user gave, the ones Tasting took, or the ones in `recipe-relay`'s
+`{scratch}/ui-review/` when it ran the UI review. If there are no screenshots, skip this
+section; never take new ones here or stand in a mock for a real capture.
+
+Upload them with `gh pr edit`, one `--attach` per file, each with alt text
+saying which state it shows:
+
+```bash
+gh pr edit <pr> --attach './empty-state.png#<alt text>' --attach './error-state.png#<alt text>'
+```
+
+To place an image in a given part of the description, write
+`![<alt text>](./empty-state.png)` there in the approved body and pass that
+body with `--body-file` in the same command: `gh` swaps the local path for
+the uploaded file. Without a body flag, it appends the images to the end.
+
+If some uploads fail, `gh` still updates the PR with the rest and exits
+non-zero. Retry only the ones that failed, then open the PR and check every
+image shows.
+
 ## 5. Wait for CI
 
 This is a hard gate — the PR isn't ready for review until CI is green.
@@ -113,6 +136,8 @@ Read `../references/headless.md`. A night run plates; it does not ship:
   take the recommendation and log it `unattended:`.
 - Section 4 opens the PR as a draft regardless of whether Tasting deferred
   anything to CI, and marks the chunk `opened` as usual.
+- Section 4a attaches the screenshots the run has without asking, and logs
+  `unattended:` with the files it attached, or that there were none.
 - Section 5 waits for CI and does not promote. Readiness is the morning's call,
   not a recommendation's. A red CI takes the same diagnose-and-fix loop as
   interactive; a fix that needs a person stops the run.

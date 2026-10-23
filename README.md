@@ -234,6 +234,7 @@ python3 skills/better-code-review/scripts/check-evidence.py
 python3 skills/better-code-review/scripts/check-slack.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/feature-recipe/scripts/check-goal-and-measure.py
+python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py
 python3 skills/recipe-relay/scripts/check-ui-review.py
@@ -305,6 +306,13 @@ Reading the Recipe stops grilling on how we will know it worked, stops writing
 the three bullets, allows an invented metric, or drops the headless gap log, or
 if Plating stops carrying the section into the PR. Offline, stdlib only — run
 it after editing Reading the Recipe, Plating or the card template.
+
+`check-pr-screenshots.py` is `feature-recipe`'s fourth check: it fails if
+Plating stops attaching the run's screenshots with `gh pr edit --attach`,
+drops their alt text or the way to place them in the description, retries
+every upload after a partial failure, takes or invents screenshots of its own,
+or asks about them in a night run. Offline, stdlib only — run it after editing
+Plating.
 
 `check-review-evidence.py` is `recipe-relay`'s own check: it fails if the
 closing review pass stops sorting findings by `ran`, `read` or `no`, stops
