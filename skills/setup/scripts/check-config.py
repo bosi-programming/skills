@@ -92,6 +92,10 @@ CONSUMERS = {
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
 }
 
+SECTIONS = {
+    "recipe-relay": SKILLS / "recipe-relay" / "SKILL.md",
+}
+
 PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]
 
 results = []
@@ -157,6 +161,13 @@ for path, needed in CONSUMERS.items():
     absent = [key for key in needed if f"`{key}`" not in text]
     check(f"reads-config:{name}", points and not absent,
           f"needs a relative link to setup/references/config.md and keys {absent}" if not points or absent else "")
+
+for name, path in SECTIONS.items():
+    heading = f"## {name}"
+    check(f"section-documented:{name}", f"`{heading}`" in config, f"config.md must name the `{heading}` section")
+    check(f"section-in-template:{name}", re.search(rf"^{heading}$", template, re.MULTILINE), f"template body lacks {heading}")
+    check(f"section-asked:{name}", f"`{heading}`" in skill, f"setup must ask for the `{heading}` section")
+    check(f"section-read:{name}", f"`{heading}`" in read(path), f"{path.relative_to(SKILLS).as_posix()} must read the `{heading}` section")
 
 missing = [key for key in DERIVED if f"`{key}`" not in config]
 check("config-documents-derived-keys", not missing, f"undocumented key: {missing}")

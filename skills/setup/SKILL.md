@@ -51,6 +51,8 @@ the ones in `./references/config.md`:
    d. Model for the `recipe-relay` sub-agents that write tests and code, or
       the one the relay runs on.
    e. Model for the `recipe-relay` UI reviewer, or the one the relay runs on.
+   f. Any rules for the body's `## recipe-relay` section, which belongs in
+      the project's own file while the project lasts.
 8. `maestri-workflow` models for the planning and coding lanes, or let the
    skill pick.
 9. `better-code-review`:

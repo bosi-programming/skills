@@ -27,7 +27,10 @@ because the file is missing. A key a skill does not know is ignored.
 The settings are YAML frontmatter, grouped by the skill that reads them. The
 body under the frontmatter is prose for people, with one exception: a section
 named after a skill, `## work-summary` or `## week-summary`, is guidance that
-skill follows on top of its own rules.
+skill follows on top of its own rules. A project file is the place for guidance
+that lasts only while a project does: `## recipe-relay` in one project's
+`.bosi-skills.md` reaches every sub-agent the relay runs there, and deleting
+the section ends it.
 
 ```markdown
 ---

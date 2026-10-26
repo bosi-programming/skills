@@ -10,6 +10,14 @@ session stays live and orchestrates; each phase's actual work happens in an
 isolated sub-agent told to auto-take every checkpoint's own recommendation,
 so what reaches this chat is a one-line note per unit, not a design question.
 
+The settings file's `## recipe-relay` section, read as
+`../setup/references/config.md` says, holds rules for the project at hand.
+Take it from the current folder's file, or from `$HOME`'s when the current
+folder has none. Paste it word for word under a `Project rules:` line at the
+end of every sub-agent prompt this skill writes, the review in section 5
+included. A rule there beats a phase file's default, never a stop condition
+in section 4. No section means no rules.
+
 ## 1. Start or resume
 
 Read and follow `../feature-recipe/phases/phase-0-start.md` directly in

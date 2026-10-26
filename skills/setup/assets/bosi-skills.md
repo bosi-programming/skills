@@ -153,6 +153,12 @@ if there is none.
 Guidance `ship-pr` follows when it ships, such as which validate command
 belongs to which repo. Leave this section out if there is none.
 
+## recipe-relay
+
+Rules every `recipe-relay` sub-agent follows in this project, such as a check
+each PR needs while a migration runs. Put it in the project's own file and
+delete it when the project ends. Leave this section out if there is none.
+
 ## open-restaurant
 
 The team's own steps: how to make the repo checkouts, the readiness standard
