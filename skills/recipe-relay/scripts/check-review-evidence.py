@@ -53,7 +53,18 @@ check_all("reviewed-sha-kept", review, "`Reviewed:`")
 check_all("report-gaps", review, "not verified")
 check_all("maestri-report-gaps", maestri_report, "not verified")
 
-check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-review-evidence.py")
+stops = block(skill, "## 4. Stop conditions", r"^## ")
+moving = block(skill, "## 3. Move to the next unit", r"^## ")
+units = block(skill, "## 2. Run one unit per sub-agent", r"^## ")
+check_all("review-after-plating", review, "`phase-5-plating.md` returns", "whatever the card's `status`")
+check_all("review-before-documentation", moving, "after `phase-5-plating.md` returns", "section 5", "before `phase-6-documentation.md`")
+check("review-not-gated-on-terminal", "reaches `terminal`" not in flatten(review + stops), "section 4 or 5 still waits for runStatus: terminal")
+check_all("stop-waits-for-review", stops, "section 5 is done")
+check_all("pr-never-draft", units, "never as a draft", "ready for review", "overrides")
+check("no-draft-promote-wait", "draft" not in flatten(review), "section 5 still talks about drafts")
+
+readme_check = block(readme, "## Validate a change", r"^## ")
+check_all("readme-validate-command", readme_check, "check-review-evidence.py")
 
 unresolved = [path for path in re.findall(r"`(\.\.?/[^`]+\.md)`", skill) if not (SKILL / path).resolve().exists()]
 check("links-resolve", not unresolved, f"unresolved: {unresolved}")

@@ -52,6 +52,11 @@ this effect:
 > to `## Decisions`) is written. Do not set `runMode` on the card. Return a
 > short summary of what got decided.
 
+For the Plating unit, add this to that prompt: open the PR ready for review,
+never as a draft, and leave it that way. This overrides Plating's draft rule
+for deferred CI checks and its Headless rule that opens drafts and never
+promotes them. CI still gets waited on and fixed as Plating's section 5 says.
+
 ### Cooking in parallel
 
 Cooking splits so that tests and code get written at the same time, by
@@ -149,12 +154,14 @@ When a sub-agent returns, start the next unit's sub-agent straight away,
 whatever its phase file recommends at Phase done. New session and Continue
 mean the same here: each unit already runs in a clean sub-agent. Post one line
 per unit to the user — what it produced and which phase starts next — without
-waiting for a reply.
+waiting for a reply. After `phase-5-plating.md` returns with a PR open, the next
+unit is section 5, run before `phase-6-documentation.md` starts. Phase 6 then
+runs as usual, unless Plating stopped on a chunk still pending.
 
 ## 4. Stop conditions
 
-Same as feature-recipe's own contract: stop only when the card reaches
-`terminal` and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
+Same as feature-recipe's own contract: stop only when Phase 6 has returned
+and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
 real one-way door or an ambiguity with no reasonable default — never merely
 because a unit finished. On a stop, report the open question to the user
 directly in this chat. Resuming the conversation with an answer and
@@ -163,8 +170,11 @@ logic.
 
 ## 5. Review and fix
 
-When the card reaches `terminal`, the branch holds the code. If the run
-stopped on `blocked` / `needs-input` instead, skip this section.
+When `phase-5-plating.md` returns with a PR open, the branch holds the code.
+Start this section at once, whatever the card's `status` or `runStatus`, and
+with a chunked delivery, for each chunk's PR as it opens. Do not wait for
+Phase 6 or for `runStatus: terminal`. If the run stopped on `blocked` /
+`needs-input` instead, skip this section.
 
 1. Spawn one `general-purpose` sub-agent to run `../better-code-review/SKILL.md`
    with `--headless`. The fixed point is the merge base of the work branch and
@@ -176,8 +186,7 @@ stopped on `blocked` / `needs-input` instead, skip this section.
    gets read at its `file:line` first. A `no` finding: verify it first, by
    running or reading what it names, and reject it if it does not hold. Write
    a failing test first where the finding is a behaviour, then fix, then run
-   the project's scoped tests and lint. Push to the open PR and leave it in
-   the state Plating left it. Log each finding you reject to `## Decisions` as
+   the project's scoped tests and lint. Push to the open PR, which stays ready for review. Log each finding you reject to `## Decisions` as
    `relay:`, with the reason, instead of changing the code. Log the review's
    `Reviewed:` line and each `Not verified:` entry there too, so the gap stays
    on the card.
