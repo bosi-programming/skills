@@ -1,6 +1,6 @@
 ---
 name: open-restaurant
-description: Take a parent issue and deliver every sub-issue under it through recipe-relay, one recipe card and one draft PR per sub-issue, cooked in parallel across repos and one at a time within a repo. Gates the parent on readiness first, writes the contract the sub-issues share, hands a blocked sub-issue its blocker's interfaces as soon as they exist, then integrates the branches, runs one QA pass on one env, fixes failures on the owning branch, writes proof, and parks at human gates for review and merge. Use when the user names a parent issue, epic or story with sub-issues and wants all of it delivered, or says "open the restaurant".
+description: Take a parent issue and deliver every sub-issue under it through recipe-relay, one recipe card and one PR ready for review per sub-issue, cooked in parallel across repos and one at a time within a repo. Gates the parent on readiness first, writes the contract the sub-issues share, hands a blocked sub-issue its blocker's interfaces as soon as they exist, then integrates the branches, runs one QA pass on one env, fixes failures on the owning branch, writes proof, reviews each PR as it opens in its own sub-agent, and parks at human gates for review and merge. Use when the user names a parent issue, epic or story with sub-issues and wants all of it delivered, or says "open the restaurant".
 ---
 
 # Open Restaurant
@@ -17,9 +17,8 @@ unit of every card itself. Start units in the background where the runtime
 allows it, so cards in different repos cook at the same time, and act on each
 unit as it returns.
 
-The run never merges, never opens a PR as anything but a draft, and never
-marks a PR ready without a human. Those wait at the gates in sections 10 and
-11.
+The run never merges without a human, and opens every PR ready for review,
+never as a draft. Merging waits at the gate in section 11.
 
 ## Settings
 
@@ -30,7 +29,7 @@ first, then `$HOME`, then the default:
   the repo it works in. Default `{}`: take the repo from the sub-issue's own
   text.
 - `open-restaurant.implementedState` — tracker state a sub-issue moves to once
-  its draft PR is open. Default `''`: no move.
+  its PR is open. Default `''`: no move.
 - `open-restaurant.doneState` — state a merged sub-issue, and a parent with no
   open criterion, moves to. Default `Done`.
 - `open-restaurant.envName` — name of the QA env; `{parent}` stands for the
@@ -187,13 +186,20 @@ as where it works. On top of recipe-relay:
 
 - **Cooking.** The Interfaces unit of a card that blocks a sub-issue in
   another repo gets section 6's extra instruction.
-- **Plating.** Add to its prompt: "Deliver one draft PR, no chunks, from
-  `{branch}` against base `{base}` (the default branch, or the blocker's
-  branch when it stacks). Title starts with `{sub-issue id}`; the body names
+- **Plating.** Add to its prompt: "Deliver one PR, no chunks, open and ready
+  for review, never as a draft, from `{branch}` against base `{base}` (the
+  default branch, or the blocker's branch when it stacks). This overrides
+  Plating's draft rule. Title starts with `{sub-issue id}`; the body names
   the sub-issue and the parent `{parent id}`. Put no closing word, such as
   `Closes` or `Fixes`, before an identifier: the merge gate moves the
   sub-issue itself. Skip section 6 of Plating: the review gate asks for review.
   Log all of it to `## Decisions` as `relay:`."
+- **Review per PR.** The moment a card's PR is open, start recipe-relay's
+  review and fix section for that PR as its own background sub-agent, one per
+  PR, running `../better-code-review/SKILL.md` with `--headless`. Never batch
+  PRs into one review and never wait for other cards: reviews of different
+  PRs run at the same time. Fixes follow recipe-relay's rules and push to the
+  open PR.
 - **PR to sub-issue.** Each PR links to its own sub-issue, never to the
   parent; the parent gets links only through `## Proof <parent>`. After
   Plating, check through the tracker that the sub-issue shows the PR as an
@@ -208,7 +214,7 @@ as where it works. On top of recipe-relay:
   for it: mark its row, comment `## Blocked <id>` with the card's open
   question, and keep cooking every card that does not depend on it.
 
-A card is finished when recipe-relay's closing review pass is done. Mark the
+A card is finished when its PR's review sub-agent and the fixes it led to are done. Mark the
 row `done`, then free the repo for the next card in it.
 
 ## 6. Early unblock
@@ -313,12 +319,12 @@ entry per parent criterion with its evidence uploaded to the tracker, then a
 ## 10. Review gate
 
 Stop for a human: set `runStatus: gate`, `gate: review`, and report the PRs,
-their proof and what stays open. Never mark a PR ready before the human
-approves. On approve:
+their proof, what each PR's review found and fixed, and what stays open. The
+PRs are already ready for review. On approve:
 
-1. Mark every sub-issue PR ready and wait for its checks, the way the
-   section's review ready entry says. Green goes on; red or a timeout skips the
-   request and reports why.
+1. Wait for each sub-issue PR's checks, the way the section's review ready
+   entry says. Green goes on; red or a timeout skips the request and reports
+   why.
 2. When `open-restaurant.reviewChannel` is set, post one message there with
    every PR, tagging the review groups the section's review groups entry maps
    from the team. Never guess a group: an unmapped team gets no tag and a line

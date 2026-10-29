@@ -77,7 +77,7 @@ the ones in `./references/config.md`:
 13. `open-restaurant`:
     a. Map from sub-issue label to repo folder, or take the repo from the
        sub-issue's text.
-    b. State a sub-issue moves to once its draft PR opens, or none.
+    b. State a sub-issue moves to once its PR opens, or none.
     c. State for merged sub-issues and a fully proved parent.
     d. Name of the QA env, with `{parent}` for the parent identifier.
     e. Chat channel for the review request, or none.

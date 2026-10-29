@@ -119,7 +119,7 @@ only needs the keys it changes.
 - `open-restaurant.repoByLabel` — map from a sub-issue label to its repo's
   folder; empty takes the repo from the sub-issue's text.
 - `open-restaurant.implementedState` — state a sub-issue moves to once its
-  draft PR is open; empty means no move.
+  PR is open; empty means no move.
 - `open-restaurant.doneState` — state merged sub-issues and a fully proved
   parent move to.
 - `open-restaurant.envName` — name of the QA env; `{parent}` is the parent

@@ -42,6 +42,12 @@ def check_all(name, text, *phrases):
     check(name, not missing, f"missing: {missing}" if missing else "")
 
 
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
+
+
 skill = read(SKILL_MD)
 readme = read(README)
 
@@ -89,7 +95,9 @@ check_all("cross-repo-parallel", text["plan"], "parallel", "unblock note")
 check_all("stacked-base", text["plan"], "stack", "blocker's branch")
 check_all("bug-reproduce", text["plan"], "reproduce", "`## blocked")
 
-check_all("plating-overrides", text["cards"], "one draft pr", "no chunks", "base", "no closing word")
+check_all("plating-overrides", text["cards"], "one pr", "ready for review", "never as a draft", "no chunks", "base", "no closing word")
+check_all("review-per-pr", text["cards"], "review per pr", "own background sub-agent", "one per pr", "--headless", "never batch")
+check_none("no-draft-pr", skill, "one draft pr", "anything but a draft", "mark every sub-issue pr ready", "never mark a pr ready")
 check_all("pr-to-sub-issue", text["cards"], "never to the parent", "attachment")
 check_all("implemented-state", text["cards"], "`open-restaurant.implementedState`")
 check_all("relay-review-per-card", text["cards"], "better-code-review")
