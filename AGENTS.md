@@ -2,6 +2,10 @@
 
 Conventions for anything editing this repository.
 
+## Coding
+
+Always work on main. Never open a new branch. After finish a feature, bump the version and commit.
+
 ## Referencing a skill's own bundled files
 
 Never write `${CLAUDE_SKILL_DIR}`. It names one runtime, and these skills have to
