@@ -71,10 +71,9 @@ check_all("slack-one-review", slack, "\"event\": \"comment\"", "inline", "body o
 check_all("slack-body-only-findings", slack, "nothing the pr's author cannot act on", "no summary", "no count", "leave the body empty")
 check_all("slack-approve", slack, "gh pr review", "--approve", "no finding")
 check_all("slack-verifies-post", slack, "--input", "verify")
-check_all("slack-reaction-browser", slack, "claude-in-chrome", "`better-code-review.commentreaction`", "`better-code-review.approvereaction`")
-check_all("slack-one-reaction", slack, "one reaction per message", "any pr")
-check_all("slack-reaction-fallback", slack, "not added")
-check_all("slack-reply", slack, "reaction:", "skipped:")
+check_all("slack-thread-comment", slack, "slack_send_message", "thread_ts", "in english", "reviewed and approved", "left comments on github")
+check_none("slack-no-reaction", slack, "claude-in-chrome", "commentreaction", "approvereaction", "add reaction")
+check_all("slack-reply", slack, "slack:", "skipped:")
 check_all("default-mode-names-slack", default_mode, "slack")
 
 check_all("description-slack", frontmatter_description(skill), "slack")

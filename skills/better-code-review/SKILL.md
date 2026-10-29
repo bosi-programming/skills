@@ -1,6 +1,6 @@
 ---
 name: better-code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. With `--slack <link>`, reviews every PR a Slack message links to, comments or approves on GitHub, and reacts on the message. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. With `--slack <link>`, reviews every PR a Slack message links to, comments or approves on GitHub, and comments on the message. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
 metadata:
   based-on: "Matt Pocock's code-review skill"
   adapted-by: Felipe Bosi
@@ -313,7 +313,7 @@ parses the blocks, and prose between them is what breaks that.
 ## Slack
 
 Reviews every PR a Slack message links to, posts the result on GitHub, and
-marks the message with a reaction. Start it with `--slack <link>`, or put a
+comments on the message. Start it with `--slack <link>`, or put a
 `slack.com/archives/...` link in the request. A Slack run is one _Headless_
 run per PR plus the posting: it never asks, and it posts without asking,
 because naming the mode is the go-ahead.
@@ -340,7 +340,7 @@ and skip it when:
   returns, because GitHub refuses an approval of your own PR;
 - it is already approved by you, a review of yours in state `APPROVED`.
 
-A skipped PR gets no review and no say in the reaction. Note why it was
+A skipped PR gets no review and no say in the Slack comment. Note why it was
 skipped for the reply.
 
 ### 3. Review each PR
@@ -439,26 +439,20 @@ in state `COMMENTED` or `APPROVED`. When a post fails, check this before
 posting again, since a post that did land and is sent twice leaves two
 reviews.
 
-### 5. React on Slack
+### 5. Comment on Slack
 
-One reaction per message: `better-code-review.commentReaction`, default
-`speech_balloon`, when any PR got a review with comments, else
-`better-code-review.approveReaction`, default `white_check_mark`, both read
-as [`../setup/references/config.md`](../setup/references/config.md) says.
-With no PR reviewed, add none.
+Post one short comment in English as a reply in the thread of the linked
+message, with the Slack MCP `slack_send_message`: `channel_id` from the link
+and `thread_ts` set to the message timestamp. Say only the outcome:
 
-The Slack MCP has no reaction tool, so add it through the browser with
-`claude-in-chrome`, loading its tools the way that skill says:
+- any PR got a review with comments: `Reviewed, left comments on GitHub.`
+- every PR reviewed was approved: `Reviewed and approved.`
+- more than one PR with mixed outcomes: one line per PR, as
+  `<PR url> — approved` or `<PR url> — commented`.
 
-1. Open the link in a new tab.
-2. If your reaction is already under the message, leave it: a second click
-   takes it away.
-3. Hover the message, click its "Add reaction" button, type the emoji name and
-   press Enter.
-4. Read the page again and confirm the reaction sits under the message.
-
-If the browser tools fail twice, or the reaction does not show, the reply
-says the reaction was not added and names the emoji to add by hand.
+With no PR reviewed, post nothing. If a comment by you is already in the
+thread for this run, do not post a second one. If the post fails, the reply
+says the comment was not posted.
 
 ### Reply
 
@@ -466,7 +460,7 @@ says the reaction was not added and names the emoji to add by hand.
 <PR url> · commented <n> · <m> not posted
 <PR url> · approved · <m> not posted
 Not verified: <PR number>: <gap>, one per line, or none
-Reaction: :<emoji>: added | not added — <reason>
+Slack: comment posted | not posted — <reason>
 Skipped: <PR url> — <reason>, one per line, or none
 ```
 

@@ -28,8 +28,6 @@ KEYS = {
     "better-code-review.defaultMode": "conversation",
     "better-code-review.reviewerModel": "''",
     "better-code-review.reviewMode": "fast",
-    "better-code-review.commentReaction": "speech_balloon",
-    "better-code-review.approveReaction": "white_check_mark",
     "recipe-relay.codingModel": "''",
     "recipe-relay.uiReviewerModel": "''",
     "feature-recipe.runWorkSummary": "true",

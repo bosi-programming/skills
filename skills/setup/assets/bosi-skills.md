@@ -33,8 +33,6 @@ better-code-review:
   defaultMode: conversation
   reviewerModel: ''
   reviewMode: fast
-  commentReaction: speech_balloon
-  approveReaction: white_check_mark
 recipe-relay:
   codingModel: ''
   uiReviewerModel: ''
@@ -107,9 +105,6 @@ only needs the keys it changes.
   sub-agents; empty keeps the model the review runs on.
 - `better-code-review.reviewMode` — `fast` reviews a PR taken from Slack
   without installing its dependencies; `slow` installs them first.
-- `better-code-review.commentReaction` and
-  `better-code-review.approveReaction` — emoji names, without colons, the
-  Slack mode reacts with after it comments or approves.
 - `recipe-relay.codingModel` — the model for the sub-agents that write tests
   and code; empty keeps the model the relay runs on.
 - `recipe-relay.uiReviewerModel` — the model for the UI reviewer; empty keeps

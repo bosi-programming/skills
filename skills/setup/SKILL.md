@@ -60,8 +60,6 @@ the ones in `./references/config.md`:
    b. Model for the three review sub-agents, or the one the review runs on.
    c. For PRs taken from Slack, `fast`, which skips installing dependencies,
       or `slow`, which installs them so the project's checks run.
-   d. Emoji names the Slack mode reacts with after it comments and after it
-      approves, or `speech_balloon` and `white_check_mark`.
 10. `ship-pr`:
     a. Title format: `type(scope): subject [KEY]` or `[KEY] type(scope): subject`.
     b. Pause for approval before push and PR: yes or no.

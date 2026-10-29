@@ -81,8 +81,6 @@ every key.
 | `better-code-review.defaultMode` | `conversation` | Output a review gives when the request names none: `conversation`, `page` or `headless`. |
 | `better-code-review.reviewerModel` | `''` | Model for the Spec, Standards and Tests sub-agents. Empty means the model the review runs on. |
 | `better-code-review.reviewMode` | `fast` | How the Slack mode treats the fresh clone of each PR: `fast` installs nothing and lists the checks that need dependencies as not verified; `slow` installs from the lockfile first so those checks run. |
-| `better-code-review.commentReaction` | `speech_balloon` | Emoji name, without colons, the Slack mode reacts with when it commented on a PR. |
-| `better-code-review.approveReaction` | `white_check_mark` | Emoji name, without colons, the Slack mode reacts with when it approved every PR. |
 | `recipe-relay.codingModel` | `''` | Model for the sub-agents that write tests and code in Cooking. Empty means the model the relay runs on. |
 | `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design. Empty means the model the relay runs on. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
