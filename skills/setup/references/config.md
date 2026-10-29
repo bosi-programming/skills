@@ -82,6 +82,8 @@ every key.
 | `better-code-review.reviewerModel` | `''` | Model for the Spec, Standards and Tests sub-agents. Empty means the model the review runs on. |
 | `better-code-review.reviewMode` | `fast` | How the Slack mode treats the fresh clone of each PR: `fast` installs nothing and lists the checks that need dependencies as not verified; `slow` installs from the lockfile first so those checks run. |
 | `recipe-relay.codingModel` | `''` | Model for the sub-agents that write tests and code in Cooking. Empty means the model the relay runs on. |
+| `recipe-relay.reviewState` | `In Review` | Tracker state the relay moves the task to once its PR is open. Empty skips the move. |
+| `recipe-relay.doneState` | `Done` | Tracker state the relay moves the task to when Documentation closes it. Empty skips the move. |
 | `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design. Empty means the model the relay runs on. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
@@ -89,7 +91,7 @@ every key.
 | `uml.idleMinutes` | `30` | Minutes with no request before the `uml` page server stops itself. |
 | `non-functional-requirements.docsDir` | `docs/projects` | Folder, relative to the docs repo root, that holds one folder per project; the NFR doc is `<docsDir>/<project>/nfr.md`. |
 | `open-restaurant.repoByLabel` | `{}` | Map from a sub-issue label to the folder of the repo it works in. Empty means take the repo from the sub-issue's text. |
-| `open-restaurant.implementedState` | `''` | Tracker state a sub-issue moves to once its PR is open. Empty means no move. |
+| `open-restaurant.implementedState` | `In Review` | Tracker state a sub-issue moves to once its PR is open. Empty means no move. |
 | `open-restaurant.doneState` | `Done` | State a merged sub-issue, and a parent with no open criterion, moves to. |
 | `open-restaurant.envName` | `{parent}` | Name of the one QA env per parent; `{parent}` stands for the parent identifier in lower case. |
 | `open-restaurant.reviewChannel` | `''` | Chat channel the review request goes to once the PRs are ready. Empty skips the request. |

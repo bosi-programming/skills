@@ -29,7 +29,7 @@ first, then `$HOME`, then the default:
   the repo it works in. Default `{}`: take the repo from the sub-issue's own
   text.
 - `open-restaurant.implementedState` — tracker state a sub-issue moves to once
-  its PR is open. Default `''`: no move.
+  its PR is open. Default `In Review`; `''` means no move.
 - `open-restaurant.doneState` — state a merged sub-issue, and a parent with no
   open criterion, moves to. Default `Done`.
 - `open-restaurant.envName` — name of the QA env; `{parent}` stands for the
@@ -193,7 +193,8 @@ as where it works. On top of recipe-relay:
   the sub-issue and the parent `{parent id}`. Put no closing word, such as
   `Closes` or `Fixes`, before an identifier: the merge gate moves the
   sub-issue itself. Skip section 6 of Plating: the review gate asks for review.
-  Log all of it to `## Decisions` as `relay:`."
+  Leave the sub-issue's tracker state alone: the session moves it. Log all of
+  it to `## Decisions` as `relay:`."
 - **Review per PR.** The moment a card's PR is open, start recipe-relay's
   review and fix section for that PR as its own background sub-agent, one per
   PR, running `../better-code-review/SKILL.md` with `--headless`. Never batch
@@ -204,9 +205,11 @@ as where it works. On top of recipe-relay:
   parent; the parent gets links only through `## Proof <parent>`. After
   Plating, check through the tracker that the sub-issue shows the PR as an
   attachment; if not, attach the PR URL to it. Then move the sub-issue to
-  `open-restaurant.implementedState`, when set, and write the PR into its row.
+  `open-restaurant.implementedState`, unless it is empty, and write the PR into its row.
 - **Documentation.** Tell the unit to skip `work-summary`; this session runs
-  it once at the end, when `feature-recipe.runWorkSummary` says to.
+  it once at the end, when `feature-recipe.runWorkSummary` says to. Tell it
+  also to leave the tracker state alone: the merge gate moves it to
+  `open-restaurant.doneState`.
 - **Lockfiles.** After a card changes a lockfile, do what the section's
   workspace entry says before the next card in that repo, or the integrate
   step, starts.

@@ -51,7 +51,9 @@ the ones in `./references/config.md`:
    d. Model for the `recipe-relay` sub-agents that write tests and code, or
       the one the relay runs on.
    e. Model for the `recipe-relay` UI reviewer, or the one the relay runs on.
-   f. Any rules for the body's `## recipe-relay` section, which belongs in
+   f. State the relay moves a task to once its PR opens, or `In Review`, and
+      the state it moves it to when Documentation closes it, or `Done`.
+   g. Any rules for the body's `## recipe-relay` section, which belongs in
       the project's own file while the project lasts.
 8. `maestri-workflow` models for the planning and coding lanes, or let the
    skill pick.
@@ -77,7 +79,7 @@ the ones in `./references/config.md`:
 13. `open-restaurant`:
     a. Map from sub-issue label to repo folder, or take the repo from the
        sub-issue's text.
-    b. State a sub-issue moves to once its PR opens, or none.
+    b. State a sub-issue moves to once its PR opens, or `In Review`; none skips the move.
     c. State for merged sub-issues and a fully proved parent.
     d. Name of the QA env, with `{parent}` for the parent identifier.
     e. Chat channel for the review request, or none.

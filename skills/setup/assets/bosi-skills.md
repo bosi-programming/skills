@@ -35,6 +35,8 @@ better-code-review:
   reviewMode: fast
 recipe-relay:
   codingModel: ''
+  reviewState: In Review
+  doneState: Done
   uiReviewerModel: ''
 uml:
   outputDir: docs/uml
@@ -45,7 +47,7 @@ non-functional-requirements:
   docsDir: docs/projects
 open-restaurant:
   repoByLabel: {}
-  implementedState: ''
+  implementedState: In Review
   doneState: Done
   envName: '{parent}'
   reviewChannel: ''
@@ -107,6 +109,9 @@ only needs the keys it changes.
   without installing its dependencies; `slow` installs them first.
 - `recipe-relay.codingModel` — the model for the sub-agents that write tests
   and code; empty keeps the model the relay runs on.
+- `recipe-relay.reviewState` and `recipe-relay.doneState` — tracker states
+  the relay moves a task to once its PR is open and when Documentation closes
+  it; empty skips the move.
 - `recipe-relay.uiReviewerModel` — the model for the UI reviewer; empty keeps
   the model the relay runs on.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
@@ -119,7 +124,7 @@ only needs the keys it changes.
 - `open-restaurant.repoByLabel` — map from a sub-issue label to its repo's
   folder; empty takes the repo from the sub-issue's text.
 - `open-restaurant.implementedState` — state a sub-issue moves to once its
-  PR is open; empty means no move.
+  PR is open; empty means no move. The default is `In Review`.
 - `open-restaurant.doneState` — state merged sub-issues and a fully proved
   parent move to.
 - `open-restaurant.envName` — name of the QA env; `{parent}` is the parent

@@ -56,6 +56,14 @@ For the Plating unit, add this to that prompt: open the PR ready for review,
 never as a draft, and leave it that way. This overrides Plating's draft rule
 for deferred CI checks and its Headless rule that opens drafts and never
 promotes them. CI still gets waited on and fixed as Plating's section 5 says.
+Tell it also to move the task, in the tracker the card came from, to
+`recipe-relay.reviewState`, default `In Review`, once the PR is open; an empty
+value skips the move.
+
+For the Documentation unit, add this to that prompt: when the task came from a
+tracker, move it to `recipe-relay.doneState`, default `Done`; an empty value
+skips the move. Both are read from the settings file as
+`../setup/references/config.md` says.
 
 ### Cooking in parallel
 
