@@ -1,6 +1,11 @@
 # Bosi Programming Skills
 
-Fourteen Claude Code skills, packaged as an installable plugin. One reviews a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one parks half-done work as a task for tomorrow, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
+Fourteen Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+
+- **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
+- **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
+
+The other twelve feed those two or stand alone. `feature-recipe` is the six-phase workflow the relay runs. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
 The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
@@ -79,6 +84,41 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ## The skills
 
+### recipe-relay
+
+Takes one ticket to a pull request that is open, reviewed and ready for review, without asking you anything on the way. You name the task; the session runs `feature-recipe`'s six phases, each in its own sub-agent, without changing any of the recipe's files. Each sub-agent takes the recommendation every checkpoint states — the grilling, the plan, the test list, the PR description — and logs it to the recipe card as `relay:`, so you can read afterwards what it chose and why. What reaches the chat is one line per unit, and the session starts the next unit without waiting for a reply.
+
+How the ticket moves:
+
+1. **Reading the Recipe and Mise en Place** turn the ticket into a plan on the recipe card.
+2. **Cooking** splits. One sub-agent names the interfaces; then, for each repo, a test writer and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. A last sub-agent makes the tests pass and runs Tasting: the project's scoped tests, lint and `better-code-review`.
+3. **UI review.** When the change reaches a screen, a UI reviewer runs beside that last sub-agent. It waits for the screenshots Tasting captures, compares them with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
+4. **Plating** opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
+5. **Review and fix.** The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch. The session checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
+6. **Documentation** closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
+
+It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`: a one-way door or a question with no reasonable default. Then it asks you in chat, and running it again picks the card back up where it stopped. It never merges; the PR waits for a person.
+
+`recipe-relay.codingModel` and `recipe-relay.uiReviewerModel` pick the models for the writers and the UI reviewer. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
+
+### open-restaurant
+
+An LLM factory. Hand it a parent issue — an epic or a story with sub-issues — and it delivers every sub-issue, each through `recipe-relay` on its own recipe card, to its own PR, then puts the parts together and proves they work as one. The parent is the order and each sub-issue a dish: this session runs the kitchen and never cooks a dish itself. A person comes in at two gates: before review is requested and before anything merges.
+
+The line, in order:
+
+1. **Readiness gate.** A lint, then a judge sub-agent, look for open decisions, "same as X" shorthand, shapes passed between sub-issues that neither one states, and manual checks with no reason. A gap stops the run with a `## Not ready` comment and an issue that blocks the parent. It never fills a gap on the parent's behalf.
+2. **Contract.** A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes, and posts it on the parent. A person may edit it there; the latest comment wins.
+3. **Cooking.** Sub-issues in different repos cook at the same time. Those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens.
+4. **Review per PR.** Each PR opens ready for review, linked to its own sub-issue, which moves to `open-restaurant.implementedState`. Its own headless `better-code-review` sub-agent starts the moment it opens, and the findings get fixed on its branch.
+5. **Integrate and QA.** Once every card ends, it merges the branches into a local integration branch it never pushes, brings up one QA env for the parent, and proves each criterion with saved evidence. Failures get fixed on the owning sub-issue's branch, fast-forward only, for at most two QA rounds.
+6. **Proof.** A `## Proof` on each PR, and one on the parent with each criterion and its evidence.
+7. **Human gates.** It stops before asking for review, then waits on checks and posts the PRs to `open-restaurant.reviewChannel`. It stops again before merging, then merges in blocks order and moves the sub-issues, and the parent when no criterion is left open, to `open-restaurant.doneState`.
+
+Every stop writes its state to a service card next to the recipe cards; running it again on the same parent goes on from there.
+
+Needs a tracker tool in the session and one repo checkout per repo in the folder it runs from. Team-specific steps (the readiness lint, QA skill, env, review groups) go in the settings file's `## open-restaurant` section; see `setup`.
+
 ### better-code-review
 
 Reviews the diff between `HEAD` and a fixed point you name, along three axes at once. Standards asks whether the code follows the repo's documented coding standards. Spec asks whether the code does what the originating issue or PRD asked for. Tests asks whether the tests in the diff are sound, and whether every behaviour the diff changes has a test that would catch it breaking. The three axes run as parallel sub-agents so none pollutes another's context. Before anything reaches you, the review checks each finding the way `epistemic-action` asks: it runs the project's scoped tests, lint and type-check, and proves each missing or tautological test with a probe, breaking the line in a throwaway worktree and watching whether any test turns red. Each finding says whether it was run, read or not verified. Then the findings render as a three-tab dark-theme HTML page that opens in your browser. With `--headless` it asks nothing, takes the merge base with the default branch when no fixed point is given, skips the Spec axis when no spec turns up and the Tests axis when there is nothing to test, and returns each finding as a plain-text block with its axis, kind, `file:line`, fix and whether it was verified, so another skill or agent can act on it. `recipe-relay` and the recipe's headless Tasting call it this way. With `--slack <link>` it reads the PR links in one Slack message, reviews each PR headless in a fresh clone it deletes afterwards, posts missing or partial requirements, scope creep, defects and hard violations as one GitHub review with inline comments, approves a PR with none of those, and posts a short English comment in the message's thread saying whether it approved or only commented. `better-code-review.reviewMode` decides whether it installs each clone's dependencies first: `fast`, the default, skips that and lists the checks it could not run as not verified; `slow` installs them.
@@ -98,18 +138,6 @@ Takes a task from a rough idea to a merged PR, cooked in six named phases — Re
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
 Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through Reading the Recipe, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
-
-### recipe-relay
-
-Runs `feature-recipe` from a live session, without touching any of its files. Each phase runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. Cooking splits: one sub-agent names the interfaces, then for each repo a test writer and a code writer work at the same time on the same branch and worktree, neither opening the other's files, and a last sub-agent makes the tests pass and runs Tasting. When the change reaches a screen, a UI reviewer runs beside that last sub-agent: it waits for the screenshots Tasting captures, compares them with the design attached to the task, and sends critical and major differences back for up to two more rounds. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
-
-### open-restaurant
-
-Delivers a parent issue and every sub-issue under it. It gates the parent on readiness first: a lint, then a judge for open decisions and missing shapes, and a gap stops the run with a `## Not ready` comment and a blocking issue. It writes the contract of shapes the sub-issues pass to each other, then runs each sub-issue through `recipe-relay` on its own recipe card, to one PR, open and ready for review, linked to that sub-issue. Each PR gets its own headless `better-code-review` sub-agent the moment it opens, and the findings are fixed on its branch. Sub-issues in different repos cook at the same time; those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens. Once every card ends, it merges the branches into a local integration branch, runs one QA pass on one env, fixes failures on the owning sub-issue's branch (fast-forward only, at most two rounds), writes proof to each PR and the parent, and stops at a human gate before requesting review and again before merging in blocks order.
-
-Needs a tracker tool in the session and one repo checkout per repo in the folder it runs from. Team-specific steps (the readiness lint, QA skill, env, review groups) go in the settings file's `## open-restaurant` section; see `setup`.
-
-
 
 ### uml
 
@@ -159,7 +187,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models, and where `pause-work` saves the task for tomorrow. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, which tracker states and models `recipe-relay` uses, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models, and where `pause-work` saves the task for tomorrow. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -183,9 +211,9 @@ skills/
   better-code-review/ SKILL.md + assets/report-template.html + scripts/
   feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
   open-restaurant/    SKILL.md + scripts/
-  recipe-relay/       SKILL.md
-  code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
-  epistemic-action/   SKILL.md
+  recipe-relay/       SKILL.md + scripts/
+  code-standards/     SKILL.md + Common/ + Frontend/ + Testing/ + Typescript/ + scripts/
+  epistemic-action/   SKILL.md + bench/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   work-summary/       SKILL.md + evals/ (scenarios)
   pause-work/         SKILL.md + evals/ (scenarios)
@@ -287,7 +315,7 @@ Plating.
 
 `check-review-evidence.py` is `recipe-relay`'s own check: it fails if the
 closing review pass stops sorting findings by `ran`, `read` or `no`, stops
-logging what the review left not verified. Offline, stdlib only — run it
+or stops logging what the review left not verified. Offline, stdlib only — run it
 after editing `recipe-relay`.
 
 `check-no-pause.py` is `recipe-relay`'s no-pause check: it fails if the skill
