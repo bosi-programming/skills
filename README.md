@@ -1,6 +1,6 @@
 # Bosi Programming Skills
 
-Seventeen Claude Code skills, packaged as an installable plugin. Three do work on a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, one runs it through agent terminals on the Maestri canvas, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one parks half-done work as a task for tomorrow, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
+Fourteen Claude Code skills, packaged as an installable plugin. One reviews a diff, one draws UML diagrams of a codebase or a description, and one writes and reviews non-functional requirements. Two check the model's own writing or reasoning before it reaches you. One takes a task all the way to a merged pull request. One runs that one hands-off, phase by phase, through sub-agents, and one runs it once per sub-issue of a parent issue, then integrates, QAs and merges the lot behind human gates. One is the standards catalog the code review reads from. One writes up a work session as a dated note, one parks half-done work as a task for tomorrow, one turns a week of those notes and your tracker, GitHub and chat activity into a review, and one writes the settings file the others read their defaults from.
 
 The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
@@ -103,31 +103,13 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 Runs `feature-recipe` from a live session, without touching any of its files. Each phase runs in its own sub-agent that auto-takes every checkpoint's own stated recommendation — the same content decisions a headless run would take, logged `relay:` instead of `unattended:` since a person is actually running it. Cooking splits: one sub-agent names the interfaces, then for each repo a test writer and a code writer work at the same time on the same branch and worktree, neither opening the other's files, and a last sub-agent makes the tests pass and runs Tasting. When the change reaches a screen, a UI reviewer runs beside that last sub-agent: it waits for the screenshots Tasting captures, compares them with the design attached to the task, and sends critical and major differences back for up to two more rounds. The session moves from one unit to the next without pausing, posting one line per unit, and only stops at the end of the recipe or at its own one-way doors — the same contract as headless, just supervised instead of unattended. Once the recipe finishes, a sub-agent runs `better-code-review` headless against the branch, and the session fixes what it finds, test first, and reports which findings it fixed and which it rejected. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
 
-### maestri-workflow
-
-Runs `recipe-relay` from the Maestri canvas for any ticket — a tracker key, a link or a plain description. Where recipe-relay spawns a sub-agent, this recruits a fresh agent terminal named for its work, on whichever harness the canvas has a preset for: one model for the planning phases, another for the code phases. Every recruit shares one note where it logs the questions and problems it could not settle. The run never stops to ask: where recipe-relay would pause, the orchestrator takes the stated recommendation and logs it to the note, and it never merges, promotes the draft or deletes work. It ends with a draft PR, after recipe-relay's closing review runs in a last recruit and the orchestrator fixes what it finds, and a report of every call it made alone and every one-way door it left in the PR body.
-
-Needs Maestri and its `maestri` CLI.
-
 ### open-restaurant
 
 Delivers a parent issue and every sub-issue under it. It gates the parent on readiness first: a lint, then a judge for open decisions and missing shapes, and a gap stops the run with a `## Not ready` comment and a blocking issue. It writes the contract of shapes the sub-issues pass to each other, then runs each sub-issue through `recipe-relay` on its own recipe card, to one PR, open and ready for review, linked to that sub-issue. Each PR gets its own headless `better-code-review` sub-agent the moment it opens, and the findings are fixed on its branch. Sub-issues in different repos cook at the same time; those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens. Once every card ends, it merges the branches into a local integration branch, runs one QA pass on one env, fixes failures on the owning sub-issue's branch (fast-forward only, at most two rounds), writes proof to each PR and the parent, and stops at a human gate before requesting review and again before merging in blocks order.
 
 Needs a tracker tool in the session and one repo checkout per repo in the folder it runs from. Team-specific steps (the readiness lint, QA skill, env, review groups) go in the settings file's `## open-restaurant` section; see `setup`.
 
-### code-visualizer
 
-Turns a diff or pull request into an interactive web page that maps what changed and how the changed pieces relate. The page answers the questions a reviewer asks before reading a line: where to start, what to ask the author, which changed file ships with no test, what breaks for callers, how busy each file is and whose it is, and which design patterns the change uses or breaks. Every claim carries a `file:line` you can click through to the hunk itself, and a red mark on a box means nothing asserts what it now does. It writes a `model.json` first, so you can correct the model cheaply, then renders. Accepts a PR URL or number, a git ref range, a `.diff`/`.patch` file, or the working tree.
-
-Needs `python3`. The renderer uses the standard library only.
-
-### docs-visualizer
-
-The same idea, aimed at prose. Turns a documentation diff into an interactive page that maps which docs and sections changed, how they link to each other, which writing patterns and anti-patterns the rewrite uses, and what the text actually claims. The side panel holds the writing patterns; the strip under the graph holds the rhetorical moves, so a claim with no evidence under it is visible at a glance. It counts words rather than lines, because a reflowed paragraph makes line counts lie.
-
-Handles `.md` and `.mdx` fully, and `.txt`, `.rst` and `.adoc` with sectioning derived from blank-line blocks.
-
-Needs `python3`. The renderer uses the standard library only.
 
 ### uml
 
@@ -200,12 +182,9 @@ skills/
   index.json          the skill list at the root of the URL opencode downloads from
   better-code-review/ SKILL.md + assets/report-template.html + scripts/
   feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
-  maestri-workflow/   SKILL.md + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md
   code-standards/     SKILL.md + Common/ + Frontend/ + Typescript/
-  code-visualizer/    SKILL.md + scripts/render_graph.py + references/
-  docs-visualizer/    SKILL.md + scripts/render_docs_graph.py + references/
   epistemic-action/   SKILL.md
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   work-summary/       SKILL.md + evals/ (scenarios)
@@ -227,12 +206,12 @@ node --test 'dsh/**/*.test.mjs'
 node --test 'skills/uml/scripts/*.test.mjs'
 python3 skills/feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
-python3 skills/maestri-workflow/scripts/check-no-wait.py
 python3 skills/better-code-review/scripts/check-headless.py
 python3 skills/better-code-review/scripts/check-tests-axis.py
 python3 skills/better-code-review/scripts/check-evidence.py
 python3 skills/better-code-review/scripts/check-slack.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
+python3 skills/recipe-relay/scripts/check-no-pause.py
 python3 skills/feature-recipe/scripts/check-goal-and-measure.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
@@ -265,14 +244,6 @@ disappear, if the old `b972f03` phase-end footer creeps back, if Reading the
 Recipe loses its grill-or-skip call, or if this README
 stops describing the skills that exist. Offline, stdlib only — run it after
 editing a phase file.
-
-`check-no-wait.py` is `maestri-workflow`'s own check: it fails if the skill
-tells the orchestrator to stop, ask or wait for the user before the end, if a
-replacement for an old stop leaves the section it belongs in, if
-`recipe-relay` pauses between units, loses its stop conditions or its closing
-`better-code-review` pass, if `maestri-workflow` briefs a review of its own, or if
-a relative path in the skill does not resolve. Offline, stdlib only — run it
-after editing `maestri-workflow`.
 
 `check-headless.py` is `better-code-review`'s own check: it fails if the
 `## Headless` section loses its entry, a default for a step that would ask,
@@ -316,16 +287,21 @@ Plating.
 
 `check-review-evidence.py` is `recipe-relay`'s own check: it fails if the
 closing review pass stops sorting findings by `ran`, `read` or `no`, stops
-logging what the review left not verified, or if `maestri-workflow` stops
-reporting that gap. Offline, stdlib only — run it after editing either skill.
+logging what the review left not verified. Offline, stdlib only — run it
+after editing `recipe-relay`.
+
+`check-no-pause.py` is `recipe-relay`'s no-pause check: it fails if the skill
+pauses between units or posts a checkpoint to wait on, loses its stop
+condition for open questions, or drops the closing headless
+`better-code-review` pass. Offline, stdlib only — run it after editing
+`recipe-relay`.
 
 `check-split-cooking.py` is `recipe-relay`'s other check: it fails if Cooking
 stops naming its interfaces first, starting a test writer and a code writer
 per repo at the same time on the same branch and worktree, or keeping each
-blind to the other's work; if it gives the writers worktrees of their own; if either skill drops its model
-setting; or if `maestri-workflow` stops recruiting both writers of a pair.
-Offline, stdlib only — run it after editing `recipe-relay`,
-`maestri-workflow` or step 4 of `better-code-review`.
+blind to the other's work; if it gives the writers worktrees of their own; or
+if either skill drops its model setting. Offline, stdlib only — run it after
+editing `recipe-relay` or step 4 of `better-code-review`.
 
 `check-ui-review.py` is `recipe-relay`'s third check: it fails if the UI
 review stops running beside the last Cooking unit, starts the app or takes its

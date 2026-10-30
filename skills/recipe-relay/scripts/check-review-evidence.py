@@ -5,7 +5,6 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
-MAESTRI_MD = REPO / "skills" / "maestri-workflow" / "SKILL.md"
 README = REPO / "README.md"
 
 results = []
@@ -39,10 +38,8 @@ def check_all(name, text, *phrases):
 
 
 skill = read(SKILL_MD)
-maestri = read(MAESTRI_MD)
 readme = read(README)
 review = block(skill, "## 5. Review and fix", r"^## ")
-maestri_report = block(maestri, "## 5. Report", r"^## ")
 
 check_all("evidence-tags-triaged", review, "`Verified:`", "`ran`", "`read`", "`no`")
 check_all("ran-goes-to-fix", review, "a `ran` finding is proved")
@@ -51,7 +48,6 @@ check("no-blanket-read", "read each one at its `file:line` first" not in flatten
 check_all("not-verified-logged", review, "`Not verified:`", "`## Decisions`")
 check_all("reviewed-sha-kept", review, "`Reviewed:`")
 check_all("report-gaps", review, "not verified")
-check_all("maestri-report-gaps", maestri_report, "not verified")
 
 stops = block(skill, "## 4. Stop conditions", r"^## ")
 moving = block(skill, "## 3. Move to the next unit", r"^## ")

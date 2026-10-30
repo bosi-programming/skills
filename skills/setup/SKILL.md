@@ -55,28 +55,26 @@ the ones in `./references/config.md`:
       the state it moves it to when Documentation closes it, or `Done`.
    g. Any rules for the body's `## recipe-relay` section, which belongs in
       the project's own file while the project lasts.
-8. `maestri-workflow` models for the planning and coding lanes, or let the
-   skill pick.
-9. `better-code-review`:
+8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.
    c. For PRs taken from Slack, `fast`, which skips installing dependencies,
       or `slow`, which installs them so the project's checks run.
-10. `ship-pr`:
+9. `ship-pr`:
     a. Title format: `type(scope): subject [KEY]` or `[KEY] type(scope): subject`.
     b. Pause for approval before push and PR: yes or no.
     c. Open PRs as drafts: yes or no.
     d. Commands to run before each commit, or none.
     e. MCP server that reads tickets, or none.
     f. Any guidance for the body's `## ship-pr` section.
-11. `uml`:
+10. `uml`:
     a. Folder for the UML sources and `uml.json`.
     b. Path to the PlantUML jar, or the cache folder.
     c. Render with the local jar, or the URL of a PlantUML server.
     d. Minutes with no request before the page server stops.
-12. Folder that holds one folder per project, where
+11. Folder that holds one folder per project, where
     `non-functional-requirements` writes each project's `nfr.md`.
-13. `open-restaurant`:
+12. `open-restaurant`:
     a. Map from sub-issue label to repo folder, or take the repo from the
        sub-issue's text.
     b. State a sub-issue moves to once its PR opens, or `In Review`; none skips the move.
@@ -86,7 +84,7 @@ the ones in `./references/config.md`:
     f. Models for the readiness judge, the QA agent and the QA fix agent, or
        the one the session runs on.
     g. Any team steps for the body's `## open-restaurant` section.
-14. `pause-work`:
+13. `pause-work`:
     a. Tool the paused-work task goes to, such as `Todoist`, `Linear` or
        `gh`, or ask each time.
     b. Project, list or team in that tool, or its inbox.

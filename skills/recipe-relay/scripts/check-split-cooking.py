@@ -5,7 +5,6 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
-MAESTRI_MD = REPO / "skills" / "maestri-workflow" / "SKILL.md"
 REVIEW_MD = REPO / "skills" / "better-code-review" / "SKILL.md"
 README = REPO / "README.md"
 
@@ -40,7 +39,6 @@ def check_all(name, text, *phrases):
 
 
 skill = read(SKILL_MD)
-maestri = read(MAESTRI_MD)
 review = read(REVIEW_MD)
 readme = read(README)
 split = block(skill, "### Cooking in parallel", r"^##")
@@ -62,10 +60,6 @@ check("no-old-cooking-unit", "are one unit" not in flatten(block(skill, "## 2.",
       "section 2 still runs Cooking and Tasting as one sub-agent")
 
 check_all("reviewer-model", spawn, "`better-code-review.reviewerModel`")
-
-check_all("maestri-pair", maestri, "test writer", "code writer", "recruit both")
-check("maestri-no-writer-worktree", "its own worktree" not in flatten(maestri),
-      "maestri-workflow still gives each writer its own worktree")
 
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-split-cooking.py")
 

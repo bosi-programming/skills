@@ -34,8 +34,6 @@ KEYS = {
     "recipe-relay.uiReviewerModel": "''",
     "feature-recipe.runWorkSummary": "true",
     "feature-recipe.docsDestination": "''",
-    "maestri-workflow.planningModel": "''",
-    "maestri-workflow.codingModel": "''",
     "ship-pr.titleFormat": "type(scope): subject [KEY]",
     "ship-pr.approvalGate": "true",
     "ship-pr.draft": "false",
@@ -76,11 +74,6 @@ CONSUMERS = {
     ],
     SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
     SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
-    SKILLS / "maestri-workflow" / "SKILL.md": [
-        "feature-recipe.cardsDir",
-        "maestri-workflow.planningModel",
-        "maestri-workflow.codingModel",
-    ],
     SKILLS / "feature-recipe" / "phases" / "phase-6-documentation.md": [
         "feature-recipe.runWorkSummary",
         "feature-recipe.docsDestination",

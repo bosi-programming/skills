@@ -71,8 +71,6 @@ every key.
 | `feature-recipe.defaultMode` | `regular` | Mode a recipe runs in when the request names none: `regular` or `headless`. |
 | `feature-recipe.runWorkSummary` | `true` | Run `work-summary` at the end of Documentation, when the session has it. `false` skips it. |
 | `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. |
-| `maestri-workflow.planningModel` | `''` | Model for the planning lane. Empty means the most capable reasoning model the presets offer. |
-| `maestri-workflow.codingModel` | `''` | Model for the coding lane. Empty means a faster coding model from the presets. |
 | `ship-pr.titleFormat` | `type(scope): subject [KEY]` | Shape of every commit header and PR title; the other common shape is `[KEY] type(scope): subject`. |
 | `ship-pr.approvalGate` | `true` | Pause for approval before `git push` and `gh pr create`. `false` pushes and opens the PR without asking. |
 | `ship-pr.draft` | `false` | Open the PR as a draft. |

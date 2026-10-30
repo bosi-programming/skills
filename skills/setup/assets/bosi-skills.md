@@ -20,9 +20,6 @@ feature-recipe:
   defaultMode: regular
   runWorkSummary: true
   docsDestination: ''
-maestri-workflow:
-  planningModel: ''
-  codingModel: ''
 ship-pr:
   titleFormat: type(scope): subject [KEY]
   approvalGate: true
@@ -94,8 +91,6 @@ only needs the keys it changes.
   when the recipe ends.
 - `feature-recipe.docsDestination` — where the feature's docs go; empty means
   ask.
-- `maestri-workflow.planningModel` and `maestri-workflow.codingModel` — the
-  models for each lane; empty lets the skill pick from the presets.
 - `ship-pr.titleFormat` — shape of commit headers and PR titles.
 - `ship-pr.approvalGate` — `true` pauses before push and PR; `false` does not.
 - `ship-pr.draft` — `true` opens PRs as drafts.

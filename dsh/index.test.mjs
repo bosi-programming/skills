@@ -16,11 +16,8 @@ import { apply, inject, name, parseSkill } from './index.js'
 const SKILLS = [
   'better-code-review',
   'code-standards',
-  'code-visualizer',
-  'docs-visualizer',
   'epistemic-action',
   'feature-recipe',
-  'maestri-workflow',
   'non-functional-requirements',
   'open-restaurant',
   'pause-work',
