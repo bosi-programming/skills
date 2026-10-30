@@ -1,6 +1,6 @@
 ---
 name: open-restaurant
-description: Take a parent issue and deliver every sub-issue under it through recipe-relay, one recipe card and one PR ready for review per sub-issue, cooked in parallel across repos and one at a time within a repo. Gates the parent on readiness first, writes the contract the sub-issues share, hands a blocked sub-issue its blocker's interfaces as soon as they exist, then integrates the branches, runs one QA pass on one env, fixes failures on the owning branch, writes proof, reviews each PR as it opens in its own sub-agent, and parks at human gates for review and merge. Use when the user names a parent issue, epic or story with sub-issues and wants all of it delivered, or says "open the restaurant".
+description: Deliver a parent issue and every sub-issue under it through recipe-relay, one recipe card and one PR ready for review per sub-issue. Gates on readiness, writes the shared contract, integrates the branches, runs one QA pass, fixes failures, reviews each PR as it opens, and parks at human gates for review and merge. Use when the user names a parent issue, epic or story with sub-issues and wants all of it delivered, or says "open the restaurant".
 ---
 
 # Open Restaurant

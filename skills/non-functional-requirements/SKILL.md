@@ -1,6 +1,6 @@
 ---
 name: non-functional-requirements
-description: Write, update, or review the non-functional requirements (NFRs) of a project, following ISO/IEC 25010:2023 and 25019:2023, with a plan of logs, metrics, dashboards and monitors for each NFR in the project's monitoring tool, such as Datadog or Sentry. Use whenever the user is planning a project, writing or updating NFRs, setting performance, availability, reliability, security, usability, portability, scalability or compliance targets, or reviewing a project's NFR doc or draft.
+description: Write, update or review a project's non-functional requirements (NFRs) against ISO/IEC 25010:2023 and 25019:2023, with a plan of logs, metrics, dashboards and monitors for each in the project's monitoring tool. Use when planning a project, writing or updating NFRs, setting performance, availability, security, usability or compliance targets, or reviewing an NFR doc.
 ---
 
 # Write or Review NFRs

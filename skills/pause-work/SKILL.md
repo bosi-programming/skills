@@ -1,6 +1,6 @@
 ---
 name: pause-work
-description: Park half-done work for tomorrow — write what is left, where it lives and what is still unclear as one task in the user's to-do list or ticket tracker, due the next day, in the tool the settings file names. The task holds the ticket key, the working folder, a summary of what is left and the open questions. Use when the user stops before the work is done and says "pause work", "park this", "save where I stopped", "continue tomorrow", "I'll pick this up tomorrow", or ends the day with work left.
+description: Park half-done work for tomorrow as one task in the to-do list or tracker the settings file names, due the next day, holding the ticket key, working folder, what is left and open questions. Use when the user stops before the work is done and says "pause work", "park this", "continue tomorrow", or ends the day with work left.
 ---
 
 You write the note the user reads tomorrow morning to pick the work back up.

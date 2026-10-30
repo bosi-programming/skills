@@ -1,17 +1,6 @@
 ---
 name: ship-pr
-description: >-
-  Commit, push, and open a GitHub PR using the repo's own PR template — the full
-  ship workflow. Use this WHENEVER the user wants to turn working-tree changes
-  into a pull request, even if they only say part of it: "commit, push and open
-  a PR", "open a PR following the template", "commit the changes and create a
-  PR", "ship this", "one commit per fix then open a PR", "change the PR
-  description to follow the template", or "create PRs for these changes"
-  (multi-repo). Handles a folder of several repos, Conventional Commit messages
-  with verbose bodies, ticket-key derivation from the branch name, per-repo PR
-  templates (including a revert template), and fills the PR body from the diff
-  and the ticket. Do NOT use this for writing a PR description in isolation
-  without committing, or for posting an existing PR to chat.
+description: Commit, push and open a GitHub PR using the repo's own PR template. Use whenever the user wants working-tree changes turned into a pull request, even in part ("ship this", "commit and open a PR", "create PRs for these changes"). Handles several repos, Conventional Commits, ticket keys from the branch name and revert templates. Not for writing a PR description alone or posting an existing PR to chat.
 ---
 
 # Ship PR

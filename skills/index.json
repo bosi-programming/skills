@@ -12,7 +12,7 @@
         "scripts/check-slack.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "cc62c5f396e9"
+      "version": "4f27808fede8"
     },
     {
       "name": "code-standards",
@@ -84,7 +84,7 @@
         "references/review-workflow.md",
         "references/standards.md"
       ],
-      "version": "1b5eb59a6415"
+      "version": "d0c5aab140bd"
     },
     {
       "name": "open-restaurant",
@@ -92,7 +92,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "1ec9da4b072a"
+      "version": "81b897cb3cb0"
     },
     {
       "name": "pause-work",
@@ -105,7 +105,7 @@
         "evals/scenario-03.json",
         "evals/scenario-04.json"
       ],
-      "version": "227f7ee07c5f"
+      "version": "887601b87d37"
     },
     {
       "name": "recipe-relay",
@@ -129,7 +129,7 @@
         "scripts/__pycache__/check-config.cpython-314.pyc",
         "scripts/check-config.py"
       ],
-      "version": "53f5b5ad2f04"
+      "version": "3a0b65711391"
     },
     {
       "name": "ship-pr",
@@ -141,7 +141,7 @@
         "references/conventions.md",
         "scripts/detect_context.sh"
       ],
-      "version": "74efc32e7654"
+      "version": "0e28775db359"
     },
     {
       "name": "summarize-llm-response",
@@ -350,7 +350,7 @@
         "evals/trigger.py",
         "evals/trigger_cases.json"
       ],
-      "version": "caf1aa8d45bc"
+      "version": "6ba56e56366a"
     },
     {
       "name": "uml",
@@ -403,7 +403,7 @@
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "aaa9b9011ac0"
+      "version": "d3521dee6f14"
     },
     {
       "name": "week-summary",

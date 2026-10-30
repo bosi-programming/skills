@@ -1,15 +1,6 @@
 ---
 name: uml
-description: >-
-  Draw UML diagrams of a codebase or of a described system with PlantUML, and
-  serve them on a local dark-theme page where each diagram can be edited live
-  and the edit is saved back to its source. Covers class, sequence, state,
-  profile, composite structure, component, deployment, object, package and
-  activity diagrams, and entity-relationship diagrams of the schema. Use when
-  the user asks for UML, a class diagram, a sequence diagram, a state machine,
-  an activity diagram or flowchart of a flow, an ER diagram of the database, a
-  deployment or package view of a repo or a folder, or wants a system they
-  describe drawn as UML, or says "/uml".
+description: Draw UML diagrams of a codebase or a described system with PlantUML and serve them on a local dark-theme page where each diagram is editable and saved back to its source. Covers class, sequence, state, profile, composite structure, component, deployment, object, package, activity and ER diagrams. Use when the user asks for UML, a class, sequence, state, activity or ER diagram, a deployment or package view, or says "/uml".
 ---
 
 # UML

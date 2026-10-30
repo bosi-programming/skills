@@ -1,6 +1,6 @@
 ---
 name: better-code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/PRD asked for?) and Tests (are the tests sound, and does changed behaviour have one?). Runs the three reviews in parallel sub-agents and renders them as a three-tab dark-theme HTML page opened in the browser, or, with `--headless`, returns them as plain text without asking anything. With `--slack <link>`, reviews every PR a Slack message links to, comments or approves on GitHub, and comments on the message. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X", or when another skill or agent needs a review it can act on.
+description: Review the changes since a fixed point (commit, branch, tag or merge-base) on three axes, Standards, Spec and Tests, in parallel sub-agents. Renders a three-tab HTML page, or with `--headless` returns plain text. With `--slack <link>` reviews every PR a Slack message links to and comments or approves on GitHub. Use to review a branch, a PR or work in progress, on "review since X", or when another skill needs a review it can act on.
 metadata:
   based-on: "Matt Pocock's code-review skill"
   adapted-by: Felipe Bosi

@@ -1,14 +1,12 @@
 ---
 name: summarize-llm-response
 description: >-
-  Output gate for anything a human will read. Run it before you summarize
-  findings or an investigation, before you create or update a Linear issue or
-  comment, a Todoist task, a Notion page, a Slack message, or any technical
-  markdown doc (README, ADR, runbook, changelog, investigation notes). It fixes
-  the shape — bullets over prose, evidence inline, action items as a checklist,
-  no filler — and adds the attribution tag the destination requires. Skip it for
-  yes/no answers, single-line factual replies, code-only output, clarifying
-  questions, git commit messages and PR descriptions.
+  Output gate for anything a human will read. Run it before summarizing
+  findings, or creating or updating a Linear issue or comment, Todoist task,
+  Notion page, Slack message or technical markdown doc. Fixes the shape
+  (bullets, inline evidence, checklist actions, no filler) and adds the
+  destination's attribution tag. Skip for yes/no answers, one-line replies,
+  code-only output, clarifying questions, commit messages and PR descriptions.
 ---
 
 ## First, check this applies
