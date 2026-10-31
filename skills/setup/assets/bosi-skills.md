@@ -35,6 +35,7 @@ recipe-relay:
   reviewState: In Review
   doneState: Done
   uiReviewerModel: ''
+  routineModel: ''
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -109,6 +110,9 @@ only needs the keys it changes.
   it; empty skips the move.
 - `recipe-relay.uiReviewerModel` — the model for the UI reviewer; empty keeps
   the model the relay runs on.
+- `recipe-relay.routineModel` — the model for the Plating and Documentation
+  units and the sub-agent that runs the closing review; empty keeps the model
+  the relay runs on.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML
@@ -147,6 +151,11 @@ if there is none.
 
 Guidance `ship-pr` follows when it ships, such as which validate command
 belongs to which repo. Leave this section out if there is none.
+
+## better-code-review
+
+Rules the review's three sub-agents follow, such as a kind of file that needs
+no tests. Leave this section out if there is none.
 
 ## recipe-relay
 

@@ -90,16 +90,16 @@ Takes one ticket to a pull request that is open, reviewed and ready for review, 
 
 How the ticket moves:
 
-1. **Reading the Recipe and Mise en Place** turn the ticket into a plan on the recipe card.
-2. **Cooking** splits. One sub-agent names the interfaces; then, for each repo, a test writer and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. A last sub-agent makes the tests pass and runs Tasting: the project's scoped tests, lint and `better-code-review`.
-3. **UI review.** When the change reaches a screen, a UI reviewer runs beside that last sub-agent. It waits for the screenshots Tasting captures, compares them with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
+1. **Reading the Recipe and Mise en Place** run as one sub-agent. It turns the ticket into a plan on the recipe card and names the interfaces.
+2. **Cooking** splits. For each repo, a test writer and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. A last sub-agent makes the tests pass and runs Tasting: the project's scoped tests and lint.
+3. **UI review.** When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots Tasting captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
 4. **Plating** opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
-5. **Review and fix.** The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch. The session checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
+5. **Review and fix.** The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch; this is the run's one review. Another sub-agent checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
 6. **Documentation** closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
 
 It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`: a one-way door or a question with no reasonable default. Then it asks you in chat, and running it again picks the card back up where it stopped. It never merges; the PR waits for a person.
 
-`recipe-relay.codingModel` and `recipe-relay.uiReviewerModel` pick the models for the writers and the UI reviewer. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
+`recipe-relay.codingModel`, `recipe-relay.uiReviewerModel` and `recipe-relay.routineModel` pick the models for the writers, the UI reviewer, and the Plating, Documentation and review sub-agents. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
 
 ### open-restaurant
 
@@ -208,7 +208,7 @@ opencode/
 package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
   index.json          the skill list at the root of the URL opencode downloads from
-  better-code-review/ SKILL.md + assets/report-template.html + scripts/
+  better-code-review/ SKILL.md + references/ (page, slack) + assets/report-template.html + scripts/
   feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md + scripts/
@@ -332,9 +332,8 @@ if either skill drops its model setting. Offline, stdlib only — run it after
 editing `recipe-relay` or step 4 of `better-code-review`.
 
 `check-ui-review.py` is `recipe-relay`'s third check: it fails if the UI
-review stops running beside the last Cooking unit, starts the app or takes its
-own screenshots, loses the `screenshots.done` signal or its stale-signal rule,
-guesses a design it was not given, or stops sending critical and major
+review stops running after the last Cooking unit, goes back to waiting on a
+signal, starts the app or takes its own screenshots, guesses a design it was not given, or stops sending critical and major
 findings back at most twice. Offline, stdlib only — run it after editing
 `recipe-relay`.
 

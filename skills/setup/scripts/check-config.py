@@ -32,6 +32,7 @@ KEYS = {
     "recipe-relay.reviewState": "In Review",
     "recipe-relay.doneState": "Done",
     "recipe-relay.uiReviewerModel": "''",
+    "recipe-relay.routineModel": "''",
     "feature-recipe.runWorkSummary": "true",
     "feature-recipe.docsDestination": "''",
     "ship-pr.titleFormat": "type(scope): subject [KEY]",
@@ -73,7 +74,7 @@ CONSUMERS = {
         "feature-recipe.defaultMode",
     ],
     SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
-    SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
+    SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel", "recipe-relay.routineModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
     SKILLS / "feature-recipe" / "phases" / "phase-6-documentation.md": [
         "feature-recipe.runWorkSummary",
         "feature-recipe.docsDestination",
@@ -87,6 +88,7 @@ CONSUMERS = {
 
 SECTIONS = {
     "recipe-relay": SKILLS / "recipe-relay" / "SKILL.md",
+    "better-code-review": SKILLS / "better-code-review" / "SKILL.md",
 }
 
 PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]
@@ -161,6 +163,11 @@ for name, path in SECTIONS.items():
     check(f"section-in-template:{name}", re.search(rf"^{heading}$", template, re.MULTILINE), f"template body lacks {heading}")
     check(f"section-asked:{name}", f"`{heading}`" in skill, f"setup must ask for the `{heading}` section")
     check(f"section-read:{name}", f"`{heading}`" in read(path), f"{path.relative_to(SKILLS).as_posix()} must read the `{heading}` section")
+
+for phase in ("phase-0-start.md", "phase-6-documentation.md"):
+    check(f"no-whole-config-read:{phase}", "Read `../../setup/references/config.md`" not in read(SKILLS / "feature-recipe" / "phases" / phase),
+          "the phase lists its keys, so it must not open config.md")
+check("config-says-read-by-key", "grep -n -a8" in flat, "config.md must give the lookup that reads one skill's keys")
 
 missing = [key for key in DERIVED if f"`{key}`" not in config]
 check("config-documents-derived-keys", not missing, f"undocumented key: {missing}")

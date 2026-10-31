@@ -59,6 +59,18 @@ check_all("stop-waits-for-review", stops, "section 5 is done")
 check_all("pr-never-draft", units, "never as a draft", "ready for review", "overrides")
 check("no-draft-promote-wait", "draft" not in flatten(review), "section 5 still talks about drafts")
 
+check_all("design-unit", units, "design unit", "`phase-1-reading-the-recipe.md`", "`phase-2-mise-en-place.md`", "`## Interfaces`")
+check_all("no-contract-read", units, "do not read `../feature-recipe/references/headless.md`", "`## Open Questions`", "`runQuestion`", "force-push")
+check_all("return-cap", units, "at most 100 words")
+check_all("routine-model", units, "`recipe-relay.routineModel`", "plating", "documentation")
+check_all("plating-skips-self-review", units, "skip plating's section 2")
+check_all("one-review-per-run", units, "skip tasting's section 1")
+check_all("fixes-in-sub-agent", review, "`recipe-relay.codingModel`", "sub-agent")
+check("fixes-off-main-session", "in this session" not in flatten(review), "section 5 still fixes findings in the main session")
+check_all("review-output-to-file", review, "`{scratch}/review.txt`", "`Totals:`")
+check_all("triage-kept", review, "scope creep", "judgement call", "`## Quality Gate Results`")
+check_all("routing-frontmatter-only", block(skill, "## 1. Start or resume", r"^## "), "only the card's frontmatter")
+
 readme_check = block(readme, "## Validate a change", r"^## ")
 check_all("readme-validate-command", readme_check, "check-review-evidence.py")
 

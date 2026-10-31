@@ -51,15 +51,18 @@ the ones in `./references/config.md`:
    d. Model for the `recipe-relay` sub-agents that write tests and code, or
       the one the relay runs on.
    e. Model for the `recipe-relay` UI reviewer, or the one the relay runs on.
-   f. State the relay moves a task to once its PR opens, or `In Review`, and
+   f. Model for the `recipe-relay` Plating and Documentation units and the
+      sub-agent that runs its closing review, or the one the relay runs on.
+   g. State the relay moves a task to once its PR opens, or `In Review`, and
       the state it moves it to when Documentation closes it, or `Done`.
-   g. Any rules for the body's `## recipe-relay` section, which belongs in
+   h. Any rules for the body's `## recipe-relay` section, which belongs in
       the project's own file while the project lasts.
 8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.
    c. For PRs taken from Slack, `fast`, which skips installing dependencies,
       or `slow`, which installs them so the project's checks run.
+   d. Any rules for the body's `## better-code-review` section.
 9. `ship-pr`:
     a. Title format: `type(scope): subject [KEY]` or `[KEY] type(scope): subject`.
     b. Pause for approval before push and PR: yes or no.

@@ -12,8 +12,8 @@ recipe card and runs through `../recipe-relay/SKILL.md`, which runs
 a whole — readiness, the contract, integration, QA, proof, merge — lives here,
 in the service card, never in a sub-issue's card.
 
-Sub-agents cannot start sub-agents of their own, so this session drives every
-unit of every card itself. Start units in the background where the runtime
+This session drives every unit of every card itself, so one place holds the
+state of the whole order. Start units in the background where the runtime
 allows it, so cards in different repos cook at the same time, and act on each
 unit as it returns.
 
@@ -153,7 +153,8 @@ per sub-issue, then decide when each may start.
    `../feature-recipe/references/recipe-card-template.md`, with `task` set to
    the sub-issue identifier. Add a `## Parent contract` section holding the
    contract entries where this sub-issue is producer or consumer; its
-   Interfaces unit must match them, and logs any difference to `## Decisions`.
+   `## Interfaces` must match them, and its design unit logs any difference to
+   `## Decisions`.
 2. **Branch.** The branch is the one the tracker gives for the sub-issue, so
    the tracker links the PR to it. When the card starts, switch its repo's
    checkout to it: `git switch -c <branch> origin/<default branch>`, or off
@@ -179,13 +180,12 @@ per sub-issue, then decide when each may start.
 
 Run each card through `../recipe-relay/SKILL.md` as written: Phase 0, the
 units, the UI review, the stop conditions and the closing `better-code-review`
-pass with its fixes. Run the fixes in a sub-agent on
-`recipe-relay.codingModel`, under that pass's own rules, so this session stays
-free for the other cards. Every unit's prompt names the card's repo checkout
-as where it works. On top of recipe-relay:
+pass with its fixes. Read those shared files once per session; for each later
+card, read only its frontmatter to route it. Every unit's prompt names the
+card's repo checkout as where it works. On top of recipe-relay:
 
-- **Cooking.** The Interfaces unit of a card that blocks a sub-issue in
-  another repo gets section 6's extra instruction.
+- **Design.** The design unit of a card that blocks a sub-issue in another repo
+  gets section 6's extra instruction.
 - **Plating.** Add to its prompt: "Deliver one PR, no chunks, open and ready
   for review, never as a draft, from `{branch}` against base `{base}` (the
   default branch, or the blocker's branch when it stacks). This overrides
@@ -225,14 +225,14 @@ row `done`, then free the repo for the next card in it.
 When B is blocked by A in another repo, B needs A's shapes, not A's code, so
 it starts long before A's PR.
 
-1. **The ask.** When A's Interfaces unit starts, tell it who A blocks and
+1. **The ask.** When A's design unit starts, tell it who A blocks and
    what each needs, read from the parent's `## Contract` (A the producer, B a
    consumer). Besides `## Interfaces`, it writes, for each such B,
    `{scratch}/unblock/<A>-to-<B>.md` holding: the shapes B consumes, copied
    from A's `## Interfaces` and checked against the contract; each difference
    from the contract on its own line; and what B still cannot rely on, such as
    an endpoint not deployed until A's PR merges.
-2. **Earliest point.** The end of A's Interfaces unit is the earliest point,
+2. **Earliest point.** The end of A's design unit is the earliest point,
    since A's names, signatures and files are fixed there. When the unit cannot
    give B what it needs — A's plan too vague, or a thing that only exists once
    A's code runs, such as a generated client — the note says so and names the
@@ -245,7 +245,7 @@ it starts long before A's PR.
 4. **The handoff.** Copy the note into B's card as
    `## Upstream interfaces (<A>)` before B's Phase 1 starts, log
    `relay: started <B> early on <A>'s interfaces` to B's `## Decisions`, and
-   start B at once, beside A's writers. B's Interfaces unit and both writers
+   start B at once, beside A's writers. B's design unit and both writers
    code to that section as fixed input; B's tests stub A's side at that shape
    and never call A's unfinished code. Record the note in the service card's
    `## Unblock notes`.
@@ -256,7 +256,7 @@ it starts long before A's PR.
    or next unit to adapt; if B already reached Plating, send B through one
    more fix and taste round.
 6. **Chains.** In a chain where A blocks B and B blocks C, C waits for B's
-   note, which B writes at the end of its own Interfaces unit, already built
+   note, which B writes at the end of its own design unit, already built
    on A's note. Each hop happens at the earliest point, never at PR time.
 
 ## 7. Close the cards

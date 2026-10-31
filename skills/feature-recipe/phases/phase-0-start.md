@@ -7,8 +7,10 @@ file comes next and that phase's own ending is where the user gets asked.
 
 ## Settings
 
-Read `../../setup/references/config.md` and resolve two keys from the settings
-file, current folder first, then `$HOME`, then the default:
+Resolve two keys from the settings file as
+`../../setup/references/config.md` describes, without opening that file:
+`grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`, current
+folder first, then `$HOME`, then the default:
 
 - `feature-recipe.cardsDir` — {cardRoot}, where recipe cards live. Default
   `./recipes`.
@@ -60,7 +62,8 @@ in this project" for step 3, without asking again.
 
 Read the matched card's frontmatter (`phase`, `phasesCompleted`, `status`,
 `prUrl`, `runMode`) and its `## Decisions` section, then read the rest of the
-card for full context.
+card for full context. A driver that only routes, such as `recipe-relay`, stops
+at the frontmatter and skips the read-aloud below.
 
 A human in the room outranks the recorded mode. If this invocation is not
 headless but `runMode` on the card is `headless`, set it back to

@@ -65,6 +65,14 @@ check_all("headless-closing-lines", headless, "per-axis", "not verified")
 check_all("step-one-defers", step_one, "headless")
 check_all("step-two-defers", step_two, "headless")
 check_all("step-six-defers", step_six, "headless")
+check_all("page-reference", step_six, "`./references/page.md`")
+check("page-moved-out", "<details>" not in skill, "the page rules must live in references/page.md")
+page = read(SKILL / "references" / "page.md")
+check_all("page-steps-kept", page, "### 7. Build the companion code page", "<details>", "report-template.html", "refs-template.html")
+unresolved_page = sorted(
+    {path for path in RELATIVE_PATH.findall(page) if not (SKILL / "references" / path).resolve().exists()}
+)
+check("page-paths-resolve", not unresolved_page, f"unresolved: {unresolved_page}")
 
 default_mode = block(skill, "\n## Default mode\n", r"^## ")
 process_start = block(skill, "\n## Process\n", r"^### 1\. ")

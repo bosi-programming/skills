@@ -103,7 +103,10 @@ check_all("implemented-state", text["cards"], "`open-restaurant.implementedState
 check_all("relay-review-per-card", text["cards"], "better-code-review")
 
 check_all("unblock-file", text["unblock"], "`{scratch}/unblock/<a>-to-<b>.md`", "`## upstream interfaces (<a>)`")
-check_all("unblock-earliest", text["unblock"], "interfaces unit", "later point")
+check_all("unblock-earliest", text["unblock"], "design unit", "later point")
+check_none("no-interfaces-unit", skill, "interfaces unit")
+check_none("no-nesting-claim", skill, "cannot start sub-agents")
+check_all("shared-files-once", text["cards"], "once per session", "frontmatter")
 check_all("unblock-follow-up", text["unblock"], "follow-up", "never guess")
 check_all("unblock-change", text["unblock"], "dated entry", "one more fix and taste round")
 check_all("unblock-chain", text["unblock"], "chain")

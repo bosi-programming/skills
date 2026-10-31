@@ -5,8 +5,10 @@ session-break menu but with a plain close.
 
 ## Settings
 
-Read `../../setup/references/config.md` and resolve two keys from the settings
-file, current folder first, then `$HOME`, then the default:
+Resolve two keys from the settings file as
+`../../setup/references/config.md` describes, without opening that file:
+`grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`, current
+folder first, then `$HOME`, then the default:
 
 - `feature-recipe.docsDestination` — where docs go. Default `''`: work it out
   as section 1 says.

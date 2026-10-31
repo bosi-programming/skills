@@ -87,6 +87,7 @@ check_all("description-tests-axis", frontmatter_description(skill), "three axes"
 check_all("intro-tests-axis", block(skill, "---\n\n", r"^## Process"), "**Tests**", "three tabs")
 check_all("sources-tests", step_three, "Tests axis", "../code-standards/Testing/Tests.md")
 check_all("tests-sub-agent", step_four, "Tests sub-agent prompt", "missing test", "no tests to review")
+check_all("settings-section-reaches-axes", step_four, "`## better-code-review`", "`Project rules:`", "every sub-agent")
 check_all("aggregate-three", step_five, "`Tests`")
 check_all("headless-tests", headless, "Spec | Standards | Tests", "missing test", "Tests <n>", "no tests to review")
 check_all("why-three-axes", skill, "## Why three axes")

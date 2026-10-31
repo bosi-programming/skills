@@ -30,7 +30,8 @@ named after a skill, `## work-summary` or `## week-summary`, is guidance that
 skill follows on top of its own rules. A project file is the place for guidance
 that lasts only while a project does: `## recipe-relay` in one project's
 `.bosi-skills.md` reaches every sub-agent the relay runs there, and deleting
-the section ends it.
+the section ends it. `## better-code-review` reaches the review's three
+sub-agents the same way.
 
 ```markdown
 ---
@@ -83,6 +84,7 @@ every key.
 | `recipe-relay.reviewState` | `In Review` | Tracker state the relay moves the task to once its PR is open. Empty skips the move. |
 | `recipe-relay.doneState` | `Done` | Tracker state the relay moves the task to when Documentation closes it. Empty skips the move. |
 | `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design. Empty means the model the relay runs on. |
+| `recipe-relay.routineModel` | `''` | Model for the Plating and Documentation units and the sub-agent that runs the closing review. Empty means the model the relay runs on. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |
@@ -114,6 +116,10 @@ counts as the request naming it.
 ## Reading it
 
 To read a key: check `./.bosi-skills.md`, then `~/.bosi-skills.md`, and take
-the first that sets it. Expand a leading `~` to `$HOME`. Log nothing when a
+the first that sets it. Read only the skill's own group, not the whole file:
+`grep -n -A8 '^<skill>:' .bosi-skills.md ~/.bosi-skills.md`, with more context
+lines for a group longer than that. A skill that already names its keys, the
+order and the defaults need not open this contract either. Expand a leading
+`~` to `$HOME`. Log nothing when a
 default is used; log the file a value came from only when the skill already
 keeps a decision log, such as a recipe card's `## Decisions`.

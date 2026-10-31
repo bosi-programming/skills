@@ -25,38 +25,55 @@ this session — not through a sub-agent. It's pure routing, and this session
 needs the card's state to orchestrate anyway. Follow it as an interactive
 invocation: take the task from what the user already said in this
 conversation, and don't write `runMode: headless` to the card. A person is
-running this, just not being asked every checkpoint.
+running this, just not being asked every checkpoint. To route, this session
+reads only the card's frontmatter; the units read the rest.
 
 ## 2. Run one unit per sub-agent
 
 Determine the next unit from the card's `phase` / `runNext`:
 
+- **Design unit.** `phase-1-reading-the-recipe.md` and
+  `phase-2-mise-en-place.md` run as one unit, from whichever `runNext` names,
+  so Mise en Place keeps what Reading the Recipe learned about the code. It
+  ends by writing `## Interfaces`, as step 1 of _Cooking in parallel_ says.
 - `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
-  parallel_ below, and its last unit runs beside the _UI review in parallel_
-  below.
-- Every other phase (`phase-1-reading-the-recipe.md`, `phase-2-mise-en-place.md`,
-  `phase-5-plating.md`, `phase-6-documentation.md`) is its own unit.
+  parallel_ below, and the _UI review_ below follows its last unit.
+- `phase-5-plating.md` and `phase-6-documentation.md` each run alone, on the
+  model `recipe-relay.routineModel` names, read from the settings file as
+  `../setup/references/config.md` says. Its default, `''`, keeps the model this
+  session runs on.
 
 Spawn one `general-purpose` sub-agent per unit (full tool access — Cooking
 and Plating need to write code, run tests, and open PRs) with a prompt to
 this effect:
 
 > Load and execute `{phase file(s)}` against the recipe card at `{card
-> path}`. Follow that phase's own `## Headless` section for every checkpoint
+> path}`. Follow each phase's own `## Headless` section for every checkpoint
 > it names — grilling, section drafts, cross-checks, test-case lists,
 > approvals, PR descriptions — taking the recommendation it states, and
 > logging it to `## Decisions` prefixed `relay:` instead of `unattended:` (a
-> person is running this, just not being asked). Ignore that section's
-> instructions about chaining into the next phase file: stop and return
-> control once this unit's own closing section (frontmatter update, one line
-> to `## Decisions`) is written. Do not set `runMode` on the card. Return a
-> short summary of what got decided.
+> person is running this, just not being asked).
+> Do not read `../feature-recipe/references/headless.md`, though that section
+> says to: this prompt holds what you need from it. Ignore that section's
+> instructions about chaining past this unit's last phase file: stop and
+> return control once its closing section (frontmatter update, one line to
+> `## Decisions`) is written. Do not set `runMode` on the card. Never merge,
+> delete work written on purpose, force-push, rewrite history, run an
+> irreversible migration, or change credentials or production. At one of
+> those, or at a question with no reasonable default, stop: write an entry to
+> `## Open Questions` with an id, the question, the options and your
+> recommendation; set `runStatus` to `needs-input` for a one-way door or
+> `blocked` when something external must change; set `runQuestion` to the id;
+> leave `runNext`, `phase` and `phasesCompleted` alone; and log the stop to
+> `## Decisions`. Return at most 100 words on what got decided. The rest stays
+> on the card.
 
 For the Plating unit, add this to that prompt: open the PR ready for review,
 never as a draft, and leave it that way. This overrides Plating's draft rule
 for deferred CI checks and its Headless rule that opens drafts and never
 promotes them. CI still gets waited on and fixed as Plating's section 5 says.
-Tell it also to move the task, in the tracker the card came from, to
+Skip Plating's section 2: section 5 below reviews the diff right after this
+unit. Tell it also to move the task, in the tracker the card came from, to
 `recipe-relay.reviewState`, default `In Review`, once the PR is open; an empty
 value skips the move.
 
@@ -75,12 +92,14 @@ test writer, code writer and fix agent on the model
 `../setup/references/config.md` says. Its default, `''`, keeps the model this
 session runs on.
 
-1. **Interfaces.** One sub-agent reads the card's Solution, Implementation
-   Plan and `## TDD Test Mapping`, and writes a `## Interfaces` section to the
-   card before either writer starts. For each repo the plan touches, it lists
-   the public names, their signatures and the files they live in. Both
-   writers code to that section and nothing else. A plan too vague to name
-   them stops the run with `runStatus: needs-input`, as section 4 says.
+1. **Interfaces.** The design unit's last step reads the card's Solution,
+   Implementation Plan and `## TDD Test Mapping`, and writes a `## Interfaces`
+   section to the card before either writer starts. For each repo the plan
+   touches, it lists the public names, their signatures and the files they
+   live in. Both writers code to that section and nothing else. A plan too
+   vague to name them stops the run with `runStatus: needs-input`, as section 4
+   says. A card resumed at Cooking with no such section gets one sub-agent that
+   writes it.
 2. **Writers.** For each repo, spawn its test writer and its code writer at
    the same time, both on the same branch and worktree the code runs from: the
    repo's own checkout, on `{branch}`, the branch the repo is on. Start every
@@ -105,42 +124,36 @@ session runs on.
    starts at step 4 of Cooking's section 1: run the tests, make the red ones
    pass by fixing the code, not the test, unless the test contradicts
    `## Interfaces` or the Acceptance Criteria. Then it runs the rest of
-   Cooking and all of Tasting.
+   Cooking and all of Tasting. Tell it to skip Tasting's section 1: section 5
+   below runs the one review, right after Plating. With no review to lean on,
+   Tasting runs every project check itself, and those checks stay its hard
+   gate.
 
-### UI review in parallel
+### UI review
 
 A UI review compares what the change renders with the design the task
 carries. It runs only when the card's Solution changes a surface a person sees
 in the browser; for any other change, skip this section and log the skip to
 `## Decisions` as `relay:`.
 
-1. **Two agents at once.** Start the UI reviewer at the same time as the fix
-   and taste agent from step 3 of _Cooking in parallel_, and wait on both.
-   Run the reviewer on the model `recipe-relay.uiReviewerModel` names, read
-   from the settings file as `../setup/references/config.md` says. Its
-   default, `''`, keeps the model this session runs on.
-   The reviewer never starts the app and takes no screenshots: it judges the
-   ones the fix and taste agent captures, so the two never fight over one
-   running app.
-2. **Screenshots and the signal.** Tell the fix and taste agent, in its prompt,
-   to do this once Tasting's checks pass. Bring the change up the way the
-   project already does, and screenshot every state of the changed surface
-   the Acceptance Criteria name into `{scratch}/ui-review/`. Then write
-   `{scratch}/ui-review/screenshots.done` with one line per repo:
-   `<repo> <sha>`, the sha from `git rev-parse HEAD` in that repo. When it
-   cannot bring the surface up, it writes the same file with a first line
-   `none: <reason>` above the sha lines. It deletes the file as it starts, so
-   a signal from an earlier round never survives into this one.
-3. **The reviewer waits.** It polls for `screenshots.done` for up to 90
-   minutes. A sha that differs from the repo's `HEAD` is stale, from an
-   earlier round, so it should keep waiting. A `none:` line, or no fresh signal in
-   time, makes the verdict `inconclusive`.
-4. **The design.** The design is the image attached to the task, read with
+1. **Order.** Start the UI reviewer after the fix and taste agent returns from
+   step 3 of _Cooking in parallel_. Run the reviewer on the model
+   `recipe-relay.uiReviewerModel` names, read from the settings file as
+   `../setup/references/config.md` says. Its default, `''`, keeps the model
+   this session runs on. The reviewer never starts the app and takes no
+   screenshots: it judges the ones the fix and taste agent captures.
+2. **Screenshots.** Tell the fix and taste agent, in its prompt, to do this
+   once Tasting's checks pass. It clears the folder `{scratch}/ui-review/`,
+   brings the change up the way the project already does, and screenshots every
+   state of the changed surface the Acceptance Criteria name into that folder.
+   When it cannot bring the surface up, its summary says `none: <reason>`: the
+   verdict is `inconclusive`, and no reviewer starts.
+3. **The design.** The design is the image attached to the task, read with
    whatever tool the session has for the tracker. A design-tool frame the task
    links may settle a region the image leaves unclear, but never stands in
    for a missing image. No design at all makes the verdict `inconclusive`.
    The reviewer never guesses the design from the task's text.
-5. **The comparison.** Walk the design top to bottom and name, for each
+4. **The comparison.** Walk the design top to bottom and name, for each
    difference, the design region and the screenshot it comes from. Rate it:
    critical when the changed surface is missing, blank or broken; major for a
    wrong component or structure, a missing or extra field, wrong content or
@@ -148,9 +161,9 @@ in the browser; for any other change, skip this section and log the skip to
    spacing, colour or weight drift and anything the image cannot settle.
    Judge what a person sees, not the code. Write the verdict and the findings
    to a `## UI Review` section on the card.
-6. **Route the result.** Critical and major findings go back to the fix
-   agent, with the screenshots' paths, in a new fix and taste round that runs
-   beside a new review; do this at most twice. A third round with critical or
+5. **Route the result.** Critical and major findings go back to the fix
+   agent, with the screenshots' paths, in a new fix and taste round followed by
+   a new review; do this at most twice. A third round with critical or
    major findings stops the run with `runStatus: needs-input`, as section 4
    says. Minor findings never send work back: log them to
    `## Quality Gate Results`. An `inconclusive` verdict goes on the card with
@@ -184,19 +197,26 @@ with a chunked delivery, for each chunk's PR as it opens. Do not wait for
 Phase 6 or for `runStatus: terminal`. If the run stopped on `blocked` /
 `needs-input` instead, skip this section.
 
-1. Spawn one `general-purpose` sub-agent to run `../better-code-review/SKILL.md`
-   with `--headless`. The fixed point is the merge base of the work branch and
-   the default branch; if the recipe worked on the default branch itself, it
-   is the commit before the recipe's first one. The spec source is the task on
-   the card. Have it return the review's output as it stands.
-2. Work through the findings in this session, on the same branch, by their
-   `Verified:` tag. A `ran` finding is proved: go to the fix. A `read` finding
-   gets read at its `file:line` first. A `no` finding: verify it first, by
-   running or reading what it names, and reject it if it does not hold. Write
-   a failing test first where the finding is a behaviour, then fix, then run
-   the project's scoped tests and lint. Push to the open PR, which stays ready for review. Log each finding you reject to `## Decisions` as
-   `relay:`, with the reason, instead of changing the code. Log the review's
-   `Reviewed:` line and each `Not verified:` entry there too, so the gap stays
-   on the card.
-3. Tell the user, in short bullets, which findings you fixed and which you
+1. Spawn one `general-purpose` sub-agent on `recipe-relay.routineModel` to run
+   `../better-code-review/SKILL.md` with `--headless`. The fixed point is the
+   merge base of the work branch and the default branch; if the recipe worked
+   on the default branch itself, it is the commit before the recipe's first
+   one. The spec source is the task on the card. Have it write the review's
+   output as it stands to `{scratch}/review.txt` and return only its `Totals:`
+   line.
+2. Spawn one sub-agent on `recipe-relay.codingModel` to work through the
+   findings in that file, on the same branch, by their `Verified:` tag. A `ran`
+   finding is proved: go to the fix. A `read` finding gets read at its
+   `file:line` first. A `no` finding: verify it first, by running or reading
+   what it names, and reject it if it does not hold. Log each `judgement call`
+   and `scope creep` finding to `## Quality Gate Results` and leave the code as
+   it is; deleting work written on purpose is a one-way door. Write a failing
+   test first where the finding is a behaviour, then fix, then run the
+   project's scoped tests and lint. Push to the open PR, which stays ready for
+   review. Log each finding you reject to `## Decisions` as `relay:`, with the
+   reason, instead of changing the code. Log the review's `Reviewed:` line and
+   each `Not verified:` entry there too, so the gap stays on the card. Return at
+   most 150 words: what got fixed, what got rejected and why, what stays not
+   verified.
+3. Tell the user, in short bullets, which findings were fixed and which were
    rejected, with the reason, and what the review left not verified.

@@ -50,7 +50,9 @@ def frontmatter_description(text):
 
 skill = read(SKILL_MD)
 readme = read(README)
-slack = block(skill, "\n## Slack\n", r"^## ")
+slack = read(SKILL / "references" / "slack.md")
+check_all("skill-points-at-slack", block(skill, "\n## Slack\n", r"^## "), "`./references/slack.md`", "--slack")
+check("slack-moved-out", "### What gets a comment" not in skill, "the Slack steps must live in references/slack.md")
 default_mode = block(skill, "\n## Default mode\n", r"^## ")
 comment_rule = block(slack, "### What gets a comment", r"^### ")
 
