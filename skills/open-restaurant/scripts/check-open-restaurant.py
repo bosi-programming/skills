@@ -10,7 +10,7 @@ README = REPO / "README.md"
 PLATING = SKILLS / "feature-recipe" / "phases" / "phase-5-plating.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
 
-PRIVATE = ["~/dev/", "clutch", "withclutch", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
+PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
 results = []
 

@@ -93,7 +93,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "260f0d21da36"
+      "version": "d1264fe3ef7c"
     },
     {
       "name": "pause-work",
@@ -107,6 +107,23 @@
         "evals/scenario-04.json"
       ],
       "version": "887601b87d37"
+    },
+    {
+      "name": "plan-work",
+      "files": [
+        "SKILL.md",
+        "evals/README.md",
+        "evals/scenario-01.json",
+        "evals/scenario-02.json",
+        "evals/scenario-03.json",
+        "evals/scenario-04.json",
+        "evals/scenario-05.json",
+        "references/review-report.md",
+        "references/standard.md",
+        "scripts/check_plan.py",
+        "scripts/test_check_plan.py"
+      ],
+      "version": "5f48a2bfe684"
     },
     {
       "name": "recipe-relay",
@@ -127,7 +144,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "7ff6817b1c53"
+      "version": "25277ac1f989"
     },
     {
       "name": "ship-pr",

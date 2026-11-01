@@ -100,6 +100,18 @@ the ones in `./references/config.md`:
     c. Work hours of each day.
     d. Hours one estimate point stands for.
     e. Most tickets in progress at once.
+15. `plan-work`:
+    a. The team's planning standard (a path, a URL or `owner/repo@ref:path`),
+       or the bundled one.
+    b. Command that lints a plan against that standard, or the bundled lint.
+    c. Tracker team or project new tickets go in, or ask each time.
+    d. Map from Kind or area to tracker label names, or no labels.
+    e. Repos the work may touch, or take them from the sources.
+    f. Put every new Feature behind a feature flag: yes or no.
+    g. The flag tool, such as a flag service or an env var, or ask.
+    h. Role: `engineer` hands the tickets to `plan-assembly-line` when
+       planning ends, `other` stops there, or ask each time.
+    i. Any team rules for the body's `## plan-work` section.
 
 An answer of "keep" or no answer leaves that key as it is.
 

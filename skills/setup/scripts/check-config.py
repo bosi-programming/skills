@@ -62,6 +62,14 @@ KEYS = {
     "weekly-planning.workHours": "09:00-18:00",
     "weekly-planning.hoursPerPoint": "4",
     "weekly-planning.maxTickets": "2",
+    "plan-work.standard": "''",
+    "plan-work.lint": "''",
+    "plan-work.team": "''",
+    "plan-work.labels": "{}",
+    "plan-work.repos": "[]",
+    "plan-work.featureFlags": "false",
+    "plan-work.flagEngine": "''",
+    "plan-work.role": "''",
 }
 
 DERIVED = [
@@ -90,14 +98,16 @@ CONSUMERS = {
     SKILLS / "open-restaurant" / "SKILL.md": [key for key in KEYS if key.startswith("open-restaurant.")],
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
     SKILLS / "weekly-planning" / "SKILL.md": [key for key in KEYS if key.startswith("weekly-planning.")],
+    SKILLS / "plan-work" / "SKILL.md": [key for key in KEYS if key.startswith("plan-work.")],
 }
 
 SECTIONS = {
     "recipe-relay": SKILLS / "recipe-relay" / "SKILL.md",
     "better-code-review": SKILLS / "better-code-review" / "SKILL.md",
+    "plan-work": SKILLS / "plan-work" / "SKILL.md",
 }
 
-PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "clutch", "withclutch", "refipipeline", "linear-server", "aopost"]
+PRIVATE = ["~/dev/", "notion.com", "check-kinds", "llm-work-session", "dao-", "core values", "2-areas/", "lattice", "felipe", "always-do-right", "refipipeline", "linear-server", "aopost"]
 
 results = []
 
@@ -216,6 +226,7 @@ check("ship-pr-commits-from-file", "commit -F" in sp and "commit -m" not in sp, 
 
 check_moved_skill(SKILLS / "pause-work")
 check_moved_skill(SKILLS / "weekly-planning", ["scripts/plan_week.py"])
+check_moved_skill(SKILLS / "plan-work", ["references/standard.md", "references/review-report.md", "scripts/check_plan.py"])
 
 readme = read(README)
 check("readme-validate-command", "check-config.py" in readme, "README must list check-config.py")

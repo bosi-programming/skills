@@ -63,6 +63,15 @@ weekly-planning:
   workHours: 09:00-18:00
   hoursPerPoint: 4
   maxTickets: 2
+plan-work:
+  standard: ''
+  lint: ''
+  team: ''
+  labels: {}
+  repos: []
+  featureFlags: false
+  flagEngine: ''
+  role: ''
 ---
 
 # Settings for bosi-programming-skills
@@ -152,6 +161,21 @@ only needs the keys it changes.
 - `weekly-planning.workHours` — work window of each day.
 - `weekly-planning.hoursPerPoint` — hours one estimate point stands for.
 - `weekly-planning.maxTickets` — most tickets in progress at once.
+- `plan-work.standard` — the team's planning standard: a path, a URL or
+  `owner/repo@ref:path`; empty uses the standard bundled with the skill.
+- `plan-work.lint` — command that lints a plan against that standard; empty
+  uses the bundled lint with the bundled standard, and no lint otherwise.
+- `plan-work.team` — tracker team or project new tickets go in; empty asks.
+- `plan-work.labels` — map from Kind or area to the tracker's label name,
+  such as `{Feature: 'type: feature'}`; empty writes no labels.
+- `plan-work.repos` — repos the work may touch, used to split sub-issues;
+  empty takes them from the sources.
+- `plan-work.featureFlags` — `true` puts every new Feature behind a flag;
+  `false` plans a flag only when a source asks for one.
+- `plan-work.flagEngine` — the flag tool, such as a flag service or an env
+  var; empty writes "feature flag" and asks which tool.
+- `plan-work.role` — `engineer` hands the tickets to `plan-assembly-line`
+  when planning ends; `other` stops there; empty asks once.
 
 A request that names a mode, such as `--headless`, beats the default here.
 
@@ -182,6 +206,12 @@ The team's own steps: how to make the repo checkouts, the readiness standard
 and lint command, the bug marker, repos out of scope, the QA scope, skill, env
 and checks, the fix check, and how to wait for checks and map review groups.
 Leave this section out to take the skill's defaults.
+
+## plan-work
+
+The team's own planning rules on top of the standard, such as a label every
+ticket needs or a state new tickets start in. Leave this section out if there
+is none.
 
 ## week-summary
 

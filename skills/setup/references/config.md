@@ -31,7 +31,8 @@ skill follows on top of its own rules. A project file is the place for guidance
 that lasts only while a project does: `## recipe-relay` in one project's
 `.bosi-skills.md` reaches every sub-agent the relay runs there, and deleting
 the section ends it. `## better-code-review` reaches the review's three
-sub-agents the same way.
+sub-agents the same way. `## plan-work` holds a team's planning rules on top
+of the standard `plan-work` plans against.
 
 ```markdown
 ---
@@ -107,6 +108,14 @@ every key.
 | `weekly-planning.workHours` | `09:00-18:00` | Work window of each day. |
 | `weekly-planning.hoursPerPoint` | `4` | Hours one estimate point stands for. |
 | `weekly-planning.maxTickets` | `2` | Most tickets in progress at the same time. |
+| `plan-work.standard` | `''` | The team's planning standard: a path, a URL or `owner/repo@ref:path`. Empty means the standard bundled with `plan-work`. |
+| `plan-work.lint` | `''` | Command that lints a plan against the standard. Empty means the bundled lint with the bundled standard, and no lint with a team standard. |
+| `plan-work.team` | `''` | Tracker team or project new tickets go in. Empty means ask. |
+| `plan-work.labels` | `{}` | Map from Kind or area to the tracker's label name. Empty writes no labels. |
+| `plan-work.repos` | `[]` | Repos the work may touch, used to split sub-issues. Empty means take them from the sources. |
+| `plan-work.featureFlags` | `false` | `true` puts every new Feature behind a flag, with a flag-off criterion, a turn-on criterion and a removal issue. `false` plans a flag only when a source asks for one. |
+| `plan-work.flagEngine` | `''` | The flag tool the tickets name, such as a flag service or an env var. Empty writes "feature flag" and asks which tool. |
+| `plan-work.role` | `''` | `engineer` hands the new tickets to `plan-assembly-line` when planning ends; `other` stops there. Empty means ask once. |
 
 ## What the request says wins
 
