@@ -76,7 +76,7 @@ Cite the standard's letter with every result.
 
 1. **Size and split:** project or ticket (G), milestones (G), split or not
    (D), one repo per piece (D).
-2. **Kind:** each one-PR piece is Feature, Bug or Enablement, with its block
+2. **Kind:** each piece is Feature, Bug, Enablement or Design, with its block
    (C).
 3. **Body:** each heading the template asks for, filled from a source (B),
    with nothing left from H's list.
@@ -130,6 +130,11 @@ For anything with a screen, open the files that will change. Specs name pages,
 not what's on them. List each state the code can show (empty, loading, error,
 dialog, banner, tooltip); standard A turns each into a criterion.
 
+When a design exists for screen work, get its link and a screenshot of each
+changed screen as it is today and as designed. Both go in `## Design`
+(standard B). Screenshots you can't get become questions; never point at a
+frame you haven't opened.
+
 Then search the tracker and the docs for the same work. If some already
 exists, don't draft yet. Show the matches with links and say how much of the
 request they already cover. Then let the user choose: plan fresh anyway,
@@ -148,7 +153,11 @@ Settle these in order; each depends on the last:
 2. Milestones if it is a project that ships more than once, clean-up last (G).
 3. Split each ticket or not (D), using `plan-work.repos` or the repos the
    sources name. If you can't tell whether two pieces share state, ask.
-4. Kind of each piece (C).
+4. Kind of each piece (C). A Design ticket always lands in a frontend ticket.
+   Search the tracker for the one that will build it. If it exists, name it in
+   `Frontend ticket:` and plan an edit that adds the `## Design` section (or a
+   `No design yet` line until the design is done). If none exists, plan a new
+   frontend ticket, `blocked by` the design ticket.
 5. Flags (F): with `featureFlags` on, each new Feature gets one; with it off,
    only the flags a source asks for. Each flag gets a removal ticket (in the
    clean-up milestone when there is one), naming `plan-work.flagEngine`.

@@ -26,6 +26,7 @@ The tag says what evidence closes the box:
 - `[story]`: a component story in the PR, one per state the component shows.
 - `[run]`: a script, job or query run on a real case, output attached.
 - `[docs]`: the docs build passes and the page renders.
+- `[design]`: the frames exist at the design link. Design tickets only.
 - `[manual]`: a named person checks it. The line says why a machine can't, as
   `... because <reason>`.
 
@@ -113,12 +114,27 @@ may use any tag.
 
 Each piece also gets its kind's block (C).
 
+**Screen work.** Any piece with a `[ui]` or `[story]` criterion carries a
+`## Design` section. On a split ticket it goes on each screen sub-issue, or
+once on the ticket.
+
+```markdown
+## Design
+- Link: <the design file or frame>
+- <screen>: ![now](<screenshot of today>) → ![after](<screenshot of the design>)
+```
+
+One line per changed screen or state, so a reviewer can compare before and
+after without opening the design tool. When nothing looks different, write
+`- No visual change: <why>`. When the design does not exist yet, write
+`- No design yet: <design ticket id>`, and plan that design ticket (C).
+
 **Titles.** A ticket with sub-issues gets a sentence a customer could read. A
 sub-issue, or a ticket built in one PR, gets the repo's PR title format.
 
 ## C. Kinds
 
-Each piece of work that lands as one PR is one of three kinds, and the kind
+Each piece of work is one of four kinds, and the kind
 adds a block:
 
 - **Feature**, new or changed behaviour: `## Before → after`, what someone sees
@@ -131,6 +147,24 @@ adds a block:
   refactor, a spike, a decision, tooling, monitoring): `## Why this shape` and
   `## Behaviour held constant`. A spike lists `## Questions` and the doc it
   produces under `## Output`.
+
+- **Design**, mock-ups or flows with no code: a ticket of its own, never a
+  sub-issue, with no `## Technical design` or `## Repos and key paths`. In
+  their place it has:
+
+  ```markdown
+  ## Design deliverable
+  - Screens: <screens and states it covers>
+  - Where it lands: <the design file or folder>
+  - Frontend ticket: <id of the ticket that builds it>
+  ```
+
+  Its criteria use `[design]`: the frames exist at the link, one line per
+  screen or state. A design ticket always leads to a frontend ticket. Name an
+  existing one, or plan a new one in the same plan, `blocked by` the design
+  ticket. Either way, once the design is done, the frontend ticket's
+  `## Design` gets the link and the screenshots, replacing its
+  `No design yet` line.
 
 In a split ticket, `## Before → after` and `## Bug report` go on the ticket;
 `## Root cause`, `## Why this shape` and `## Behaviour held constant` go on
@@ -174,6 +208,8 @@ Some changes always bring extra work. Check every line:
 - Screen change inside a flow that stays the same: a `[ui]` line that the
   flow's existing tests still pass.
 - New or changed component: a `[story]` line per state.
+- Any screen change: `## Design` with the link and before/after screenshots,
+  or a design ticket that the frontend work waits on (B, C).
 - Behaviour a doc describes: a docs piece, or a line on the piece that edits
   the doc.
 - A claim about a product result: Goal & measure, each bullet backed by a

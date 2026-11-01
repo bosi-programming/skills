@@ -3,9 +3,14 @@ import json
 import re
 import sys
 
-TAGS = {"unit", "int", "api", "e2e", "ui", "story", "run", "docs", "manual"}
+TAGS = {"unit", "int", "api", "e2e", "ui", "story", "run", "docs", "manual", "design"}
 PART_TAGS = {"unit", "int", "story"}
+SCREEN_TAGS = {"ui", "story"}
 ISSUE_SECTIONS = ["What", "Who notices and how", "Technical design", "Out of scope", "Acceptance criteria"]
+DELIVERABLE = "Design deliverable"
+DESIGN_TICKET_SECTIONS = ["What", "Who notices and how", DELIVERABLE, "Out of scope", "Acceptance criteria"]
+DESIGN_EXEMPT = re.compile(r"^- (No visual change|No design yet):", re.MULTILINE)
+FRONTEND_LINE = re.compile(r"^- Frontend ticket:\s*(\S+)", re.MULTILINE)
 PART_SECTIONS = ["What", "Technical design", "Repos and key paths", "Acceptance criteria"]
 REMOVAL_SECTION = "Removes"
 PLACEHOLDER = re.compile(r"\[\[gap\b|<[a-z][^<>\n]*>|\bTBD\b|\bTODO\b")
@@ -55,6 +60,10 @@ def parsed_criteria(body):
     return result
 
 
+def is_screen_work(body):
+    return any(tag in SCREEN_TAGS for _, tag, _ in parsed_criteria(body))
+
+
 class Linter:
     def __init__(self, feature_flags):
         self.feature_flags = feature_flags
@@ -100,10 +109,26 @@ class Linter:
         self.criteria(item, body)
         self.placeholders(item, body)
         self.one_repo(item, body)
+        if is_screen_work(body):
+            self.design_refs(item, body)
+
+    def design_refs(self, item, body):
+        design = sections(body).get("Design")
+        if design is None:
+            self.gap(item, "design-refs", "screen work needs ## Design: a design link and screenshots, or a No visual change / No design yet line")
+        elif not DESIGN_EXEMPT.search(design) and not (re.search(r"^- Link:", design, re.MULTILINE) and "![" in design):
+            self.gap(item, "design-refs", "## Design needs a `- Link:` line and screenshots (`![…](…)`) of each changed screen")
 
     def issue(self, story):
         item, body, children = story["identifier"], story["description"], story["children"]
+        if DELIVERABLE in sections(body):
+            self.required(item, body, DESIGN_TICKET_SECTIONS)
+            self.criteria(item, body)
+            self.placeholders(item, body)
+            return
         self.required(item, body, ISSUE_SECTIONS + ([] if children else ["Repos and key paths"]))
+        if children and is_screen_work(body) and not any("Design" in sections(child["description"]) for child in children):
+            self.design_refs(item, body)
         if children:
             self.criteria(item, body)
             self.placeholders(item, body)
@@ -148,6 +173,21 @@ class Linter:
         for node in list(edges):
             if node not in state:
                 visit(node, [node])
+
+    def design_frontend(self, issues):
+        by_id = {story["identifier"]: story for story in issues}
+        for story in issues:
+            deliverable = sections(story["description"]).get(DELIVERABLE)
+            if deliverable is None:
+                continue
+            item = story["identifier"]
+            match = FRONTEND_LINE.search(deliverable)
+            if not match:
+                self.gap(item, "design-frontend", "a design ticket names its frontend ticket: `- Frontend ticket: <id>`")
+                continue
+            frontend = by_id.get(match.group(1))
+            if frontend and item not in frontend["blockedBy"]:
+                self.gap(item, "design-frontend", f"{match.group(1)} must be blocked by {item}")
 
     def flags(self, issues):
         removed = " ".join(
@@ -203,6 +243,7 @@ def lint(plan, feature_flags=False):
         linter.issue(story)
     linter.cycles({story["identifier"]: list(story["blockedBy"]) for story in issues})
     linter.flags(issues)
+    linter.design_frontend(issues)
     return {"ready": not linter.gaps, "gaps": linter.gaps}
 
 

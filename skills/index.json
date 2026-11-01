@@ -118,12 +118,14 @@
         "evals/scenario-03.json",
         "evals/scenario-04.json",
         "evals/scenario-05.json",
+        "evals/scenario-06.json",
+        "evals/scenario-07.json",
         "references/review-report.md",
         "references/standard.md",
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "547444365174"
+      "version": "2d6a44f92eac"
     },
     {
       "name": "recipe-relay",

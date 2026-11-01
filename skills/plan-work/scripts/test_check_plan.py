@@ -26,10 +26,13 @@ def sub(identifier, repo="api", blocked_by=(), criteria_text=None, extra=""):
     return {"identifier": identifier, "title": f"feat(export): part {identifier}", "description": body, "blockedBy": list(blocked_by)}
 
 
+DESIGN = "\n\n## Design\n\n- Link: https://design.example/orders-export\n- Orders: ![now](https://img.example/orders-now.png) → ![after](https://img.example/orders-after.png)"
+
+
 def issue(identifier="NEW-1", children=None, criteria_text=None, design_extra="", extra_sections="", blocked_by=()):
     children = [sub("NEW-2"), sub("NEW-3", repo="web", blocked_by=["NEW-2"])] if children is None else children
     contracts = "\n\n### Contracts\n\n- `GET /export` returns `text/csv`." if len(children) >= 2 else ""
-    repos = "" if children else "\n\n## Repos and key paths\n\n- Repo: `api`\n- `src/export.ts`"
+    repos = DESIGN if children else "\n\n## Repos and key paths\n\n- Repo: `api`\n- `src/export.ts`"
     default = criteria("[ui] As a store owner on Orders, when I click Export, then a CSV downloads.") if children else criteria("[unit] The export builds one CSV row per order.")
     body = "\n\n".join([
         "## What\n\nStore owners export their orders as CSV.",
@@ -234,6 +237,81 @@ class FeatureFlags(unittest.TestCase):
     def test_feature_block_on_sub_issue(self):
         children = [sub("NEW-2", extra="\n\n## Before → after\n\nNo export → a CSV."), sub("NEW-3", repo="web")]
         self.assertIn("flag-parity", rules(lint({"issues": [issue(children=children)]}, feature_flags=True)))
+
+
+UI = criteria("[ui] As a store owner on Orders, when I click Export, then a CSV downloads.")
+STORY = criteria("[story] The Export button stories cover idle, busy and failed.")
+
+
+def design_ticket(identifier="NEW-7", frontend="NEW-1", criteria_text=None):
+    lines = "- Screens: Orders, Export dialog\n- Where it lands: https://design.example/orders-export"
+    if frontend:
+        lines += f"\n- Frontend ticket: {frontend}"
+    body = "\n\n".join([
+        "## What\n\nMock-ups for the orders export.",
+        "## Who notices and how\n\nOwners get an Export button that matches the rest of Orders.",
+        "## Design deliverable\n\n" + lines,
+        "## Out of scope\n\n- PDF export.",
+        "## Acceptance criteria\n\n" + (criteria_text or criteria("[design] Orders and the Export dialog have idle, busy and failed frames at the link.")),
+    ])
+    return {"identifier": identifier, "title": "Design the orders export", "description": body, "children": [], "blockedBy": []}
+
+
+class DesignRefs(unittest.TestCase):
+    def test_frontend_part_without_design(self):
+        children = [sub("NEW-2"), sub("NEW-3", repo="web", criteria_text=STORY)]
+        story = issue(children=children)
+        story["description"] = story["description"].replace(DESIGN, "")
+        self.assertIn("design-refs", rules(lint(story)))
+
+    def test_frontend_part_with_design(self):
+        child = sub("NEW-3", repo="web", criteria_text=STORY)
+        child["description"] += DESIGN
+        self.assertNotIn("design-refs", rules(lint(issue(children=[sub("NEW-2"), child]))))
+
+    def test_design_link_without_screenshots(self):
+        story = issue(children=[], criteria_text=UI, extra_sections="\n\n## Design\n\n- Link: https://design.example/orders-export")
+        self.assertIn("design-refs", rules(lint(story)))
+
+    def test_no_visual_change(self):
+        story = issue(children=[], criteria_text=UI, extra_sections="\n\n## Design\n\n- No visual change: the button already exists.")
+        self.assertNotIn("design-refs", rules(lint(story)))
+
+    def test_no_design_yet(self):
+        story = issue(children=[], criteria_text=UI, extra_sections="\n\n## Design\n\n- No design yet: NEW-7 makes it.")
+        self.assertNotIn("design-refs", rules(lint(story)))
+
+    def test_split_ticket_with_ui_and_no_design(self):
+        story = issue()
+        story["description"] = story["description"].replace(DESIGN, "")
+        self.assertIn("design-refs", rules(lint(story)))
+
+    def test_backend_only_needs_no_design(self):
+        self.assertNotIn("design-refs", rules(lint(issue(children=[]))))
+
+
+class DesignTicket(unittest.TestCase):
+    def test_ready_design_ticket_with_new_frontend_ticket(self):
+        frontend = issue("NEW-1", children=[], criteria_text=UI, extra_sections="\n\n## Design\n\n- No design yet: NEW-7 makes it.", blocked_by=["NEW-7"])
+        self.assertEqual(lint({"issues": [design_ticket(), frontend]})["gaps"], [])
+
+    def test_design_ticket_needs_frontend_ticket(self):
+        self.assertIn("design-frontend", rules(lint(design_ticket(frontend=None))))
+
+    def test_frontend_ticket_in_plan_must_wait_on_design(self):
+        frontend = issue("NEW-1", children=[], criteria_text=UI, extra_sections="\n\n## Design\n\n- No design yet: NEW-7 makes it.")
+        self.assertIn("design-frontend", rules(lint({"issues": [design_ticket(), frontend]})))
+
+    def test_existing_frontend_ticket_outside_plan(self):
+        self.assertNotIn("design-frontend", rules(lint(design_ticket(frontend="ABC-40"))))
+
+    def test_design_ticket_needs_no_repo_or_technical_design(self):
+        found = rules(lint(design_ticket(frontend="ABC-40")))
+        self.assertNotIn("required-sections", found)
+        self.assertNotIn("one-repo", found)
+
+    def test_design_tag_is_known(self):
+        self.assertNotIn("criteria-format", rules(lint(design_ticket(frontend="ABC-40"))))
 
 
 class Criteria(unittest.TestCase):
