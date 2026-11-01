@@ -9,3 +9,6 @@ evals/.local/
 
 # Recipe cards are local scratch state, not something to commit.
 recipes/
+
+# Local-only machine config (opencode plugins etc.), never committed.
+.local/
