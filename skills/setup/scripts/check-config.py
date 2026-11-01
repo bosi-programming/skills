@@ -57,6 +57,11 @@ KEYS = {
     "pause-work.project": "''",
     "pause-work.due": "tomorrow",
     "pause-work.labels": "[]",
+    "weekly-planning.destination": "''",
+    "weekly-planning.source": "''",
+    "weekly-planning.workHours": "09:00-18:00",
+    "weekly-planning.hoursPerPoint": "4",
+    "weekly-planning.maxTickets": "2",
 }
 
 DERIVED = [
@@ -84,6 +89,7 @@ CONSUMERS = {
     SKILLS / "non-functional-requirements" / "SKILL.md": ["non-functional-requirements.docsDir"],
     SKILLS / "open-restaurant" / "SKILL.md": [key for key in KEYS if key.startswith("open-restaurant.")],
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
+    SKILLS / "weekly-planning" / "SKILL.md": [key for key in KEYS if key.startswith("weekly-planning.")],
 }
 
 SECTIONS = {
@@ -209,6 +215,7 @@ check("ship-pr-script-ships", (SHIP_PR / "scripts" / "detect_context.sh").exists
 check("ship-pr-commits-from-file", "commit -F" in sp and "commit -m" not in sp, "ship-pr must commit with a message file")
 
 check_moved_skill(SKILLS / "pause-work")
+check_moved_skill(SKILLS / "weekly-planning", ["scripts/plan_week.py"])
 
 readme = read(README)
 check("readme-validate-command", "check-config.py" in readme, "README must list check-config.py")

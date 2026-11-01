@@ -57,6 +57,12 @@ pause-work:
   project: ''
   due: tomorrow
   labels: []
+weekly-planning:
+  destination: ''
+  source: ''
+  workHours: 09:00-18:00
+  hoursPerPoint: 4
+  maxTickets: 2
 ---
 
 # Settings for bosi-programming-skills
@@ -139,6 +145,13 @@ only needs the keys it changes.
   inbox or default.
 - `pause-work.due` — due date in the tool's own words.
 - `pause-work.labels` — labels added to the task.
+- `weekly-planning.destination` — folder (starts with `/` or `~`) or MCP
+  server or CLI the week plan goes to; empty prints the plan.
+- `weekly-planning.source` — tool and filter the tickets come from; empty is
+  the session's tracker, open tickets assigned to you.
+- `weekly-planning.workHours` — work window of each day.
+- `weekly-planning.hoursPerPoint` — hours one estimate point stands for.
+- `weekly-planning.maxTickets` — most tickets in progress at once.
 
 A request that names a mode, such as `--headless`, beats the default here.
 

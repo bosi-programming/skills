@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Fourteen Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Fifteen Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other twelve feed those two or stand alone. `feature-recipe` is the six-phase workflow the relay runs. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other thirteen feed those two or stand alone. `feature-recipe` is the six-phase workflow the relay runs. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same fourteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same fifteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -173,6 +173,12 @@ Parks half-done work for tomorrow. It reads the folder, branch and git state, fi
 
 The tool, project, due date and labels are settings; see `setup`.
 
+### weekly-planning
+
+Plans the work week around your calendar. It counts the work days, leaving out holidays and days off, reads the meetings you have not declined, takes your open tickets from the tracker plus anything you add when you call it, and fits them into the free time with a bundled script: never more than two tickets in progress at once, nothing on top of a meeting, blocks of at most two hours. Tickets without an estimate get one question. What does not fit goes in its own list. It saves the plan to a folder, one file per week, or to a tool such as Todoist (one task per day) or Notion, then reads it back; with no destination, it prints it.
+
+Where the plan goes, where tickets come from, the work hours, hours per estimate point and the ticket limit are settings; see `setup`.
+
 ### week-summary
 
 Writes a review of one week, one file per week: tickets closed, PRs merged and confirmed by their real merge date, reviews of other people's PRs counted by when you submitted them, one line per work-session note, and chat activity by theme. A Signal section reads across all four for patterns, gaps included, and a Summary block rolls up the counts, with sessions per day divided by working days, not calendar days. Your reflection headers and the last Weekly Update question stay yours to fill. It reads the notes `work-summary` writes, and skips any source the session has no tool for.
@@ -187,7 +193,7 @@ Needs the `gh` CLI. The commit header shape, the approval pause, draft PRs, the 
 
 ### setup
 
-Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, which tracker states and models `recipe-relay` uses, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models, and where `pause-work` saves the task for tomorrow. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
+Writes `.bosi-skills.md`, the settings file the other skills read: where `work-summary` saves notes and which values it tags against, where `week-summary` writes reviews and who it counts as you, where `feature-recipe` keeps recipe cards, which mode `feature-recipe` and `better-code-review` run in when the request names none, which tracker states and models `recipe-relay` uses, how `ship-pr` titles, gates and validates a PR, where `uml` keeps its sources and how it renders them, where `non-functional-requirements` writes its NFR docs, how `open-restaurant` maps sub-issues to repos, names its QA env, moves tracker states and picks its models, where `pause-work` saves the task for tomorrow, and where `weekly-planning` saves the week plan, where its tickets come from, the work hours and how many tickets run at once. A skill looks in the current folder first, then in `$HOME`, and each setting falls back on its own, so a project file only holds what it changes. With no file, every skill keeps its old behaviour. The contract is `skills/setup/references/config.md`.
 
 ## Layout
 
@@ -217,6 +223,7 @@ skills/
   summarize-llm-response/  SKILL.md + evals/ (trigger + behaviour harnesses)
   work-summary/       SKILL.md + evals/ (scenarios)
   pause-work/         SKILL.md + evals/ (scenarios)
+  weekly-planning/    SKILL.md + scripts/plan_week.py (+ tests) + evals/ (scenarios)
   week-summary/       SKILL.md + templates/week-review.md + evals/ (scenarios)
   ship-pr/            SKILL.md + references/conventions.md + scripts/detect_context.sh + evals/ (scenarios)
   uml/                SKILL.md + references/ (notation per diagram type) + scripts/uml.mjs + evals/

@@ -27,6 +27,7 @@ const SKILLS = [
   'summarize-llm-response',
   'uml',
   'week-summary',
+  'weekly-planning',
   'work-summary',
 ]
 

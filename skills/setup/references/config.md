@@ -102,6 +102,11 @@ every key.
 | `pause-work.project` | `''` | Project, list or team the task goes in. Empty means the tool's inbox or default. |
 | `pause-work.due` | `tomorrow` | Due date of the task, in the words the tool takes. |
 | `pause-work.labels` | `[]` | Labels added to the task. |
+| `weekly-planning.destination` | `''` | Where the week plan goes: a folder when it starts with `/` or `~`, else an MCP server or CLI such as `Todoist` or `Notion`. Empty means print the plan. |
+| `weekly-planning.source` | `''` | Tool and filter the tickets come from, such as `Linear: assigned to me, not done`. Empty means the session's tracker, open tickets assigned to the user. |
+| `weekly-planning.workHours` | `09:00-18:00` | Work window of each day. |
+| `weekly-planning.hoursPerPoint` | `4` | Hours one estimate point stands for. |
+| `weekly-planning.maxTickets` | `2` | Most tickets in progress at the same time. |
 
 ## What the request says wins
 

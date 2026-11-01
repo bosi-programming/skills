@@ -93,6 +93,13 @@ the ones in `./references/config.md`:
     b. Project, list or team in that tool, or its inbox.
     c. Due date.
     d. Labels, or none.
+14. `weekly-planning`:
+    a. Where the week plan goes: a folder, a tool such as `Todoist` or
+       `Notion`, or print it.
+    b. Tool and filter the tickets come from, or the session's tracker.
+    c. Work hours of each day.
+    d. Hours one estimate point stands for.
+    e. Most tickets in progress at once.
 
 An answer of "keep" or no answer leaves that key as it is.
 
