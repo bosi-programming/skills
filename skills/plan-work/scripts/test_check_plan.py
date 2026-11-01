@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from check_plan import lint
+from check_plan import BadInput, lint
 
 SCRIPT = Path(__file__).resolve().parent / "check_plan.py"
 
@@ -33,7 +33,7 @@ def issue(identifier="NEW-1", children=None, criteria_text=None, design_extra=""
     default = criteria("[ui] As a store owner on Orders, when I click Export, then a CSV downloads.") if children else criteria("[unit] The export builds one CSV row per order.")
     body = "\n\n".join([
         "## What\n\nStore owners export their orders as CSV.",
-        "## How this impacts the final user\n\nOwners stop copying orders by hand.",
+        "## Who notices and how\n\nOwners stop copying orders by hand.",
         "## Technical design\n\n- Approach: build the CSV on the server." + contracts + design_extra,
         "## Out of scope\n\n- PDF export.",
         "## Acceptance criteria\n\n" + (criteria_text or default),
@@ -113,8 +113,8 @@ class ManualReason(unittest.TestCase):
 
 
 class Placeholder(unittest.TestCase):
-    def test_missing_marker(self):
-        story = issue(design_extra="\n- Data: <missing: table name, see Q1>")
+    def test_gap_marker(self):
+        story = issue(design_extra="\n- Data: [[gap Q1: table name]]")
         self.assertIn("placeholder", rules(lint(story)))
 
     def test_template_placeholder(self):
@@ -127,6 +127,23 @@ class Placeholder(unittest.TestCase):
     def test_placeholder_in_sub_issue(self):
         children = [sub("NEW-2", extra="\n- Data: TODO"), sub("NEW-3", repo="web")]
         self.assertIn("placeholder", rules(lint(issue(children=children))))
+
+    def test_generic_type_in_code_span(self):
+        story = issue(design_extra="\n- Data: returns `Array<string>` from a `<button>` click.")
+        self.assertNotIn("placeholder", rules(lint(story)))
+
+    def test_markup_in_code_block(self):
+        story = issue(design_extra="\n\n```html\n<div class=\"export\"></div>\n```")
+        self.assertNotIn("placeholder", rules(lint(story)))
+
+    def test_todo_in_code_span(self):
+        story = issue(design_extra="\n- Approach: delete the `TODO` comment in the parser.")
+        self.assertNotIn("placeholder", rules(lint(story)))
+
+    def test_bare_placeholder_in_code_span(self):
+        child = sub("NEW-2")
+        child["description"] = child["description"].replace("- Repo: `api`", "- Repo: `<repo>`")
+        self.assertIn("placeholder", rules(lint(issue(children=[child, sub("NEW-3", repo="web")]))))
 
 
 class SingleSubIssue(unittest.TestCase):
@@ -205,6 +222,42 @@ class FeatureFlags(unittest.TestCase):
     def test_rules_off_without_option(self):
         found = rules(lint({"issues": [issue(extra_sections=FEATURE)]}))
         self.assertNotIn("flag-parity", found)
+
+    def test_declared_flag_needs_off_criterion_without_option(self):
+        plan = {"issues": [issue(design_extra=FLAG, extra_sections=FEATURE), REMOVAL]}
+        self.assertIn("flag-parity", rules(lint(plan)))
+
+    def test_declared_flag_needs_removal_without_option(self):
+        story = issue(design_extra=FLAG, extra_sections=FEATURE, criteria_text=criteria(ON, OFF))
+        self.assertIn("flag-removal", rules(lint({"issues": [story]})))
+
+    def test_feature_block_on_sub_issue(self):
+        children = [sub("NEW-2", extra="\n\n## Before → after\n\nNo export → a CSV."), sub("NEW-3", repo="web")]
+        self.assertIn("flag-parity", rules(lint({"issues": [issue(children=children)]}, feature_flags=True)))
+
+
+class Criteria(unittest.TestCase):
+    def test_indented_note_under_criterion(self):
+        text = criteria("[unit] One row per order.") + "\n  - Rows sort by date."
+        self.assertNotIn("criteria-format", rules(lint(issue(children=[], criteria_text=text))))
+
+
+class BadShape(unittest.TestCase):
+    def test_blocked_by_string(self):
+        story = issue(children=[])
+        story["blockedBy"] = "NEW-9"
+        with self.assertRaises(BadInput):
+            lint(story)
+
+    def test_issues_not_a_list(self):
+        with self.assertRaises(BadInput):
+            lint({"issues": issue()})
+
+    def test_child_blocked_by_string(self):
+        children = [sub("NEW-2"), sub("NEW-3", repo="web")]
+        children[1]["blockedBy"] = "NEW-2"
+        with self.assertRaises(BadInput):
+            lint(issue(children=children))
 
 
 class Cli(unittest.TestCase):

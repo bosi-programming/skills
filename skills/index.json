@@ -123,7 +123,7 @@
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "5f48a2bfe684"
+      "version": "547444365174"
     },
     {
       "name": "recipe-relay",

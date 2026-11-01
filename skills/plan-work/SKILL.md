@@ -6,295 +6,275 @@ argument-hint: "[plan|review] <feature, spec, link, or ticket/project>"
 
 # Plan Work
 
-Turn a feature into tickets someone, person or agent, can build without
-asking, or check tickets that already exist. The rules a plan meets live in a
-**standard**, not in this file: the one bundled at `./references/standard.md`,
-or the team's own. This file holds the workflow: which check runs when, and how
-the result is shown and written.
+Goal: tickets a builder, human or agent, can pick up and finish with no
+follow-up questions. The rules for a good ticket sit in a separate standard
+(`./references/standard.md`, or the team's own); this file only says what to do
+in which order.
 
-When this file and the standard disagree, the standard wins. Say so, so the
-skill gets fixed.
+If this file ever contradicts the standard, follow the standard and tell the
+user this file needs fixing.
+
+The letters below (A to H) name sections of the bundled standard. With a team
+standard, cite its own section names in their place.
 
 ## Settings
 
-Read the settings file as `../setup/references/config.md` says, current
-folder first, then `$HOME`, then the default:
+Look up each key as `../setup/references/config.md` describes: the current
+folder's settings file, then the one in `$HOME`, then the default.
 
-- `plan-work.standard` — the team's standard: a path, a URL or
-  `owner/repo@ref:path`. Default `''`: `./references/standard.md`.
-- `plan-work.lint` — command that lints a plan. Default `''`: the bundled
-  lint with the bundled standard; no lint with a team standard.
-- `plan-work.team` — tracker team or project new tickets go in. Default
-  `''`: ask.
-- `plan-work.labels` — map from Kind or area to the tracker's label name.
-  Default `{}`: no labels.
-- `plan-work.repos` — repos the work may touch. Default `[]`: take them from
-  the sources.
-- `plan-work.featureFlags` — `true` puts every new Feature behind a flag.
+- `plan-work.standard`: where the team keeps its standard, as a path, a URL or
+  `owner/repo@ref:path`. Default `''` means `./references/standard.md`.
+- `plan-work.lint`: the command that lints a plan. Default `''` means the
+  bundled lint for the bundled standard, and no lint for a team standard.
+- `plan-work.team`: the tracker team or project for new tickets. Default `''`
+  means ask.
+- `plan-work.labels`: tracker label names by kind or area. Default `{}` means
+  no labels.
+- `plan-work.repos`: the repos this work can touch. Default `[]` means read
+  them off the sources.
+- `plan-work.featureFlags`: `true` ships each new Feature behind a flag.
   Default `false`.
-- `plan-work.flagEngine` — the flag tool tickets name. Default `''`: write
-  "feature flag" and ask which tool.
-- `plan-work.role` — `engineer` or `other`. Default `''`: ask once, at the
-  end.
+- `plan-work.flagEngine`: the flag tool to name. Default `''` means write
+  "feature flag" and ask.
+- `plan-work.role`: `engineer` or `other`. Default `''` means ask at the end.
 
-The settings file's `## plan-work` section, when present, holds team rules
-the plan meets on top of the standard, such as a label every ticket needs.
+Rules a team adds on top of the standard go in the settings file under
+`## plan-work`. Apply them as if they were part of the standard.
 
-## Modes
+## Pick a mode
 
-Take the mode from the first argument when it is `plan` or `review`, else from
-the request:
+`plan` or `review` as the first word decides. With neither, read the request:
 
-- **Plan:** the user wants work planned, broken down, created, a ticket
-  written or reformatted, or existing tickets reorganized. One ticket is the
-  small case of a plan, not a separate mode. See [Plan mode](#plan-mode).
-- **Review:** "review", "audit", "check", "does this follow the standard". It
-  reads the tracker and changes nothing. See [Review mode](#review-mode).
+- **plan**: build, split, write, rewrite or reorganize tickets. A single ticket
+  is just a small plan.
+- **review**: audit, check, "is this OK". Reads only.
 
-When a request fits both, such as "look at ABC-12", ask once. A review leads
-into plan mode only when the user asks.
+If the request could go either way ("look at ABC-12"), ask which. After a
+review, switch to plan only if the user asks for fixes.
 
-The level is not always the one the user names: "a ticket" can need a
-project, and "a project" can be one ticket. The standard's §2 decides. When
-its answer differs from the request, say so and why before going further.
+People often name the wrong size: they say "a ticket" when it needs a project,
+or "a project" when one ticket will do. Standard G settles it; when it
+disagrees with the request, tell the user before you continue.
 
-## Step 1: Load the standard
+## Get the standard first
 
-Read the whole standard before planning or reviewing anything:
+Load the full standard before you plan or judge anything:
 
-- **Bundled:** `./references/standard.md`.
-- **Path:** read the file.
-- **URL:** fetch it.
-- **`owner/repo@ref:path`:** `gh api repos/<owner>/<repo>/contents/<path>?ref=<ref>`
-  with `--jq .content | base64 -d`, so the result does not depend on a local
-  checkout.
+- no `plan-work.standard`: read `./references/standard.md`;
+- a file path: read it;
+- a URL: fetch it;
+- `owner/repo@ref:path`: `gh api repos/<owner>/<repo>/contents/<path>?ref=<ref> --jq .content | base64 -d`.
 
-Note where it came from and at which ref or commit: the draft and the review
-report both name it. When the standard cannot be read, stop and say what
-failed. Never plan or review from memory: the result would look like the
-standard without being checked against it.
+Keep a note of the source and its ref for the draft and the report. If loading
+fails, report the error and stop. A plan made from a remembered version of the
+rules only looks compliant.
 
-## The checks
+## What gets checked
 
-Plan mode runs them on its draft before showing it; review mode runs them on
-what the tracker holds. Each check cites the standard's section:
+The same list applies to a fresh draft and to tickets already in the tracker.
+Cite the standard's letter with every result.
 
-- **Shape:** issue or project, milestones and their kinds, built directly or
-  with sub-issues, one sub-issue per repo or area.
-- **Kind:** Feature, Bug or Enablement for each item built as one PR, and its
-  block.
-- **Contents:** every section the template names, filled from a source.
-- **Criteria:** format, numbering, proof tags, issue-level tags, a reason on
-  every manual check.
-- **Required work:** every row of the "required by the change" table the
-  change triggers.
-- **Flags:** the rules for `plan-work.featureFlags` and `plan-work.flagEngine`.
-- **Order:** every dependency is a `blocked by` relation, the graph has no
-  cycle, and sub-issues of different issues never relate.
-- **Team rules:** the `## plan-work` section, when present.
+1. **Size and split:** project or ticket (G), milestones (G), split or not
+   (D), one repo per piece (D).
+2. **Kind:** each one-PR piece is Feature, Bug or Enablement, with its block
+   (C).
+3. **Body:** each heading the template asks for, filled from a source (B),
+   with nothing left from H's list.
+4. **Criteria:** line format, numbering, tags, tag level, a reason on every
+   `[manual]` (A).
+5. **Extra work:** every line of E the change triggers.
+6. **Flags:** F, read with the two flag settings.
+7. **Links:** each wait is a `blocked by`, with no loops, and nothing linking
+   sub-issues of different tickets (D).
+8. **Team rules:** the `## plan-work` section, if there is one.
 
-**The lint runs too.** With the bundled standard, run the bundled lint on one
-JSON file holding the whole plan; `$SKILL_DIR` is the folder this `SKILL.md`
-sits in:
+**Lint.** For the bundled standard, put the whole plan in one JSON file and
+run the bundled lint. `$SKILL_DIR` is this `SKILL.md`'s folder:
 
 ```bash
 python3 "$SKILL_DIR/scripts/check_plan.py" [--feature-flags] plan.json
 ```
 
-Pass `--feature-flags` when `plan-work.featureFlags` is `true`, or when the
-plan adds any flag. The file holds `{"issues": [...]}`, one entry per
-top-level issue: `identifier`, `title`, `description`, `blockedBy` (other
-top-level issues), and `children`, each with `identifier`, `title`,
-`description` and `blockedBy` (sibling sub-issues). Use the full Markdown
-bodies, and placeholder ids such as `NEW-1` before anything is in the tracker.
-It prints `{ready, gaps: [{issue, rule, message}]}` and exits `0` ready, `1`
-not ready, `2` bad input. With a team standard, run `plan-work.lint` when
-set; otherwise record `Lint: not run (team standard, no lint set)`.
+The lint always checks each flag a ticket declares under `### Feature flags`:
+a flag-off criterion and a removal ticket. Add `--feature-flags` only when
+`plan-work.featureFlags` is `true`; it also makes every Feature declare a
+flag. The JSON is `{"issues": [...]}`: per top-level ticket an
+`identifier`, `title`, `description`, `blockedBy` (other top-level tickets)
+and `children`. Each child has `identifier`, `title`, `description` and
+`blockedBy` (siblings only). Bodies go in as full Markdown. Before the
+tracker has ids, make some up (`NEW-1`, `NEW-2`). Output is
+`{ready, gaps: [{issue, rule, message}]}`. The exit code is `0` when ready,
+`1` when there are gaps, and `2` when the input is broken. For a team
+standard, run `plan-work.lint` when set, and otherwise write
+`Lint: not run (team standard, no lint set)`.
 
-A lint pass does not replace the checks: the lint covers only what a script
-can read.
+A clean lint is not a clean plan. The script can't judge most of the list
+above.
 
-## Plan mode
+## Plan
 
-### P1: Gather sources
+### 1. Understand
 
-Collect everything before deciding the shape. Sources can be any mix of:
+Take in every source before you think about shape:
 
-- what the user wrote, and the session's conversation so far: decisions
-  already made count, with the user as author;
-- specs, PRDs, design files, chat threads or pages the user points to;
-- an existing ticket or project to restructure, with its comments;
-- the repo's own docs and code, read from the default branch.
+- the request and everything said earlier in this session, including choices
+  the user already made;
+- linked specs, PRDs, mock-ups, chat threads and pages;
+- the ticket or project being reworked, with its comments;
+- the repo's docs and code on the default branch.
 
-Read each source in full. One that cannot be read in this session goes under
-Open questions; never plan around it as if it said something.
+Read sources end to end. Anything you can't open goes in the questions,
+marked unread.
 
-**For screen work, the changed files are a source too.** A spec lists
-screens; it does not list what a person can see. Open each file the work
-names and note every visible state it renders (empty, loading, error, modal,
-callout, tooltip). Each becomes a criterion, per the standard.
+For anything with a screen, open the files that will change. Specs name pages,
+not what's on them. List each state the code can show (empty, loading, error,
+dialog, banner, tooltip); standard A turns each into a criterion.
 
-**Never invent** user stories, criteria, contracts, payloads, design links,
-metric names, flag names or customers. A gap becomes a targeted question,
-never a guess in a body.
+Then search the tracker and the docs for the same work. If some already
+exists, don't draft yet. Show the matches with links and say how much of the
+request they already cover. Then let the user choose: plan fresh anyway,
+rework the existing tickets, or review them first. Skip the stop only when the
+user already chose, and still list what you found.
 
-### P2: Check whether it already exists
+Write nothing a source doesn't back: no user stories, criteria, payloads,
+mock-up links, metric names, flag names or customer names of your own. Each
+hole becomes a question.
 
-Search the tracker by the feature's key terms, and the repo's docs. When the
-work, or part of it, already exists, stop before drafting and show:
+### 2. Shape
 
-- what exists, with links;
-- how much of the request it covers;
-- three ways on: plan it as new work anyway, restructure what exists, or
-  review it first.
+Settle these in order; each depends on the last:
 
-Wait for the answer. When the user already chose, go on and mention what you
-found in the draft.
+1. Ticket or project (G).
+2. Milestones if it is a project that ships more than once, clean-up last (G).
+3. Split each ticket or not (D), using `plan-work.repos` or the repos the
+   sources name. If you can't tell whether two pieces share state, ask.
+4. Kind of each piece (C).
+5. Flags (F): with `featureFlags` on, each new Feature gets one; with it off,
+   only the flags a source asks for. Each flag gets a removal ticket (in the
+   clean-up milestone when there is one), naming `plan-work.flagEngine`.
+6. Extra work (E). Go down the whole list; most plans miss items here.
+7. `blocked by` links.
 
-### P3: Decide the shape
+Give each choice a one-line reason with its letter. When the plan is a project
+or holds more than five items, show just the tree and reasons and wait for a
+yes. Bodies are the expensive part, and a dropped milestone would throw them
+away.
 
-In this order, since each decision depends on the one before:
+### 3. Draft
 
-1. Issue or project (standard §2).
-2. Milestones, for a project that releases more than once, with clean-up
-   last (§3).
-3. Each issue built directly or with sub-issues (§4), using
-   `plan-work.repos` or the repos the sources name. When the sources do not
-   say whether two parts share state, ask.
-4. The Kind of each item built as one PR (§5).
-5. Flags (§8): with `plan-work.featureFlags` `true`, each new Feature gets a
-   flag, and the clean-up gets a removal issue for it. Name the tool from
-   `plan-work.flagEngine`.
-6. Required work (§9): check every row; these are the items most often
-   forgotten.
-7. `blocked by` order.
+Fill each item from the templates in standard B.
 
-Write down the reason for each decision, citing the section. **For a project,
-or a plan of more than five items, show the tree and reasons and get the shape
-approved before writing bodies:** a milestone the user drops wastes every body
-written for it. A smaller plan goes straight to P4.
+Where a fact is missing, put `[[gap Qn: what is missing]]` in the body and add
+`Qn` to the questions. Use that form for every hole, so a search finds them
+all and nothing half-written reaches the tracker by accident.
 
-### P4: Write the bodies
+Run the checks above, then the lint, and fix everything they flag. Anything
+you can't fix without a source becomes a question naming the item and the
+rule.
 
-Write each item from the standard's templates. Titles follow its title rule.
+### 4. Show
 
-When a body needs a fact nobody gave, write `<missing: what is missing, see
-Qn>` in its place and add question `Qn`. One marker for every gap, so the gaps
-can be found and the draft can tell which items are not ready.
+Present it in four parts, then wait:
 
-Then go through every item against [the checks](#the-checks), lint the draft,
-and fix every gap. A draft the lint fails is one an agent cannot build. What
-stays unmet because a source is missing goes under Open questions, naming the
-item and the rule.
+1. **Tree:** project, milestones, tickets, sub-issues, each with title, kind,
+   labels (`plan-work.labels`) and `blocked by`, plus a short reason per choice.
+2. **Bodies:** each one exactly as it will be saved. When reworking, tag each
+   item new, changed or unchanged, and show the diff.
+3. **Questions:** numbered, one fact each, each tied to its item. Only the
+   `[[gap Qn: …]]` marker goes in a body, never the question itself.
+4. **Sources of the rules:** the standard and ref, and the lint result or why
+   it did not run.
 
-### P5: Show the draft
+Approval comes before any write. Rework and show again as many times as the
+user asks. An item with a `[[gap …]]` is never saved, even on request; say what
+it still lacks. The others can go.
 
-Show, in this order, and stop:
+### 5. Save
 
-1. **The shape:** the tree (project, milestones, issues, sub-issues), each
-   with title, Kind, labels from `plan-work.labels`, and `blocked by`, plus a
-   one-line reason per decision citing the standard.
-2. **The bodies:** each description exactly as it would be written. When
-   restructuring, mark items new, changed or unchanged, and show the change.
-3. **Open questions:** one numbered list, one question per missing fact, each
-   naming its item. These never go into a body.
-4. **Where the rules came from:** the standard and its ref, and the lint
-   verdict or `Lint: not run (<reason>)`.
+Use whatever tracker tool the session has. Team or project comes from
+`plan-work.team`; if that is empty, ask.
 
-Write nothing to the tracker until the user approves. Apply edits and show the
-draft again. An item that still holds a `<missing: …>` marker is not ready:
-do not write it, even when told to, and name what is missing. Items without one
-can be written.
+Not every tracker has sub-issues, milestones or `blocked by`. Map each to what
+the tracker offers (an epic or parent link, a label or version, a task list or
+a "depends on" link), show that map in step 4, and ask when nothing fits. Save in an order where every id exists
+before something needs it:
 
-### P6: Write to the tracker
+1. Labels: turn each name in `plan-work.labels` into the tracker's id first.
+   Names with emoji or extra spaces often won't match as text. If one doesn't
+   resolve, stop and say so; never save the item bare.
+2. Project, then milestones in shipping order.
+3. Tickets, then their sub-issues, in the same project and milestone.
+4. `blocked by` links last. A sub-issue waiting on another ticket's sub-issue
+   gets no link itself; link the two tickets.
 
-Use the tracker tool the session has. Settle the team or project from
-`plan-work.team`, else ask; never pick one silently. Write in dependency
-order, since each step needs the ids the one before returns:
+When reworking, apply only what was approved. Leave titles, labels, links,
+owners and states alone unless the plan changes them. If the tool replaces all
+labels at once, add and remove one at a time. Don't delete or cancel anything;
+suggest it and leave it to the user.
 
-1. **Labels:** resolve each name from `plan-work.labels` to the tracker's id
-   before writing. Label names with emoji or odd spacing often fail to match by
-   name. A label that does not resolve: tell the user rather than write the item
-   without it.
-2. **The project**, then **the milestones** in release order.
-3. **The issues**, then **the sub-issues** under them, in the same project and
-   milestone.
-4. **The relations**, once every id exists. A sub-issue that depends on a
-   sub-issue of another issue gets no relation: relate the two parent issues.
+### 6. Check what landed
 
-**When restructuring,** write only the approved changes. Keep titles, labels,
-relations, assignees and states the plan does not change. Add and remove
-labels one by one where the tool replaces the whole set. Never delete or
-cancel: propose it, and let the user do it.
+1. Fetch every saved item back from the tracker with sub-issues, labels and
+   links. Work from what the tracker returns, not from your draft: saving can
+   change text.
+2. Build the lint JSON from that and run the lint.
+3. List every gap with item and rule. Only then say whether the plan is ready,
+   and never call it ready without this pass.
 
-### P7: Verify
-
-Before calling anything ready:
-
-1. Re-read every created or changed item from the tracker, with its
-   sub-issues, labels and relations. Use the bodies as the tracker returns
-   them, never the drafts: this catches what writing changed.
-2. Build the lint's JSON from what came back and run it.
-3. Report each gap with its item and rule before any statement that the work
-   is ready. Never say "ready" about a plan that was not linted from the
-   tracker.
-
-Report a link for each item in the tree's shape, then anything not written and
+Reply with a link per item, laid out like the tree, and what was not saved and
 why.
 
-### P8: Hand off the line
+### 7. Hand off
 
-Each ticket's line, the skills that build it, goes in a comment on the ticket,
-written by `plan-assembly-line`, not by this skill.
+The skills that will build each ticket (its line) go in a comment on the
+ticket. `plan-assembly-line` writes that comment; this skill doesn't.
 
-- `plan-work.role` is `engineer`: run `plan-assembly-line` on the tickets
-  just written.
-- `other`: stop, and say the line is left for an engineer to plan.
-- Empty: ask once whether to plan the line now.
+- `role: engineer`: run `plan-assembly-line` on the new tickets.
+- `role: other`: stop, and say an engineer still has to pick the line.
+- no role: ask once whether to do it now.
 
-When `plan-assembly-line` is not installed, say so and stop: the tickets are
-written, and the line can be planned later.
+If `plan-assembly-line` isn't installed, say so and stop there. The tickets are
+saved, and the line can come later.
 
-## Review mode
+## Review
 
-Review mode reads and reports. It never writes to the tracker, not even a
-comment, unless the user asks after seeing the review.
+Reads only. It writes nothing to the tracker, not even a comment, unless the
+user asks once the report is out.
 
-### R1: Read everything
+### 1. Read
 
-- **An issue:** the issue, its sub-issues, labels, relations both ways, and
-  comments; the project and milestone, when there is one.
-- **A project:** its summary and description, milestones, every issue and
-  sub-issue, their labels and relations.
+- **One ticket:** the ticket, its sub-issues, labels, links in both
+  directions, comments, and its project and milestone if any.
+- **A project:** its summary and description, milestones, every ticket and
+  sub-issue, their labels and links.
 
-Read in bulk: one list call by parent or project, asking for descriptions,
-labels, states and parents, instead of one call per item. Read every item
-before judging any: some findings only show across items, such as a
-milestone that is a layer, a dependency with no relation, or the same mistake
-on every sub-issue.
+Fetch in as few calls as the tool allows, for example one list query by
+parent or project that returns bodies, labels, states and parents. Finish
+reading before judging. Some problems only appear across items: a milestone
+cut by layer, a wait with no link, one mistake on every sub-issue.
 
-### R2: Check each item
+### 2. Judge
 
-Classify each item's role first (issue with sub-issues, issue built directly,
-sub-issue), since the same text is judged differently in each. Then run
-[the checks](#the-checks) and the lint. Judge what the tracker holds, not what
-the work probably was: when a check needs a fact the tracker lacks, neither pass
-nor fail it, and ask.
+Decide what each item is before judging it: a ticket with sub-issues, a ticket
+built directly, or a sub-issue. The same body passes in one role and fails in
+another. Then run the checks and the lint. Judge the text as saved, not what
+the author likely meant. If a check depends on something the tracker doesn't
+record, mark it unknown and add a question.
 
-### R3: Report
+### 3. Report
 
-Read `./references/review-report.md` and fill it exactly, every time: its
-sections, order, severity scale and operations, and nothing beyond them. Every
-finding carries a **Proposed change** with the exact content to write, built
-from the item, the sources and the templates. A missing fact points to its
-question; never fill it with a guess.
+Open `./references/review-report.md` and follow it to the letter: same
+sections, same order, same severities and operations, nothing added. Each
+finding ends with a **Proposed change** holding the exact text to save, built
+from the item, its sources and the templates. If a fact is missing, point to
+the question that asks for it instead of making it up.
 
-When the user then wants the items fixed, switch to plan mode with the review
-as the source: the proposed changes become the plan, and nothing is written
-before P5's approval.
+If the user wants the fixes made, go to plan mode with the report as the
+source. Its proposed changes are the plan, and the approval in step 4 still
+comes before any save.
 
 ## Output
 
-Run the draft and the report through `summarize-llm-response` when the
-session has it; it adds the attribution line the tracker needs. Write ticket
-bodies in plain words: short sentences, active voice, no filler.
+Pass drafts and reports through `summarize-llm-response` when the session has
+it; it adds the attribution line the tracker expects. Write bodies plainly:
+short sentences, active voice, no filler.

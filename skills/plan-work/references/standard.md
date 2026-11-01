@@ -1,148 +1,103 @@
-# The bundled planning standard
+# Planning standard
 
-The rules `plan-work` plans and reviews against when `plan-work.standard`
-names no team standard. `../scripts/check_plan.py` checks the parts a script
-can check; the rest is checked by reading. Section numbers below are what the
-skill cites in its reasons and findings, such as "standard §3".
+What a ticket must look like before `plan-work` writes it, unless
+`plan-work.standard` points to the team's own rules. `../scripts/check_plan.py`
+enforces what a script can parse; the rest is up to the reader. `plan-work`
+cites these sections by letter, such as "standard B".
 
-## 1. Levels
+## A. Proving each criterion
 
-| Level | Is | Done when |
-|---|---|---|
-| Project | A goal that needs more than one standalone issue | The goal is met and checked, and clean-up is done |
-| Milestone | A chunk of a project that can be released on its own | Its issues are done and its exit criteria proven |
-| Issue | A standalone piece of functionality | Its acceptance criteria are proven |
-| Sub-issue | One repo, one PR of an issue | Its PR merges |
+Start a plan from what has to be proven, then build the tickets around it.
 
-## 2. Issue or project
+Every criterion is one checkbox line: `- [ ] #<n> [<tag>] <criterion>`. The
+numbers run 1, 2, 3 down the list; after an insert, delete or move, number the
+list again from the top.
 
-The test: if the goal is reached once one issue is done, it is an issue. If
-reaching it takes several issues that someone must order and track, it is a
-project. One of these is usually why:
+The tag says what evidence closes the box:
 
-- the goal is released in steps;
-- it needs more than one piece of functionality, each with its own user story;
-- it spans teams;
-- it rolls out to customers over time, or needs a migration and a retirement.
+- `[unit]`: a unit test that the PR adds or changes.
+- `[int]`: a test in the PR that hits a real database or a stubbed network.
+- `[api]`: a call to the running API, with request and response saved.
+- `[e2e]`: an end-to-end test in the PR that calls the endpoint and checks
+  what comes back.
+- `[ui]`: someone using the screen. Write it as `As <who> on <screen>, when I
+  <action>, then <what they see>`, with one person and one starting state per
+  line.
+- `[story]`: a component story in the PR, one per state the component shows.
+- `[run]`: a script, job or query run on a real case, output attached.
+- `[docs]`: the docs build passes and the page renders.
+- `[manual]`: a named person checks it. The line says why a machine can't, as
+  `... because <reason>`.
 
-It is **not** a project when it fits in one issue, however many PRs that
-takes; when it has no end (bugs, tech debt and routine work belong to labels
-and views); or when it is one issue plus its rollout or flag removal.
+Three limits:
 
-A project holds: a one-sentence goal written as an outcome, and a description
-with **Goal**, **Why now**, **How we would know it worked** (something that can
-be checked once done), **Links**, **Scope**, **Out of scope** and
-**Clean-up**. It does not list its issues: the tracker shows them.
+- `[unit]`, `[int]` and `[story]` prove one piece of code. They belong on a
+  sub-issue, or on a ticket that has no sub-issues. A ticket with sub-issues
+  speaks only for the whole feature: `[ui]`, `[api]`, `[e2e]`, `[run]`,
+  `[docs]`, `[manual]`.
+- CI already runs types, lint and formatting. Don't list them.
+- A changed component shows states: empty, loading, error, a dialog, a banner,
+  a tooltip. Give each one its own line.
+- Notes under a criterion go on indented lines; only top-level lines count as
+  criteria.
 
-## 3. Milestones
+## B. Ticket bodies
 
-A project needs milestones only when it releases more than once. Each
-milestone is one of three kinds:
+Use these headings word for word; the lint looks for them.
 
-| Kind | Releases |
-|---|---|
-| Internal checkpoint | Something the team builds on, with no change the user sees |
-| Customer release | Part of the feature users can use, for the users or customers it names |
-| Clean-up | What the project left behind: flags, legacy paths, docs to fold into references |
-
-- **A milestone is a vertical slice, never a layer.** One milestone per repo
-  or per layer releases nothing until the last lands.
-- **Name:** `<n>. <what is released>`, numbered from 1 in release order.
-- **Description:** kind, what is released and to whom, exit criteria (each
-  with a proof tag, §7), out of scope.
-- **Every project with milestones ends with a clean-up milestone**, even when
-  it holds one issue.
-- No milestone holds an open question: a question becomes a discovery issue
-  that `blocks` the milestone's issues.
-
-## 4. Issues and sub-issues
-
-An issue is split into sub-issues only when it needs more than one PR or more
-than one repo.
-
-| The issue needs | Built as |
-|---|---|
-| One repo, one PR | The issue itself, with no sub-issues |
-| More than one PR or repo | The issue plus one sub-issue per repo or area, each one PR |
-
-- The issue holds the user story, the decisions, a high-level technical design
-  (approach, the contracts between sub-issues, the feature flags) and the out
-  of scope. Its criteria are about the functionality, from the user's side.
-- Each sub-issue holds one part: what it adds, its detailed design, its one
-  repo, and criteria that prove the part works on its own.
-- **Never one sub-issue.** Work that fits one PR is built directly.
-- **At most one sub-issue per area in a repo.** A part too big for one PR
-  means the issue is too big: it becomes several issues in a project.
-- **Sub-issues block each other only where one needs another**, with the
-  tracker's `blocked by` relation. Sub-issues of different issues never relate
-  to each other: relate their parent issues.
-- **The issues are the spec.** Each issue and sub-issue carries every detail
-  needed to build it. A design doc may be linked for context, never in place
-  of the detail.
-
-## 5. Kind
-
-Whatever is built as one PR has one Kind, which adds its block:
-
-| Kind | Is | Block |
-|---|---|---|
-| Feature | New or changed behaviour | `## Before → after`: what the user sees today, and after |
-| Bug | Behaviour differs from what was intended | On the issue: `## Bug report` (where seen, steps, expected vs actual). On each part: `## Root cause`, and one criterion that fails on the default branch |
-| Enablement | Work that enables other work with no behaviour change: refactor, discovery, decision, tooling, observability | `## Why this shape` and `## Behaviour held constant`. A discovery has `## Questions` and `## Output` (a doc) instead |
-
-Work that removes a flag, a path or a config is Enablement and carries
-`## Removes`, listing what goes. A feature flag does not change the Kind: judge
-it with the flag on.
-
-## 6. Templates
-
-Headings are exact: the lint reads them.
-
-**Issue**
+**Ticket**
 
 ```markdown
 ## What
-<one paragraph: what the issue delivers, as an outcome>
+<one paragraph: the result, not the steps>
 
-## How this impacts the final user
-<one paragraph: what the user sees or does differently; when the work does not reach users, say so and name the indirect benefit>
+## Who notices and how
+<one paragraph: what changes for the people who use it; if nobody outside the team notices, say that and name the gain behind it>
 
 ## Goal & measure
-- **What changes for whom:** <outcome and who it reaches>
-- **Where we see it:** <dashboard, query, metric or report the sources name>
-- **After release:** <signal to watch and the direction that counts as success>
+- **What changes for whom:** <result and the people it reaches>
+- **Where we see it:** <a dashboard, query, metric or report a source names>
+- **After release:** <the signal to watch and which way counts as success>
 
 ## Context
-<why now: the problem, the trigger, related tickets and docs>
+<why this, why now; links to related tickets and docs>
 
 ## Decisions
-<only when a product or tech-lead call was made>
+<only calls a product owner or tech lead already made>
 
 ## Technical design
-- Approach: <how it is built>
+- Approach: <how it gets built>
 
 ### Contracts
-<only with two or more sub-issues: each shape one part produces and another consumes>
+<when there are two or more sub-issues: each payload, event or config one makes and another reads>
 
 ### Feature flags
-<only when it adds a flag: one `flag-key` per line>
+<when it adds a flag: one `flag-key` per line>
 
 ## Out of scope
-- <what the issue does not cover>
+- <what this ticket leaves out>
 
 ## Acceptance criteria
 - [ ] #1 [<tag>] <criterion>
 ```
 
-An issue built directly adds `## Repos and key paths` (below) and may use
-part tags. When the work has no product signal, `## Goal & measure` holds one
-line, `- **No product metric:** <indirect benefit and how to check it>`.
+No product signal? Replace the three Goal bullets with one:
+`- **No product metric:** <the gain, and how to tell it held>`. Use it only
+when the work changes nothing users do, such as a refactor or tooling. When a
+Feature should move a signal but no source names one, write
+`[[gap Qn: …]]` and ask.
+
+Put code, markup and literal words like `TODO` in backticks or a fenced
+block; the lint skips them when it looks for leftovers.
+
+A ticket with no sub-issues also carries `## Repos and key paths` (below), and
+may use any tag.
 
 **Sub-issue**
 
 ```markdown
 ## What
-<the part this sub-issue builds>
+<the piece this sub-issue adds>
 
 ## Technical design
 - Approach: <how>
@@ -156,69 +111,126 @@ line, `- **No product metric:** <indirect benefit and how to check it>`.
 - [ ] #1 [<tag>] <criterion>
 ```
 
-Add the Kind block (§5) to each part, and to the issue for a Bug report.
+Each piece also gets its kind's block (C).
 
-Titles: an issue with sub-issues gets a plain-language title; an issue built
-directly and each sub-issue get the PR's title format.
+**Titles.** A ticket with sub-issues gets a sentence a customer could read. A
+sub-issue, or a ticket built in one PR, gets the repo's PR title format.
 
-## 7. Acceptance criteria
+## C. Kinds
 
-A criterion reads `- [ ] #<n> [<tag>] <criterion>`, numbered from `#1` in
-order. Renumber the whole list after adding, removing or moving one.
+Each piece of work that lands as one PR is one of three kinds, and the kind
+adds a block:
 
-| Tag | Proven by |
-|---|---|
-| `[unit]` | A unit test in the diff |
-| `[int]` | An integration test in the diff (database, mocked network) |
-| `[api]` | A real HTTP call against the running API, request and response kept |
-| `[e2e]` | An end-to-end test in the diff that calls the endpoint and asserts its contract |
-| `[ui]` | Driving the screen as a user: `As <who> on <screen>, when I <action>, then <what they see>` |
-| `[story]` | A component story in the diff, one per state |
-| `[run]` | A tool, job or query run on a real case, with its output |
-| `[docs]` | The docs build passing and the rendered page |
-| `[manual]` | A named person, with the reason it cannot be automated: `... because <reason>` |
+- **Feature**, new or changed behaviour: `## Before → after`, what someone sees
+  now and what they will see.
+- **Bug**, behaviour that is not what was meant: the ticket gets
+  `## Bug report` (where it showed up, steps, what was expected and what
+  happened). Each piece gets `## Root cause` and a criterion that fails on the
+  default branch today.
+- **Enablement**, work that changes no behaviour but unblocks other work (a
+  refactor, a spike, a decision, tooling, monitoring): `## Why this shape` and
+  `## Behaviour held constant`. A spike lists `## Questions` and the doc it
+  produces under `## Output`.
 
-- **An issue with sub-issues uses behaviour tags only**: `[ui]`, `[api]`,
-  `[e2e]`, `[run]`, `[docs]`, `[manual]`. `[unit]`, `[int]` and `[story]` prove
-  a part, so they go on sub-issues or on an issue built directly.
-- Types, lint and formatting are not criteria: CI runs them on every PR.
-- Each `[ui]` criterion names one user and one starting state. Each visible
-  state a changed component can show (empty, loading, error, modal, callout)
-  gets its own criterion.
+In a split ticket, `## Before → after` and `## Bug report` go on the ticket;
+`## Root cause`, `## Why this shape` and `## Behaviour held constant` go on
+each piece.
 
-## 8. Feature flags
+Taking something out (a flag, a code path, a config key) is Enablement, with
+`## Removes` listing each thing that goes. Judge the kind of flagged work as if
+the flag were on.
 
-Read from the settings, `plan-work.featureFlags` and `plan-work.flagEngine`.
+## D. When to split a ticket
 
-- **`featureFlags: true`** puts every new Feature behind a flag. The issue
-  names the flag under `### Feature flags`; a criterion proves nothing changes
-  with the flag off (it names the flag and says `off`); a `[manual]` criterion
-  names who turns it on, where, and why that cannot be automated; and a clean-up
-  issue with `## Removes` takes the flag out, `blocked by` the release.
-- **`featureFlags: false`** plans a flag only when a source asks for one, and
-  then follows the same rules.
-- **`flagEngine`** names the tool (a flag service, an env var). The design,
-  the turn-on criterion and the removal issue name it. When empty, write
-  "feature flag" and ask which tool under Open questions.
+Ask first: does it fit in one PR, in one repo? Then it is one ticket and
+nothing more.
 
-## 9. Required by the change
+Otherwise:
 
-| When the change | It must carry |
-|---|---|
-| Adds a feature flag | A flag-off criterion and a removal issue (§8) |
-| Adds or changes an endpoint's request or response | One `[e2e]` or `[api]` criterion per scenario, asserting the contract |
-| Introduces or changes a UX flow | An end-to-end or journey test part, last, blocked by the parts it drives |
-| Changes a screen inside an existing flow | A `[ui]` criterion that the tests covering the flow still pass |
-| Adds or changes a component | A `[story]` criterion, one per state |
-| Changes behaviour a doc describes | A docs issue or part, or a criterion on the part that changes the doc |
-| Claims a product outcome | `## Goal & measure` with each bullet traced to a source |
-| Removes a path, config or schema | `## Removes`, tests of kept behaviour unchanged, and data showing nobody reaches the path |
+- The ticket keeps the feature-level view: who it is for, decisions, the
+  approach, the contracts between pieces, flags, and what is out of scope. Its
+  criteria read from the user's side.
+- Each sub-issue is one PR in one repo. It says what it adds, how, and where,
+  and its criteria prove that piece in isolation.
+- Two sub-issues or more. One alone means the ticket should be built directly.
+- If one piece won't fit in a PR, the ticket is doing too much. Make it a
+  project with several tickets (G) instead of adding sub-issues.
+- Link pieces with `blocked by` only where one truly waits on another. When a
+  sub-issue waits on a sub-issue under a different ticket, link the two
+  tickets instead.
+- Write every detail a builder needs into the tickets themselves. Link a
+  design doc for background if you like, but never as the only place a detail
+  lives.
 
-## 10. Always
+## E. Work a change brings with it
 
-- No `<placeholder>`, `<missing: …>`, TBD or TODO left in anything written to
-  the tracker.
-- Every dependency is a `blocked by` relation, never prose.
-- Nothing the tracker already shows (status, assignee, estimate, child list)
-  is repeated in a description.
-- Nothing is invented: a fact no source gives becomes a question.
+Some changes always bring extra work. Check every line:
+
+- New feature flag: a flag-off criterion and a removal ticket (F).
+- New or changed endpoint: an `[e2e]` or `[api]` line per scenario, checking
+  the contract.
+- New or changed user flow: an end-to-end test piece, placed last, blocked by
+  the pieces it exercises.
+- Screen change inside a flow that stays the same: a `[ui]` line that the
+  flow's existing tests still pass.
+- New or changed component: a `[story]` line per state.
+- Behaviour a doc describes: a docs piece, or a line on the piece that edits
+  the doc.
+- A claim about a product result: Goal & measure, each bullet backed by a
+  source.
+- Code, config or schema taken out: `## Removes`, unchanged tests for what
+  stays, and data showing nobody still hits it.
+
+## F. Feature flags
+
+Driven by `plan-work.featureFlags` and `plan-work.flagEngine`.
+
+- With `featureFlags: true`, each new Feature ships behind a flag. Name it
+  under `### Feature flags`. Add a criterion that names the flag and says
+  nothing changes while it is `off`. Add a `[manual]` line saying who turns it
+  on, where, and why that is not automated. Add a clean-up ticket with
+  `## Removes` for it, blocked by the release.
+- With `featureFlags: false`, add a flag only when a source asks for one, and
+  then apply the same four rules.
+- `flagEngine` names the tool (a flag service, an environment variable). Put
+  it in the design, the turn-on line and the removal ticket. Left empty, write
+  "feature flag" and ask in the questions which tool to use.
+
+## G. Projects and milestones
+
+A project is for a goal no single ticket reaches. If the goal is met when one
+ticket closes, there is no project. Signs that you need one: the goal ships in
+stages; it holds several user stories; more than one team works on it; or it
+reaches customers bit by bit, through a migration and a cut-over. It is not a
+project when it fits in one ticket however many PRs that takes, when it never
+ends (bugs, debt and routine work go in labels and views), or when it is a
+ticket plus its rollout or flag removal.
+
+A project's description covers **Goal** (one sentence, as a result), **Why
+now**, **How we would know it worked** (something you can check at the end),
+**Links**, **Scope**, **Out of scope** and **Clean-up**. The tracker already
+lists its tickets; don't repeat them.
+
+Milestones only matter when a project ships more than once. Each milestone
+ships something on its own, cutting across every repo it needs; a milestone
+that is "the backend" or "the UI" ships nothing until the rest lands. Three
+kinds:
+
+- **Groundwork**: something the team builds on, invisible to users.
+- **Release**: a part users can use, for the users or customers it names.
+- **Clean-up**: removing what the project left behind (flags, old paths) and
+  folding notes into reference docs. Every project with milestones ends with
+  one, even if it holds a single ticket.
+
+Name each one `<n>. <what ships>`, counting from 1 in shipping order. Its
+description gives the kind, what ships and to whom, exit criteria tagged as in
+A, and what it leaves out. A milestone never holds an open question: turn the
+question into a spike ticket that blocks the milestone's tickets.
+
+## H. Before anything is written
+
+- No `[[gap …]]`, `<placeholder>`, TBD or TODO left.
+- Every "waits on" is a `blocked by` link, not a sentence.
+- Nothing the tracker shows on its own (status, owner, estimate, child list)
+  is copied into a body.
+- No fact without a source. A missing fact becomes a question.

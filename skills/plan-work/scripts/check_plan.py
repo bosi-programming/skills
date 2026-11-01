@@ -5,11 +5,19 @@ import sys
 
 TAGS = {"unit", "int", "api", "e2e", "ui", "story", "run", "docs", "manual"}
 PART_TAGS = {"unit", "int", "story"}
-ISSUE_SECTIONS = ["What", "How this impacts the final user", "Technical design", "Out of scope", "Acceptance criteria"]
+ISSUE_SECTIONS = ["What", "Who notices and how", "Technical design", "Out of scope", "Acceptance criteria"]
 PART_SECTIONS = ["What", "Technical design", "Repos and key paths", "Acceptance criteria"]
 REMOVAL_SECTION = "Removes"
-PLACEHOLDER = re.compile(r"<missing:|<[a-z][^<>\n]*>|\bTBD\b|\bTODO\b")
+PLACEHOLDER = re.compile(r"\[\[gap\b|<[a-z][^<>\n]*>|\bTBD\b|\bTODO\b")
 CRITERION = re.compile(r"^- \[[ x]\] #(\d+) \[([a-z0-9]+)\] \S")
+FENCE = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
+CODE_SPAN = re.compile(r"`([^`\n]*)`")
+TEMPLATE_SPANS = {"<repo>", "<key path>"}
+
+
+def outside_code(body):
+    body = FENCE.sub("", body)
+    return CODE_SPAN.sub(lambda m: m.group(0) if m.group(1) in TEMPLATE_SPANS else "", body)
 
 
 class BadInput(Exception):
@@ -35,7 +43,7 @@ def subsection(text, name):
 
 def criteria_lines(body):
     text = sections(body).get("Acceptance criteria", "")
-    return [line.strip() for line in text.splitlines() if line.strip().startswith("-")]
+    return [line.rstrip() for line in text.splitlines() if line.startswith("-")]
 
 
 def parsed_criteria(body):
@@ -79,7 +87,7 @@ class Linter:
                 self.gap(item, "manual-reason", f"'{line}' names no reason it cannot be automated")
 
     def placeholders(self, item, body):
-        found = PLACEHOLDER.findall(body)
+        found = PLACEHOLDER.findall(outside_code(body))
         if found:
             self.gap(item, "placeholder", f"unfilled: {', '.join(sorted(set(found)))}")
 
@@ -149,19 +157,20 @@ class Linter:
         )
         for story in issues:
             body = story["description"]
-            if "Before → after" not in sections(body):
-                continue
             item = story["identifier"]
             declared = subsection(sections(body).get("Technical design", ""), "Feature flags") or ""
             keys = re.findall(r"`([^`]+)`", declared)
+            bodies = [body] + [child["description"] for child in story["children"]]
+            feature = any("Before → after" in sections(text) for text in bodies)
             if not keys:
-                self.gap(item, "flag-parity", "a new Feature goes behind a flag: name it under ### Feature flags")
+                if feature and self.feature_flags:
+                    self.gap(item, "flag-parity", "a new Feature goes behind a flag: name it under ### Feature flags")
                 continue
             lines = [line for _, _, line in parsed_criteria(body)]
             for child in story["children"]:
                 lines += [line for _, _, line in parsed_criteria(child["description"])]
             for key in keys:
-                if not any(key in line and re.search(r"\boff\b", line) for line in lines):
+                if not any(key in line and re.search(r"\boff\b", line.replace(f"`{key}`", "")) for line in lines):
                     self.gap(item, "flag-parity", f"no criterion proves nothing changes with `{key}` off")
                 if key not in removed:
                     self.gap(item, "flag-removal", f"no issue with ## Removes takes `{key}` out")
@@ -174,21 +183,26 @@ def validate(story):
         raise BadInput(f"{story['identifier']} has no description")
     story.setdefault("children", [])
     story.setdefault("blockedBy", [])
+    if not isinstance(story["children"], list) or not isinstance(story["blockedBy"], list):
+        raise BadInput(f"{story['identifier']}: children and blockedBy must be lists")
     for child in story["children"]:
-        if not child.get("identifier") or not isinstance(child.get("description"), str):
+        if not isinstance(child, dict) or not child.get("identifier") or not isinstance(child.get("description"), str):
             raise BadInput(f"a sub-issue of {story['identifier']} lacks identifier or description")
+        if not isinstance(child.setdefault("blockedBy", []), list):
+            raise BadInput(f"{child['identifier']}: blockedBy must be a list")
 
 
 def lint(plan, feature_flags=False):
     issues = plan["issues"] if isinstance(plan, dict) and "issues" in plan else [plan]
+    if not isinstance(issues, list):
+        raise BadInput("issues must be a list")
     for story in issues:
         validate(story)
     linter = Linter(feature_flags)
     for story in issues:
         linter.issue(story)
     linter.cycles({story["identifier"]: list(story["blockedBy"]) for story in issues})
-    if feature_flags:
-        linter.flags(issues)
+    linter.flags(issues)
     return {"ready": not linter.gaps, "gaps": linter.gaps}
 
 

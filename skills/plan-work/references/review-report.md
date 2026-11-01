@@ -8,7 +8,7 @@ empty (write `None.`). Two reviews of the same work must read side by side.
 | Severity | Means |
 |---|---|
 | **Blocker** | The work cannot be built or proven as written: a missing part, a criterion nobody can run, a cycle, a placeholder |
-| **Major** | It can be built, but breaks a rule that costs rework or review time: wrong split, wrong tag level, missing required work (standard §9) |
+| **Major** | It can be built, but breaks a rule that costs rework or review time: wrong split, wrong tag level, missing extra work (standard E) |
 | **Minor** | Wording, order or format that a builder can work past |
 
 ## Operations
@@ -37,13 +37,14 @@ Never `delete` or `cancel`: propose them in words, for a person to do.
 
 | Check | Result | Findings |
 |---|---|---|
-| Shape | ✅ / ❌ / ❓ | <n> |
+| Size and split | ✅ / ❌ / ❓ | <n> |
 | Kind | ✅ / ❌ / ❓ | <n> |
-| Contents | ✅ / ❌ / ❓ | <n> |
+| Body | ✅ / ❌ / ❓ | <n> |
 | Criteria | ✅ / ❌ / ❓ | <n> |
-| Required work | ✅ / ❌ / ❓ | <n> |
+| Extra work | ✅ / ❌ / ❓ | <n> |
 | Flags | ✅ / ❌ / ❓ / n/a | <n> |
-| Order | ✅ / ❌ / ❓ | <n> |
+| Links | ✅ / ❌ / ❓ | <n> |
+| Team rules | ✅ / ❌ / n/a | <n> |
 
 ❓ means a check needs a fact the tracker does not hold; its question is below.
 
@@ -53,7 +54,7 @@ Blockers first, then Major, then Minor. Within a severity, in tree order.
 A mistake repeated on several items is one finding listing every item.
 
 ### F1 · <Blocker | Major | Minor> · <check> · <item(s)>
-- **Rule:** <standard § or team rule>
+- **Rule:** <standard letter or team rule>
 - **Found:** <what the item says or lacks, quoted>
 - **Proposed change:** <operation> — <exact content>
 
