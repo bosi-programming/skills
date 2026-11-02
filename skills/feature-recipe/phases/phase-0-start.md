@@ -38,12 +38,13 @@ contract — then:
   fresh context reads the mode from there, since the flag does not survive the
   reset.
 - Route normally, same as an interactive invocation — a fresh card enters at
-  phase 1 — and write the run record as you go: `runStatus: running` and
-  `runNext` set to the phase you hand off to. In a headless run Phase 0 asks
-  nothing.
+  `evaluate-ticket` — and write the run record as you go: `runStatus: running`
+  and `runNext` set to the phase you hand off to. In a headless run Phase 0
+  asks nothing.
 - When a card is resumed with `runStatus: needs-input` or `blocked`, route to
   `runNext` rather than to the phase after `phase` — the phase that stopped has
-  not completed.
+  not completed. A `runNext` of `evaluate-ticket` or of the old
+  `phase-1-reading-the-recipe.md` routes to `../../evaluate-ticket/SKILL.md`.
 
 ## 1. Find an existing recipe card
 
@@ -79,8 +80,8 @@ Otherwise, map the last completed phase to the next phase file:
 
 | Last completed phase | Next phase file |
 |---|---|
-| *(none — fresh card)* | `phase-1-reading-the-recipe.md` |
-| `reading-the-recipe` | `phase-2-mise-en-place.md` |
+| *(none — fresh card)* | `../../evaluate-ticket/SKILL.md` |
+| `evaluate-ticket`, or the old `reading-the-recipe` | `phase-2-mise-en-place.md` |
 | `mise-en-place` | `phase-3-cooking.md` |
 | `cooking` | `phase-4-tasting.md` |
 | `tasting` | `phase-5-plating.md` |
@@ -122,4 +123,5 @@ Create the card from `../references/recipe-card-template.md`
 at `{cardRoot}/{task-slug}.md`, with `task` set to whatever the user gave and
 every other field at its default.
 
-Load, read completely, and execute `phase-1-reading-the-recipe.md`.
+Load, read completely, and execute `../../evaluate-ticket/SKILL.md` against
+the new card.

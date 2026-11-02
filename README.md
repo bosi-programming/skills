@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Sixteen Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Seventeen Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other fourteen feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other fifteen feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket` is its first phase as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same sixteen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same seventeen install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -90,7 +90,7 @@ Takes one ticket to a pull request that is open, reviewed and ready for review, 
 
 How the ticket moves:
 
-1. **Reading the Recipe and Mise en Place** run as one sub-agent. It turns the ticket into a plan on the recipe card and names the interfaces.
+1. **`evaluate-ticket` and Mise en Place** run as one sub-agent. It turns the ticket into a plan on the recipe card and names the interfaces.
 2. **Cooking** splits. For each repo, a test writer and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. A last sub-agent makes the tests pass and runs Tasting: the project's scoped tests and lint.
 3. **UI review.** When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots Tasting captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
 4. **Plating** opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
@@ -133,11 +133,15 @@ The standards the Standards and Tests axes check against, as five files: `Common
 
 ### feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named phases — Reading the Recipe, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (Reading the Recipe and Cooking/Tasting continue straight through instead, without a session break). Reading the Recipe and Mise en Place are where you and the skill agree on what is being built and why; Reading the Recipe runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them unless a driver names a base branch; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named phases — `evaluate-ticket`, Mise en Place, Cooking, Tasting, Plating, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (`evaluate-ticket` and Cooking/Tasting continue straight through instead, without a session break). `evaluate-ticket` and Mise en Place are where you and the skill agree on what is being built and why; `evaluate-ticket` runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; Cooking writes each test before the code that satisfies it and commits as it goes; Tasting is a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; Plating opens at most one PR per run and never stacks them unless a driver names a base branch; Documentation closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
-Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through Reading the Recipe, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
+Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through `evaluate-ticket`, Mise en Place, Cooking, Tasting, Plating and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
+
+### evaluate-ticket
+
+The first build stage, once `feature-recipe`'s Reading the Recipe. It loads the task, decides whether the work is complex or leaves something undefined, runs `grill-me` only then, and writes the work card's `## Problem` and `## Goal & measure`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `evaluate-ticket` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo this stage on a card. Cards from before the split, with `reading-the-recipe` in `phase` or `phase-1-reading-the-recipe.md` in `runNext`, still route here.
 
 ### uml
 
@@ -221,7 +225,8 @@ package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bun
 skills/
   index.json          the skill list at the root of the URL opencode downloads from
   better-code-review/ SKILL.md + references/ (page, slack) + assets/report-template.html + scripts/
-  feature-recipe/     SKILL.md + dependencies/ + phases/ + references/ + scripts/
+  feature-recipe/     SKILL.md + phases/ + references/ + scripts/
+  evaluate-ticket/    SKILL.md + dependencies/ (grill-me) + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md + scripts/
   code-standards/     SKILL.md + Common/ + Frontend/ + Testing/ + Typescript/ + scripts/
@@ -255,6 +260,7 @@ python3 skills/better-code-review/scripts/check-slack.py
 python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/recipe-relay/scripts/check-no-pause.py
 python3 skills/feature-recipe/scripts/check-goal-and-measure.py
+python3 skills/evaluate-ticket/scripts/check-evaluate-ticket.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py
@@ -283,10 +289,11 @@ PI_CODING_AGENT_DIR="$agent" PI_OFFLINE=1 pi list
 
 `check-headless-contract.py` is `feature-recipe`'s own check: it fails if a
 phase stops speaking the headless dialect, if the interactive endings
-disappear, if the old `b972f03` phase-end footer creeps back, if Reading the
-Recipe loses its grill-or-skip call, or if this README
+disappear, if the old `b972f03` phase-end footer creeps back, if
+`evaluate-ticket` loses its grill-or-skip call, if Phase 0 stops routing old
+and new cards to `evaluate-ticket`, or if this README
 stops describing the skills that exist. Offline, stdlib only — run it after
-editing a phase file.
+editing a phase file or `evaluate-ticket`.
 
 `check-headless.py` is `better-code-review`'s own check: it fails if the
 `## Headless` section loses its entry, a default for a step that would ask,
@@ -316,10 +323,18 @@ it after editing Tasting or the skill's rules.
 
 `check-goal-and-measure.py` is `feature-recipe`'s third check: it fails if the
 recipe card loses `## Goal & measure` or moves it away from `## Problem`, if
-Reading the Recipe stops grilling on how we will know it worked, stops writing
+`evaluate-ticket` stops grilling on how we will know it worked, stops writing
 the three bullets, allows an invented metric, or drops the headless gap log, or
 if Plating stops carrying the section into the PR. Offline, stdlib only — run
-it after editing Reading the Recipe, Plating or the card template.
+it after editing `evaluate-ticket`, Plating or the card template.
+
+`check-evaluate-ticket.py` is `evaluate-ticket`'s own check: it fails if the
+skill loses its frontmatter, stops naming the work card as its input and
+Phase 0 as the way in without one, stops listing the card fields it writes or
+writing `evaluate-ticket` to `phase`, drops its `## Headless` section or its
+hand-off to Mise en Place, links a file that does not exist, or if this README
+loses its section. Offline, stdlib only — run it after editing
+`evaluate-ticket`.
 
 `check-pr-screenshots.py` is `feature-recipe`'s fourth check: it fails if
 Plating stops attaching the run's screenshots with `gh pr edit --attach`,

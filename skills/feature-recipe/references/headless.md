@@ -6,8 +6,9 @@ starts to the end of the recipe in one go. It is built for a night run — the
 thinking phases are done and the decisions are taken, and the rest should be
 finished by morning.
 
-Phases 1 to 6 support it — Reading the Recipe, Mise en Place, Cooking, Tasting,
-Plating, Documentation. Only Phase 0 is exempt, and only because it is pure
+Phases 1 to 6 support it — `evaluate-ticket` (`../../evaluate-ticket/SKILL.md`,
+once Reading the Recipe), Mise en Place, Cooking, Tasting, Plating,
+Documentation. Only Phase 0 is exempt, and only because it is pure
 routing with nothing in it worth a recommendation.
 
 ## Starting one
@@ -43,7 +44,7 @@ delivered rather than with a baton in the air.
 
 ## Checkpoints
 
-The checkpoints are the ones each phase already has — Reading the Recipe's
+The checkpoints are the ones each phase already has — `evaluate-ticket`'s
 grill-or-skip call and `grill-me` frontier, Mise en Place's section drafts,
 cross-check and test-case list, Cooking's deviations log, Tasting's
 scope-creep findings, Plating's chunk split, PR description and reviewer
@@ -83,7 +84,7 @@ known path with a fixed shape.
 | Field | Values | Written |
 |---|---|---|
 | `runStatus` | `running`, `terminal`, `needs-input`, `blocked` | `running` when a run starts; overwritten when it ends |
-| `runNext` | a phase file, or `none` | the phase in flight, so a dead run can be resumed; `none` only when the recipe is finished |
+| `runNext` | a phase file, a stage skill name such as `evaluate-ticket`, or `none` | the phase in flight, so a dead run can be resumed; `none` only when the recipe is finished |
 | `runQuestion` | an id from `## Open Questions`, or empty | when the run stops on one |
 
 - `terminal` — the recipe is finished, every phase through Documentation done.

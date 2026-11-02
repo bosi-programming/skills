@@ -59,7 +59,7 @@ check_all("stop-waits-for-review", stops, "section 5 is done")
 check_all("pr-never-draft", units, "never as a draft", "ready for review", "overrides")
 check("no-draft-promote-wait", "draft" not in flatten(review), "section 5 still talks about drafts")
 
-check_all("design-unit", units, "design unit", "`phase-1-reading-the-recipe.md`", "`phase-2-mise-en-place.md`", "`## Interfaces`")
+check_all("design-unit", units, "design unit", "`../evaluate-ticket/SKILL.md`", "`phase-1-reading-the-recipe.md`", "`phase-2-mise-en-place.md`", "`## Interfaces`")
 check_all("no-contract-read", units, "do not read `../feature-recipe/references/headless.md`", "`## Open Questions`", "`runQuestion`", "force-push")
 check_all("return-cap", units, "at most 100 words")
 check_all("routine-model", units, "`recipe-relay.routineModel`", "plating", "documentation")

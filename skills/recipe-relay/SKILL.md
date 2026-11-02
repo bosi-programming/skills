@@ -32,10 +32,11 @@ reads only the card's frontmatter; the units read the rest.
 
 Determine the next unit from the card's `phase` / `runNext`:
 
-- **Design unit.** `phase-1-reading-the-recipe.md` and
+- **Design unit.** `evaluate-ticket` (`../evaluate-ticket/SKILL.md`) and
   `phase-2-mise-en-place.md` run as one unit, from whichever `runNext` names,
-  so Mise en Place keeps what Reading the Recipe learned about the code. It
-  ends by writing `## Interfaces`, as step 1 of _Cooking in parallel_ says.
+  so Mise en Place keeps what `evaluate-ticket` learned about the code. A
+  `runNext` of the old `phase-1-reading-the-recipe.md` means `evaluate-ticket`.
+  It ends by writing `## Interfaces`, as step 1 of _Cooking in parallel_ says.
 - `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
   parallel_ below, and the _UI review_ below follows its last unit.
 - `phase-5-plating.md` and `phase-6-documentation.md` each run alone, on the

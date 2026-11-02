@@ -5,7 +5,7 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 CARD = SKILL / "references" / "recipe-card-template.md"
-READING = SKILL / "phases" / "phase-1-reading-the-recipe.md"
+READING = REPO / "skills" / "evaluate-ticket" / "SKILL.md"
 PLATING = SKILL / "phases" / "phase-5-plating.md"
 README = REPO / "README.md"
 

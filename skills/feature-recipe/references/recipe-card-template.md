@@ -19,7 +19,7 @@ status: 'in-progress'        # delivery status: in-progress | pr-created | deliv
 prUrl: ''
 runMode: 'interactive'       # interactive | headless — a headless run records itself here
 runStatus: ''                # what the last run did: running | terminal | needs-input | blocked
-runNext: ''                  # the phase file in flight, or none when the recipe is finished
+runNext: ''                  # the phase file or stage skill in flight, or none when the recipe is finished
 runQuestion: ''              # the id in ## Open Questions that stopped the run
 lastTouched: '<date>'
 ---
@@ -38,11 +38,11 @@ lastTouched: '<date>'
 
 ## Problem
 
-<!-- written by Phase 1: Reading the Recipe -->
+<!-- written by Phase 1: evaluate-ticket -->
 
 ## Goal & measure
 
-<!-- written by Phase 1: Reading the Recipe. What changes for whom, where we
+<!-- written by Phase 1: evaluate-ticket. What changes for whom, where we
      see it, and what to watch after release — or one `No product metric:`
      line with the indirect benefit and how to check it. -->
 
@@ -84,8 +84,9 @@ lastTouched: '<date>'
 
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
-write. Valid phase tokens, in order: `reading-the-recipe`, `mise-en-place`,
-`cooking`, `tasting`, `plating`, `documentation`.
+write. Valid phase tokens, in order: `evaluate-ticket`, `mise-en-place`,
+`cooking`, `tasting`, `plating`, `documentation`. Older cards may hold
+`reading-the-recipe` for the first; Phase 0 reads it as `evaluate-ticket`.
 
 `runMode` is written when a run starts, not by every phase: Phase 0 sets
 `headless` when the invocation asks for it, and an interactive invocation

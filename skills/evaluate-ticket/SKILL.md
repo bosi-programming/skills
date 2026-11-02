@@ -1,10 +1,40 @@
-# Phase 1 — Reading the Recipe
+---
+name: evaluate-ticket
+description: Evaluate a ticket before anything gets designed — load the task, decide whether to grill it with grill-me, and write the work card's Problem and Goal & measure sections. The first build stage. Runs alone on a work card, or with no card finds or makes one. Use when someone wants a ticket evaluated, its problem and acceptance criteria settled before design, or this stage redone on a card.
+---
+
+# evaluate-ticket
 
 Understand the task and the code it lands on before anything gets designed.
 
+`feature-recipe` and `recipe-relay` run this stage through this skill, and it
+also runs alone.
+
+## Input
+
+The path to a work card, the markdown file that carries a task from one stage
+to the next. Its shape is `../feature-recipe/references/recipe-card-template.md`.
+
+With no card, load, read completely and execute
+`../feature-recipe/phases/phase-0-start.md`. It finds the card for the task or
+makes one, then routes back here.
+
+## Output
+
+The same work card, with this stage's parts written:
+
+- `## Problem` — problem statement, acceptance criteria, edge cases,
+  dependencies.
+- `## Goal & measure` — what changes for whom, where we see it, after release;
+  or one `No product metric:` line.
+- `## Decisions` — the grill-or-skip call and what was settled.
+- `## Open Questions` — any gap nothing could settle.
+- Frontmatter — `phase` set to `evaluate-ticket`, `evaluate-ticket` appended
+  to `phasesCompleted`, `lastTouched` updated.
+
 ## 1. Load the task
 
-Read whatever the recipe card's `task` field points at. If it names something
+Read whatever the work card's `task` field points at. If it names something
 a tool already in this session can fetch (an issue tracker link, a document),
 fetch it and present the real title, description, and any acceptance
 criteria already stated. Otherwise take the user's description as given.
@@ -42,20 +72,20 @@ it solves, who benefits and how, how we will know it worked, what's in and
 out of scope, testable
 acceptance criteria, edge cases and error scenarios, and any external
 dependencies. Invoke the
-`grill-me` secondary skill that is on `../dependencies/grill-me.md` against
+`grill-me` secondary skill that is on `./dependencies/grill-me.md` against
 that tree until its frontier is empty — this replaces asking one or two
 clarifying questions at a time; the round-based frontier questioning gets to
 the same place faster and more completely.
 
 ## 3. Write the Problem section
 
-Once section 2 is done, write the `## Problem` section of the recipe card:
+Once section 2 is done, write the `## Problem` section of the work card:
 the problem statement, the acceptance criteria, edge cases, and
 dependencies — whichever the task already stated outright, plus whatever the
 grilling settled for the rest, if it ran. Nothing that answered a dimension
 gets dropped just because it didn't come from a question.
 
-Then write `## Goal & measure`, so every later phase and every agent knows
+Then write `## Goal & measure`, so every later stage and every agent knows
 what done means beyond the tests:
 
 - **What changes for whom** — the outcome, and the user, customer or team it
@@ -77,24 +107,25 @@ what we settled on"), not by naming a specific tool; use whatever's already
 available in this session for that tracker.
 
 Append one line to `## Decisions`: what was settled and why. Update the
-frontmatter — `phase: 'reading-the-recipe'`, append to `phasesCompleted`,
-`lastTouched`.
+frontmatter — `phase: 'evaluate-ticket'`, append `evaluate-ticket` to
+`phasesCompleted`, `lastTouched`.
 
-## 4. Phase done
+## 4. Stage done
 
-> **Phase done. [C] Continue here (recommended) — straight into Mise en Place; both phases are still pre-code. [N] New session — resume next phase fresh.**
+> **Stage done. [C] Continue here (recommended) — straight into Mise en Place; both stages are still pre-code. [N] New session — resume the next stage fresh.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session — Phase 0 will pick up here. End the session.
 
-**C:** load, read completely, and execute `phase-2-mise-en-place.md`.
+**C:** load, read completely, and execute
+`../feature-recipe/phases/phase-2-mise-en-place.md`.
 
 ## Headless
 
-Read `../references/headless.md`. In a headless run:
+Read `../feature-recipe/references/headless.md`. In a headless run:
 
-- Set `runNext: phase-1-reading-the-recipe.md` as you start, so a run that
-  dies here can be picked up from the card.
+- Set `runNext: evaluate-ticket` as you start, so a run that dies here can be
+  picked up from the card.
 - Section 2's grill-or-skip call is the same: Complex or Undefined means
   grill, unsure means grill. A skip logs
   `unattended: grill-me skipped — <reason>` to `## Decisions`.
@@ -109,19 +140,20 @@ Read `../references/headless.md`. In a headless run:
 - A Goal & measure bullet no source supports is not a reason to stop: leave
   it out and log `unattended: goal & measure gap — <what is missing>` to
   `## Decisions`, so the reviewer sees it in the PR.
-- Section 4 does not apply. This phase does not stop at its own boundary: it
-  loads, reads completely and executes `phase-2-mise-en-place.md`, and the
-  run continues through Mise en Place and on into Cooking, Tasting, Plating
-  and Documentation. A run stops at the recipe's end or at a one-way door,
-  never at a phase boundary.
+- Section 4 does not apply. This stage does not stop at its own boundary: it
+  loads, reads completely and executes
+  `../feature-recipe/phases/phase-2-mise-en-place.md`, and the run continues
+  through Mise en Place and on into Cooking, Tasting, Plating and
+  Documentation. A run stops at the recipe's end or at a one-way door, never
+  at a phase boundary.
 
 ### Ending a run
 
-Only if this phase is where the run stops — a frontier question with no
+Only if this stage is where the run stops — a frontier question with no
 reasonable default, such as conflicting requirements in the source ticket
 or a fact no tool in this session can find:
 
 1. Set `runStatus: blocked` and `runQuestion` to the id of the entry you
-   wrote in `## Open Questions`. Leave `runNext` as this phase: that is what
-   a resume re-runs.
+   wrote in `## Open Questions`. Leave `runNext` as `evaluate-ticket`: that
+   is what a resume re-runs.
 2. Log the stop to `## Decisions`.

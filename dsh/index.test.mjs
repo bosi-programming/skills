@@ -17,6 +17,7 @@ const SKILLS = [
   'better-code-review',
   'code-standards',
   'epistemic-action',
+  'evaluate-ticket',
   'feature-recipe',
   'non-functional-requirements',
   'open-restaurant',

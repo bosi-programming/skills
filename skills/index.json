@@ -55,12 +55,19 @@
       "version": "365bb318b8e5"
     },
     {
-      "name": "feature-recipe",
+      "name": "evaluate-ticket",
       "files": [
         "SKILL.md",
         "dependencies/grill-me.md",
+        "scripts/check-evaluate-ticket.py"
+      ],
+      "version": "1e40de369bcc"
+    },
+    {
+      "name": "feature-recipe",
+      "files": [
+        "SKILL.md",
         "phases/phase-0-start.md",
-        "phases/phase-1-reading-the-recipe.md",
         "phases/phase-2-mise-en-place.md",
         "phases/phase-3-cooking.md",
         "phases/phase-4-tasting.md",
@@ -73,7 +80,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "7da94cc241ba"
+      "version": "da148264b4dc"
     },
     {
       "name": "non-functional-requirements",
@@ -136,7 +143,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "226ce5f6297b"
+      "version": "e520bc03eccf"
     },
     {
       "name": "setup",
