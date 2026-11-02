@@ -395,6 +395,10 @@ number that matters is the gap between the two rather than the score on its own.
 `claude plugin eval` is in early access. `evals/SCHEMA.md` records the
 `case.yaml` format it expects, which is not documented anywhere else.
 
+## Contributing
+
+Read `AGENTS.md` for the conventions every change to this repository follows.
+
 ## License
 
 MIT. See `LICENSE`.
