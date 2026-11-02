@@ -4,7 +4,7 @@ Conventions for anything editing this repository.
 
 ## Coding
 
-Always work on main. Never open a new branch. After finish a feature, bump the version and commit.
+Always work on main. Never open a new branch. After finish a feature, bump the version, commit and push.
 
 ## Referencing a skill's own bundled files
 
