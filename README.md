@@ -143,6 +143,8 @@ Phases 1 to 6 can also run **headless** — a night run. Start one with `--headl
 
 The first build stage, once `feature-recipe`'s Reading the Recipe. It loads the task, decides whether the work is complex or leaves something undefined, runs `grill-me` only then, and writes the work card's `## Problem` and `## Goal & measure`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `evaluate-ticket` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo this stage on a card. Cards from before the split, with `reading-the-recipe` in `phase` or `phase-1-reading-the-recipe.md` in `runNext`, still route here.
 
+It is the first stage to declare a `stage.json`: what it takes from the card, what it delivers, where the line goes back to when it fails, and its gate. `skills/assembly-line/references/stage-spec.md` defines the keys.
+
 ### uml
 
 Draws UML diagrams of a repo, a folder or a system you describe, with PlantUML, and serves them on a local dark-theme page. It covers class, sequence, state, profile, composite structure, component, deployment, object, package and activity diagrams, plus entity-relationship diagrams drawn from migrations, SQL or ORM entities; `--diagrams=class,state` picks some. For the sequence, state and activity diagrams it picks the central flow or entity and says which and why, and a type the source gives no basis for gets a note instead of an invented drawing. The LLM writes only the `.puml` sources and a `uml.json` manifest; a Node script with no dependencies themes them, renders them and serves the page, where each diagram has an editor that saves back to its source and redraws. The server listens on `127.0.0.1` only and stops after 30 idle minutes.
@@ -261,6 +263,8 @@ python3 skills/feature-recipe/scripts/check-tasting-evidence.py
 python3 skills/recipe-relay/scripts/check-no-pause.py
 python3 skills/feature-recipe/scripts/check-goal-and-measure.py
 python3 skills/evaluate-ticket/scripts/check-evaluate-ticket.py
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/evaluate-ticket
+python3 skills/assembly-line/scripts/test_check_stage_spec.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py

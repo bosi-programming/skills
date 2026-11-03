@@ -59,9 +59,10 @@
       "files": [
         "SKILL.md",
         "dependencies/grill-me.md",
-        "scripts/check-evaluate-ticket.py"
+        "scripts/check-evaluate-ticket.py",
+        "stage.json"
       ],
-      "version": "1e40de369bcc"
+      "version": "3247e5d75ad7"
     },
     {
       "name": "feature-recipe",
