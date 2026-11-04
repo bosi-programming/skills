@@ -98,6 +98,7 @@ CONSUMERS = {
     SKILLS / "non-functional-requirements" / "SKILL.md": ["non-functional-requirements.docsDir"],
     SKILLS / "open-restaurant" / "SKILL.md": [key for key in KEYS if key.startswith("open-restaurant.")],
     SKILLS / "judge" / "SKILL.md": ["open-restaurant.judgeModel"],
+    SKILLS / "merge" / "SKILL.md": ["open-restaurant.doneState"],
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
     SKILLS / "weekly-planning" / "SKILL.md": [key for key in KEYS if key.startswith("weekly-planning.")],
     SKILLS / "plan-work" / "SKILL.md": [key for key in KEYS if key.startswith("plan-work.")],

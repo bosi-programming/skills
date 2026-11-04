@@ -22,6 +22,7 @@ const SKILLS = [
   'evaluate-ticket',
   'feature-recipe',
   'judge',
+  'merge',
   'non-functional-requirements',
   'open-restaurant',
   'pause-work',

@@ -10,6 +10,7 @@ README = REPO / "README.md"
 PLATING = SKILLS / "prepare-pr" / "SKILL.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
 JUDGE = SKILLS / "judge" / "SKILL.md"
+MERGE = SKILLS / "merge" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -52,6 +53,7 @@ def check_none(name, text, *phrases):
 skill = read(SKILL_MD)
 readme = read(README)
 judge = read(JUDGE)
+merge = read(MERGE)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -127,8 +129,10 @@ check_all("verdicts", text["qa"], "pass", "fail", "inconclusive", "blocked", "ve
 
 check_all("proof", text["proof"], "`## proof <parent>`", "`### sub-issues`")
 check_all("review-human", text["review"], "human", "ready", "`open-restaurant.reviewChannel`", "never guess")
-check_all("merge-human", text["merge"], "human", "blocks order", "retarget", "`## open criteria", "`open-restaurant.doneState`")
-check_all("merge-resume", text["merge"], "merged", "failed", "pending")
+check_all("merge-human", merge, "human", "blocks order", "retarget", "`## open criteria", "`open-restaurant.doneState`")
+check_all("merge-resume", merge, "merged", "failed", "pending")
+check_all("merge-loads-skill", text["merge"], "`../merge/skill.md`", "service card", "`integration/<parent>`", "`stage: closed`")
+check_none("merge-text-moved", text["merge"], "retarget")
 
 check_all("one-way-doors", skill, "never merges", "without a human")
 
