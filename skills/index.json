@@ -175,7 +175,16 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "dc82dfba33a9"
+      "version": "af2490b1a7d3"
+    },
+    {
+      "name": "review-fix",
+      "files": [
+        "SKILL.md",
+        "scripts/check-review-fix.py",
+        "stage.json"
+      ],
+      "version": "a6eef53e3ef7"
     },
     {
       "name": "setup",
@@ -185,7 +194,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "84acd854e3c2"
+      "version": "708a35b3c5fe"
     },
     {
       "name": "ship-pr",

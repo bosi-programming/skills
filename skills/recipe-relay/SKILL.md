@@ -207,26 +207,4 @@ with a chunked delivery, for each chunk's PR as it opens. Do not wait for
 `code-docs` or for `runStatus: terminal`. If the run stopped on `blocked` /
 `needs-input` instead, skip this section.
 
-1. Spawn one `general-purpose` sub-agent on `recipe-relay.routineModel` to run
-   `../better-code-review/SKILL.md` with `--headless`. The fixed point is the
-   merge base of the work branch and the default branch; if the recipe worked
-   on the default branch itself, it is the commit before the recipe's first
-   one. The spec source is the task on the card. Have it write the review's
-   output as it stands to `{scratch}/review.txt` and return only its `Totals:`
-   line.
-2. Spawn one sub-agent on `recipe-relay.codingModel` to work through the
-   findings in that file, on the same branch, by their `Verified:` tag. A `ran`
-   finding is proved: go to the fix. A `read` finding gets read at its
-   `file:line` first. A `no` finding: verify it first, by running or reading
-   what it names, and reject it if it does not hold. Log each `judgement call`
-   and `scope creep` finding to `## Quality Gate Results` and leave the code as
-   it is; deleting work written on purpose is a one-way door. Write a failing
-   test first where the finding is a behaviour, then fix, then run the
-   project's scoped tests and lint. Push to the open PR, which stays ready for
-   review. Log each finding you reject to `## Decisions` as `relay:`, with the
-   reason, instead of changing the code. Log the review's `Reviewed:` line and
-   each `Not verified:` entry there too, so the gap stays on the card. Return at
-   most 150 words: what got fixed, what got rejected and why, what stays not
-   verified.
-3. Tell the user, in short bullets, which findings were fixed and which were
-   rejected, with the reason, and what the review left not verified.
+Load, read completely and execute `../review-fix/SKILL.md` on the card, handing it the project rules above.
