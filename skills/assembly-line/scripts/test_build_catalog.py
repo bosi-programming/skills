@@ -263,6 +263,36 @@ class BuildCatalog(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertTrue(result.stdout.startswith("usage: build-catalog.py"))
 
+    def test_usage_when_skills_has_no_value(self):
+        result = run("--skills")
+        self.assertEqual(result.returncode, 2)
+        self.assertTrue(result.stdout.startswith("usage: build-catalog.py"))
+
+    def test_fails_when_a_row_key_is_not_a_string(self):
+        self.stage("alpha")
+        for key in ("raisedBy", "add", "remove", "where"):
+            with self.subTest(key=key):
+                self.signals({"signals": [{key: 1}]})
+                result = self.build()
+                self.assertEqual(result.returncode, 1)
+                self.assertIn(f"FAIL signals-parses signals.json: row 1 {key} must be a string", result.stdout)
+
+    def test_check_fails_when_the_catalog_does_not_parse(self):
+        self.two_stages()
+        self.build()
+        self.catalog.write_text("{not json")
+        result = self.check()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("FAIL catalog-current catalog.json: does not parse", result.stdout)
+
+    def test_check_fails_when_the_catalog_differs_only_in_bytes(self):
+        self.two_stages()
+        self.build()
+        self.catalog.write_text(json.dumps(self.written()))
+        result = self.check()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("FAIL catalog-current catalog.json: differs from the build", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
