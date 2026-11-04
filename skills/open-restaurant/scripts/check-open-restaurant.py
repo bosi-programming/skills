@@ -9,6 +9,7 @@ SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
 PLATING = SKILLS / "prepare-pr" / "SKILL.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
+JUDGE = SKILLS / "judge" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -50,6 +51,7 @@ def check_none(name, text, *phrases):
 
 skill = read(SKILL_MD)
 readme = read(README)
+judge = read(JUDGE)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -84,8 +86,10 @@ check_all("service-card", text["order"], ".service.md`", "service card")
 check_all("no-worktrees", text["order"], "never creates or removes", "worktree")
 check_all("missing-checkout-stops", text["order"], "missing", "stop")
 
-check_all("readiness-lint-judge", text["readiness"], "lint", "judge", "`open-decision`")
-check_all("readiness-blocks", text["readiness"], "`## not ready", "readiness gaps", "blocks the parent", "`## ready")
+check_all("readiness-lint-judge", judge, "lint", "judge", "`open-decision`")
+check_all("readiness-blocks", judge, "`## not ready", "readiness gaps", "blocks the parent", "`## ready")
+check_all("readiness-loads-judge", text["readiness"], "`../judge/skill.md`", "service card")
+check_none("readiness-text-moved", text["readiness"], "parity-shorthand")
 
 check_all("contract-copied", text["contract"], "`contract.json`", "`## contract", "never invent", "latest `## contract` comment wins")
 

@@ -21,6 +21,7 @@ const SKILLS = [
   'epistemic-action',
   'evaluate-ticket',
   'feature-recipe',
+  'judge',
   'non-functional-requirements',
   'open-restaurant',
   'pause-work',
