@@ -60,7 +60,7 @@ check_all("writes-stage-name", skill, "`phase: 'evaluate-ticket'`")
 
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: evaluate-ticket`", "unattended: grill-me skipped", "### Ending a run")
-check_all("hands-off", skill, "`../feature-recipe/phases/phase-2-mise-en-place.md`")
+check_all("hands-off", skill, "`../plan-code/SKILL.md`")
 
 broken = []
 for target in sorted(set(re.findall(r"`(\.{1,2}/[^`\s]+\.md)`", skill))):

@@ -22,6 +22,7 @@ const SKILLS = [
   'non-functional-requirements',
   'open-restaurant',
   'pause-work',
+  'plan-code',
   'plan-work',
   'recipe-relay',
   'setup',

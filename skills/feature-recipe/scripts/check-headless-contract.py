@@ -17,6 +17,7 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 PHASES = SKILL / "phases"
 EVALUATE = REPO / "skills" / "evaluate-ticket" / "SKILL.md"
+PLAN_CODE = REPO / "skills" / "plan-code" / "SKILL.md"
 CONTRACT = SKILL / "references" / "headless.md"
 TEMPLATE = SKILL / "references" / "recipe-card-template.md"
 SKILL_MD = SKILL / "SKILL.md"
@@ -26,14 +27,14 @@ RUN_FIELDS = ["runStatus", "runNext", "runQuestion"]
 RUN_STATUSES = ["running", "terminal", "needs-input", "blocked"]
 HEADLESS = {
     1: "evaluate-ticket",
-    2: "mise-en-place",
+    2: "plan-code",
     3: "cooking",
     4: "tasting",
     5: "plating",
     6: "documentation",
 }
 HANDOFF = {
-    1: "phase-2-mise-en-place.md",
+    1: "../plan-code/SKILL.md",
     2: "phase-3-cooking.md",
     3: "phase-4-tasting.md",
     4: "phase-5-plating.md",
@@ -75,6 +76,8 @@ def check(name, ok, detail=""):
 def phase_path(number):
     if number == 1:
         return EVALUATE
+    if number == 2:
+        return PLAN_CODE
     hits = sorted(PHASES.glob(f"phase-{number}-*.md"))
     return hits[0] if len(hits) == 1 else None
 
@@ -110,7 +113,7 @@ check(
 # --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [EVALUATE, SKILL_MD, CONTRACT, TEMPLATE]:
+for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, SKILL_MD, CONTRACT, TEMPLATE]:
     text = path.read_text()
     for needle in FORBIDDEN:
         if needle in text:
@@ -214,6 +217,9 @@ check("phase0-headless-entry", ok, "; ".join(detail))
 phase0_text = (PHASES / "phase-0-start.md").read_text()
 missing = [s for s in ["`../../evaluate-ticket/SKILL.md`", "`reading-the-recipe`", "`evaluate-ticket`", "`phase-1-reading-the-recipe.md`"] if s not in phase0_text]
 check("phase0-routes-evaluate-ticket", not missing, f"phase-0 missing: {missing}")
+
+missing = [s for s in ["`../../plan-code/SKILL.md`", "`plan-code`", "`mise-en-place`", "`phase-2-mise-en-place.md`"] if s not in phase0_text]
+check("phase0-routes-plan-code", not missing, f"phase-0 missing: {missing}")
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]
