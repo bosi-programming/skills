@@ -5,7 +5,7 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
-TASTING = SKILL / "phases" / "phase-4-tasting.md"
+TASTING = REPO / "skills" / "code" / "SKILL.md"
 README = REPO / "README.md"
 
 results = []
@@ -41,14 +41,14 @@ def check_all(name, text, *phrases):
 skill = read(SKILL_MD)
 tasting = read(TASTING)
 readme = read(README)
-review = block(tasting, "## 1. Run the review", r"^## ")
-detect = block(tasting, "## 2. Detect", r"^## ")
-fix = block(tasting, "## 6. Fix and retry", r"^## ")
+review = block(tasting, "## 5. Run the review", r"^## ")
+detect = block(tasting, "## 6. Detect", r"^## ")
+fix = block(tasting, "## 10. Fix and retry", r"^## ")
 
 check_all("review-result-kept", review, "`Reviewed:`", "`ran`", "`Not verified:`")
 check_all("no-second-run", detect, "`Reviewed:`", "`HEAD`", "only")
 check_all("rerun-after-fix", detect, "not verified", "fix")
-check_all("fix-reruns-set", fix, "section 4")
+check_all("fix-reruns-set", fix, "section 8")
 
 rules = block(skill, "## Rules for all phases", r"^## ")
 check("comment-rule-rewritten", "never, ever, comment a code" not in flatten(rules), "comment rule still has the broken wording")

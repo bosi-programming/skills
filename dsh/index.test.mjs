@@ -15,6 +15,7 @@ import { apply, inject, name, parseSkill } from './index.js'
 /** Every skill this package must publish, in catalog order; add a skill, add it here. */
 const SKILLS = [
   'better-code-review',
+  'code',
   'code-standards',
   'epistemic-action',
   'evaluate-ticket',

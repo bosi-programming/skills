@@ -10,7 +10,7 @@ CATALOG = REPO / "skills" / "code-standards"
 CATALOG_MD = CATALOG / "SKILL.md"
 TESTS_STANDARD = CATALOG / "Testing" / "Tests.md"
 README = REPO / "README.md"
-TASTING = REPO / "skills" / "feature-recipe" / "phases" / "phase-4-tasting.md"
+TASTING = REPO / "skills" / "code" / "SKILL.md"
 MANIFESTS = [
     REPO / ".claude-plugin" / "plugin.json",
     REPO / ".codex-plugin" / "plugin.json",
@@ -102,7 +102,7 @@ check("template-no-two-axis", "two-axis" not in flatten(template), "template sti
 check_all("readme-review", block(readme, "### better-code-review", r"^### "), "three axes", "Tests")
 check_all("readme-catalog", block(readme, "### code-standards", r"^### "), "five files", "Testing/Tests.md")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-tests-axis.py")
-check_all("tasting-triages-tests", block(read(TASTING), "## 1. Run the review", r"^## "), "**Tests**", "missing test")
+check_all("tasting-triages-tests", block(read(TASTING), "## 5. Run the review", r"^## "), "**Tests**", "missing test")
 stale = [str(path.relative_to(REPO)) for path in MANIFESTS if "two-axis" in flatten(read(path))]
 check("manifests-three-axis", not stale, f"still two-axis: {stale}")
 

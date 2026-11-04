@@ -65,7 +65,7 @@ check_all("no-contract-read", units, "do not read `../feature-recipe/references/
 check_all("return-cap", units, "at most 100 words")
 check_all("routine-model", units, "`recipe-relay.routineModel`", "plating", "documentation")
 check_all("plating-skips-self-review", units, "skip plating's section 2")
-check_all("one-review-per-run", units, "skip tasting's section 1")
+check_all("one-review-per-run", units, "skip `code`'s section 5")
 check_all("fixes-in-sub-agent", review, "`recipe-relay.codingModel`", "sub-agent")
 check("fixes-off-main-session", "in this session" not in flatten(review), "section 5 still fixes findings in the main session")
 check_all("review-output-to-file", review, "`{scratch}/review.txt`", "`Totals:`")

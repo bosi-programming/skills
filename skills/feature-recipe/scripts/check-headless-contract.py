@@ -19,6 +19,7 @@ PHASES = SKILL / "phases"
 EVALUATE = REPO / "skills" / "evaluate-ticket" / "SKILL.md"
 PLAN_CODE = REPO / "skills" / "plan-code" / "SKILL.md"
 TEST = REPO / "skills" / "test" / "SKILL.md"
+CODE = REPO / "skills" / "code" / "SKILL.md"
 PREPARE_PR = REPO / "skills" / "prepare-pr" / "SKILL.md"
 CONTRACT = SKILL / "references" / "headless.md"
 TEMPLATE = SKILL / "references" / "recipe-card-template.md"
@@ -30,16 +31,14 @@ RUN_STATUSES = ["running", "terminal", "needs-input", "blocked"]
 HEADLESS = {
     1: "evaluate-ticket",
     2: "plan-code",
-    3: "cooking",
-    4: "tasting",
+    3: "code",
     5: "plating",
     6: "documentation",
 }
 HANDOFF = {
     1: "../plan-code/SKILL.md",
     2: "../test/SKILL.md",
-    3: "phase-4-tasting.md",
-    4: "../../prepare-pr/SKILL.md",
+    3: "../prepare-pr/SKILL.md",
     5: "../feature-recipe/phases/phase-6-documentation.md",
 }
 # Strings that must not come back: the stdout routing line the card replaced,
@@ -56,8 +55,7 @@ INTERACTIVE_ENDINGS = {
     0: r"New session / Continue",
     1: r"Continue here \(recommended\)",
     2: r"New session \(recommended\)",
-    3: r"doesn't offer the New session",
-    4: r"New session \(recommended\)",
+    3: r"New session \(recommended\)",
     5: r"New session \(recommended\)",
     6: r"Don't offer a New session",
 }
@@ -80,6 +78,8 @@ def phase_path(number):
         return EVALUATE
     if number == 2:
         return PLAN_CODE
+    if number in (3, 4):
+        return CODE
     if number == 5:
         return PREPARE_PR
     hits = sorted(PHASES.glob(f"phase-{number}-*.md"))
@@ -88,7 +88,7 @@ def phase_path(number):
 
 def phase_text(number):
     path = phase_path(number)
-    return path.read_text() if path else ""
+    return path.read_text() if path and path.exists() else ""
 
 
 # --- the contract says what the card says ---------------------------------
@@ -117,7 +117,7 @@ check(
 # --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, TEST, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
+for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, TEST, CODE, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
     text = path.read_text() if path.exists() else ""
     for needle in FORBIDDEN:
         if needle in text:
@@ -129,7 +129,7 @@ check("no-stdout-handoff", not offenders, "; ".join(offenders))
 offenders = []
 for number, pattern in INTERACTIVE_ENDINGS.items():
     path = phase_path(number) if number else PHASES / "phase-0-start.md"
-    if path is None or not re.search(pattern, path.read_text()):
+    if path is None or not path.exists() or not re.search(pattern, path.read_text()):
         offenders.append(f"phase-{number}: /{pattern}/")
 check("interactive-endings-intact", not offenders, "; ".join(offenders))
 
@@ -164,11 +164,11 @@ check(
     f"phase-1 missing gate triggers {missing} or the unsure-means-grill rule",
 )
 
-tasting_headless = phase_text(4).split("\n## Headless", 1)[-1]
+tasting_headless = phase_text(3).split("\n## Headless", 1)[-1]
 check(
     "tasting-review-headless",
     "better-code-review" in tasting_headless and "--headless" in tasting_headless,
-    "phase-4 ## Headless must run better-code-review with --headless",
+    "code ## Headless must run better-code-review with --headless",
 )
 
 missing = [s for s in ["grill-me skipped:", "grill it"] if s not in phase1_text]
@@ -231,9 +231,12 @@ check("phase0-routes-prepare-pr", not missing, f"phase-0 missing: {missing}")
 missing = [s for s in ["`../../test/SKILL.md`", "`test`", "`phase-3-cooking.md`"] if s not in phase0_text]
 check("phase0-routes-test", not missing, f"phase-0 missing: {missing}")
 
+missing = [s for s in ["`../../code/SKILL.md`", "`code`", "`phase-3-cooking.md`", "`phase-4-tasting.md`", "`cooking`"] if s not in phase0_text]
+check("phase0-routes-code", not missing, f"phase-0 missing: {missing}")
+
 test_text = TEST.read_text() if TEST.exists() else ""
 test_headless = test_text.split("\n## Headless", 1)[-1] if "\n## Headless" in test_text else ""
-missing = [s for s in ["### Ending a run", "runNext", "`../feature-recipe/phases/phase-3-cooking.md`"] if s not in test_headless]
+missing = [s for s in ["### Ending a run", "runNext", "`../code/SKILL.md`"] if s not in test_headless]
 check("test-headless", not missing, f"test ## Headless missing: {missing}")
 
 rows = [line for line in phase0_text.splitlines() if line.startswith("|")]
@@ -244,8 +247,11 @@ check("phase0-row-evaluate-ticket", "`../../plan-code/SKILL.md`" in evaluate_row
 check("phase0-row-plan-code", "`../../test/SKILL.md`" in plan_row,
       f"plan-code row must route to test: {plan_row!r}")
 test_row = next((r for r in rows if r.startswith("| `test`")), "")
-check("phase0-row-test", "`phase-3-cooking.md`" in test_row,
-      f"test row must route to Cooking: {test_row!r}")
+check("phase0-row-test", "`../../code/SKILL.md`" in test_row,
+      f"test row must route to code: {test_row!r}")
+cooking_row = next((r for r in rows if r.startswith("| `cooking`")), "")
+check("phase0-row-cooking", "`../../code/SKILL.md`" in cooking_row,
+      f"cooking row must route to code: {cooking_row!r}")
 tasting_row = next((r for r in rows if r.startswith("| `tasting`")), "")
 prepare_row = next((r for r in rows if r.startswith("| `prepare-pr`")), "")
 check("phase0-row-tasting", "`../../prepare-pr/SKILL.md`" in tasting_row,

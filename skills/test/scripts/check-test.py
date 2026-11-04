@@ -7,7 +7,7 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
-COOKING = REPO / "skills" / "feature-recipe" / "phases" / "phase-3-cooking.md"
+COOKING = REPO / "skills" / "code" / "SKILL.md"
 
 results = []
 
@@ -70,7 +70,7 @@ check_all("commits-tests-only", writing, "only the test files")
 
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: test`", "unattended:", "### Ending a run")
-check_all("hands-off", skill, "`../feature-recipe/phases/phase-3-cooking.md`")
+check_all("hands-off", skill, "`../code/SKILL.md`")
 check_all("continue-menu", block(skill, "## 4. Stage done", r"^## "), "Continue here (recommended)")
 
 broken = []
@@ -81,7 +81,7 @@ check("links-resolve", SKILL_MD.exists() and not broken, f"broken: {broken}")
 
 check("cooking-drops-mapped-tests", "write the test(s) this step maps to" not in flatten(cooking),
       f"{COOKING.name} still writes the mapped tests")
-check_all("cooking-points-here", cooking, "`../../test/SKILL.md`")
+check_all("cooking-points-here", cooking, "`../test/SKILL.md`")
 
 check("readme-section", re.search(r"^### test$", readme, re.MULTILINE), "README has no ### test")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"), "check-test.py")
