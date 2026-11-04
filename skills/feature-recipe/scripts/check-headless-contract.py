@@ -238,7 +238,8 @@ tasting_row = next((r for r in rows if r.startswith("| `tasting`")), "")
 prepare_row = next((r for r in rows if r.startswith("| `prepare-pr`")), "")
 check("phase0-row-tasting", "`../../prepare-pr/SKILL.md`" in tasting_row,
       f"tasting row must route to prepare-pr: {tasting_row!r}")
-check("phase0-row-prepare-pr", "`../../prepare-pr/SKILL.md`" in prepare_row and "`phase-6-documentation.md`" in prepare_row,
+check("phase0-row-prepare-pr", "`../../prepare-pr/SKILL.md`" in prepare_row and "`phase-6-documentation.md`" in prepare_row
+      and "any chunk still not `opened`" in prepare_row and "otherwise" in prepare_row,
       f"prepare-pr row must route to prepare-pr and Documentation: {prepare_row!r}")
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
