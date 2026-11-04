@@ -6,6 +6,7 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
+REVIEW_FIX = REPO / "skills" / "review-fix" / "SKILL.md"
 
 results = []
 
@@ -40,24 +41,27 @@ def check_all(name, text, *phrases):
 skill = read(SKILL_MD)
 readme = read(README)
 review = block(skill, "## 5. Review and fix", r"^## ")
+work = read(REVIEW_FIX)
 
-check_all("evidence-tags-triaged", review, "`Verified:`", "`ran`", "`read`", "`no`")
-check_all("ran-goes-to-fix", review, "a `ran` finding is proved")
-check_all("no-verified-first", review, "a `no` finding", "verify it first")
-check("no-blanket-read", "read each one at its `file:line` first" not in flatten(review), "step 2 still reads every finding the same way")
-check_all("not-verified-logged", review, "`Not verified:`", "`## Decisions`")
-check_all("reviewed-sha-kept", review, "`Reviewed:`")
-check_all("report-gaps", review, "not verified")
+check_all("evidence-tags-triaged", work, "`Verified:`", "`ran`", "`read`", "`no`")
+check_all("ran-goes-to-fix", work, "a `ran` finding is proved")
+check_all("no-verified-first", work, "a `no` finding", "verify it first")
+check("no-blanket-read", "read each one at its `file:line` first" not in flatten(work), "step 2 still reads every finding the same way")
+check_all("not-verified-logged", work, "`Not verified:`", "`## Decisions`")
+check_all("reviewed-sha-kept", work, "`Reviewed:`")
+check_all("report-gaps", work, "not verified")
 
 stops = block(skill, "## 4. Stop conditions", r"^## ")
 moving = block(skill, "## 3. Move to the next unit", r"^## ")
 units = block(skill, "## 2. Run one unit per sub-agent", r"^## ")
 check_all("review-after-plating", review, "`prepare-pr` returns", "whatever the card's `status`")
+check_all("review-loads-skill", review, "`../review-fix/SKILL.md`")
+check("step-text-moved", "a `ran` finding is proved" not in flatten(review), "relay section 5 still holds the fix step text")
 check_all("review-before-documentation", moving, "after `prepare-pr` returns", "section 5", "before `code-docs`")
 check("review-not-gated-on-terminal", "reaches `terminal`" not in flatten(review + stops), "section 4 or 5 still waits for runStatus: terminal")
 check_all("stop-waits-for-review", stops, "section 5 is done")
 check_all("pr-never-draft", units, "never as a draft", "ready for review", "overrides")
-check("no-draft-promote-wait", "draft" not in flatten(review), "section 5 still talks about drafts")
+check("no-draft-promote-wait", "draft" not in flatten(review + work), "section 5 still talks about drafts")
 
 check_all("design-unit", units, "design unit", "`../evaluate-ticket/SKILL.md`", "`../plan-code/SKILL.md`", "`phase-1-reading-the-recipe.md`", "`phase-2-mise-en-place.md`", "`## Interfaces`")
 check_all("plating-unit", units, "plating unit", "`../prepare-pr/SKILL.md`", "`phase-5-plating.md`")
@@ -66,10 +70,10 @@ check_all("return-cap", units, "at most 100 words")
 check_all("routine-model", units, "`recipe-relay.routineModel`", "plating", "documentation")
 check_all("plating-skips-self-review", units, "skip plating's section 2")
 check_all("one-review-per-run", units, "skip `code`'s section 5")
-check_all("fixes-in-sub-agent", review, "`recipe-relay.codingModel`", "sub-agent")
-check("fixes-off-main-session", "in this session" not in flatten(review), "section 5 still fixes findings in the main session")
-check_all("review-output-to-file", review, "`{scratch}/review.txt`", "`Totals:`")
-check_all("triage-kept", review, "scope creep", "judgement call", "`## Quality Gate Results`")
+check_all("fixes-in-sub-agent", work, "`recipe-relay.codingModel`", "sub-agent")
+check("fixes-off-main-session", "in this session" not in flatten(work), "section 5 still fixes findings in the main session")
+check_all("review-output-to-file", work, "`{scratch}/review.txt`", "`Totals:`")
+check_all("triage-kept", work, "scope creep", "judgement call", "`## Quality Gate Results`")
 check_all("routing-frontmatter-only", block(skill, "## 1. Start or resume", r"^## "), "only the card's frontmatter")
 
 readme_check = block(readme, "## Validate a change", r"^## ")

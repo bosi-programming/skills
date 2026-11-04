@@ -6,6 +6,7 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
+REVIEW_FIX = REPO / "skills" / "review-fix" / "SKILL.md"
 
 PAUSES = [
     "give them a beat",
@@ -48,8 +49,9 @@ check("no-pause-between-units", not found, f"found: {found}")
 missing = [phrase for phrase in STOPS if flatten(phrase) not in flatten(skill)]
 check("keeps-stop-conditions", not missing, f"missing: {missing}")
 
-lowered = flatten(review)
+lowered = flatten(read(REVIEW_FIX))
 absent = [phrase for phrase in ("../better-code-review/skill.md", "--headless", "merge base", "failing test first") if phrase not in lowered]
+absent += [phrase for phrase in ("../review-fix/skill.md",) if phrase not in flatten(review)]
 check("closing-review-pass", not absent, f"missing: {absent}")
 
 validate = block(read(README), "## Validate a change", r"^## ")

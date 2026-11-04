@@ -28,6 +28,7 @@ const SKILLS = [
   'plan-work',
   'prepare-pr',
   'recipe-relay',
+  'review-fix',
   'setup',
   'ship-pr',
   'summarize-llm-response',

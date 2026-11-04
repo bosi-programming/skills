@@ -88,6 +88,7 @@ CONSUMERS = {
     ],
     SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
     SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.uiReviewerModel", "recipe-relay.routineModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
+    SKILLS / "review-fix" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel"],
     SKILLS / "code-docs" / "SKILL.md": [
         "feature-recipe.runWorkSummary",
         "feature-recipe.docsDestination",
