@@ -7,7 +7,8 @@ thinking phases are done and the decisions are taken, and the rest should be
 finished by morning.
 
 Phases 1 to 6 support it — `evaluate-ticket` (`../../evaluate-ticket/SKILL.md`,
-once Reading the Recipe), Mise en Place, Cooking, Tasting, Plating,
+once Reading the Recipe), `plan-code` (`../../plan-code/SKILL.md`, once
+Mise en Place), Cooking, Tasting, Plating,
 Documentation. Only Phase 0 is exempt, and only because it is pure
 routing with nothing in it worth a recommendation.
 
@@ -45,8 +46,8 @@ delivered rather than with a baton in the air.
 ## Checkpoints
 
 The checkpoints are the ones each phase already has — `evaluate-ticket`'s
-grill-or-skip call and `grill-me` frontier, Mise en Place's section drafts,
-cross-check and test-case list, Cooking's deviations log, Tasting's
+grill-or-skip call and `grill-me` frontier, `plan-code`'s section drafts,
+cross-check, test-case list and interfaces, Cooking's deviations log, Tasting's
 scope-creep findings, Plating's chunk split, PR description and reviewer
 routing, Documentation's "is this worth documenting". Nobody is awake to answer them, so the run takes the
 phase's own recommendation and keeps moving:

@@ -112,13 +112,13 @@ frontmatter — `phase: 'evaluate-ticket'`, append `evaluate-ticket` to
 
 ## 4. Stage done
 
-> **Stage done. [C] Continue here (recommended) — straight into Mise en Place; both stages are still pre-code. [N] New session — resume the next stage fresh.**
+> **Stage done. [C] Continue here (recommended) — straight into `plan-code`; both stages are still pre-code. [N] New session — resume the next stage fresh.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session — Phase 0 will pick up here. End the session.
 
 **C:** load, read completely, and execute
-`../feature-recipe/phases/phase-2-mise-en-place.md`.
+`../plan-code/SKILL.md`.
 
 ## Headless
 
@@ -142,8 +142,8 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
   `## Decisions`, so the reviewer sees it in the PR.
 - Section 4 does not apply. This stage does not stop at its own boundary: it
   loads, reads completely and executes
-  `../feature-recipe/phases/phase-2-mise-en-place.md`, and the run continues
-  through Mise en Place and on into Cooking, Tasting, Plating and
+  `../plan-code/SKILL.md`, and the run continues
+  through `plan-code` and on into Cooking, Tasting, Plating and
   Documentation. A run stops at the recipe's end or at a one-way door, never
   at a phase boundary.
 

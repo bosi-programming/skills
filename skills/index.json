@@ -62,14 +62,13 @@
         "scripts/check-evaluate-ticket.py",
         "stage.json"
       ],
-      "version": "3247e5d75ad7"
+      "version": "fd94721cfcd7"
     },
     {
       "name": "feature-recipe",
       "files": [
         "SKILL.md",
         "phases/phase-0-start.md",
-        "phases/phase-2-mise-en-place.md",
         "phases/phase-3-cooking.md",
         "phases/phase-4-tasting.md",
         "phases/phase-5-plating.md",
@@ -81,7 +80,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "da148264b4dc"
+      "version": "c2148deb7128"
     },
     {
       "name": "non-functional-requirements",
@@ -117,6 +116,15 @@
       "version": "887601b87d37"
     },
     {
+      "name": "plan-code",
+      "files": [
+        "SKILL.md",
+        "scripts/check-plan-code.py",
+        "stage.json"
+      ],
+      "version": "df3f8ac2f705"
+    },
+    {
       "name": "plan-work",
       "files": [
         "SKILL.md",
@@ -144,7 +152,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "e520bc03eccf"
+      "version": "6d0aa43120c0"
     },
     {
       "name": "setup",

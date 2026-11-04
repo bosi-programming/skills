@@ -33,10 +33,12 @@ reads only the card's frontmatter; the units read the rest.
 Determine the next unit from the card's `phase` / `runNext`:
 
 - **Design unit.** `evaluate-ticket` (`../evaluate-ticket/SKILL.md`) and
-  `phase-2-mise-en-place.md` run as one unit, from whichever `runNext` names,
-  so Mise en Place keeps what `evaluate-ticket` learned about the code. A
-  `runNext` of the old `phase-1-reading-the-recipe.md` means `evaluate-ticket`.
-  It ends by writing `## Interfaces`, as step 1 of _Cooking in parallel_ says.
+  `plan-code` (`../plan-code/SKILL.md`) run as one unit, from whichever
+  `runNext` names, so `plan-code` keeps what `evaluate-ticket` learned about
+  the code. A `runNext` of the old `phase-1-reading-the-recipe.md` means
+  `evaluate-ticket`; of the old `phase-2-mise-en-place.md`, `plan-code`. It
+  ends with `plan-code`'s `## Interfaces` step, as step 1 of _Cooking in
+  parallel_ says.
 - `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
   parallel_ below, and the _UI review_ below follows its last unit.
 - `phase-5-plating.md` and `phase-6-documentation.md` each run alone, on the
@@ -93,14 +95,13 @@ test writer, code writer and fix agent on the model
 `../setup/references/config.md` says. Its default, `''`, keeps the model this
 session runs on.
 
-1. **Interfaces.** The design unit's last step reads the card's Solution,
-   Implementation Plan and `## TDD Test Mapping`, and writes a `## Interfaces`
-   section to the card before either writer starts. For each repo the plan
-   touches, it lists the public names, their signatures and the files they
-   live in. Both writers code to that section and nothing else. A plan too
-   vague to name them stops the run with `runStatus: needs-input`, as section 4
-   says. A card resumed at Cooking with no such section gets one sub-agent that
-   writes it.
+1. **Interfaces.** Section 4 of `plan-code` writes `## Interfaces` to the card
+   before either writer starts: for each repo the plan touches, the public
+   names, their signatures and the files they live in. Both writers code to
+   that section and nothing else. A plan too vague to name them stops the run
+   with `runStatus: needs-input`, as section 4 says. A card resumed at Cooking
+   with no such section gets one sub-agent that runs that section of
+   `plan-code`.
 2. **Writers.** For each repo, spawn its test writer and its code writer at
    the same time, both on the same branch and worktree the code runs from: the
    repo's own checkout, on `{branch}`, the branch the repo is on. Start every

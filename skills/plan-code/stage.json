@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["## Problem", "## Goal & measure"],
+  "delivers": {
+    "sections": ["## Solution", "## Implementation Plan", "## Acceptance Criteria", "## Testing Strategy", "## TDD Test Mapping", "## Interfaces", "## Decisions", "## Open Questions"],
+    "fields": ["phase", "phasesCompleted", "lastTouched"],
+    "verdicts": ["done", "blocked"]
+  },
+  "return": {
+    "blocked": { "to": "plan-code", "limit": 0, "past": "needs-input" }
+  },
+  "signals": [],
+  "gate": "auto"
+}

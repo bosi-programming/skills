@@ -45,6 +45,8 @@ contract — then:
   `runNext` rather than to the phase after `phase` — the phase that stopped has
   not completed. A `runNext` of `evaluate-ticket` or of the old
   `phase-1-reading-the-recipe.md` routes to `../../evaluate-ticket/SKILL.md`.
+  A `runNext` of `plan-code` or of the old `phase-2-mise-en-place.md` routes
+  to `../../plan-code/SKILL.md`.
 
 ## 1. Find an existing recipe card
 
@@ -81,8 +83,8 @@ Otherwise, map the last completed phase to the next phase file:
 | Last completed phase | Next phase file |
 |---|---|
 | *(none — fresh card)* | `../../evaluate-ticket/SKILL.md` |
-| `evaluate-ticket`, or the old `reading-the-recipe` | `phase-2-mise-en-place.md` |
-| `mise-en-place` | `phase-3-cooking.md` |
+| `evaluate-ticket`, or the old `reading-the-recipe` | `../../plan-code/SKILL.md` |
+| `plan-code`, or the old `mise-en-place` | `phase-3-cooking.md` |
 | `cooking` | `phase-4-tasting.md` |
 | `tasting` | `phase-5-plating.md` |
 | `plating` | `phase-5-plating.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |

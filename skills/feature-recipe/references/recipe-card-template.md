@@ -12,7 +12,7 @@ its own section, below, and never rewrites a section a previous phase wrote.
 ```markdown
 ---
 task: '<short name or issue reference, whatever the user gave>'
-phase: ''                    # last completed phase, e.g. 'mise-en-place' — a phase
+phase: ''                    # last completed phase, e.g. 'plan-code' — a phase
                              # that stopped to ask a question is not completed
 phasesCompleted: []
 status: 'in-progress'        # delivery status: in-progress | pr-created | delivered
@@ -48,23 +48,27 @@ lastTouched: '<date>'
 
 ## Solution
 
-<!-- written by Phase 2: Mise en Place -->
+<!-- written by Phase 2: plan-code -->
 
 ## Implementation Plan
 
-<!-- written by Phase 2: Mise en Place -->
+<!-- written by Phase 2: plan-code -->
 
 ## Acceptance Criteria
 
-<!-- written by Phase 2: Mise en Place -->
+<!-- written by Phase 2: plan-code -->
 
 ## Testing Strategy
 
-<!-- written by Phase 2: Mise en Place -->
+<!-- written by Phase 2: plan-code -->
 
 ## TDD Test Mapping
 
-<!-- written by Phase 2: Mise en Place (test case list); updated by Phase 3: Cooking as each case's test is written -->
+<!-- written by Phase 2: plan-code (test case list); updated by Phase 3: Cooking as each case's test is written -->
+
+## Interfaces
+
+<!-- written by Phase 2: plan-code -->
 
 ## PR Delivery Strategy
 
@@ -84,9 +88,10 @@ lastTouched: '<date>'
 
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
-write. Valid phase tokens, in order: `evaluate-ticket`, `mise-en-place`,
+write. Valid phase tokens, in order: `evaluate-ticket`, `plan-code`,
 `cooking`, `tasting`, `plating`, `documentation`. Older cards may hold
-`reading-the-recipe` for the first; Phase 0 reads it as `evaluate-ticket`.
+`reading-the-recipe` and `mise-en-place` for the first two; Phase 0 reads them
+as `evaluate-ticket` and `plan-code`.
 
 `runMode` is written when a run starts, not by every phase: Phase 0 sets
 `headless` when the invocation asks for it, and an interactive invocation
