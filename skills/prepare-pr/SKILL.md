@@ -1,6 +1,6 @@
 ---
 name: prepare-pr
-description: Get the change ready for review — decide the PR delivery strategy, draft the description, open the PR, attach screenshots, wait for CI and fix it, and get it in front of reviewers. The build stage after code and Tasting. Runs alone on a work card, or with no card finds or makes one. Use when someone wants the PR for a finished change opened and carried to review, or this stage redone on a card.
+description: Get the change ready for review — decide the PR delivery strategy, draft the description, open the PR, attach screenshots, wait for CI and fix it, and get it in front of reviewers. The build stage after code. Runs alone on a work card, or with no card finds or makes one. Use when someone wants the PR for a finished change opened and carried to review, or this stage redone on a card.
 ---
 
 # prepare-pr
@@ -92,7 +92,7 @@ how to test it, links back to wherever the task lives. Get the user's approval b
 
 ## 4. Open the PR
 
-Open the pull request with the approved title and description. If Tasting
+Open the pull request with the approved title and description. If `code`
 deferred any verification to CI, open it as a draft so the full suite runs
 there. If this is a chunked delivery, mark the active chunk `opened` in
 `## PR Delivery Strategy`.
@@ -100,7 +100,7 @@ there. If this is a chunked delivery, mark the active chunk `opened` in
 ## 4a. Attach the screenshots
 
 Gather the screenshots of the change this run already has: the ones the
-user gave, the ones Tasting took, or the ones in `recipe-relay`'s
+user gave, the ones `code` took, or the ones in `recipe-relay`'s
 `{scratch}/ui-review/` when it ran the UI review. If there are no screenshots, skip this
 section; never take new ones here or stand in a mock for a real capture.
 
@@ -169,7 +169,7 @@ trigger phrase in a new session. End the session.
 - Set `runNext: prepare-pr` as you start.
 - Section 1's chunk split and section 3's PR description are taken, not asked:
   take the recommendation and log it `unattended:`.
-- Section 4 opens the PR as a draft regardless of whether Tasting deferred
+- Section 4 opens the PR as a draft regardless of whether `code` deferred
   anything to CI, and marks the chunk `opened` as usual.
 - Section 4a attaches the screenshots the run has without asking, and logs
   `unattended:` with the files it attached, or that there were none.

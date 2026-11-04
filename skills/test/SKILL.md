@@ -75,7 +75,7 @@ append `test` to `phasesCompleted` (once, even on a redo), `lastTouched`.
 > **Stage done. [C] Continue here (recommended) — write the code to these tests now. [N] New session.**
 
 **C:** load, read completely, and execute
-`../feature-recipe/phases/phase-3-cooking.md`.
+`../code/SKILL.md`.
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.
@@ -91,8 +91,8 @@ Read it. In a headless run:
 - Section 3 is unchanged — the frontmatter is updated either way.
 - Section 4 does not apply. This stage does not stop at its own boundary: it
   loads, reads completely and executes
-  `../feature-recipe/phases/phase-3-cooking.md`, and the run continues through
-  Cooking, Tasting, `prepare-pr` and Documentation. A run stops at the
+  `../code/SKILL.md`, and the run continues through
+  `code`, `prepare-pr` and Documentation. A run stops at the
   recipe's end or at a one-way door, never at a stage boundary.
 
 ### Ending a run

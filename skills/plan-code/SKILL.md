@@ -5,7 +5,7 @@ description: Plan the code for a ticket — draft Solution, Implementation Plan,
 
 # plan-code
 
-Get everything ready before the cooking starts: the design, the tests that
+Get everything ready before the code gets written: the design, the tests that
 prove it, and the names both test and code are written to.
 
 `feature-recipe` and `recipe-relay` run this stage through this skill, and it
@@ -66,8 +66,8 @@ the user's answer, fix what it turns up, and move on.
 
 ## 3. List the test cases
 
-This is where test cases get decided, not written — Cooking is where they
-get written (and made to pass). No code, no test-framework exploration here;
+This is where test cases get decided, not written — `test` is where they
+get written, and `code` makes them pass. No code, no test-framework exploration here;
 that happens in `test`, right before the real tests get written.
 
 1. Work through the acceptance criteria one at a time. For each, list the
@@ -127,7 +127,7 @@ Read it. In a headless run:
 - Section 6 does not apply. This stage does not stop at its own boundary: it
   loads, reads completely and executes
   `../test/SKILL.md`, and the run continues
-  through `test`, Cooking, Tasting, `prepare-pr` and Documentation. A run stops at the
+  through `test`, `code`, `prepare-pr` and Documentation. A run stops at the
   recipe's end or at a one-way door, never at a stage boundary.
 
 ### Ending a run

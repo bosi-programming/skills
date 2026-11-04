@@ -64,7 +64,7 @@ lastTouched: '<date>'
 
 ## TDD Test Mapping
 
-<!-- written by Phase 2: plan-code (test case list); updated by test as each case's test is written, and by Phase 3: Cooking for a gap it finds -->
+<!-- written by Phase 2: plan-code (test case list); updated by test as each case's test is written, and by code for a gap it finds -->
 
 ## Interfaces
 
@@ -78,7 +78,11 @@ lastTouched: '<date>'
 
 ## Quality Gate Results
 
-<!-- written by Phase 4: Tasting -->
+<!-- written by code -->
+
+## Signals
+
+<!-- written by a stage that raises a signal, such as code's no-screen-change -->
 
 ## PR
 
@@ -89,9 +93,10 @@ lastTouched: '<date>'
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
 write. Valid phase tokens, in order: `evaluate-ticket`, `plan-code`,
-`test`, `cooking`, `tasting`, `prepare-pr`, `documentation`. Older cards may hold
-`reading-the-recipe`, `mise-en-place` and `plating`; Phase 0 reads them
-as `evaluate-ticket`, `plan-code` and `prepare-pr`.
+`test`, `code`, `prepare-pr`, `documentation`. Older cards may hold
+`reading-the-recipe`, `mise-en-place`, `cooking`, `tasting` and `plating`;
+Phase 0 reads them as `evaluate-ticket`, `plan-code`, a `code` still to run,
+a `code` done, and `prepare-pr`.
 
 `runMode` is written when a run starts, not by every phase: Phase 0 sets
 `headless` when the invocation asks for it, and an interactive invocation

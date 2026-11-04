@@ -13,7 +13,16 @@
         "scripts/check-slack.py",
         "scripts/check-tests-axis.py"
       ],
-      "version": "5a92b92c7951"
+      "version": "e9aba194ed56"
+    },
+    {
+      "name": "code",
+      "files": [
+        "SKILL.md",
+        "scripts/check-code.py",
+        "stage.json"
+      ],
+      "version": "7316de9a2d39"
     },
     {
       "name": "code-standards",
@@ -62,15 +71,13 @@
         "scripts/check-evaluate-ticket.py",
         "stage.json"
       ],
-      "version": "fa72cbb0747f"
+      "version": "5a27ce20a6aa"
     },
     {
       "name": "feature-recipe",
       "files": [
         "SKILL.md",
         "phases/phase-0-start.md",
-        "phases/phase-3-cooking.md",
-        "phases/phase-4-tasting.md",
         "phases/phase-6-documentation.md",
         "references/headless.md",
         "references/recipe-card-template.md",
@@ -79,7 +86,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "5b77b478a477"
+      "version": "91b5c9d0bbfa"
     },
     {
       "name": "non-functional-requirements",
@@ -121,7 +128,7 @@
         "scripts/check-plan-code.py",
         "stage.json"
       ],
-      "version": "fd0528dd801f"
+      "version": "17734feeb123"
     },
     {
       "name": "plan-work",
@@ -149,7 +156,7 @@
         "scripts/check-prepare-pr.py",
         "stage.json"
       ],
-      "version": "b3b1c97c466e"
+      "version": "ae61a0cfe526"
     },
     {
       "name": "recipe-relay",
@@ -160,7 +167,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "401c9f577999"
+      "version": "14f224f7ba47"
     },
     {
       "name": "setup",
@@ -205,7 +212,7 @@
         "scripts/check-test.py",
         "stage.json"
       ],
-      "version": "0cd05f09b686"
+      "version": "774baddb654d"
     },
     {
       "name": "uml",

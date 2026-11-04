@@ -9,7 +9,7 @@ finished by morning.
 Phases 1 to 6 support it — `evaluate-ticket` (`../../evaluate-ticket/SKILL.md`,
 once Reading the Recipe), `plan-code` (`../../plan-code/SKILL.md`, once
 Mise en Place), `test` (`../../test/SKILL.md`, once the test half of Cooking),
-Cooking, Tasting, `prepare-pr` (`../../prepare-pr/SKILL.md`, once
+`code` (`../../code/SKILL.md`, once the rest of Cooking and Tasting), `prepare-pr` (`../../prepare-pr/SKILL.md`, once
 Plating),
 Documentation. Only Phase 0 is exempt, and only because it is pure
 routing with nothing in it worth a recommendation.
@@ -36,20 +36,20 @@ state in which the recipe turns a person away.
 1. Start where the card says: Phase 0 routes to the current phase, or the driver
    names the phase file itself.
 2. Do that phase's work. When it completes, load, read completely and execute
-   the next phase file — the way interactive Cooking already falls through into
-   Tasting — and keep going.
+   the next phase file — the way interactive `code` already runs from writing
+   the code straight into its checks — and keep going.
 3. Stop when the recipe is finished, or when something needs a person. Only the
    phase that ends the run writes the run record; a phase that hands the baton
    on leaves it alone.
 
-So a run from Cooking goes 3 → 4 → 5 → 6 in one turn, and ends with the recipe
+So a run from `code` goes `code` → `prepare-pr` → Documentation in one turn, and ends with the recipe
 delivered rather than with a baton in the air.
 
 ## Checkpoints
 
 The checkpoints are the ones each phase already has — `evaluate-ticket`'s
 grill-or-skip call and `grill-me` frontier, `plan-code`'s section drafts,
-cross-check, test-case list and interfaces, Cooking's deviations log, Tasting's
+cross-check, test-case list and interfaces, `code`'s deviations log and
 scope-creep findings, `prepare-pr`'s chunk split, PR description and reviewer
 routing, Documentation's "is this worth documenting". Nobody is awake to answer them, so the run takes the
 phase's own recommendation and keeps moving:
@@ -125,7 +125,7 @@ otherwise read as "that phase was finished" and resume one phase too late. Phase
 
 ## What a headless run does not do
 
-- It does not stop at a phase boundary. Finishing Cooking means loading Tasting.
+- It does not stop at a phase boundary. Finishing `code` means loading `prepare-pr`.
 - It does not route through what it prints. The handoff is the frontmatter.
 - It does not write a New session / Continue menu, or wait for one.
 - It does not promote a draft, merge or delete. Those wait for the morning.

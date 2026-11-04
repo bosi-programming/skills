@@ -277,11 +277,11 @@ names = sorted(p.parent.name for p in (REPO / "skills").glob("*/SKILL.md"))
 absent = [name for name in names if name not in readme]
 check("readme-names-every-skill", not absent, f"missing from README: {absent}")
 
-match = re.search(r"\b([A-Za-z]+) Claude Code skills\b", readme)
+match = re.search(r"\b([A-Za-z]+(?:-[A-Za-z]+)?) Claude Code skills\b", readme)
 if not match:
     check("readme-skill-count", False, "no '<Word> Claude Code skills' sentence")
 else:
-    counted = NUMBER_WORDS.get(match.group(1).lower())
+    counted = sum(NUMBER_WORDS.get(part, 0) for part in match.group(1).lower().split("-")) or None
     check("readme-skill-count", counted == len(names),
           f"README says {match.group(1)}, repo has {len(names)}")
 

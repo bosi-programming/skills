@@ -39,10 +39,10 @@ Determine the next unit from the card's `phase` / `runNext`:
   `evaluate-ticket`; of the old `phase-2-mise-en-place.md`, `plan-code`. It
   ends with `plan-code`'s `## Interfaces` step, as step 1 of _Cooking in
   parallel_ says.
-- `test` (`../test/SKILL.md`), `phase-3-cooking.md` and `phase-4-tasting.md`
-  run as the units in _Cooking in parallel_ below, and the _UI review_ below
-  follows its last unit. A `runNext` of `test` or `phase-3-cooking.md` means
-  these units.
+- `test` (`../test/SKILL.md`) and `code` (`../code/SKILL.md`) run as the
+  units in _Cooking in parallel_ below, and the _UI review_ below follows its
+  last unit. A `runNext` of `test`, `code`, or of the old `phase-3-cooking.md`
+  or `phase-4-tasting.md` means these units.
 - The Plating unit is `prepare-pr` (`../prepare-pr/SKILL.md`), which runs alone.
   A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` means this
   unit. `phase-6-documentation.md` runs alone too. Both run on the model
@@ -119,22 +119,23 @@ session runs on.
      that does not exist yet counts as a fail. It commits and marks each case
      written in `## TDD Test Mapping`. A test that already passes gets logged
      to `## Decisions` as `relay:`, with its name; the writer leaves it in and
-     carry on. It stops after `test`'s section 3 and does not load Cooking.
-   - The **code writer** reads the Solution, Implementation Plan, Config
-     changes and `## Interfaces`, and never sees the tests: it opens no test
-     file. It writes the code for its repo and commits, without adding tests.
-     It follows section 1 of `phase-3-cooking.md` for standards and plan
-     drift, minus the step that runs the tests.
+     carry on. It stops after `test`'s section 3 and does not load `code`.
+   - The **code writer** loads `code` (`../code/SKILL.md`) with the section 2
+     prompt, limited to its repo, and runs it as its _Beside test_ section
+     says. It reads the Solution, Implementation Plan, Config changes and
+     `## Interfaces`, and never sees the tests: it opens no test file. It
+     writes the code for its repo and commits, without adding tests, holding
+     to `code`'s standards and plan-drift rules, minus the step that runs the
+     tests.
 3. **Fix and taste.** Once both writers of every repo return, one sub-agent
-   loads `phase-3-cooking.md` and `phase-4-tasting.md`, as the section 2
-   prompt says, with the tests and code already in place on `{branch}`. It
-   starts at step 3 of Cooking's section 1: run the tests, make the red ones
-   pass by fixing the code, not the test, unless the test contradicts
-   `## Interfaces` or the Acceptance Criteria. Then it runs the rest of
-   Cooking and all of Tasting. Tell it to skip Tasting's section 1: section 5
-   below runs the one review, right after Plating. With no review to lean on,
-   Tasting runs every project check itself, and those checks stay its hard
-   gate.
+   loads `code` (`../code/SKILL.md`) again, as the section 2 prompt says,
+   with the tests and code already in place on `{branch}`. It starts at
+   step 3 of `code`'s section 2: run the tests, make the red ones pass by
+   fixing the code, not the test, unless the test contradicts `## Interfaces`
+   or the Acceptance Criteria. Then it runs the rest of `code`. Tell it to
+   skip `code`'s section 5: section 5 below runs the one review, right after
+   Plating. With no review to lean on, `code` runs every project check
+   itself, and those checks stay its hard gate.
 
 ### UI review
 
@@ -150,7 +151,7 @@ in the browser; for any other change, skip this section and log the skip to
    this session runs on. The reviewer never starts the app and takes no
    screenshots: it judges the ones the fix and taste agent captures.
 2. **Screenshots.** Tell the fix and taste agent, in its prompt, to do this
-   once Tasting's checks pass. It clears the folder `{scratch}/ui-review/`,
+   once `code`'s checks pass. It clears the folder `{scratch}/ui-review/`,
    brings the change up the way the project already does, and screenshots every
    state of the changed surface the Acceptance Criteria name into that folder.
    When it cannot bring the surface up, its summary says `none: <reason>`: the
