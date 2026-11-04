@@ -21,9 +21,6 @@ test('skillCount matches the catalog length', async () => {
   assert.equal(await skillCount(), candidates.length)
 })
 
-test('skillCount is a whole number above twenty', async () => {
-  const count = await skillCount()
-
-  assert.equal(Number.isInteger(count), true)
-  assert.equal(count > 20, true)
+test('skillCount counts the twenty-one skills the repository ships', async () => {
+  assert.equal(await skillCount(), 21)
 })
