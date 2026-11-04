@@ -4,7 +4,7 @@ from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
-PLATING = SKILL / "phases" / "phase-5-plating.md"
+PLATING = REPO / "skills" / "prepare-pr" / "SKILL.md"
 README = REPO / "README.md"
 
 results = []

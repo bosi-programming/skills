@@ -24,6 +24,7 @@ const SKILLS = [
   'pause-work',
   'plan-code',
   'plan-work',
+  'prepare-pr',
   'recipe-relay',
   'setup',
   'ship-pr',

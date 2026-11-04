@@ -7,7 +7,7 @@ SKILLS = SKILL.parent
 REPO = SKILLS.parent
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
-PLATING = SKILLS / "feature-recipe" / "phases" / "phase-5-plating.md"
+PLATING = SKILLS / "prepare-pr" / "SKILL.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]

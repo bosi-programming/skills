@@ -18,6 +18,7 @@ REPO = SKILL.parents[1]
 PHASES = SKILL / "phases"
 EVALUATE = REPO / "skills" / "evaluate-ticket" / "SKILL.md"
 PLAN_CODE = REPO / "skills" / "plan-code" / "SKILL.md"
+PREPARE_PR = REPO / "skills" / "prepare-pr" / "SKILL.md"
 CONTRACT = SKILL / "references" / "headless.md"
 TEMPLATE = SKILL / "references" / "recipe-card-template.md"
 SKILL_MD = SKILL / "SKILL.md"
@@ -37,8 +38,8 @@ HANDOFF = {
     1: "../plan-code/SKILL.md",
     2: "phase-3-cooking.md",
     3: "phase-4-tasting.md",
-    4: "phase-5-plating.md",
-    5: "phase-6-documentation.md",
+    4: "../../prepare-pr/SKILL.md",
+    5: "../feature-recipe/phases/phase-6-documentation.md",
 }
 # Strings that must not come back: the stdout routing line the card replaced,
 # and the stale Claude Code footer b972f03 added to phases 2 and 4.
@@ -78,6 +79,8 @@ def phase_path(number):
         return EVALUATE
     if number == 2:
         return PLAN_CODE
+    if number == 5:
+        return PREPARE_PR
     hits = sorted(PHASES.glob(f"phase-{number}-*.md"))
     return hits[0] if len(hits) == 1 else None
 
@@ -113,7 +116,7 @@ check(
 # --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, SKILL_MD, CONTRACT, TEMPLATE]:
+for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
     text = path.read_text()
     for needle in FORBIDDEN:
         if needle in text:
@@ -221,6 +224,9 @@ check("phase0-routes-evaluate-ticket", not missing, f"phase-0 missing: {missing}
 missing = [s for s in ["`../../plan-code/SKILL.md`", "`plan-code`", "`mise-en-place`", "`phase-2-mise-en-place.md`"] if s not in phase0_text]
 check("phase0-routes-plan-code", not missing, f"phase-0 missing: {missing}")
 
+missing = [s for s in ["`../../prepare-pr/SKILL.md`", "`prepare-pr`", "`plating`", "`phase-5-plating.md`"] if s not in phase0_text]
+check("phase0-routes-prepare-pr", not missing, f"phase-0 missing: {missing}")
+
 rows = [line for line in phase0_text.splitlines() if line.startswith("|")]
 evaluate_row = next((r for r in rows if r.startswith("| `evaluate-ticket`")), "")
 plan_row = next((r for r in rows if r.startswith("| `plan-code`")), "")
@@ -228,6 +234,12 @@ check("phase0-row-evaluate-ticket", "`../../plan-code/SKILL.md`" in evaluate_row
       f"evaluate-ticket row must route to plan-code: {evaluate_row!r}")
 check("phase0-row-plan-code", "`phase-3-cooking.md`" in plan_row,
       f"plan-code row must route to Cooking: {plan_row!r}")
+tasting_row = next((r for r in rows if r.startswith("| `tasting`")), "")
+prepare_row = next((r for r in rows if r.startswith("| `prepare-pr`")), "")
+check("phase0-row-tasting", "`../../prepare-pr/SKILL.md`" in tasting_row,
+      f"tasting row must route to prepare-pr: {tasting_row!r}")
+check("phase0-row-prepare-pr", "`../../prepare-pr/SKILL.md`" in prepare_row and "`phase-6-documentation.md`" in prepare_row,
+      f"prepare-pr row must route to prepare-pr and Documentation: {prepare_row!r}")
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]
