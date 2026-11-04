@@ -10,7 +10,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { apply, inject, name, parseSkill } from './index.js'
+import { apply, inject, name, parseSkill, skillNames } from './index.js'
 
 /** Every skill this package must publish, in catalog order; add a skill, add it here. */
 const SKILLS = [
@@ -150,4 +150,17 @@ test('refuses a candidate whose file no longer matches it', async () => {
   const candidate = { ...relay, name: 'renamed' }
 
   assert.equal(await mount().get(candidate, {}), undefined)
+})
+
+test('skillNames matches the catalog order', async () => {
+  const candidates = await mount().list({})
+
+  assert.deepEqual(
+    await skillNames(),
+    candidates.map((candidate) => candidate.name),
+  )
+})
+
+test('skillNames includes test', async () => {
+  assert.ok((await skillNames()).includes('test'))
 })
