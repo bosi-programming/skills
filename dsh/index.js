@@ -205,3 +205,7 @@ export function apply(ctx) {
     },
   }))
 }
+
+export async function skillNames() {
+  return (await listSkills()).map((candidate) => candidate.name)
+}
