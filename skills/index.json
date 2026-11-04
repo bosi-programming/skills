@@ -80,7 +80,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "c2148deb7128"
+      "version": "5ac32ad03267"
     },
     {
       "name": "non-functional-requirements",

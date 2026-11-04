@@ -221,6 +221,14 @@ check("phase0-routes-evaluate-ticket", not missing, f"phase-0 missing: {missing}
 missing = [s for s in ["`../../plan-code/SKILL.md`", "`plan-code`", "`mise-en-place`", "`phase-2-mise-en-place.md`"] if s not in phase0_text]
 check("phase0-routes-plan-code", not missing, f"phase-0 missing: {missing}")
 
+rows = [line for line in phase0_text.splitlines() if line.startswith("|")]
+evaluate_row = next((r for r in rows if r.startswith("| `evaluate-ticket`")), "")
+plan_row = next((r for r in rows if r.startswith("| `plan-code`")), "")
+check("phase0-row-evaluate-ticket", "`../../plan-code/SKILL.md`" in evaluate_row,
+      f"evaluate-ticket row must route to plan-code: {evaluate_row!r}")
+check("phase0-row-plan-code", "`phase-3-cooking.md`" in plan_row,
+      f"plan-code row must route to Cooking: {plan_row!r}")
+
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]
 check("template-carries-record", not missing and "## Open Questions" in template_text,
