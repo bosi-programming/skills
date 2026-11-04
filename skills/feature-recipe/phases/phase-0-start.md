@@ -47,6 +47,8 @@ contract — then:
   `phase-1-reading-the-recipe.md` routes to `../../evaluate-ticket/SKILL.md`.
   A `runNext` of `plan-code` or of the old `phase-2-mise-en-place.md` routes
   to `../../plan-code/SKILL.md`.
+  A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` routes to
+  `../../prepare-pr/SKILL.md`.
 
 ## 1. Find an existing recipe card
 
@@ -86,14 +88,14 @@ Otherwise, map the last completed phase to the next phase file:
 | `evaluate-ticket`, or the old `reading-the-recipe` | `../../plan-code/SKILL.md` |
 | `plan-code`, or the old `mise-en-place` | `phase-3-cooking.md` |
 | `cooking` | `phase-4-tasting.md` |
-| `tasting` | `phase-5-plating.md` |
-| `plating` | `phase-5-plating.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |
+| `tasting`, or `code` | `../../prepare-pr/SKILL.md` |
+| `prepare-pr`, or the old `plating` | `../../prepare-pr/SKILL.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |
 | `documentation` | *(terminal — already delivered)* |
 
-A chunked delivery revisits `plating` more than once — Plating itself checks
-whether the most recently opened chunk's PR has merged before starting the
-next one (see that phase's own section 1a), so routing here only needs to
-know whether any chunk is still waiting to be opened at all.
+A chunked delivery revisits `prepare-pr` more than once — `prepare-pr` itself
+checks whether the most recently opened chunk's PR has merged before starting
+the next one (see its own section 1a), so routing here only needs to know
+whether any chunk is still waiting to be opened at all.
 
 Tell the user what's already done (the `## Decisions` log, read aloud in
 brief) and what phase is next, then load, read completely, and execute that

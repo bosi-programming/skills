@@ -41,8 +41,10 @@ Determine the next unit from the card's `phase` / `runNext`:
   parallel_ says.
 - `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
   parallel_ below, and the _UI review_ below follows its last unit.
-- `phase-5-plating.md` and `phase-6-documentation.md` each run alone, on the
-  model `recipe-relay.routineModel` names, read from the settings file as
+- The Plating unit is `prepare-pr` (`../prepare-pr/SKILL.md`), which runs alone.
+  A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` means this
+  unit. `phase-6-documentation.md` runs alone too. Both run on the model
+  `recipe-relay.routineModel` names, read from the settings file as
   `../setup/references/config.md` says. Its default, `''`, keeps the model this
   session runs on.
 
@@ -177,9 +179,9 @@ When a sub-agent returns, start the next unit's sub-agent straight away,
 whatever its phase file recommends at Phase done. New session and Continue
 mean the same here: each unit already runs in a clean sub-agent. Post one line
 per unit to the user — what it produced and which phase starts next — without
-waiting for a reply. After `phase-5-plating.md` returns with a PR open, the next
+waiting for a reply. After `prepare-pr` returns with a PR open, the next
 unit is section 5, run before `phase-6-documentation.md` starts. Phase 6 then
-runs as usual, unless Plating stopped on a chunk still pending.
+runs as usual, unless `prepare-pr` stopped on a chunk still pending.
 
 ## 4. Stop conditions
 
@@ -193,7 +195,7 @@ logic.
 
 ## 5. Review and fix
 
-When `phase-5-plating.md` returns with a PR open, the branch holds the code.
+When `prepare-pr` returns with a PR open, the branch holds the code.
 Start this section at once, whatever the card's `status` or `runStatus`, and
 with a chunked delivery, for each chunk's PR as it opens. Do not wait for
 Phase 6 or for `runStatus: terminal`. If the run stopped on `blocked` /

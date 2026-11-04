@@ -1,17 +1,51 @@
-# Phase 5 — Plating
+---
+name: prepare-pr
+description: Get the change ready for review — decide the PR delivery strategy, draft the description, open the PR, attach screenshots, wait for CI and fix it, and get it in front of reviewers. The build stage after code and Tasting. Runs alone on a work card, or with no card finds or makes one. Use when someone wants the PR for a finished change opened and carried to review, or this stage redone on a card.
+---
 
-Get the change ready to hand off for review. This phase opens **at most one
+# prepare-pr
+
+Get the change ready to hand off for review. This stage opens **at most one
 PR per run**, and by default never stacks PRs: it only starts the next after
-the previous one merges. A chunked delivery revisits this phase multiple
+the previous one merges. A chunked delivery revisits this stage multiple
 times — once per chunk.
 
 When a driver names a base branch for the PR, such as `open-restaurant` does
 for a sub-issue blocked by an unmerged one in the same repo, the PR targets
 that branch and stacks on it. The base branch below is then that branch.
 
+`feature-recipe` and `recipe-relay` run this stage through this skill, and it
+also runs alone.
+
+## Input
+
+The path to a work card, the markdown file that carries a task from one stage
+to the next. Its shape is `../feature-recipe/references/recipe-card-template.md`.
+The stage reads the commits on the branch, and the card's `## Goal & measure`,
+`## Acceptance Criteria`, `## Testing Strategy`, `## Quality Gate Results` and
+`## PR Delivery Strategy`.
+
+With no card, load, read completely and execute
+`../feature-recipe/phases/phase-0-start.md`. It finds the card for the task or
+makes one, then routes back here. A card with neither `tasting` nor `code` in
+`phasesCompleted` has not passed the quality gate: Phase 0 routes it to the
+stage it still needs.
+
+## Output
+
+The same work card, with this stage's parts written:
+
+- `## PR Delivery Strategy` — one PR, or the chunks, each `pending`, `opened` or `merged`.
+- `## PR` — the PR link and delivery notes, one entry per chunk.
+- `## Decisions` — one line for the stage.
+- `## Open Questions` — any gap nothing could settle.
+- Frontmatter — `phase` set to `prepare-pr`, `status` set to `pr-created`,
+  `prUrl`, `lastTouched`, and `prepare-pr` appended to `phasesCompleted` once,
+  even on a redo or a later chunk.
+
 ## 1. Decide the PR delivery strategy
 
-Only runs the first time this phase is entered for this card (`## PR
+Only runs the first time this stage is entered for this card (`## PR
 Delivery Strategy` is still empty) — otherwise skip to section 1a.
 
 Measure the whole accumulated diff's size (files + lines changed) against
@@ -31,7 +65,7 @@ refactor — ask the user to say why, record that justification in
 ## 1a. Pick up the next chunk
 
 Only runs when `## PR Delivery Strategy` already lists chunks from a prior
-run of this phase.
+run of this stage.
 
 Find the most recent chunk marked `opened` and check whether its PR has
 merged. If it hasn't, say so and stop — there's nothing to do until it does.
@@ -52,13 +86,13 @@ them into review.
 Use the `pr-description` skill (Skill tool) if it's available in this session to generate a draft
 from the diff, the commits, and whatever the task came from, then round it
 out with the goal & measure, the acceptance criteria and the testing steps
-from the recipe card. Otherwise draft it manually from the recipe card: what
+from the work card. Otherwise draft it manually from the work card: what
 changed and why, the goal & measure, the acceptance criteria it satisfies,
 how to test it, links back to wherever the task lives. Get the user's approval before opening anything.
 
 ## 4. Open the PR
 
-Open the pull request with the approved title and description. If Phase 4
+Open the pull request with the approved title and description. If Tasting
 deferred any verification to CI, open it as a draft so the full suite runs
 there. If this is a chunked delivery, mark the active chunk `opened` in
 `## PR Delivery Strategy`.
@@ -101,16 +135,17 @@ however this team normally does that — if a tool already in this session
 handles that (an owners-based routing skill, a review-request command,
 whatever), use it; otherwise ask the user who should review it.
 
-## 7. Close the phase
+## 7. Close the stage
 
 Append the PR link and delivery notes for this run's chunk to `## PR` —
 append, don't overwrite; a chunked delivery accumulates one entry per chunk
-across multiple runs of this phase. Append one line to `## Decisions`.
-Update the frontmatter — `phase: 'plating'`, append to `phasesCompleted`,
+across multiple runs of this stage. Append one line to `## Decisions`.
+Update the frontmatter — `phase: 'prepare-pr'`, append `prepare-pr` to
+`phasesCompleted` once (not again on a redo or a later chunk),
 `status: 'pr-created'`, `prUrl` (the latest chunk's, or the only PR's),
 `lastTouched`.
 
-## 8. Phase done
+## 8. Stage done
 
 If `## PR Delivery Strategy` still has a `pending` chunk, there's nothing
 further to do in this session — the next chunk can't open until this one
@@ -120,18 +155,18 @@ next chunk automatically via Phase 0.
 
 Otherwise, every chunk (or the single PR) is open — show the usual menu:
 
-> **Phase done. [N] New session (recommended) — resume next phase fresh. [C] Continue here.**
+> **Stage done. [N] New session (recommended) — resume the next stage fresh. [C] Continue here.**
 
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.
 
-**C:** load, read completely, and execute `phase-6-documentation.md`.
+**C:** load, read completely, and execute `../feature-recipe/phases/phase-6-documentation.md`.
 
 ## Headless
 
-Read `../references/headless.md`. A night run plates; it does not ship:
+`../feature-recipe/references/headless.md` holds the rules for a headless run. Read it. A night run plates; it does not ship:
 
-- Set `runNext: phase-5-plating.md` as you start.
+- Set `runNext: prepare-pr` as you start.
 - Section 1's chunk split and section 3's PR description are taken, not asked:
   take the recommendation and log it `unattended:`.
 - Section 4 opens the PR as a draft regardless of whether Tasting deferred
@@ -147,14 +182,14 @@ Read `../references/headless.md`. A night run plates; it does not ship:
 - Section 8 applies only to a chunked delivery whose next chunk cannot open
   until this one merges. That is a stop — merging is not the run's to do.
 - Otherwise the run loads, reads completely and executes
-  `phase-6-documentation.md`.
+  `../feature-recipe/phases/phase-6-documentation.md`.
 
 ### Ending a run
 
-Only if this phase is where the run stops:
+Only if this stage is where the run stops:
 
 1. Set `runStatus: needs-input` for a one-way door or `blocked` for something
    external that has to change, and `runQuestion` to the id of the entry you
-   wrote in `## Open Questions`. Leave `runNext` as this phase: that is what a
+   wrote in `## Open Questions`. Leave `runNext` as `prepare-pr`: that is what a
    resume re-runs.
 2. Log the stop to `## Decisions`.

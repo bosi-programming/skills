@@ -71,7 +71,6 @@
         "phases/phase-0-start.md",
         "phases/phase-3-cooking.md",
         "phases/phase-4-tasting.md",
-        "phases/phase-5-plating.md",
         "phases/phase-6-documentation.md",
         "references/headless.md",
         "references/recipe-card-template.md",
@@ -80,7 +79,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "5ac32ad03267"
+      "version": "e372aa03fcdb"
     },
     {
       "name": "non-functional-requirements",
@@ -100,7 +99,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "d1264fe3ef7c"
+      "version": "559b231a5df1"
     },
     {
       "name": "pause-work",
@@ -144,6 +143,15 @@
       "version": "2d6a44f92eac"
     },
     {
+      "name": "prepare-pr",
+      "files": [
+        "SKILL.md",
+        "scripts/check-prepare-pr.py",
+        "stage.json"
+      ],
+      "version": "b3b1c97c466e"
+    },
+    {
       "name": "recipe-relay",
       "files": [
         "SKILL.md",
@@ -152,7 +160,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "6d0aa43120c0"
+      "version": "dfceb3ebeb16"
     },
     {
       "name": "setup",

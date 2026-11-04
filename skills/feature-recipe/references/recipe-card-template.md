@@ -72,9 +72,9 @@ lastTouched: '<date>'
 
 ## PR Delivery Strategy
 
-<!-- written by Phase 5: Plating, only if the plan is large enough to warrant chunking.
+<!-- written by Phase 5: prepare-pr, only if the plan is large enough to warrant chunking.
      Each chunk carries a status — pending / opened / merged — updated by
-     Plating across its (possibly multiple) runs for this card. -->
+     prepare-pr across its (possibly multiple) runs for this card. -->
 
 ## Quality Gate Results
 
@@ -82,16 +82,16 @@ lastTouched: '<date>'
 
 ## PR
 
-<!-- written by Phase 5: Plating. Appended to, not overwritten — a single PR
+<!-- written by Phase 5: prepare-pr. Appended to, not overwritten — a single PR
      delivery gets one entry; a chunked delivery gets one entry per chunk. -->
 ```
 
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
 write. Valid phase tokens, in order: `evaluate-ticket`, `plan-code`,
-`cooking`, `tasting`, `plating`, `documentation`. Older cards may hold
-`reading-the-recipe` and `mise-en-place` for the first two; Phase 0 reads them
-as `evaluate-ticket` and `plan-code`.
+`cooking`, `tasting`, `prepare-pr`, `documentation`. Older cards may hold
+`reading-the-recipe`, `mise-en-place` and `plating`; Phase 0 reads them
+as `evaluate-ticket`, `plan-code` and `prepare-pr`.
 
 `runMode` is written when a run starts, not by every phase: Phase 0 sets
 `headless` when the invocation asks for it, and an interactive invocation

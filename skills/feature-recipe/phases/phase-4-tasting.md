@@ -41,7 +41,7 @@ than running its full suite from a standing start.
 
 List the changed files against the base branch. Filter to source and test
 files — everything cooked so far; the PR-chunking decision hasn't been made
-yet at this point (Plating decides it in the next phase).
+yet at this point (`prepare-pr` decides it in the next stage).
 
 ## 4. Run tests scoped to the change
 
@@ -81,7 +81,7 @@ deferred — not before.
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.
 
-**C:** load, read completely, and execute `phase-5-plating.md`.
+**C:** load, read completely, and execute `../../prepare-pr/SKILL.md`.
 
 ## Headless
 
@@ -97,7 +97,7 @@ Read `../references/headless.md`. In a headless run:
   the change, fix what fails, and write `## Quality Gate Results` — including
   what was deferred to CI and why.
 - Section 8 does not apply. The run does not stop here: it loads, reads
-  completely and executes `phase-5-plating.md`.
+  completely and executes `../../prepare-pr/SKILL.md`.
 
 ### Ending a run
 

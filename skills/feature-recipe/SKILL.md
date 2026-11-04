@@ -1,6 +1,6 @@
 ---
 name: feature-recipe
-description: Take a task from a rough idea to a merged PR, cooked in six named phases — evaluate-ticket, plan-code, Cooking, Tasting, Plating, Documentation — each one able to end in a clean context, except evaluate-ticket and Cooking/Tasting, which default to continuing straight into the next phase. Use when the user says "run the recipe", "cook this ticket", "cook this task", or "feature recipe".
+description: Take a task from a rough idea to a merged PR, cooked in six named phases — evaluate-ticket, plan-code, Cooking, Tasting, prepare-pr, Documentation — each one able to end in a clean context, except evaluate-ticket and Cooking/Tasting, which default to continuing straight into the next phase. Use when the user says "run the recipe", "cook this ticket", "cook this task", or "feature recipe".
 ---
 
 A feature delivered the way a dish gets cooked: read the recipe before you touch anything, get every ingredient ready, cook, taste before it leaves the kitchen, plate it, then write down what you made. Six phases, most defaulting to a fresh context between them — the first and Cooking/Tasting continue straight through instead — held together by one artifact that survives the reset either way: the **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the current project, or in whatever folder the settings file names. The settings file also picks the mode a run takes when the request names none; `../setup/references/config.md` describes it.
@@ -9,7 +9,7 @@ This skill carries no opinion about which issue tracker, chat tool, or docs syst
 
 Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 
-The first two phases are skills of their own, `evaluate-ticket` (`../evaluate-ticket/SKILL.md`) and `plan-code` (`../plan-code/SKILL.md`): Phase 0 routes to them, `evaluate-ticket` hands on to `plan-code`, and `plan-code` hands on to `./phases/phase-3-cooking.md`. Each also runs alone on a card.
+Three phases are skills of their own, `evaluate-ticket` (`../evaluate-ticket/SKILL.md`), `plan-code` (`../plan-code/SKILL.md`) and `prepare-pr` (`../prepare-pr/SKILL.md`): Phase 0 routes to them, `evaluate-ticket` hands on to `plan-code`, `plan-code` hands on to `./phases/phase-3-cooking.md`, Tasting hands on to `prepare-pr`, and `prepare-pr` hands on to `./phases/phase-6-documentation.md`. Each also runs alone on a card.
 
 ## Headless runs
 
@@ -17,7 +17,7 @@ Phases 1 to 6 can run with no human in the loop — a night run. Start one with
 `--headless`, or make it the default with `feature-recipe.defaultMode`, at
 whatever step the card is on, even a bare task with no card
 yet, and it carries the work through `evaluate-ticket`, `plan-code`,
-Cooking, Tasting, Plating and Documentation in one turn, taking the
+Cooking, Tasting, `prepare-pr` and Documentation in one turn, taking the
 recommendation at each checkpoint and recording it as `unattended:`, so the
 morning can see what was decided while nobody was watching. It stops only when
 the recipe is finished or something needs a person — never at a phase boundary,
