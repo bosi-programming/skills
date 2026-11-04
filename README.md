@@ -425,7 +425,8 @@ its frontmatter, stops naming the work card as its input and Phase 0 as the
 way in without one, stops listing the card fields it writes or writing
 `code-docs` to `phase` and `delivered` to `status`, stops reading its two
 settings or running `work-summary`, offers a New session / Continue menu,
-drops its `## Headless` section or its terminal run record, links a file that
+drops its `## Headless` section or its terminal run record, stops logging a
+skipped docs step or saying "no docs" in its summary, links a file that
 does not exist, if the old Documentation phase file comes back, or if this
 README loses its section. Offline, stdlib only — run it after editing
 `code-docs`.

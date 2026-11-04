@@ -70,8 +70,8 @@ to `## Decisions`.
 If the task came from a tracker, record there that it's done.
 
 Present a short delivery summary: what was built, the PR link, where the
-docs landed (if any), and the work card's own path as the full record of
-how it got there.
+docs landed, or "no docs" and why, and the work card's own path as the full
+record of how it got there.
 
 ## 4. Summarize the session
 
@@ -91,7 +91,8 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 - Set `runNext: code-docs` as you start.
 - Section 1's question is taken, not asked: take the recommendation and log it
   `unattended:`. This stage stays optional, so a night run with no docs
-  destination in the settings or the project skips it and says so on the card.
+  destination in the settings or the project skips it. A skip is still a
+  call taken alone: log it `unattended: docs skipped — <reason>`.
 - Section 2's draft, when there is one to write, is written without waiting.
 - Section 3's tracker update is skipped where no tracker is available, and the
   card says the external update is pending rather than inventing one.

@@ -31,7 +31,7 @@
         "scripts/check-code-docs.py",
         "stage.json"
       ],
-      "version": "a05a62fc096a"
+      "version": "d53e7b4d3408"
     },
     {
       "name": "code-standards",
@@ -94,7 +94,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "0531505b44b0"
+      "version": "38365ee69689"
     },
     {
       "name": "non-functional-requirements",

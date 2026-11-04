@@ -43,7 +43,12 @@ contract — then:
   asks nothing.
 - When a card is resumed with `runStatus: needs-input` or `blocked`, route to
   `runNext` rather than to the phase after `phase` — the phase that stopped has
-  not completed. A `runNext` of `evaluate-ticket` or of the old
+  not completed. Read the `## Open Questions` entry `runQuestion` names first.
+  If the invocation or the card now holds its answer, log the answer to
+  `## Decisions` prefixed `driver:`, mark the entry answered, clear
+  `runQuestion`, set `runStatus: running`, and route as below. If it is
+  still unanswered, stop again: leave the record as it is and report the
+  question. A `runNext` of `evaluate-ticket` or of the old
   `phase-1-reading-the-recipe.md` routes to `../../evaluate-ticket/SKILL.md`.
   A `runNext` of `plan-code` or of the old `phase-2-mise-en-place.md` routes
   to `../../plan-code/SKILL.md`.
