@@ -178,6 +178,10 @@ export async function skillCount() {
   return (await listSkills()).length
 }
 
+export async function hasSkill(skillName) {
+  return (await listSkills()).some((candidate) => candidate.name === skillName)
+}
+
 /**
  * Register the bundled provider with the skill registry.
  *
