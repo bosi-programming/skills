@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Twenty-five Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Twenty-six Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other twenty-three feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other twenty-four feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same twenty-five install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same twenty-six install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -92,7 +92,7 @@ How the ticket moves:
 
 1. **`evaluate-ticket` and `plan-code`** run as one sub-agent. It turns the ticket into a plan on the recipe card and names the interfaces.
 2. **Cooking** splits. For each repo, a test writer, running `test`, and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. The code writer runs `code` up to its code, and a last sub-agent runs `code` again to make the tests pass and run its checks: the project's scoped tests and lint.
-3. **UI review.** When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots `code` captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
+3. **UI review** (`ui-review`). When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots `code` captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
 4. **`prepare-pr`** (Plating) opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
 5. **Review and fix** (`review-fix`). The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch; this is the run's one review. Another sub-agent checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
 6. **`code-docs`** (Documentation) closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
@@ -178,6 +178,12 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 ### review-fix
 
 The stage after `prepare-pr`. It reads the work card's `task` and `prUrl`, runs `better-code-review --headless` against the branch, fixes each finding by how it was verified (`ran`, `read` or `no`), test first, pushes to the open PR, and logs what it rejects and what stays not verified to `## Decisions` and `## Quality Gate Results`. It leaves `phase` and `phasesCompleted` alone, and stops `blocked` when the card has no open PR. It reads `recipe-relay.routineModel` and `recipe-relay.codingModel`. `recipe-relay` runs its section 5 through this skill, and it also runs alone on a card.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### ui-review
+
+The stage after `code` when a change reaches a screen. It reads the work card's `task` (the design attached to the ticket), `## Solution` and the screenshots in `{scratch}/ui-review/`, never starts the app or takes screenshots, rates each difference critical, major or minor and writes `## UI Review`. It ends `fail` on a critical or major finding, which sends the line back to `code` at most twice, `pass` otherwise, and `inconclusive` with no screenshots or no design. It logs minor findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. It reads `recipe-relay.uiReviewerModel`. `recipe-relay` runs its UI review through this skill, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -283,6 +289,7 @@ skills/
   code/               SKILL.md + stage.json + scripts/
   code-docs/          SKILL.md + stage.json + scripts/
   review-fix/         SKILL.md + stage.json + scripts/
+  ui-review/          SKILL.md + stage.json + scripts/
   judge/              SKILL.md + stage.json + scripts/
   merge/              SKILL.md + stage.json + scripts/
   open-restaurant/    SKILL.md + scripts/
@@ -325,6 +332,7 @@ python3 skills/test/scripts/check-test.py
 python3 skills/code/scripts/check-code.py
 python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/review-fix/scripts/check-review-fix.py
+python3 skills/ui-review/scripts/check-ui-review.py
 python3 skills/judge/scripts/check-judge.py
 python3 skills/merge/scripts/check-merge.py
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/evaluate-ticket
@@ -334,6 +342,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/test
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/review-fix
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/ui-review
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/merge
 python3 skills/assembly-line/scripts/test_check_stage_spec.py
@@ -467,6 +476,17 @@ settings, drops the headless review, the fix by `Verified:` tag or its
 if `recipe-relay` stops loading it, or if this README loses its section.
 Offline, stdlib only — run it after editing `review-fix`.
 
+`skills/ui-review/scripts/check-ui-review.py` is `ui-review`'s own check: it
+fails if the skill loses its frontmatter, stops naming the work card, `task`,
+`## Solution` and `{scratch}/ui-review/` as its input, stops ending
+`inconclusive` with no screenshots, stops listing the card fields it writes or
+leaving `phase` and `phasesCompleted` alone, stops reading its setting, drops
+the design, compare or verdict step, lets the reviewer start the app or take
+screenshots, loses its `## Headless` section, says "recipe card", links a file
+that does not exist, names private content, if `stage.json` stops returning
+`fail` to `code` twice, if `recipe-relay` stops loading it, or if this README
+loses its section. Offline, stdlib only — run it after editing `ui-review`.
+
 `check-judge.py` is `judge`'s own check: it fails if the skill loses its
 frontmatter, stops naming the work card, `task`, the service card and `parent`
 as its input, stops ending `not-ready` with `runStatus: blocked` when it cannot
@@ -518,8 +538,9 @@ editing `recipe-relay` or step 4 of `better-code-review`.
 
 `check-ui-review.py` is `recipe-relay`'s third check: it fails if the UI
 review stops running after the last Cooking unit, goes back to waiting on a
-signal, starts the app or takes its own screenshots, guesses a design it was not given, or stops sending critical and major
-findings back at most twice. Offline, stdlib only — run it after editing
+signal, stops loading `ui-review`, or stops sending a `fail` back at most
+twice. It reads the design and comparison steps from `ui-review`, and fails if
+the relay stops loading it. Offline, stdlib only — run it after editing
 `recipe-relay`.
 
 `check-open-restaurant.py` is `open-restaurant`'s own check: it fails if a

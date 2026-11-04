@@ -84,7 +84,7 @@ every key.
 | `recipe-relay.codingModel` | `''` | Model for the sub-agents that write tests and code in Cooking, and for the fix sub-agent in `review-fix`. Empty means the model the relay runs on. |
 | `recipe-relay.reviewState` | `In Review` | Tracker state the relay moves the task to once its PR is open. Empty skips the move. |
 | `recipe-relay.doneState` | `Done` | Tracker state the relay moves the task to when Documentation closes it. Empty skips the move. |
-| `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design. Empty means the model the relay runs on. |
+| `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design, in `ui-review`. Empty means the model the session runs on. |
 | `recipe-relay.routineModel` | `''` | Model for the Plating and Documentation units and the review sub-agent in `review-fix`. Empty means the model the relay runs on. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |

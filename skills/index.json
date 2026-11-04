@@ -193,7 +193,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "af2490b1a7d3"
+      "version": "b9b3bea3cbcc"
     },
     {
       "name": "review-fix",
@@ -212,7 +212,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "b4a8bf12f5b0"
+      "version": "7ac91187648f"
     },
     {
       "name": "ship-pr",
@@ -248,6 +248,15 @@
         "stage.json"
       ],
       "version": "774baddb654d"
+    },
+    {
+      "name": "ui-review",
+      "files": [
+        "SKILL.md",
+        "scripts/check-ui-review.py",
+        "stage.json"
+      ],
+      "version": "28b2079df199"
     },
     {
       "name": "uml",

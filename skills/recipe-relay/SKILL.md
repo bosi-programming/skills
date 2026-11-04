@@ -146,38 +146,22 @@ carries. It runs only when the card's Solution changes a surface a person sees
 in the browser; for any other change, skip this section and log the skip to
 `## Decisions` as `relay:`.
 
-1. **Order.** Start the UI reviewer after the fix and taste agent returns from
-   step 3 of _Cooking in parallel_. Run the reviewer on the model
-   `recipe-relay.uiReviewerModel` names, read from the settings file as
-   `../setup/references/config.md` says. Its default, `''`, keeps the model
-   this session runs on. The reviewer never starts the app and takes no
-   screenshots: it judges the ones the fix and taste agent captures.
+1. **Order.** Start the UI review after the fix and taste agent returns from
+   step 3 of _Cooking in parallel_.
 2. **Screenshots.** Tell the fix and taste agent, in its prompt, to do this
    once `code`'s checks pass. It clears the folder `{scratch}/ui-review/`,
    brings the change up the way the project already does, and screenshots every
    state of the changed surface the Acceptance Criteria name into that folder.
    When it cannot bring the surface up, its summary says `none: <reason>`: the
    verdict is `inconclusive`, and no reviewer starts.
-3. **The design.** The design is the image attached to the task, read with
-   whatever tool the session has for the tracker. A design-tool frame the task
-   links may settle a region the image leaves unclear, but never stands in
-   for a missing image. No design at all makes the verdict `inconclusive`.
-   The reviewer never guesses the design from the task's text.
-4. **The comparison.** Walk the design top to bottom and name, for each
-   difference, the design region and the screenshot it comes from. Rate it:
-   critical when the changed surface is missing, blank or broken; major for a
-   wrong component or structure, a missing or extra field, wrong content or
-   order, or a state the design shows that the build lacks; minor for small
-   spacing, colour or weight drift and anything the image cannot settle.
-   Judge what a person sees, not the code. Write the verdict and the findings
-   to a `## UI Review` section on the card.
-5. **Route the result.** Critical and major findings go back to the fix
-   agent, with the screenshots' paths, in a new fix and taste round followed by
-   a new review; do this at most twice. A third round with critical or
-   major findings stops the run with `runStatus: needs-input`, as section 4
-   says. Minor findings never send work back: log them to
-   `## Quality Gate Results`. An `inconclusive` verdict goes on the card with
-   its reason, logged as `relay:`, and the run moves on to Plating.
+3. **Review.** Load, read completely and execute `../ui-review/SKILL.md` on
+   the card, handing it the project rules above.
+4. **Route the result.** A `fail` verdict goes back to the fix agent, with the
+   screenshots' paths, in a new fix and taste round followed by a new review;
+   do this at most twice. A third `fail` stops the run with
+   `runStatus: needs-input`, as section 4 says. An `inconclusive` verdict goes
+   on the card with its reason, logged as `relay:`, and the run moves on to
+   Plating.
 
 ## 3. Move to the next unit
 
