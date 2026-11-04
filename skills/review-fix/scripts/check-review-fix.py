@@ -63,8 +63,15 @@ check_all("runs-review", block(skill, "## 1. Review", r"^## "),
           "`../better-code-review/SKILL.md`", "--headless", "merge base", "`{scratch}/review.txt`")
 check_all("fix-by-tag", block(skill, "## 2. Fix", r"^## "),
           "`Verified:`", "`ran`", "`read`", "`no`", "failing test first")
+check_all("fix-log-prefixes", block(skill, "## 2. Fix", r"^## "),
+          "`relay:`", "`unattended:`", "`review-fix:`")
+check_all("fix-one-way-door", block(skill, "## 2. Fix", r"^## "),
+          "deleting work written on purpose is a one-way door")
+check_all("fix-return-cap", block(skill, "## 2. Fix", r"^## "), "at most 150 words")
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
           "unattended:", "`runStatus: needs-input`", "### Ending a run")
+check_all("ending-not-under-relay", block(skill, "### Ending a run", r"^#{1,3} "),
+          "not under `recipe-relay`", "`## Quality Gate Results`")
 
 broken = []
 for target in sorted(set(re.findall(r"`(\.{1,2}/[^`\s]+\.md)`", skill))):

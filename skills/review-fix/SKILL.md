@@ -87,6 +87,10 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 
 ### Ending a run
 
+Applies to a person's headless run of this skill, not under `recipe-relay`.
+Under `recipe-relay`, a finding whose fix is a one-way door goes to
+`## Quality Gate Results` and the code stays as it is, as section 2 says.
+
 A finding whose fix is a one-way door, or a question with no reasonable
 default:
 
