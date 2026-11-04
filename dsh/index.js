@@ -138,6 +138,11 @@ export function parseSkill(contents) {
  *
  * @returns the provider candidates, sorted by name.
  */
+export async function isStage(skillName) {
+  const info = await stat(join(SKILLS_DIR, skillName, 'stage.json')).catch(() => undefined)
+  return info?.isFile() === true
+}
+
 async function listSkills() {
   const entries = await readdir(SKILLS_DIR, { withFileTypes: true })
   const directories = entries
