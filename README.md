@@ -346,6 +346,8 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/ui-review
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/merge
 python3 skills/assembly-line/scripts/test_check_stage_spec.py
+python3 skills/assembly-line/scripts/check-line-format.py
+python3 skills/assembly-line/scripts/test_check_line_format.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py

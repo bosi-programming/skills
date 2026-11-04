@@ -1,0 +1,160 @@
+# Line format
+
+A line is the list of stages one ticket runs, in order. `plan-assembly-line`
+writes it in a comment on the ticket; `assembly-line` reads that comment and
+runs each stage; `validate-line.py` checks it before anything runs. Each stage
+declares what it takes, delivers and where it goes back to in its `stage.json`;
+see [`./stage-spec.md`](./stage-spec.md). The line says only which stages run
+and in what order.
+
+## Where it lives
+
+In a comment on the ticket. The work card stays the hand-off between stages:
+the line names the stages, the card carries what they read and write.
+
+The same JSON object can stand alone as a file, so a saved line in the repo
+uses this format too.
+
+## Marker
+
+A line comment opens with a `## Assembly line` heading and a sentence or two
+for people, then holds one ```json block. The block is the line; readers ignore
+the prose around it.
+
+A comment is a line comment when its ```json block parses to an object with
+`"format": "assembly-line/1"`. The heading helps a person find it; the `format`
+field is what a reader looks for, because the tracker may change headings and
+drop HTML comments when it renders markdown.
+
+~~~markdown
+## Assembly line
+
+Small fix with no screen change, so no `test` or `ui-review`.
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-1",
+  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "merge"]
+}
+```
+~~~
+
+| Key | Type | What it holds |
+| --- | --- | --- |
+| `format` | string | Always `assembly-line/1`. A new version gets a new value. |
+| `ticket` | string | The ticket the line is for. A reader stops if it does not match the ticket the comment is on. |
+| `stages` | list | The stages, in order. See below. |
+
+## Stages and inputs
+
+`stages` lists the stages in the order they run. Each item is one of:
+
+- A stage name: a skill under `skills/` with a `stage.json`, such as `"code"`.
+- A stage object, `{"stage": "<name>", "with": {...}}`, when the stage needs
+  something for this ticket that is not on the card, such as a URL to review.
+  `with` holds plain keys and values; the stage's `SKILL.md` says which it reads.
+- A parallel group, `{"parallel": [...]}`. See below.
+- A sub-issue group, `{"group": "sub-issues"}`. See below.
+
+The line never repeats what a stage reads from the card: that is `takes` in
+the stage's `stage.json`. Nor does it say where a person must step in: that is
+`gate` in the same `stage.json`. A stage with `gate: human` stops the run for
+a person on every line it appears on.
+
+A stage may appear more than once, as `code` does after a parallel group with
+`test`. A `return` in `stage.json` goes back to the latest stage with that name.
+
+## Parallel groups
+
+`{"parallel": [<item>, <item>, ...]}` runs its branches at the same time. Each
+branch is a stage name or a stage object. The group ends when every branch
+ends, and the next item starts only then. A failing verdict in any branch
+follows that branch's `return`.
+
+## More than one line comment
+
+The line comment created last wins; the others are ignored. To change a line,
+post a new line comment rather than editing the old one, so the ticket keeps
+the history. `assembly-line` writes the link of the comment it ran to
+`## Decisions` on the card.
+
+## Sub-issue groups
+
+A parent's line holds `{"group": "sub-issues"}` where its sub-issues run.
+Each sub-issue runs its own line, from its own line comment, in the order its
+blocks relations set. A sub-issue's line runs without its `merge`: the parent's
+`merge` merges them all, as `merge` does in parent mode from `## Sub-issues`.
+A sub-issue with no line comment stops the group with `runStatus: needs-input`
+and names `plan-assembly-line`.
+
+## Rules
+
+- The first stage is `judge`.
+- `merge` is on the line, at the top level.
+- After `merge`, only stages with `gate: auto` in their `stage.json`.
+- Every stage name is a skill under `skills/`.
+- `ticket` matches the ticket the comment is on.
+
+`validate-line.py` enforces these and the rules that need the catalog.
+
+## Example: full line
+
+A feature with tests written beside the code, review fixes and docs:
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-1",
+  "stages": [
+    "judge",
+    "evaluate-ticket",
+    "plan-code",
+    { "parallel": ["test", "code"] },
+    "code",
+    "prepare-pr",
+    "review-fix",
+    "code-docs",
+    "merge"
+  ]
+}
+```
+
+`test` and `code` start together; `code` runs again once both end, to make the
+new tests pass. `merge` is the only `gate: human` stage, so the run stops there
+with a PR ready for review.
+
+## Example: short line
+
+A small fix with no new tests of its own:
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-2",
+  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "merge"]
+}
+```
+
+## Example: parent line
+
+A parent whose sub-issues each run their own line:
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-3",
+  "stages": ["judge", "evaluate-ticket", { "group": "sub-issues" }, "merge"]
+}
+```
+
+## Check
+
+Run from the repository root:
+
+```bash
+python3 skills/assembly-line/scripts/check-line-format.py
+```
+
+It fails, naming the part, when this file lacks an answer above, lacks the
+full or short example, or holds an example that breaks a rule.
