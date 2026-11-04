@@ -96,7 +96,7 @@ every key.
 | `open-restaurant.doneState` | `Done` | State a merged sub-issue, and a parent with no open criterion, moves to. |
 | `open-restaurant.envName` | `{parent}` | Name of the one QA env per parent; `{parent}` stands for the parent identifier in lower case. |
 | `open-restaurant.reviewChannel` | `''` | Chat channel the review request goes to once the PRs are ready. Empty skips the request. |
-| `open-restaurant.judgeModel` | `''` | Model for the readiness judge and the contract. Empty means the model the session runs on. |
+| `open-restaurant.judgeModel` | `''` | Model for the readiness judge (in `judge`) and the contract. Empty means the model the session runs on. |
 | `open-restaurant.qaModel` | `''` | Model for the parent QA agent. Empty means the model the session runs on. |
 | `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria. Empty means the model the session runs on. |
 | `pause-work.destination` | `''` | MCP server or CLI the paused-work task goes to, such as `Todoist`, `Linear` or `gh`. A ticket tool gets a comment on the ticket. Empty means ask to use the one to-do or tracker tool the session has, else print the task. |

@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Twenty-three Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Twenty-four Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other twenty-one feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other twenty-two feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same twenty-three install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same twenty-four install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -107,7 +107,7 @@ An LLM factory. Hand it a parent issue — an epic or a story with sub-issues �
 
 The line, in order:
 
-1. **Readiness gate.** A lint, then a judge sub-agent, look for open decisions, "same as X" shorthand, shapes passed between sub-issues that neither one states, and manual checks with no reason. A gap stops the run with a `## Not ready` comment and an issue that blocks the parent. It never fills a gap on the parent's behalf.
+1. **Readiness gate** (`judge`). A lint, then a judge sub-agent, look for open decisions, "same as X" shorthand, shapes passed between sub-issues that neither one states, and manual checks with no reason. A gap stops the run with a `## Not ready` comment and an issue that blocks the parent. It never fills a gap on the parent's behalf.
 2. **Contract.** A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes, and posts it on the parent. A person may edit it there; the latest comment wins.
 3. **Cooking.** Sub-issues in different repos cook at the same time. Those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens.
 4. **Review per PR.** Each PR opens ready for review, linked to its own sub-issue, which moves to `open-restaurant.implementedState`. Its own headless `better-code-review` sub-agent starts the moment it opens, and the findings get fixed on its branch.
@@ -178,6 +178,12 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 ### review-fix
 
 The stage after `prepare-pr`. It reads the work card's `task` and `prUrl`, runs `better-code-review --headless` against the branch, fixes each finding by how it was verified (`ran`, `read` or `no`), test first, pushes to the open PR, and logs what it rejects and what stays not verified to `## Decisions` and `## Quality Gate Results`. It leaves `phase` and `phasesCompleted` alone, and stops `blocked` when the card has no open PR. It reads `recipe-relay.routineModel` and `recipe-relay.codingModel`. `recipe-relay` runs its section 5 through this skill, and it also runs alone on a card.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### judge
+
+The readiness gate, run before anything is designed. It reads a work card's `task` or an `open-restaurant` service card's `parent`, runs a lint and then a judge sub-agent. One ticket gets only `open-decision` and `manual-reason`; a parent gets all four rules. A gap comments `## Not ready`, opens an issue that blocks the ticket, writes the gaps to `## Open Questions` and stops `blocked`; otherwise it comments `## Ready`. It leaves `phase` and `phasesCompleted` alone, and reads `open-restaurant.judgeModel` and the settings file's `## open-restaurant` section. `open-restaurant` runs its section 2 through this skill, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -271,6 +277,7 @@ skills/
   code/               SKILL.md + stage.json + scripts/
   code-docs/          SKILL.md + stage.json + scripts/
   review-fix/         SKILL.md + stage.json + scripts/
+  judge/              SKILL.md + stage.json + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md + scripts/
   code-standards/     SKILL.md + Common/ + Frontend/ + Testing/ + Typescript/ + scripts/
@@ -311,6 +318,7 @@ python3 skills/test/scripts/check-test.py
 python3 skills/code/scripts/check-code.py
 python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/review-fix/scripts/check-review-fix.py
+python3 skills/judge/scripts/check-judge.py
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/evaluate-ticket
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/plan-code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/prepare-pr
@@ -318,6 +326,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/test
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/review-fix
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/test_check_stage_spec.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
@@ -449,6 +458,16 @@ settings, drops the headless review, the fix by `Verified:` tag or its
 if `recipe-relay` stops loading it, or if this README loses its section.
 Offline, stdlib only — run it after editing `review-fix`.
 
+`check-judge.py` is `judge`'s own check: it fails if the skill loses its
+frontmatter, stops naming the work card, `task`, the service card and `parent`
+as its input, stops ending `not-ready` with `runStatus: blocked` when it cannot
+read the issue, stops listing the card fields it writes or leaving `phase` and
+`phasesCompleted` alone, stops reading its setting, drops the lint, the four
+judge rules, the one-ticket rule, the not-ready or ready step or its
+`## Headless` section, says "recipe card", links a file that does not exist,
+names private content, if `open-restaurant` stops loading it, or if this README
+loses its section. Offline, stdlib only — run it after editing `judge`.
+
 `check-pr-screenshots.py` is `feature-recipe`'s fourth check: it fails if
 `prepare-pr` stops attaching the run's screenshots with `gh pr edit --attach`,
 drops their alt text or the way to place them in the description, retries
@@ -483,7 +502,8 @@ findings back at most twice. Offline, stdlib only — run it after editing
 `recipe-relay`.
 
 `check-open-restaurant.py` is `open-restaurant`'s own check: it fails if a
-section goes missing, if the readiness gate stops blocking on gaps, if the
+section goes missing, if the readiness gate, read from `judge`, stops blocking on gaps,
+if section 2 stops loading `judge`, if the
 contract may invent a shape, if same-repo sub-issues stop running one at a
 time, if the early unblock loses its note file, follow-up or change rule, if
 the integration branch may be pushed or a fix forced, if the QA limits or the

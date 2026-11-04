@@ -97,6 +97,15 @@
       "version": "38365ee69689"
     },
     {
+      "name": "judge",
+      "files": [
+        "SKILL.md",
+        "scripts/check-judge.py",
+        "stage.json"
+      ],
+      "version": "78100421704b"
+    },
+    {
       "name": "non-functional-requirements",
       "files": [
         "SKILL.md",
@@ -114,7 +123,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "6116f206da39"
+      "version": "e35547db5268"
     },
     {
       "name": "pause-work",
@@ -194,7 +203,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "708a35b3c5fe"
+      "version": "4766e3ece30d"
     },
     {
       "name": "ship-pr",

@@ -36,8 +36,8 @@ first, then `$HOME`, then the default:
   parent identifier in lower case. Default `{parent}`.
 - `open-restaurant.reviewChannel` — chat channel the review request goes to.
   Default `''`: no request.
-- `open-restaurant.judgeModel` — model for the readiness judge and the
-  contract. Default `''`: the model this session runs on.
+- `open-restaurant.judgeModel` — model for the readiness judge (run through `judge`)
+  and the contract. Default `''`: the model this session runs on.
 - `open-restaurant.qaModel` — model for the QA agent. Default `''`.
 - `open-restaurant.fixModel` — model for the QA fix agent. Default `''`.
 
@@ -114,21 +114,9 @@ look there; where the section names nothing, take the default given here:
 A hard gate, before any card exists. Gaps stop the run; they are never
 answered on the parent's behalf.
 
-1. **Lint.** Run the readiness lint the section names, with the input it
-   asks for. With none named, skip to the judge and have it check the lint's
-   ground too: every sub-issue has acceptance criteria, one repo, and a
-   blocks graph with no cycle.
-2. **Judge.** One sub-agent on `open-restaurant.judgeModel`, with no tools,
-   reads the parent and its sub-issues against the readiness standard the
-   section names and checks only what a lint cannot: `open-decision` (a choice
-   the text leaves open), `parity-shorthand` (a "same as X" with no criteria
-   of its own), `missing-contract` (a shape passed between sub-issues that
-   neither states), `manual-reason` (a manual check with no reason). It
-   returns `{ ready, gaps: [{ issue, items: [{ rule, message }] }] }`.
-3. **Not ready.** On any gap, create a "Readiness gaps: <id> — <title>"
-   issue that blocks the parent and lists each gap, comment `## Not ready <id>`
-   on the parent with every gap, set `runStatus: blocked`, and stop.
-4. **Ready.** Comment `## Ready <id>` on the parent and move on.
+Load, read completely and execute `../judge/SKILL.md` on the service card. On
+`not-ready` it has set `runStatus: blocked`: stop. On `ready`, go on to
+section 3.
 
 ## 3. Contract
 

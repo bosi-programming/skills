@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "parent"],
+  "delivers": {
+    "sections": ["## Decisions", "## Open Questions"],
+    "fields": ["runStatus", "runQuestion", "lastTouched"],
+    "verdicts": ["ready", "not-ready"]
+  },
+  "return": {
+    "not-ready": { "to": "judge", "limit": 0, "past": "human" }
+  },
+  "signals": [],
+  "gate": "auto"
+}
