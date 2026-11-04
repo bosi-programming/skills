@@ -174,6 +174,10 @@ async function listSkills() {
   return candidates
 }
 
+export async function skillCount() {
+  return (await listSkills()).length
+}
+
 /**
  * Register the bundled provider with the skill registry.
  *
