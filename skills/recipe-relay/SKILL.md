@@ -45,7 +45,9 @@ Determine the next unit from the card's `phase` / `runNext`:
   or `phase-4-tasting.md` means these units.
 - The Plating unit is `prepare-pr` (`../prepare-pr/SKILL.md`), which runs alone.
   A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` means this
-  unit. `phase-6-documentation.md` runs alone too. Both run on the model
+  unit. The Documentation unit is `code-docs` (`../code-docs/SKILL.md`), which
+  runs alone too; a `runNext` of `code-docs` or of the old
+  `phase-6-documentation.md` means it. Both run on the model
   `recipe-relay.routineModel` names, read from the settings file as
   `../setup/references/config.md` says. Its default, `''`, keeps the model this
   session runs on.
@@ -184,12 +186,12 @@ whatever its phase file recommends at Phase done. New session and Continue
 mean the same here: each unit already runs in a clean sub-agent. Post one line
 per unit to the user — what it produced and which phase starts next — without
 waiting for a reply. After `prepare-pr` returns with a PR open, the next
-unit is section 5, run before `phase-6-documentation.md` starts. Phase 6 then
+unit is section 5, run before `code-docs` starts. `code-docs` then
 runs as usual, unless `prepare-pr` stopped on a chunk still pending.
 
 ## 4. Stop conditions
 
-Same as feature-recipe's own contract: stop only when Phase 6 has returned
+Same as feature-recipe's own contract: stop only when `code-docs` has returned
 and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
 real one-way door or an ambiguity with no reasonable default — never merely
 because a unit finished. On a stop, report the open question to the user
@@ -202,7 +204,7 @@ logic.
 When `prepare-pr` returns with a PR open, the branch holds the code.
 Start this section at once, whatever the card's `status` or `runStatus`, and
 with a chunked delivery, for each chunk's PR as it opens. Do not wait for
-Phase 6 or for `runStatus: terminal`. If the run stopped on `blocked` /
+`code-docs` or for `runStatus: terminal`. If the run stopped on `blocked` /
 `needs-input` instead, skip this section.
 
 1. Spawn one `general-purpose` sub-agent on `recipe-relay.routineModel` to run

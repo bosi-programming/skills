@@ -93,10 +93,10 @@ lastTouched: '<date>'
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
 write. Valid phase tokens, in order: `evaluate-ticket`, `plan-code`,
-`test`, `code`, `prepare-pr`, `documentation`. Older cards may hold
-`reading-the-recipe`, `mise-en-place`, `cooking`, `tasting` and `plating`;
-Phase 0 reads them as `evaluate-ticket`, `plan-code`, a `code` still to run,
-a `code` done, and `prepare-pr`.
+`test`, `code`, `prepare-pr`, `code-docs`. Older cards may hold
+`reading-the-recipe`, `mise-en-place`, `cooking`, `tasting`, `plating` and
+`documentation`; Phase 0 reads them as `evaluate-ticket`, `plan-code`, a
+`code` still to run, a `code` done, `prepare-pr` and `code-docs`.
 
 `runMode` is written when a run starts, not by every phase: Phase 0 sets
 `headless` when the invocation asks for it, and an interactive invocation

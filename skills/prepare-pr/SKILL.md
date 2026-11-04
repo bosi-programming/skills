@@ -160,7 +160,7 @@ Otherwise, every chunk (or the single PR) is open — show the usual menu:
 **N:** confirm the card is saved, tell the user to resume with the same
 trigger phrase in a new session. End the session.
 
-**C:** load, read completely, and execute `../feature-recipe/phases/phase-6-documentation.md`.
+**C:** load, read completely, and execute `../code-docs/SKILL.md`.
 
 ## Headless
 
@@ -182,7 +182,7 @@ trigger phrase in a new session. End the session.
 - Section 8 applies only to a chunked delivery whose next chunk cannot open
   until this one merges. That is a stop — merging is not the run's to do.
 - Otherwise the run loads, reads completely and executes
-  `../feature-recipe/phases/phase-6-documentation.md`.
+  `../code-docs/SKILL.md`.
 
 ### Ending a run
 

@@ -10,8 +10,8 @@ Phases 1 to 6 support it — `evaluate-ticket` (`../../evaluate-ticket/SKILL.md`
 once Reading the Recipe), `plan-code` (`../../plan-code/SKILL.md`, once
 Mise en Place), `test` (`../../test/SKILL.md`, once the test half of Cooking),
 `code` (`../../code/SKILL.md`, once the rest of Cooking and Tasting), `prepare-pr` (`../../prepare-pr/SKILL.md`, once
-Plating),
-Documentation. Only Phase 0 is exempt, and only because it is pure
+Plating) and `code-docs` (`../../code-docs/SKILL.md`, once
+Documentation). Only Phase 0 is exempt, and only because it is pure
 routing with nothing in it worth a recommendation.
 
 ## Starting one
@@ -42,7 +42,7 @@ state in which the recipe turns a person away.
    phase that ends the run writes the run record; a phase that hands the baton
    on leaves it alone.
 
-So a run from `code` goes `code` → `prepare-pr` → Documentation in one turn, and ends with the recipe
+So a run from `code` goes `code` → `prepare-pr` → `code-docs` in one turn, and ends with the recipe
 delivered rather than with a baton in the air.
 
 ## Checkpoints
@@ -51,7 +51,7 @@ The checkpoints are the ones each phase already has — `evaluate-ticket`'s
 grill-or-skip call and `grill-me` frontier, `plan-code`'s section drafts,
 cross-check, test-case list and interfaces, `code`'s deviations log and
 scope-creep findings, `prepare-pr`'s chunk split, PR description and reviewer
-routing, Documentation's "is this worth documenting". Nobody is awake to answer them, so the run takes the
+routing, `code-docs`'s "is this worth documenting". Nobody is awake to answer them, so the run takes the
 phase's own recommendation and keeps moving:
 
 1. Take the recommendation the phase already states for that checkpoint.
@@ -90,7 +90,7 @@ known path with a fixed shape.
 | `runNext` | a phase file, a stage skill name such as `evaluate-ticket`, or `none` | the phase in flight, so a dead run can be resumed; `none` only when the recipe is finished |
 | `runQuestion` | an id from `## Open Questions`, or empty | when the run stops on one |
 
-- `terminal` — the recipe is finished, every phase through Documentation done.
+- `terminal` — the recipe is finished, every phase through `code-docs` done.
 - `needs-input` — the run stopped at a one-way door. `runQuestion` names it.
 - `blocked` — the run cannot continue until something external changes.
   `runQuestion` names what.

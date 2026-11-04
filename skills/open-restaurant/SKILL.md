@@ -206,7 +206,7 @@ card's repo checkout as where it works. On top of recipe-relay:
   Plating, check through the tracker that the sub-issue shows the PR as an
   attachment; if not, attach the PR URL to it. Then move the sub-issue to
   `open-restaurant.implementedState`, unless it is empty, and write the PR into its row.
-- **Documentation.** Tell the unit to skip `work-summary`; this session runs
+- **Documentation** (`code-docs`). Tell the unit to skip `work-summary`; this session runs
   it once at the end, when `feature-recipe.runWorkSummary` says to. Tell it
   also to leave the tracker state alone: the merge gate moves it to
   `open-restaurant.doneState`.

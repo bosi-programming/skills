@@ -25,6 +25,15 @@
       "version": "7316de9a2d39"
     },
     {
+      "name": "code-docs",
+      "files": [
+        "SKILL.md",
+        "scripts/check-code-docs.py",
+        "stage.json"
+      ],
+      "version": "a05a62fc096a"
+    },
+    {
       "name": "code-standards",
       "files": [
         "SKILL.md",
@@ -78,7 +87,6 @@
       "files": [
         "SKILL.md",
         "phases/phase-0-start.md",
-        "phases/phase-6-documentation.md",
         "references/headless.md",
         "references/recipe-card-template.md",
         "scripts/check-goal-and-measure.py",
@@ -86,7 +94,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "91b5c9d0bbfa"
+      "version": "0531505b44b0"
     },
     {
       "name": "non-functional-requirements",
@@ -106,7 +114,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "559b231a5df1"
+      "version": "6116f206da39"
     },
     {
       "name": "pause-work",
@@ -156,7 +164,7 @@
         "scripts/check-prepare-pr.py",
         "stage.json"
       ],
-      "version": "ae61a0cfe526"
+      "version": "208d0d33e0c5"
     },
     {
       "name": "recipe-relay",
@@ -167,7 +175,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "14f224f7ba47"
+      "version": "dc82dfba33a9"
     },
     {
       "name": "setup",
@@ -177,7 +185,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "25277ac1f989"
+      "version": "84acd854e3c2"
     },
     {
       "name": "ship-pr",

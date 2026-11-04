@@ -54,6 +54,8 @@ contract — then:
   `phase-4-tasting.md` routes to `../../code/SKILL.md`.
   A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` routes to
   `../../prepare-pr/SKILL.md`.
+  A `runNext` of `code-docs` or of the old `phase-6-documentation.md` routes
+  to `../../code-docs/SKILL.md`.
 
 ## 1. Find an existing recipe card
 
@@ -95,8 +97,8 @@ Otherwise, map the last completed phase to the next phase file:
 | `test` | `../../code/SKILL.md` |
 | `cooking` | `../../code/SKILL.md` |
 | `tasting`, or `code` | `../../prepare-pr/SKILL.md` |
-| `prepare-pr`, or the old `plating` | `../../prepare-pr/SKILL.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |
-| `documentation` | *(terminal — already delivered)* |
+| `prepare-pr`, or the old `plating` | `../../prepare-pr/SKILL.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `../../code-docs/SKILL.md` |
+| `code-docs`, or the old `documentation` | *(terminal — already delivered)* |
 
 A chunked delivery revisits `prepare-pr` more than once — `prepare-pr` itself
 checks whether the most recently opened chunk's PR has merged before starting

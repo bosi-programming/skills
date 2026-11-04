@@ -1,12 +1,41 @@
-# Phase 6 — Documentation
+---
+name: code-docs
+description: Close a delivered change out — ask whether it is worth documenting, write the docs where the team keeps them, mark the work card delivered, record it in the tracker and run work-summary. The last stage, after prepare-pr. Runs alone on a work card, or with no card finds or makes one. Use when someone wants a finished change documented and closed out, or this stage redone on a card.
+---
 
-The last phase. This one is terminal — it ends the recipe, not with a
+# code-docs
+
+The last stage. This one is terminal — it ends the line, not with a
 session-break menu but with a plain close.
+
+`feature-recipe` and `recipe-relay` run this stage through this skill, and it
+also runs alone.
+
+## Input
+
+The path to a work card, the markdown file that carries a task from one stage
+to the next. Its shape is `../feature-recipe/references/recipe-card-template.md`.
+The stage reads the card's `## Problem`, `## Solution` and `## PR`.
+
+With no card, load, read completely and execute
+`../feature-recipe/phases/phase-0-start.md`. It finds the card for the task or
+makes one, then routes back here. A card with neither `prepare-pr` nor
+`plating` in `phasesCompleted` has no PR yet: Phase 0 routes it to the stage it
+still needs.
+
+## Output
+
+The same work card, with this stage's parts written:
+
+- The docs, where section 1 settled, when the change is worth documenting.
+- `## Decisions` — a final line for the stage.
+- Frontmatter — `phase` set to `code-docs`, `status` set to `delivered`,
+  `lastTouched`, and `code-docs` appended to `phasesCompleted`.
 
 ## Settings
 
 Resolve two keys from the settings file as
-`../../setup/references/config.md` describes, without opening that file:
+`../setup/references/config.md` describes, without opening that file:
 `grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`, current
 folder first, then `$HOME`, then the default:
 
@@ -28,20 +57,20 @@ already live is the right place.
 ## 2. Draft it there
 
 Draft documentation covering what the feature does, how it works, and how
-to use it, pulled from the recipe card's Problem and Solution sections plus
+to use it, pulled from the work card's Problem and Solution sections plus
 the PR link. Get the user's approval, then write it to wherever step 1
 settled on.
 
 ## 3. Close out
 
-Update the frontmatter — `phase: 'documentation'`, append to
+Update the frontmatter — `phase: 'code-docs'`, append `code-docs` to
 `phasesCompleted`, `status: 'delivered'`, `lastTouched`. Append a final line
 to `## Decisions`.
 
 If the task came from a tracker, record there that it's done.
 
 Present a short delivery summary: what was built, the PR link, where the
-docs landed (if any), and the recipe card's own path as the full record of
+docs landed (if any), and the work card's own path as the full record of
 how it got there.
 
 ## 4. Summarize the session
@@ -49,19 +78,19 @@ how it got there.
 Skip this section when `feature-recipe.runWorkSummary` is `false`.
 
 If the session has a `work-summary` skill, run it last, once the card and
-the tracker are up to date. Name the work after the recipe card's task. If
+the tracker are up to date. Name the work after the work card's task. If
 there is no such skill, skip this without saying so.
 
-Tell the user the recipe is done. Don't offer a New session / Continue menu —
-there's no next phase to route to.
+Tell the user the work is done. Don't offer a New session / Continue menu —
+there's no next stage to route to.
 
 ## Headless
 
-Read `../references/headless.md`. In a headless run:
+Read `../feature-recipe/references/headless.md`. In a headless run:
 
-- Set `runNext: phase-6-documentation.md` as you start.
+- Set `runNext: code-docs` as you start.
 - Section 1's question is taken, not asked: take the recommendation and log it
-  `unattended:`. This phase stays optional, so a night run with no docs
+  `unattended:`. This stage stays optional, so a night run with no docs
   destination in the settings or the project skips it and says so on the card.
 - Section 2's draft, when there is one to write, is written without waiting.
 - Section 3's tracker update is skipped where no tracker is available, and the
@@ -72,7 +101,7 @@ Read `../references/headless.md`. In a headless run:
 
 ### Ending a run
 
-This phase ends the run, so it always writes the record:
+This stage ends the run, so it always writes the record:
 
 1. Set `runStatus: terminal`, `runNext: none`, `runQuestion: ''` in the
    frontmatter.

@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Twenty-one Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Twenty-two Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other nineteen feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code` and `prepare-pr` are five of its stages as skills of their own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other twenty feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same twenty-one install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same twenty-two install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -95,11 +95,11 @@ How the ticket moves:
 3. **UI review.** When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots `code` captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
 4. **`prepare-pr`** (Plating) opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
 5. **Review and fix.** The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch; this is the run's one review. Another sub-agent checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
-6. **Documentation** closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
+6. **`code-docs`** (Documentation) closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
 
 It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`: a one-way door or a question with no reasonable default. Then it asks you in chat, and running it again picks the card back up where it stopped. It never merges; the PR waits for a person.
 
-`recipe-relay.codingModel`, `recipe-relay.uiReviewerModel` and `recipe-relay.routineModel` pick the models for the writers, the UI reviewer, and the Plating (`prepare-pr`), Documentation and review sub-agents. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
+`recipe-relay.codingModel`, `recipe-relay.uiReviewerModel` and `recipe-relay.routineModel` pick the models for the writers, the UI reviewer, and the Plating (`prepare-pr`), Documentation (`code-docs`) and review sub-agents. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
 
 ### open-restaurant
 
@@ -133,11 +133,11 @@ The standards the Standards and Tests axes check against, as five files: `Common
 
 ### feature-recipe
 
-Takes a task from a rough idea to a merged PR, cooked in six named stages — `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr`, Documentation — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (`evaluate-ticket` and `test` continue straight through instead, without a session break). `evaluate-ticket` and `plan-code` are where you and the skill agree on what is being built and why; `evaluate-ticket` runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; `test` writes every mapped test and sees it fail before any code, and `code` makes them pass, commits as it goes, then holds a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; `prepare-pr` opens at most one PR per run and never stacks them unless a driver names a base branch; Documentation closes the task out.
+Takes a task from a rough idea to a merged PR, cooked in six named stages — `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr`, `code-docs` — most defaulting to a fresh context and handing the next one its work through a **recipe card**, a markdown file at `./recipes/{task-slug}.md` in the project being worked on (`evaluate-ticket` and `test` continue straight through instead, without a session break). `evaluate-ticket` and `plan-code` are where you and the skill agree on what is being built and why; `evaluate-ticket` runs `grill-me` only when the work is complex or leaves something undefined, and skips it for simple, fully stated work; `test` writes every mapped test and sees it fail before any code, and `code` makes them pass, commits as it goes, then holds a hard gate that runs `better-code-review` plus the project's own scoped tests and lint before anything opens; `prepare-pr` opens at most one PR per run and never stacks them unless a driver names a base branch; `code-docs` closes the task out.
 
 It carries no opinion about which tracker, chat or docs tool a project uses — it speaks in outcomes and leans on whatever the session already has.
 
-Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and Documentation in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
+Phases 1 to 6 can also run **headless** — a night run. Start one with `--headless` at whatever step the card is on, even a bare task with no card yet, and it carries the work through `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` in one turn, taking the recommendation at each checkpoint and recording it as `unattended:` so the morning can see what was decided while nobody was watching. It stops only at the end of the recipe or when something needs a person — never merely because a phase ended — and it never opens a non-draft PR, merges, or deletes work. The run's result goes on the card as `runStatus`, `runNext` and `runQuestion` in the frontmatter, so a driver reads a file at a known path instead of parsing prose — prose gets fenced, glued to a heading, or turned into a question. The contract is `skills/feature-recipe/references/headless.md`.
 
 ### evaluate-ticket
 
@@ -166,6 +166,12 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s, and raises `no-scree
 ### prepare-pr
 
 The build stage after `code`. It reads the work card and the commits on the branch, decides the PR delivery strategy in `## PR Delivery Strategy`, opens the PR, attaches screenshots, waits on CI, and records `## PR`, `status` and `prUrl`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `prepare-pr` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo the stage on a card. Cards from before the split, with `plating` in `phase` or `phase-5-plating.md` in `runNext`, still route here.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### code-docs
+
+The last stage, after `prepare-pr`. It asks whether the change is worth documenting, writes the docs where the team keeps them or where `feature-recipe.docsDestination` says, marks the work card `delivered`, records the task done in the tracker, and runs `work-summary` unless `feature-recipe.runWorkSummary` is `false`. It reads the card's `## Problem`, `## Solution` and `## PR`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `code-docs` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo the stage on a card. It ends the line: no New session / Continue menu, and a headless run ends with `runStatus: terminal`. Cards from before the split, with `documentation` in `phase` or `phase-6-documentation.md` in `runNext`, still route here.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -257,6 +263,7 @@ skills/
   prepare-pr/         SKILL.md + stage.json + scripts/
   test/               SKILL.md + stage.json + scripts/
   code/               SKILL.md + stage.json + scripts/
+  code-docs/          SKILL.md + stage.json + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md + scripts/
   code-standards/     SKILL.md + Common/ + Frontend/ + Testing/ + Typescript/ + scripts/
@@ -295,11 +302,13 @@ python3 skills/plan-code/scripts/check-plan-code.py
 python3 skills/prepare-pr/scripts/check-prepare-pr.py
 python3 skills/test/scripts/check-test.py
 python3 skills/code/scripts/check-code.py
+python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/evaluate-ticket
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/plan-code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/prepare-pr
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/test
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/test_check_stage_spec.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
@@ -389,7 +398,7 @@ editing `plan-code`.
 its frontmatter, stops naming the work card as its input and Phase 0 as the
 way in without one, stops listing the card fields it writes or writing
 `prepare-pr` to `phase`, drops the chunk pick-up section or its `## Headless`
-section, loses its hand-off to Documentation, links a file that does not
+section, loses its hand-off to `code-docs`, links a file that does not
 exist, if the old phase file comes back, or if this README loses its section.
 Offline, stdlib only — run it after editing `prepare-pr`.
 
@@ -410,6 +419,16 @@ file, drops the review or the hard gate, drops its `## Headless` section or its
 hand-off to `prepare-pr`, links a file that does not exist, if the old Cooking
 or Tasting phase file comes back, or if this README loses its section.
 Offline, stdlib only — run it after editing `code`.
+
+`check-code-docs.py` is `code-docs`'s own check: it fails if the skill loses
+its frontmatter, stops naming the work card as its input and Phase 0 as the
+way in without one, stops listing the card fields it writes or writing
+`code-docs` to `phase` and `delivered` to `status`, stops reading its two
+settings or running `work-summary`, offers a New session / Continue menu,
+drops its `## Headless` section or its terminal run record, links a file that
+does not exist, if the old Documentation phase file comes back, or if this
+README loses its section. Offline, stdlib only — run it after editing
+`code-docs`.
 
 `check-pr-screenshots.py` is `feature-recipe`'s fourth check: it fails if
 `prepare-pr` stops attaching the run's screenshots with `gh pr edit --attach`,
