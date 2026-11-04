@@ -112,7 +112,7 @@
         "scripts/check-merge.py",
         "stage.json"
       ],
-      "version": "cd75d9831014"
+      "version": "91af9496b9c3"
     },
     {
       "name": "non-functional-requirements",

@@ -34,8 +34,8 @@ The same card, with this stage's parts written:
 - `## Merge` — the merged, failed and pending lists, and any open threads; made
   on a work card when missing.
 - `## Decisions` — the verdict line.
-- `runStatus` — `gate` at the gate, `terminal` on `merged`, `blocked` on bad
-  input.
+- `runStatus` — `gate` at the gate, `terminal` on `merged`, `needs-input` on
+  `threads-open`, `blocked` on bad input.
 - `gate` — `merge`, only where the card has the field.
 - `lastTouched`.
 
@@ -60,8 +60,10 @@ Guidance comes from the settings file's `## open-restaurant` section, read under
 
 For each PR not yet merged, read its unresolved review threads through `gh`
 (GraphQL `reviewThreads`, `isResolved`). On any unresolved thread, list them per
-PR in `## Merge`, log it, and end `threads-open`; the stage merges nothing. The
-line returns to `review-fix`, at most twice, then a human gate.
+PR in `## Merge`, log the verdict `threads-open` to `## Decisions`, set
+`runStatus: needs-input`, update `lastTouched`, and end `threads-open`; the stage
+merges nothing. The line returns to `review-fix`, at most twice, then a human
+gate.
 
 ## 2. Gate
 

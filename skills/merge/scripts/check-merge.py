@@ -74,6 +74,9 @@ check_all("reads-settings", block(skill, "## Settings", r"^## "),
 check_all("modes", input_block, "parent mode", "one-ticket mode")
 check_all("threads-step", block(skill, "## 1. Threads", r"^## "),
           "unresolved", "`threads-open`", "`review-fix`", "merges nothing")
+check_all("threads-open-card-write", block(skill, "## 1. Threads", r"^## "),
+          "`runStatus: needs-input`", "`## Decisions`", "`## Merge`")
+check_all("output-names-threads-open-status", output, "`needs-input`", "`threads-open`")
 check_all("gate-step", block(skill, "## 2. Gate", r"^## "),
           "`runStatus: gate`", "`gate: merge`", "every time", "approv")
 check_all("merge-step", block(skill, "## 3. Merge", r"^## "),
@@ -99,6 +102,8 @@ check("stage-return-review-fix",
       "stage.json must return threads-open to review-fix twice, then human, with gate human")
 
 check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 11. Merge gate", r"^## "), "`../merge/SKILL.md`")
+check_all("restaurant-handles-threads-open", block(read(RESTAURANT), "## 11. Merge gate", r"^## "),
+          "`threads-open`", "`gate: merge`")
 
 status_line = next((line for line in read(TEMPLATE).splitlines() if line.startswith("runStatus:")), "")
 check("template-gate-status", "gate" in status_line, "template runStatus line must name gate")
