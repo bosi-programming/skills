@@ -16,6 +16,7 @@ import { apply, inject, name, parseSkill } from './index.js'
 const SKILLS = [
   'better-code-review',
   'code',
+  'code-docs',
   'code-standards',
   'epistemic-action',
   'evaluate-ticket',

@@ -63,7 +63,7 @@ check_all("keeps-chunking", block(skill, "## 1a. Pick up the next chunk", r"^## 
 
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: prepare-pr`", "unattended:", "draft", "### Ending a run")
-check_all("hands-off", skill, "`../feature-recipe/phases/phase-6-documentation.md`")
+check_all("hands-off", skill, "`../code-docs/SKILL.md`")
 
 broken = []
 for target in sorted(set(re.findall(r"`(\.{1,2}/[^`\s]+\.md)`", skill))):

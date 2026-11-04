@@ -21,6 +21,7 @@ PLAN_CODE = REPO / "skills" / "plan-code" / "SKILL.md"
 TEST = REPO / "skills" / "test" / "SKILL.md"
 CODE = REPO / "skills" / "code" / "SKILL.md"
 PREPARE_PR = REPO / "skills" / "prepare-pr" / "SKILL.md"
+CODE_DOCS = REPO / "skills" / "code-docs" / "SKILL.md"
 CONTRACT = SKILL / "references" / "headless.md"
 TEMPLATE = SKILL / "references" / "recipe-card-template.md"
 SKILL_MD = SKILL / "SKILL.md"
@@ -33,13 +34,13 @@ HEADLESS = {
     2: "plan-code",
     3: "code",
     5: "plating",
-    6: "documentation",
+    6: "code-docs",
 }
 HANDOFF = {
     1: "../plan-code/SKILL.md",
     2: "../test/SKILL.md",
     3: "../prepare-pr/SKILL.md",
-    5: "../feature-recipe/phases/phase-6-documentation.md",
+    5: "../code-docs/SKILL.md",
 }
 # Strings that must not come back: the stdout routing line the card replaced,
 # and the stale Claude Code footer b972f03 added to phases 2 and 4.
@@ -82,6 +83,8 @@ def phase_path(number):
         return CODE
     if number == 5:
         return PREPARE_PR
+    if number == 6:
+        return CODE_DOCS
     hits = sorted(PHASES.glob(f"phase-{number}-*.md"))
     return hits[0] if len(hits) == 1 else None
 
@@ -117,7 +120,7 @@ check(
 # --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, TEST, CODE, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
+for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, TEST, CODE, PREPARE_PR, CODE_DOCS, SKILL_MD, CONTRACT, TEMPLATE]:
     text = path.read_text() if path.exists() else ""
     for needle in FORBIDDEN:
         if needle in text:
@@ -234,6 +237,9 @@ check("phase0-routes-test", not missing, f"phase-0 missing: {missing}")
 missing = [s for s in ["`../../code/SKILL.md`", "`code`", "`phase-3-cooking.md`", "`phase-4-tasting.md`", "`cooking`"] if s not in phase0_text]
 check("phase0-routes-code", not missing, f"phase-0 missing: {missing}")
 
+missing = [s for s in ["`../../code-docs/SKILL.md`", "`code-docs`", "`documentation`", "`phase-6-documentation.md`"] if s not in phase0_text]
+check("phase0-routes-code-docs", not missing, f"phase-0 missing: {missing}")
+
 test_text = TEST.read_text() if TEST.exists() else ""
 test_headless = test_text.split("\n## Headless", 1)[-1] if "\n## Headless" in test_text else ""
 missing = [s for s in ["### Ending a run", "runNext", "`../code/SKILL.md`"] if s not in test_headless]
@@ -256,9 +262,9 @@ tasting_row = next((r for r in rows if r.startswith("| `tasting`")), "")
 prepare_row = next((r for r in rows if r.startswith("| `prepare-pr`")), "")
 check("phase0-row-tasting", "`../../prepare-pr/SKILL.md`" in tasting_row,
       f"tasting row must route to prepare-pr: {tasting_row!r}")
-check("phase0-row-prepare-pr", "`../../prepare-pr/SKILL.md`" in prepare_row and "`phase-6-documentation.md`" in prepare_row
+check("phase0-row-prepare-pr", "`../../prepare-pr/SKILL.md`" in prepare_row and "`../../code-docs/SKILL.md`" in prepare_row
       and "any chunk still not `opened`" in prepare_row and "otherwise" in prepare_row,
-      f"prepare-pr row must route to prepare-pr and Documentation: {prepare_row!r}")
+      f"prepare-pr row must route to prepare-pr and code-docs: {prepare_row!r}")
 
 template_text = TEMPLATE.read_text() if TEMPLATE.exists() else ""
 missing = [f for f in ["runMode:"] + [f + ":" for f in RUN_FIELDS] if f not in template_text]
