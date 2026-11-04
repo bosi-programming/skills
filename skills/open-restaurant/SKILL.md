@@ -31,7 +31,7 @@ first, then `$HOME`, then the default:
 - `open-restaurant.implementedState` — tracker state a sub-issue moves to once
   its PR is open. Default `In Review`; `''` means no move.
 - `open-restaurant.doneState` — state a merged sub-issue, and a parent with no
-  open criterion, moves to. Default `Done`.
+  open criterion, moves to (through `merge`). Default `Done`.
 - `open-restaurant.envName` — name of the QA env; `{parent}` stands for the
   parent identifier in lower case. Default `{parent}`.
 - `open-restaurant.reviewChannel` — chat channel the review request goes to.
@@ -323,20 +323,12 @@ PRs are already ready for review. On approve:
 
 ## 11. Merge gate
 
-Stop for a human: set `runStatus: gate`, `gate: merge`. This skill never merges
-without a human approving at this gate. On approve:
-
-1. Merge in blocks order. A sub-issue's PRs come one after another; a stacked
-   PR gets its retarget to the default branch once its blocker merges, and
-   merges after it.
-2. A failed merge stops at the gate again, with the merged, failed and pending
-   lists in the service card's `## Merge`. On approve, resume from the failed
-   one.
-3. After the last merge: delete each local `integration/<parent>` branch,
-   move every merged sub-issue to `open-restaurant.doneState`, and move the
-   parent there only if proof leaves no criterion open; else comment
-   `## Open criteria <parent>` listing each one. Set `stage: closed`,
-   `runStatus: terminal`.
+Stop for a human: this skill never merges without a human approving at this
+gate. Load, read completely and execute `../merge/SKILL.md` on the service card;
+it sets `runStatus: gate`, `gate: merge` and waits for approval. On
+`threads-open`, stay at the merge gate with the open threads listed. On
+`merged`, delete each local `integration/<parent>` branch and set
+`stage: closed`.
 
 ## 12. Stops and resume
 

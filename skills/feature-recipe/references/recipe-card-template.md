@@ -18,7 +18,7 @@ phasesCompleted: []
 status: 'in-progress'        # delivery status: in-progress | pr-created | delivered
 prUrl: ''
 runMode: 'interactive'       # interactive | headless — a headless run records itself here
-runStatus: ''                # what the last run did: running | terminal | needs-input | blocked
+runStatus: ''                # what the last run did: running | terminal | needs-input | blocked | gate
 runNext: ''                  # the phase file or stage skill in flight, or none when the recipe is finished
 runQuestion: ''              # the id in ## Open Questions that stopped the run
 lastTouched: '<date>'

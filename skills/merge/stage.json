@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "prUrl", "## PR", "parent", "## Sub-issues"],
+  "delivers": {
+    "sections": ["## Merge", "## Decisions"],
+    "fields": ["runStatus", "gate", "lastTouched"],
+    "verdicts": ["merged", "threads-open"]
+  },
+  "return": {
+    "threads-open": { "to": "review-fix", "limit": 2, "past": "human" }
+  },
+  "signals": [],
+  "gate": "human"
+}
