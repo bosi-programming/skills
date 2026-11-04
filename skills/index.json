@@ -212,7 +212,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "7ac91187648f"
+      "version": "6cabca1e573f"
     },
     {
       "name": "ship-pr",
