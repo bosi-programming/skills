@@ -35,6 +35,7 @@ const SKILLS = [
   'ship-pr',
   'summarize-llm-response',
   'test',
+  'ui-review',
   'uml',
   'week-summary',
   'weekly-planning',

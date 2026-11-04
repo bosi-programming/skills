@@ -6,6 +6,7 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
+UI_REVIEW = REPO / "skills" / "ui-review" / "SKILL.md"
 
 results = []
 
@@ -40,25 +41,28 @@ def check_all(name, text, *phrases):
 skill = read(SKILL_MD)
 readme = read(README)
 ui = block(skill, "### UI review\n", r"^##")
+work = read(UI_REVIEW)
 
 check("ui-section-exists", ui, "recipe-relay must have a `### UI review` section")
 check_all("only-ui-changes", ui, "a person sees", "skip")
 check_all("runs-after-tasting", ui, "after the fix and taste agent returns")
 polling = [word for word in ("polls", "screenshots.done", "at the same time") if word in flatten(ui)]
 check("no-polling", not polling, f"reviewer still waits on a signal: {polling}")
-check_all("reviewer-takes-no-screenshots", ui, "never starts the app", "takes no screenshots")
+check_all("reviewer-takes-no-screenshots", work,"never starts the app", "takes no screenshots")
 check_all("stale-screenshots", ui, "clears the folder")
 check_all("no-screenshots-signal", ui, "`none: <reason>`", "no reviewer starts")
-check_all("design-source", ui, "the design", "never guess")
-check_all("inconclusive", ui, "inconclusive")
-check_all("severity", ui, "critical", "major", "minor")
+check_all("design-source", work, "the design", "never guess")
+check_all("inconclusive", ui + work, "inconclusive")
+check_all("severity", work, "critical", "major", "minor")
 check_all("blocking-routes", ui, "back to the fix agent", "twice")
 check_all("cap-stops", ui, "`runstatus: needs-input`")
-check_all("minor-logged", ui, "`## quality gate results`")
-check_all("card-section", ui, "`## ui review`")
+check_all("minor-logged", work, "`## quality gate results`")
+check_all("card-section", work, "`## ui review`")
 check_all("relay-prefix", ui, "`relay:`")
 check("unit-list-names-ui", "_ui review_" in flatten(block(skill, "## 2.", r"^### ")),
       "section 2 must name the UI review unit")
+check_all("ui-loads-skill", ui, "`../ui-review/skill.md`")
+check("ui-text-moved", "walk the design" not in flatten(ui), "relay still holds the comparison step")
 
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-ui-review.py")
 
