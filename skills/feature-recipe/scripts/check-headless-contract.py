@@ -221,6 +221,10 @@ for needle in ["--headless", "runStatus"]:
         ok, detail = False, detail + [f"phase-0: missing {needle!r}"]
 check("phase0-headless-entry", ok, "; ".join(detail))
 
+resume = (PHASES / "phase-0-start.md").read_text().split("## 0. Headless invocations", 1)[-1].split("\n## 1.", 1)[0]
+missing = [s for s in ["answered", "`runQuestion`", "`runStatus: running`", "driver:", "stop again"] if s not in resume]
+check("phase0-answered-question", not missing, f"phase-0 section 0 must say how a resume treats an answered question: {missing}")
+
 phase0_text = (PHASES / "phase-0-start.md").read_text()
 missing = [s for s in ["`../../evaluate-ticket/SKILL.md`", "`reading-the-recipe`", "`evaluate-ticket`", "`phase-1-reading-the-recipe.md`"] if s not in phase0_text]
 check("phase0-routes-evaluate-ticket", not missing, f"phase-0 missing: {missing}")

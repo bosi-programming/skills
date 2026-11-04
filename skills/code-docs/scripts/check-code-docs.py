@@ -67,6 +67,8 @@ check("ends-without-menu", "Don't offer a New session / Continue menu" in skill,
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: code-docs`", "unattended:", "unattended: work-summary skipped",
           "`runStatus: terminal`", "### Ending a run")
+check_all("headless-logs-docs-skip", headless, "unattended: docs skipped")
+check_all("summary-says-no-docs", block(skill, "## 3. Close out", r"^## "), "no docs", "why")
 check_all("links-contract", skill, "`../feature-recipe/references/headless.md`",
           "`../feature-recipe/references/recipe-card-template.md`")
 
