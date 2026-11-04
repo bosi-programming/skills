@@ -76,7 +76,7 @@ open), `parity-shorthand` (a "same as X" with no criteria of its own),
 ## 3. Not ready
 
 On any gap, create a "Readiness gaps: <id> — <title>" issue that blocks the
-issue and lists each gap, comment `## Not ready <id>` on the issue with every
+parent (in one-ticket mode, the issue) and lists each gap, comment `## Not ready <id>` on the issue with every
 gap, write each gap to `## Open Questions` as `g1`, `g2`, …, set
 `runStatus: blocked` (and `runQuestion: g1` where the card has the field), log
 the verdict to `## Decisions`, and end `not-ready`. A tracker write that fails
@@ -91,7 +91,7 @@ update `lastTouched`, and end `ready`. The line goes on.
 
 Read `../feature-recipe/references/headless.md`. In a headless run:
 
-- Nothing in it waits on a person.
+- Prefix each log line `unattended:`. Nothing in it waits on a person.
 - Gaps are never answered on the issue's behalf.
 - A gap is not a one-way door but a stop.
 

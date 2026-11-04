@@ -103,7 +103,7 @@
         "scripts/check-judge.py",
         "stage.json"
       ],
-      "version": "78100421704b"
+      "version": "851e0a422db6"
     },
     {
       "name": "non-functional-requirements",
@@ -123,7 +123,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "e35547db5268"
+      "version": "cced77bcd9e5"
     },
     {
       "name": "pause-work",
@@ -203,7 +203,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "4766e3ece30d"
+      "version": "8b624e51a9ff"
     },
     {
       "name": "ship-pr",
