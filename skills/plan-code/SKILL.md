@@ -68,7 +68,7 @@ the user's answer, fix what it turns up, and move on.
 
 This is where test cases get decided, not written — Cooking is where they
 get written (and made to pass). No code, no test-framework exploration here;
-that happens in Cooking, right before the real tests get written.
+that happens in `test`, right before the real tests get written.
 
 1. Work through the acceptance criteria one at a time. For each, list the
    test case(s) covering its happy path and the edge cases the Testing
@@ -105,7 +105,7 @@ redo), `lastTouched`.
 trigger phrase in a new session. End the session.
 
 **C:** load, read completely, and execute
-`../feature-recipe/phases/phase-3-cooking.md`.
+`../test/SKILL.md`.
 
 ## Headless
 
@@ -126,8 +126,8 @@ Read it. In a headless run:
 - Section 5 is unchanged — the frontmatter is updated either way.
 - Section 6 does not apply. This stage does not stop at its own boundary: it
   loads, reads completely and executes
-  `../feature-recipe/phases/phase-3-cooking.md`, and the run continues
-  through Cooking, Tasting, Plating and Documentation. A run stops at the
+  `../test/SKILL.md`, and the run continues
+  through `test`, Cooking, Tasting, `prepare-pr` and Documentation. A run stops at the
   recipe's end or at a one-way door, never at a stage boundary.
 
 ### Ending a run

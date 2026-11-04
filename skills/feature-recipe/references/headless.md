@@ -8,7 +8,8 @@ finished by morning.
 
 Phases 1 to 6 support it — `evaluate-ticket` (`../../evaluate-ticket/SKILL.md`,
 once Reading the Recipe), `plan-code` (`../../plan-code/SKILL.md`, once
-Mise en Place), Cooking, Tasting, `prepare-pr` (`../../prepare-pr/SKILL.md`, once
+Mise en Place), `test` (`../../test/SKILL.md`, once the test half of Cooking),
+Cooking, Tasting, `prepare-pr` (`../../prepare-pr/SKILL.md`, once
 Plating),
 Documentation. Only Phase 0 is exempt, and only because it is pure
 routing with nothing in it worth a recommendation.

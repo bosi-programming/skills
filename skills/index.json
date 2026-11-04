@@ -62,7 +62,7 @@
         "scripts/check-evaluate-ticket.py",
         "stage.json"
       ],
-      "version": "fd94721cfcd7"
+      "version": "fa72cbb0747f"
     },
     {
       "name": "feature-recipe",
@@ -79,7 +79,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "e372aa03fcdb"
+      "version": "5b77b478a477"
     },
     {
       "name": "non-functional-requirements",
@@ -121,7 +121,7 @@
         "scripts/check-plan-code.py",
         "stage.json"
       ],
-      "version": "df3f8ac2f705"
+      "version": "fd0528dd801f"
     },
     {
       "name": "plan-work",
@@ -160,7 +160,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "dfceb3ebeb16"
+      "version": "401c9f577999"
     },
     {
       "name": "setup",
@@ -197,6 +197,15 @@
         "evals/trigger_cases.json"
       ],
       "version": "5e0be87ec445"
+    },
+    {
+      "name": "test",
+      "files": [
+        "SKILL.md",
+        "scripts/check-test.py",
+        "stage.json"
+      ],
+      "version": "0cd05f09b686"
     },
     {
       "name": "uml",

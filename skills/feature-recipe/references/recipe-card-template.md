@@ -64,7 +64,7 @@ lastTouched: '<date>'
 
 ## TDD Test Mapping
 
-<!-- written by Phase 2: plan-code (test case list); updated by Phase 3: Cooking as each case's test is written -->
+<!-- written by Phase 2: plan-code (test case list); updated by test as each case's test is written, and by Phase 3: Cooking for a gap it finds -->
 
 ## Interfaces
 
@@ -89,7 +89,7 @@ lastTouched: '<date>'
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to
 route a resumed task to the right phase file — keep them accurate on every
 write. Valid phase tokens, in order: `evaluate-ticket`, `plan-code`,
-`cooking`, `tasting`, `prepare-pr`, `documentation`. Older cards may hold
+`test`, `cooking`, `tasting`, `prepare-pr`, `documentation`. Older cards may hold
 `reading-the-recipe`, `mise-en-place` and `plating`; Phase 0 reads them
 as `evaluate-ticket`, `plan-code` and `prepare-pr`.
 

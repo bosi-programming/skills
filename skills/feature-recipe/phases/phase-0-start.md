@@ -47,6 +47,10 @@ contract — then:
   `phase-1-reading-the-recipe.md` routes to `../../evaluate-ticket/SKILL.md`.
   A `runNext` of `plan-code` or of the old `phase-2-mise-en-place.md` routes
   to `../../plan-code/SKILL.md`.
+  A `runNext` of `test` routes to `../../test/SKILL.md`. A `runNext` of
+  `phase-3-cooking.md` routes to `../../test/SKILL.md` when `test` is not in
+  `phasesCompleted`, as on a card written before `test` existed; otherwise to
+  `phase-3-cooking.md`.
   A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` routes to
   `../../prepare-pr/SKILL.md`.
 
@@ -86,7 +90,8 @@ Otherwise, map the last completed phase to the next phase file:
 |---|---|
 | *(none — fresh card)* | `../../evaluate-ticket/SKILL.md` |
 | `evaluate-ticket`, or the old `reading-the-recipe` | `../../plan-code/SKILL.md` |
-| `plan-code`, or the old `mise-en-place` | `phase-3-cooking.md` |
+| `plan-code`, or the old `mise-en-place` | `../../test/SKILL.md` |
+| `test` | `phase-3-cooking.md` |
 | `cooking` | `phase-4-tasting.md` |
 | `tasting`, or `code` | `../../prepare-pr/SKILL.md` |
 | `prepare-pr`, or the old `plating` | `../../prepare-pr/SKILL.md` if `## PR Delivery Strategy` lists a chunked delivery with any chunk still not `opened`; otherwise `phase-6-documentation.md` |

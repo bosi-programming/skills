@@ -9,7 +9,7 @@ This skill carries no opinion about which issue tracker, chat tool, or docs syst
 
 Load, read completely, then execute `./phases/phase-0-start.md` to begin.
 
-Three phases are skills of their own, `evaluate-ticket` (`../evaluate-ticket/SKILL.md`), `plan-code` (`../plan-code/SKILL.md`) and `prepare-pr` (`../prepare-pr/SKILL.md`): Phase 0 routes to them, `evaluate-ticket` hands on to `plan-code`, `plan-code` hands on to `./phases/phase-3-cooking.md`, Tasting hands on to `prepare-pr`, and `prepare-pr` hands on to `./phases/phase-6-documentation.md`. Each also runs alone on a card.
+Four stages are skills of their own, `evaluate-ticket` (`../evaluate-ticket/SKILL.md`), `plan-code` (`../plan-code/SKILL.md`), `test` (`../test/SKILL.md`) and `prepare-pr` (`../prepare-pr/SKILL.md`): Phase 0 routes to them, `evaluate-ticket` hands on to `plan-code`, `plan-code` hands on to `test`, `test` hands on to `./phases/phase-3-cooking.md`, Tasting hands on to `prepare-pr`, and `prepare-pr` hands on to `./phases/phase-6-documentation.md`. Each also runs alone on a card.
 
 ## Headless runs
 
@@ -17,7 +17,7 @@ Phases 1 to 6 can run with no human in the loop — a night run. Start one with
 `--headless`, or make it the default with `feature-recipe.defaultMode`, at
 whatever step the card is on, even a bare task with no card
 yet, and it carries the work through `evaluate-ticket`, `plan-code`,
-Cooking, Tasting, `prepare-pr` and Documentation in one turn, taking the
+`test`, Cooking, Tasting, `prepare-pr` and Documentation in one turn, taking the
 recommendation at each checkpoint and recording it as `unattended:`, so the
 morning can see what was decided while nobody was watching. It stops only when
 the recipe is finished or something needs a person — never at a phase boundary,

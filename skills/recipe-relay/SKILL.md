@@ -39,8 +39,10 @@ Determine the next unit from the card's `phase` / `runNext`:
   `evaluate-ticket`; of the old `phase-2-mise-en-place.md`, `plan-code`. It
   ends with `plan-code`'s `## Interfaces` step, as step 1 of _Cooking in
   parallel_ says.
-- `phase-3-cooking.md` + `phase-4-tasting.md` run as the units in _Cooking in
-  parallel_ below, and the _UI review_ below follows its last unit.
+- `test` (`../test/SKILL.md`), `phase-3-cooking.md` and `phase-4-tasting.md`
+  run as the units in _Cooking in parallel_ below, and the _UI review_ below
+  follows its last unit. A `runNext` of `test` or `phase-3-cooking.md` means
+  these units.
 - The Plating unit is `prepare-pr` (`../prepare-pr/SKILL.md`), which runs alone.
   A `runNext` of `prepare-pr` or of the old `phase-5-plating.md` means this
   unit. `phase-6-documentation.md` runs alone too. Both run on the model
@@ -109,23 +111,24 @@ session runs on.
    repo's own checkout, on `{branch}`, the branch the repo is on. Start every
    pair before waiting on any of them. Each writer stages and commits only the
    files it wrote, by path, and retries a commit that hits `index.lock`.
-   - The **test writer** reads the Acceptance Criteria, Testing Strategy,
-     `## TDD Test Mapping` and `## Interfaces`, and never sees the code: it
-     opens no file the code writer touches. It writes the tests for its repo,
-     runs them, and confirms they fail; an import error for a name that does
-     not exist yet counts as a fail. It commits and marks each case written in
-     `## TDD Test Mapping`. A test that already passes gets logged to
-     `## Decisions` as `relay:`, with its name; the writer leaves it in and
-     carry on.
+   - The **test writer** loads `test` (`../test/SKILL.md`) with the section 2
+     prompt, limited to its repo. It reads the Acceptance Criteria, Testing
+     Strategy, `## TDD Test Mapping` and `## Interfaces`, and never sees the
+     code: it opens no file the code writer touches. It writes the tests for
+     its repo, runs them, and confirms they fail; an import error for a name
+     that does not exist yet counts as a fail. It commits and marks each case
+     written in `## TDD Test Mapping`. A test that already passes gets logged
+     to `## Decisions` as `relay:`, with its name; the writer leaves it in and
+     carry on. It stops after `test`'s section 3 and does not load Cooking.
    - The **code writer** reads the Solution, Implementation Plan, Config
      changes and `## Interfaces`, and never sees the tests: it opens no test
      file. It writes the code for its repo and commits, without adding tests.
      It follows section 1 of `phase-3-cooking.md` for standards and plan
-     drift, minus the test steps.
+     drift, minus the step that runs the tests.
 3. **Fix and taste.** Once both writers of every repo return, one sub-agent
    loads `phase-3-cooking.md` and `phase-4-tasting.md`, as the section 2
    prompt says, with the tests and code already in place on `{branch}`. It
-   starts at step 4 of Cooking's section 1: run the tests, make the red ones
+   starts at step 3 of Cooking's section 1: run the tests, make the red ones
    pass by fixing the code, not the test, unless the test contradicts
    `## Interfaces` or the Acceptance Criteria. Then it runs the rest of
    Cooking and all of Tasting. Tell it to skip Tasting's section 1: section 5

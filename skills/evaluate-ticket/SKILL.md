@@ -143,7 +143,7 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 - Section 4 does not apply. This stage does not stop at its own boundary: it
   loads, reads completely and executes
   `../plan-code/SKILL.md`, and the run continues
-  through `plan-code` and on into Cooking, Tasting, Plating and
+  through `plan-code` and on into `test`, Cooking, Tasting, `prepare-pr` and
   Documentation. A run stops at the recipe's end or at a one-way door, never
   at a phase boundary.
 

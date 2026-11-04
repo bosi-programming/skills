@@ -16,22 +16,22 @@ to `feature-recipe`, not to this phase file), or load it by name if
 that path isn't where it lives — and read the files that govern the kind of
 code this task touches; skip the ones it can't violate.
 
+The tests are already on the branch: `test` (`../../test/SKILL.md`) wrote
+every case in `## TDD Test Mapping` and saw each one fail. A card with no
+`test` in `phasesCompleted` goes there first. Phase 0 routes it.
+
 Work through the Implementation Plan one step at a time. For each step:
 
 1. Say what's about to change.
-2. Write the test(s) this step maps to (from `## TDD Test Mapping`) and run
-   them to confirm they fail. An import error for something that doesn't
-   exist yet is an expected failure; a test that passes unexpectedly means
-   the behavior may already exist — stop and investigate rather than moving
-   on. For a bug fix, write the regression case first.
-3. Make the implementation change, holding it against the standards found
+2. Make the implementation change, holding it against the standards found
    above as you write, not as an afterpass once it's done.
-4. Run those tests again and confirm they now pass. If a gap turns up —
-   behavior the existing tests don't cover — write a test for it, confirm it
-   fails, then close the gap. Mark each case's test as written in
-   `## TDD Test Mapping`.
-5. Commit.
-6. If anything deviated from the plan or needed a judgement call, append it
+3. Run the tests this step maps to (from `## TDD Test Mapping`) and confirm
+   they now pass. Fix the code, not the test, unless the test contradicts
+   `## Interfaces` or the Acceptance Criteria. If a gap turns up — behavior
+   the existing tests don't cover — write a test for it, confirm it fails,
+   then close the gap, and add the case to `## TDD Test Mapping`.
+4. Commit.
+5. If anything deviated from the plan or needed a judgement call, append it
    to a running decisions log — don't stop, keep implementing. If the plan
    itself needs to change, update the relevant recipe-card section rather
    than quietly drifting from what it says.
