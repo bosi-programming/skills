@@ -8,5 +8,9 @@ test('hasSkill finds a skill the repository ships', async () => {
 })
 
 test('hasSkill refuses a name the repository does not ship', async () => {
-  assert.equal(await hasSkill('tasting'), false)
+  assert.equal(await hasSkill('no-such-skill'), false)
+})
+
+test('hasSkill refuses part of a name the repository ships', async () => {
+  assert.equal(await hasSkill('cod'), false)
 })
