@@ -29,6 +29,7 @@ const SKILLS = [
   'setup',
   'ship-pr',
   'summarize-llm-response',
+  'test',
   'uml',
   'week-summary',
   'weekly-planning',

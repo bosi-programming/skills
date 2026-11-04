@@ -54,6 +54,7 @@ check_all("writers-blind", split, "never sees the code", "never sees the tests")
 check_all("red-first", split, "confirms they fail")
 check_all("green-on-base-logged", split, "already pass", "`relay:`", "carry on")
 check_all("writers-then-finish", split, "once both writers", "`phase-3-cooking.md`", "`phase-4-tasting.md`")
+check_all("test-writer-runs-test", split, "test writer", "`../test/SKILL.md`")
 check_all("single-repo-splits", split, "even when the task touches one repo")
 check_all("coding-model", split, "`recipe-relay.codingModel`")
 check("no-old-cooking-unit", "are one unit" not in flatten(block(skill, "## 2.", r"^### ")),

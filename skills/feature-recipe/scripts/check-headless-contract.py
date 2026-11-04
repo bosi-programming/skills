@@ -18,6 +18,7 @@ REPO = SKILL.parents[1]
 PHASES = SKILL / "phases"
 EVALUATE = REPO / "skills" / "evaluate-ticket" / "SKILL.md"
 PLAN_CODE = REPO / "skills" / "plan-code" / "SKILL.md"
+TEST = REPO / "skills" / "test" / "SKILL.md"
 PREPARE_PR = REPO / "skills" / "prepare-pr" / "SKILL.md"
 CONTRACT = SKILL / "references" / "headless.md"
 TEMPLATE = SKILL / "references" / "recipe-card-template.md"
@@ -36,7 +37,7 @@ HEADLESS = {
 }
 HANDOFF = {
     1: "../plan-code/SKILL.md",
-    2: "phase-3-cooking.md",
+    2: "../test/SKILL.md",
     3: "phase-4-tasting.md",
     4: "../../prepare-pr/SKILL.md",
     5: "../feature-recipe/phases/phase-6-documentation.md",
@@ -116,8 +117,8 @@ check(
 # --- nothing routes through stdout any more -------------------------------
 
 offenders = []
-for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
-    text = path.read_text()
+for path in sorted(PHASES.glob("*.md")) + [EVALUATE, PLAN_CODE, TEST, PREPARE_PR, SKILL_MD, CONTRACT, TEMPLATE]:
+    text = path.read_text() if path.exists() else ""
     for needle in FORBIDDEN:
         if needle in text:
             offenders.append(f"{path.name}: {needle!r}")
@@ -227,13 +228,24 @@ check("phase0-routes-plan-code", not missing, f"phase-0 missing: {missing}")
 missing = [s for s in ["`../../prepare-pr/SKILL.md`", "`prepare-pr`", "`plating`", "`phase-5-plating.md`"] if s not in phase0_text]
 check("phase0-routes-prepare-pr", not missing, f"phase-0 missing: {missing}")
 
+missing = [s for s in ["`../../test/SKILL.md`", "`test`", "`phase-3-cooking.md`"] if s not in phase0_text]
+check("phase0-routes-test", not missing, f"phase-0 missing: {missing}")
+
+test_text = TEST.read_text() if TEST.exists() else ""
+test_headless = test_text.split("\n## Headless", 1)[-1] if "\n## Headless" in test_text else ""
+missing = [s for s in ["### Ending a run", "runNext", "`../feature-recipe/phases/phase-3-cooking.md`"] if s not in test_headless]
+check("test-headless", not missing, f"test ## Headless missing: {missing}")
+
 rows = [line for line in phase0_text.splitlines() if line.startswith("|")]
 evaluate_row = next((r for r in rows if r.startswith("| `evaluate-ticket`")), "")
 plan_row = next((r for r in rows if r.startswith("| `plan-code`")), "")
 check("phase0-row-evaluate-ticket", "`../../plan-code/SKILL.md`" in evaluate_row,
       f"evaluate-ticket row must route to plan-code: {evaluate_row!r}")
-check("phase0-row-plan-code", "`phase-3-cooking.md`" in plan_row,
-      f"plan-code row must route to Cooking: {plan_row!r}")
+check("phase0-row-plan-code", "`../../test/SKILL.md`" in plan_row,
+      f"plan-code row must route to test: {plan_row!r}")
+test_row = next((r for r in rows if r.startswith("| `test`")), "")
+check("phase0-row-test", "`phase-3-cooking.md`" in test_row,
+      f"test row must route to Cooking: {test_row!r}")
 tasting_row = next((r for r in rows if r.startswith("| `tasting`")), "")
 prepare_row = next((r for r in rows if r.startswith("| `prepare-pr`")), "")
 check("phase0-row-tasting", "`../../prepare-pr/SKILL.md`" in tasting_row,

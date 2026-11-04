@@ -67,7 +67,7 @@ check_all(
 
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: plan-code`", "unattended:", "### Ending a run")
-check_all("hands-off", skill, "`../feature-recipe/phases/phase-3-cooking.md`")
+check_all("hands-off", skill, "`../test/SKILL.md`")
 
 broken = []
 for target in sorted(set(re.findall(r"`(\.{1,2}/[^`\s]+\.md)`", skill))):
