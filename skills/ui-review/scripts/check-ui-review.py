@@ -75,7 +75,7 @@ check_all("design-step", block(skill, "## 1. Design", r"^## "),
 check_all("compare-step", block(skill, "## 2. Compare", r"^## "),
           "never starts the app", "takes no screenshots", "critical", "major", "minor", "`## UI Review`")
 check_all("verdict-step", block(skill, "## 3. Verdict", r"^## "),
-          "`fail`", "`pass`", "`inconclusive`", "`## Quality Gate Results`", "`code`", "twice", "`needs-input`")
+          "critical or major", "only minor", "`fail`", "`pass`", "`inconclusive`", "`## Quality Gate Results`", "`code`", "twice", "`needs-input`")
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
           "unattended:", "`runStatus: needs-input`", "### Ending a run")
 check_all("log-prefixes", skill, "`relay:`", "`unattended:`", "`ui-review:`")

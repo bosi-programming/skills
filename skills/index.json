@@ -256,7 +256,7 @@
         "scripts/check-ui-review.py",
         "stage.json"
       ],
-      "version": "28b2079df199"
+      "version": "0c22d930ff5c"
     },
     {
       "name": "uml",
