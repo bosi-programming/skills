@@ -61,12 +61,12 @@ check_all(
 check_all("writes-stage-name", skill, "`phase: 'plan-code'`")
 
 check_all(
-    "writes-interfaces", block(skill, "## 4. Write interfaces", r"^## "),
+    "writes-interfaces", block(skill, "## 4. Write the interfaces", r"^## "),
     "`## Interfaces`", "test writer", "code writer", "`runStatus: needs-input`",
 )
 
 headless = block(skill, "## Headless", r"^## ")
-check_all("keeps-headless", headless, "`runNext: plan-code`", "unattended:", "### Ending run")
+check_all("keeps-headless", headless, "`runNext: plan-code`", "unattended:", "### Ending a run")
 check_all("hands-off", skill, "`../feature-recipe/phases/phase-3-cooking.md`")
 
 broken = []
