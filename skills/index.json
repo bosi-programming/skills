@@ -170,6 +170,14 @@
       "version": "887601b87d37"
     },
     {
+      "name": "plan-assembly-line",
+      "files": [
+        "SKILL.md",
+        "scripts/check-plan-assembly-line.py"
+      ],
+      "version": "fd547e76f7e5"
+    },
+    {
       "name": "plan-code",
       "files": [
         "SKILL.md",
