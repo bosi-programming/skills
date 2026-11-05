@@ -35,7 +35,7 @@ Small fix with no screen change, so no `test` or `ui-review`.
 {
   "format": "assembly-line/1",
   "ticket": "BOS-1",
-  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "merge"]
+  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"]
 }
 ```
 ~~~
@@ -96,7 +96,22 @@ and names `plan-assembly-line`.
 - Every stage name is a skill under `skills/`.
 - `ticket` matches the ticket the comment is on.
 
-`validate-line.py` enforces these and the rules that need the catalog.
+`validate-line.py` enforces these and the rules that need the catalog:
+
+- `line-parses`: the line file exists and holds JSON.
+- `line-shape`: `format`, `ticket`, `stages` and every item have the shapes above.
+- `catalog-parses`: the catalog file exists and holds a `stages` object.
+- `known-stage`: every stage name is in the catalog.
+- `first-judge`: the first item is `judge`.
+- `last-gate-merge`: `merge` is on the line at the top level.
+- `auto-after-merge`: only `gate: auto` stages come after `merge`.
+- `takes-met`: each `takes` is delivered by an earlier stage, by the stage itself, or at the start.
+- `return-target`: every `return` target is a stage on the line.
+- `parallel-group`: the branches of a group share no `delivers`.
+
+`## Decisions`, `## Open Questions`, `## TDD Test Mapping` and the fields
+`phase`, `phasesCompleted` and `lastTouched` may be shared by parallel
+branches. A take is met from the start by `task`, `parent` and `## Sub-issues`.
 
 ## Example: full line
 
@@ -132,7 +147,7 @@ A small fix with no new tests of its own:
 {
   "format": "assembly-line/1",
   "ticket": "BOS-2",
-  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "merge"]
+  "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"]
 }
 ```
 

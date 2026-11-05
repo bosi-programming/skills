@@ -350,6 +350,7 @@ python3 skills/assembly-line/scripts/check-line-format.py
 python3 skills/assembly-line/scripts/test_check_line_format.py
 python3 skills/assembly-line/scripts/build-catalog.py --check
 python3 skills/assembly-line/scripts/test_build_catalog.py
+python3 skills/assembly-line/scripts/test_validate_line.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py
