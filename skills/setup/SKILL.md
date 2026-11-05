@@ -57,6 +57,13 @@ the ones in `./references/config.md`:
       the state it moves it to when Documentation closes it, or `Done`.
    h. Any rules for the body's `## recipe-relay` section, which belongs in
       the project's own file while the project lasts.
+   i. Model for the `assembly-line` test writers, code writers and fix agent,
+      or the one the line runs on.
+   j. Model for the `assembly-line` UI reviewer, or the one the line runs on.
+   k. Model for the `assembly-line` `prepare-pr` and `code-docs` stages and
+      the closing review, or the one the line runs on.
+   l. State the line moves a ticket to once its PR opens, or `In Review`, and
+      the state it moves it to once `merge` merges it, or `Done`.
 8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.

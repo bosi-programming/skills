@@ -30,7 +30,9 @@ named after a skill, `## work-summary` or `## week-summary`, is guidance that
 skill follows on top of its own rules. A project file is the place for guidance
 that lasts only while a project does: `## recipe-relay` in one project's
 `.bosi-skills.md` reaches every sub-agent the relay runs there, and deleting
-the section ends it. `## better-code-review` reaches the review's three
+the section ends it. `## assembly-line` in a project's `.bosi-skills.md` reaches
+every sub-agent the line runs, and the line reads `## recipe-relay` when it has
+none. `## better-code-review` reaches the review's three
 sub-agents the same way. `## plan-work` holds a team's planning rules on top
 of the standard `plan-work` plans against.
 
@@ -86,6 +88,11 @@ every key.
 | `recipe-relay.doneState` | `Done` | Tracker state the relay moves the task to when Documentation closes it. Empty skips the move. |
 | `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design, in `ui-review`. Empty means the model the session runs on. |
 | `recipe-relay.routineModel` | `''` | Model for the Plating and Documentation units and the review sub-agent in `review-fix`. Empty means the model the relay runs on. |
+| `assembly-line.codingModel` | `''` | Model for the test writers, the code writers and the fix agent, and for the fix sub-agent `assembly-line` hands `review-fix`. Empty means the model the line runs on. |
+| `assembly-line.routineModel` | `''` | Model for `prepare-pr` and `code-docs`, and for the review sub-agent `assembly-line` hands `review-fix`. Empty means the model the line runs on. |
+| `assembly-line.uiReviewerModel` | `''` | Model for the reviewer `assembly-line` hands `ui-review`. Empty means the model the line runs on. |
+| `assembly-line.reviewState` | `In Review` | Tracker state `assembly-line` moves the ticket to once `prepare-pr` opens the PR. Empty skips the move. |
+| `assembly-line.doneState` | `Done` | Tracker state `merge` moves the ticket to under `assembly-line`, in place of `open-restaurant.doneState`. Empty skips the move. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |

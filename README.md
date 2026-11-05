@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Twenty-six Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Twenty-seven Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other twenty-four feed those two or stand alone. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other twenty-five feed those two or stand alone. `assembly-line` runs the stages a ticket's line names. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same twenty-six install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same twenty-seven install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -83,6 +83,20 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 ```
 
 ## The skills
+
+### assembly-line
+
+Runs one ticket's line: the ordered stages its line comment names. It reads the ticket's comments through the tracker and takes the line comment created last, the one with `"format": "assembly-line/1"`. It changes no stage's files, and `recipe-relay` stays until BOS-112.
+
+How the line runs:
+
+1. **Validate.** The line goes through `validate-line.py` before any stage runs. An invalid line, a missing line comment or a `{"group": "sub-issues"}` line stops the run and writes nothing; it points to `plan-assembly-line`, or to `open-restaurant`.
+2. **Stages.** Each stage runs in its own sub-agent, and every checkpoint takes its own recommendation, logged to the recipe card as `line:`. `judge`, `ui-review` and `review-fix` run in the session, because their own steps spawn sub-agents.
+3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; the `code` after them is the fix and taste agent.
+4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
+5. **Gates.** A stage with `gate: human`, today `merge`, stops at `runStatus: gate` with a question in chat and on the card, and runs only on the person's approval.
+
+`assembly-line.codingModel`, `assembly-line.uiReviewerModel` and `assembly-line.routineModel` pick the models; `assembly-line.reviewState` (`In Review`) and `assembly-line.doneState` (`Done`) pick the tracker states. A `## assembly-line` section in a project's `.bosi-skills.md` adds rules every sub-agent follows there; the line reads `## recipe-relay` when it has none.
 
 ### recipe-relay
 
@@ -351,6 +365,9 @@ python3 skills/assembly-line/scripts/test_check_line_format.py
 python3 skills/assembly-line/scripts/build-catalog.py --check
 python3 skills/assembly-line/scripts/test_build_catalog.py
 python3 skills/assembly-line/scripts/test_validate_line.py
+python3 skills/assembly-line/scripts/check-assembly-line.py
+python3 skills/assembly-line/scripts/check-no-pause.py
+python3 skills/assembly-line/scripts/check-split-cooking.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py

@@ -1,6 +1,28 @@
 {
   "skills": [
     {
+      "name": "assembly-line",
+      "files": [
+        "SKILL.md",
+        "references/catalog.json",
+        "references/line-format.md",
+        "references/signals.json",
+        "references/stage-spec.md",
+        "scripts/build-catalog.py",
+        "scripts/check-assembly-line.py",
+        "scripts/check-line-format.py",
+        "scripts/check-no-pause.py",
+        "scripts/check-split-cooking.py",
+        "scripts/check-stage-spec.py",
+        "scripts/test_build_catalog.py",
+        "scripts/test_check_line_format.py",
+        "scripts/test_check_stage_spec.py",
+        "scripts/test_validate_line.py",
+        "scripts/validate-line.py"
+      ],
+      "version": "3e3d47305077"
+    },
+    {
       "name": "better-code-review",
       "files": [
         "SKILL.md",
@@ -212,7 +234,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "6cabca1e573f"
+      "version": "482d66707761"
     },
     {
       "name": "ship-pr",

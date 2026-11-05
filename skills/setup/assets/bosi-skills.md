@@ -36,6 +36,12 @@ recipe-relay:
   doneState: Done
   uiReviewerModel: ''
   routineModel: ''
+assembly-line:
+  codingModel: ''
+  routineModel: ''
+  uiReviewerModel: ''
+  reviewState: In Review
+  doneState: Done
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -128,6 +134,16 @@ only needs the keys it changes.
 - `recipe-relay.routineModel` — the model for the Plating and Documentation
   units and the sub-agent that runs the closing review; empty keeps the model
   the relay runs on.
+- `assembly-line.codingModel` — the model for the sub-agents that write tests
+  and code and fix; empty keeps the model the line runs on.
+- `assembly-line.routineModel` — the model for `prepare-pr`, `code-docs` and
+  the sub-agent that runs the closing review; empty keeps the model the line
+  runs on.
+- `assembly-line.uiReviewerModel` — the model for the UI reviewer; empty keeps
+  the model the line runs on.
+- `assembly-line.reviewState` and `assembly-line.doneState` — tracker states
+  the line moves a ticket to once its PR is open and once `merge` merges it;
+  empty skips the move.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML
