@@ -92,7 +92,9 @@ check_all("suggestion-rules", section2, "`[unit]`", "`[int]`", "`[e2e]`", "`[sto
 check_all("validates-before-showing", block(skill, "## 3. Validate each line", r"^## "),
           "`$SKILL_DIR/../assembly-line/scripts/validate-line.py`", "`{scratch}/<ticket>.line.json`", '`"valid"`',
           "before showing", "`stage`", "`rule`", "stage to add", "`takes-met`", "delivered by")
-check("validator-resolves", (SKILL / "../assembly-line/scripts/validate-line.py").resolve().exists(),
+check_all("line-file-is-full-object", block(skill, "## 3. Validate each line", r"^## "),
+          "full line object", "`format`", "`ticket`", "`stages`", "not a bare list")
+check("validator-resolves",(SKILL / "../assembly-line/scripts/validate-line.py").resolve().exists(),
       f"{VALIDATOR} missing")
 check_all("approval-first", block(skill, "## 4. Show and approve", r"^## "),
           "confirms or edits", "nothing is written", "before the engineer approves", "validated again",

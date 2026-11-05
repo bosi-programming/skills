@@ -34,7 +34,7 @@ Each suggestion carries one or two sentences of why.
 
 ## 3. Validate each line
 
-Write each suggested line to `{scratch}/<ticket>.line.json`. In the command below, `$SKILL_DIR` is this skill's folder.
+Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. In the command below, `$SKILL_DIR` is this skill's folder.
 
 ```bash
 python3 "$SKILL_DIR/../assembly-line/scripts/validate-line.py" {scratch}/<ticket>.line.json
