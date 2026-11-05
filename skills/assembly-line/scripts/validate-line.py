@@ -91,6 +91,24 @@ def check_shape(line):
     return errors
 
 
+def is_name_list(value):
+    return value is None or (isinstance(value, list) and all(isinstance(v, str) for v in value))
+
+
+def valid_entry(entry):
+    if not isinstance(entry, dict) or not is_name_list(entry.get("takes")):
+        return False
+    body = entry.get("delivers")
+    if body is not None and not (
+        isinstance(body, dict) and is_name_list(body.get("sections")) and is_name_list(body.get("fields"))
+    ):
+        return False
+    returns = entry.get("return")
+    if returns is None:
+        return True
+    return isinstance(returns, dict) and all(isinstance(v, dict) for v in returns.values())
+
+
 def load_catalog(path):
     try:
         body = json.loads(path.read_text())
@@ -100,6 +118,9 @@ def load_catalog(path):
         return None, [error(None, "catalog-parses", f"catalog does not parse: {problem}")]
     if not isinstance(body, dict) or not isinstance(body.get("stages"), dict):
         return None, [error(None, "catalog-parses", "catalog must be an object with a stages object")]
+    for name, entry in body["stages"].items():
+        if not valid_entry(entry):
+            return None, [error(None, "catalog-parses", f"catalog stage {name} is malformed")]
     return body["stages"], []
 
 

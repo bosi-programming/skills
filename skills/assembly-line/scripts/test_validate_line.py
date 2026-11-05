@@ -180,6 +180,67 @@ class ValidateLine(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertError(out, None, "catalog-parses")
 
+    def test_rejects_a_catalog_with_a_malformed_stage(self):
+        base = real_catalog()["stages"]["judge"]
+        broken = {
+            "stage not an object": 5,
+            "takes not a list": {**base, "takes": "x"},
+            "takes holds a non-string": {**base, "takes": [1]},
+            "delivers not an object": {**base, "delivers": []},
+            "sections not a list": {**base, "delivers": {"sections": "x"}},
+            "fields not a list": {**base, "delivers": {"fields": 3}},
+            "return not an object": {**base, "return": []},
+            "verdict not an object": {**base, "return": {"blocked": 1}},
+        }
+        for name, entry in broken.items():
+            with self.subTest(case=name):
+                catalog = self.catalog_with(add={"judge": entry})
+                result = run(self.write("line.json", line_of(SHORT)),
+                             "--catalog", self.write("catalog.json", catalog))
+                self.assertEqual(result.returncode, 1, result.stderr)
+                out = json.loads(result.stdout)
+                self.assertError(out, None, "catalog-parses")
+
+    def test_rejects_a_sub_issue_group_after_merge(self):
+        stages = ["judge", "evaluate-ticket", "merge", {"group": "sub-issues"}]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "auto-after-merge", "sub-issue group")
+
+    def test_rejects_a_parallel_group_as_the_first_item(self):
+        stages = [{"parallel": ["judge", "evaluate-ticket"]}, "merge"]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "first-judge", "judge")
+
+    def test_rejects_a_sub_issue_group_as_the_first_item(self):
+        stages = [{"group": "sub-issues"}, "merge"]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "first-judge", "judge")
+
+    def test_accepts_the_stage_object_form(self):
+        stages = SHORT[:-1] + [{"stage": "merge", "with": {}}]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 0, out)
+
+    def test_rejects_a_stage_object_of_the_wrong_shape(self):
+        cases = {
+            "with not an object": {"stage": "merge", "with": 1},
+            "extra key": {"stage": "merge", "foo": 1},
+        }
+        for name, item in cases.items():
+            with self.subTest(case=name):
+                code, out = self.validate(line_of(["judge", "evaluate-ticket", item]))
+                self.assertEqual(code, 1)
+                self.assertError(out, None, "line-shape", "item 3")
+
+    def test_an_unknown_first_stage_reports_only_known_stage(self):
+        code, out = self.validate(line_of(["no-such-stage", "merge"]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "no-such-stage", "known-stage")
+        self.assertNoRule(out, "first-judge")
+
     def test_full_example_passes(self):
         code, out = self.validate(example("## Example: full line"))
         self.assertEqual(code, 0, out)
