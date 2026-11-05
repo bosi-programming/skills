@@ -27,7 +27,7 @@ Project rules come from the settings file's `## assembly-line` section, else its
 
 ## 1. Read the line
 
-Read the line before any card exists. Through the tracker tool in this session, read the ticket's comments and take the line comment created last: the one whose json block parses to an object with `"format": "assembly-line/1"`. `./references/line-format.md` says what a line holds.
+Read the line before any card exists. Through the tracker tool in this session, read the ticket's comments and take the line comment created last: the one whose json block parses to an object whose `"format"` is `assembly-line/1`. `./references/line-format.md` says what a line holds.
 
 Stop and write nothing, naming `plan-assembly-line`, in each of these cases:
 
@@ -41,7 +41,7 @@ Otherwise write the line's JSON to `{scratch}/line.json`. In the command below, 
 python3 "$SKILL_DIR/scripts/validate-line.py" {scratch}/line.json
 ```
 
-The validator runs before any stage runs. When it answers `"valid": false`, the run stops, writes nothing, and names each error's `stage` and `rule`; for a stage that lacks what it takes, it names the missing stage. Point the user to `plan-assembly-line`.
+The validator, `$SKILL_DIR/scripts/validate-line.py`, runs before any stage runs. When its `"valid"` is false, the run stops, writes nothing, and names each error's `stage` and `rule`; for a stage that lacks what it takes, it names the missing stage. Point the user to `plan-assembly-line`.
 
 ## 2. Find or make the card
 
@@ -62,7 +62,7 @@ A `{"parallel": ["test", "code"]}` group follows _Cooking in parallel_ below. An
 ### Stage prompt
 
 > Load and execute the stage's `SKILL.md` against the recipe card at `{card path}`, with the stage's `with` keys, if the line gives any. Follow its own `## Headless` section for every checkpoint it names, taking the recommendation it states, and log it to `## Decisions` prefixed `line:` (a person is running this, just not being asked).
-> Do not read `../feature-recipe/references/headless.md`: this prompt holds what you need from it. Stop and return control once the stage's closing section is written. Do not set `runMode` on the card. Never merge, delete work written on purpose, force-push, rewrite history, run an irreversible migration, or change credentials or production. At one of those, or at a question with no reasonable default, stop: write an entry to `## Open Questions` with an id, the question, the options and your recommendation; set `runStatus` to `needs-input` for a one-way door or `blocked` when something external must change; set `runQuestion` to the id; leave `runNext`, `phase` and `phasesCompleted` alone; and log the stop to `## Decisions`. Return at most 100 words on what got decided, and end the reply with `Verdict: <verdict>`. The rest stays on the card.
+> Do not read `../feature-recipe/references/headless.md`: this prompt holds what you need from it. Stop and return control once the stage's closing section is written. Do not set `runMode` on the card. Never merge, delete work written on purpose, force-push, rewrite history, run an irreversible migration, or change credentials or production. At one of those, or at a question with no reasonable default, stop: write an entry to `## Open Questions` with an id, the question, the options and your recommendation; set `runStatus` to `needs-input` for a one-way door or `blocked` when something external must change; set `runQuestion` to the id; leave `runNext`, `phase` and `phasesCompleted` alone; and log the stop to `## Decisions`. Return at most 100 words on what got decided, and end the reply with `Verdict:` and the stage's verdict. The rest stays on the card.
 
 ### Cooking in parallel
 
@@ -102,4 +102,4 @@ When a step returns, log `line: step <n>/<total> <stage> <verdict>` to `## Decis
 
 ## 6. Stop conditions
 
-Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`), or when a stage reports `runStatus: blocked` or `needs-input`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
+Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`), or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
