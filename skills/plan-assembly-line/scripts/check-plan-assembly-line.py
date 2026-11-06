@@ -124,7 +124,7 @@ check("readme-section", re.search(r"^### plan-assembly-line$", readme, re.MULTIL
       "README has no ### plan-assembly-line")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/check-plan-assembly-line.py")
-check_all("readme-count", readme, "thirty-one claude code skills", "the other twenty-nine", "the same thirty-one")
+check_all("readme-count", readme, "thirty-two claude code skills", "the other thirty", "the same thirty-two")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
 

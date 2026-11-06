@@ -14,6 +14,7 @@ MERGE = SKILLS / "merge" / "SKILL.md"
 CONTRACT = SKILLS / "contract" / "SKILL.md"
 REPRODUCE = SKILLS / "reproduce" / "SKILL.md"
 INTEGRATE = SKILLS / "integrate" / "SKILL.md"
+QA_SKILL = SKILLS / "qa" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -60,6 +61,7 @@ merge = read(MERGE)
 contract = read(CONTRACT)
 reproduce = read(REPRODUCE)
 integrate = read(INTEGRATE)
+qa_skill = read(QA_SKILL)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -138,11 +140,14 @@ check_all("integrate-copied", integrate,
 check_all("integrate-loads-skill", text["qa"],
           "`../integrate/skill.md`", "service card", "`no-scope`", "section 9", "`conflict`")
 check_none("integrate-text-moved", text["qa"], "qa scope names", "merge the sub-issue branches")
-check_all("one-env", text["qa"], "one env", "`open-restaurant.envName`", "never per sub-issue")
-check_all("env-torn-down", text["qa"], "tear the env down")
-check_all("fix-owner-branch", text["qa"], "owner", "fast-forward", "never `--force`", "never on `integration/<parent>`")
-check_all("fix-limits", text["qa"], "at most 2", "at most 4", "human gate")
-check_all("verdicts", text["qa"], "pass", "fail", "inconclusive", "blocked", "verdict.json`", "`## qa")
+check_all("one-env", qa_skill, "one env", "`open-restaurant.envName`", "never per sub-issue")
+check_all("env-torn-down", qa_skill, "tear the env down")
+check_all("fix-owner-branch", qa_skill, "owner", "fast-forward", "never `--force`", "never on `integration/<parent>`")
+check_all("fix-limits", qa_skill, "at most 2", "at most 4", "human gate")
+check_all("verdicts", qa_skill, "pass", "fail", "inconclusive", "blocked", "verdict.json`", "`## qa")
+check_all("qa-loads-skill", text["qa"],
+          "`../qa/skill.md`", "service card", "`pass`", "section 9", "`gate: qa`")
+check_none("qa-text-moved", text["qa"], "`open-restaurant.qamodel`", "detached head", "`proof/<issue>/<n>/verdict.json`")
 
 check_all("proof", text["proof"], "`## proof <parent>`", "`### sub-issues`")
 check_all("review-human", text["review"], "human", "ready", "`open-restaurant.reviewChannel`", "never guess")
