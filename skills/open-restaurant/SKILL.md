@@ -261,15 +261,13 @@ Once no card can start or move:
 
 ## 8. Integrate, QA and fix
 
-1. **Scope.** List the criteria the parent QA proves: every criterion of the
-   parent, plus each sub-issue criterion the section's QA scope names; with
-   none named, each sub-issue criterion its card says needs the running,
-   integrated system. If the list is empty, go to section 9.
-2. **Integrate.** In each repo checkout, create `integration/<parent>` from
-   `origin/<default branch>` and merge the sub-issue branches into it in
-   blocks order. Never push it. A merge conflict stops the run with
-   `runStatus: needs-input`, naming the two branches.
-3. **QA.** Bring up one env named from `open-restaurant.envName`, the way the
+1. **Integrate.** Load, read completely and execute `../integrate/SKILL.md` on
+   the service card. It lists the criteria the parent QA proves and, in each
+   repo checkout, builds `integration/<parent>` from `origin/<default branch>`
+   in blocks order, which it never pushes. On `no-scope`, go to section 9. On
+   `conflict` it has set `runStatus: needs-input`, naming the two branches:
+   stop. On `integrated`, go on.
+2. **QA.** Bring up one env named from `open-restaurant.envName`, the way the
    section's QA env entry says: one env for the parent, never per sub-issue.
    One sub-agent on `open-restaurant.qaModel` follows the QA skill the section
    names, or, with none, proves each criterion by running the integrated
@@ -279,25 +277,25 @@ Once no card can start or move:
    `pass`, `fail`, `inconclusive` or `blocked`. Run the section's QA checks on
    its output, and post the round as `## QA <parent>` on the parent and under
    `## QA` in the service card.
-4. **On fail.** Save the proof bundle, tear the env down, switch every
+3. **On fail.** Save the proof bundle, tear the env down, switch every
    checkout off `integration/<parent>`, then fix.
-5. **Fix.** One sub-agent on `open-restaurant.fixModel`. For each failed
+4. **Fix.** One sub-agent on `open-restaurant.fixModel`. For each failed
    criterion it picks one owning sub-issue: the criterion's own, else the
    contract's producer, else the branch that touched the failing files. It
    fixes on a detached HEAD of `origin/<owner branch>`, commits
    `fix(<owner>): <criterion id> <summary>`, and pushes fast-forward only:
    never `--force`, and never on `integration/<parent>`. It returns
    `{ fixes: [{ criterion, owner, branch, repo, sha, summary }] }`.
-6. **Fix check.** Run the section's fix check, or, with none: each sha sits
+5. **Fix check.** Run the section's fix check, or, with none: each sha sits
    on `origin/<owner branch>` and each checkout is clean. A refused fix goes
    back to the fix agent. Once all land, delete and rebuild
    `integration/<parent>` from the new tips, bring the env back up and re-run
    every criterion in scope.
-7. **Limits.** QA to fix runs at most 2 times, and fix to fix check at most 4
+6. **Limits.** QA to fix runs at most 2 times, and fix to fix check at most 4
    times; past either, stop at a human gate (`gate: qa`). `inconclusive` and
    `blocked` also go to the human gate. A `blocked` the human approves goes to
    fix, with the blocker counted in scope.
-8. **On pass.** Tear the env down and go on to proof.
+7. **On pass.** Tear the env down and go on to proof.
 
 ## 9. Proof
 

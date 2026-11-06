@@ -128,6 +128,15 @@
       "version": "2dec6eba0a5c"
     },
     {
+      "name": "integrate",
+      "files": [
+        "SKILL.md",
+        "scripts/check-integrate.py",
+        "stage.json"
+      ],
+      "version": "2003b222018e"
+    },
+    {
       "name": "judge",
       "files": [
         "SKILL.md",
@@ -163,7 +172,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "a7e37f899423"
+      "version": "7499c1306382"
     },
     {
       "name": "pause-work",
@@ -184,7 +193,7 @@
         "SKILL.md",
         "scripts/check-plan-assembly-line.py"
       ],
-      "version": "5c07eb0e21b5"
+      "version": "4972d9d6dbc5"
     },
     {
       "name": "plan-code",
@@ -357,7 +366,7 @@
         "scripts/uml.mjs",
         "scripts/uml.test.mjs"
       ],
-      "version": "d3521dee6f14"
+      "version": "0be1883160f5"
     },
     {
       "name": "week-summary",
