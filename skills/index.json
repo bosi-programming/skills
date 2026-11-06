@@ -20,7 +20,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "37a657d2759d"
+      "version": "418184a381b0"
     },
     {
       "name": "better-code-review",
