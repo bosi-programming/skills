@@ -11,6 +11,7 @@ PLATING = SKILLS / "prepare-pr" / "SKILL.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
 JUDGE = SKILLS / "judge" / "SKILL.md"
 MERGE = SKILLS / "merge" / "SKILL.md"
+CONTRACT = SKILLS / "contract" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -54,6 +55,7 @@ skill = read(SKILL_MD)
 readme = read(README)
 judge = read(JUDGE)
 merge = read(MERGE)
+contract = read(CONTRACT)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -93,7 +95,9 @@ check_all("readiness-blocks", judge, "`## not ready", "readiness gaps", "blocks 
 check_all("readiness-loads-judge", text["readiness"], "`../judge/skill.md`", "service card")
 check_none("readiness-text-moved", text["readiness"], "parity-shorthand")
 
-check_all("contract-copied", text["contract"], "`contract.json`", "`## contract", "never invent", "latest `## contract` comment wins")
+check_all("contract-copied", contract, "`contract.json`", "`## contract", "never invent", "latest `## contract` comment wins")
+check_all("contract-loads-skill", text["contract"], "`../contract/skill.md`", "service card", "`gaps`", "latest `## contract` comment wins")
+check_none("contract-text-moved", text["contract"], "word for word")
 
 check_all("one-card-per-sub-issue", text["plan"], "one recipe card", "one pr")
 check_all("same-repo-serial", text["plan"], "one at a time", "same repo")
