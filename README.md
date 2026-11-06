@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Twenty-eight Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Twenty-nine Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
 
-The other twenty-six feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other twenty-seven feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same twenty-eight install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same twenty-nine install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -137,7 +137,7 @@ An LLM factory. Hand it a parent issue — an epic or a story with sub-issues �
 The line, in order:
 
 1. **Readiness gate** (`judge`). A lint, then a judge sub-agent, look for open decisions, "same as X" shorthand, shapes passed between sub-issues that neither one states, and manual checks with no reason. A gap stops the run with a `## Not ready` comment and an issue that blocks the parent. It never fills a gap on the parent's behalf.
-2. **Contract.** A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes, and posts it on the parent. A person may edit it there; the latest comment wins.
+2. **Contract** (`contract`). A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes, and posts it on the parent. A person may edit it there; the latest comment wins. A shape no issue states stops the run.
 3. **Cooking.** Sub-issues in different repos cook at the same time. Those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens.
 4. **Review per PR.** Each PR opens ready for review, linked to its own sub-issue, which moves to `open-restaurant.implementedState`. Its own headless `better-code-review` sub-agent starts the moment it opens, and the findings get fixed on its branch.
 5. **Integrate and QA.** Once every card ends, it merges the branches into a local integration branch it never pushes, brings up one QA env for the parent, and proves each criterion with saved evidence. Failures get fixed on the owning sub-issue's branch, fast-forward only, for at most two QA rounds.
@@ -219,6 +219,12 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 ### judge
 
 The readiness gate, run before anything is designed. It reads a work card's `task` or an `open-restaurant` service card's `parent`, runs a lint and then a judge sub-agent. One ticket gets only `open-decision` and `manual-reason`; a parent gets all four rules. A gap comments `## Not ready`, opens an issue that blocks the ticket, writes the gaps to `## Open Questions` and stops `blocked`; otherwise it comments `## Ready`. It leaves `phase` and `phasesCompleted` alone, and reads `open-restaurant.judgeModel` and the settings file's `## open-restaurant` section. `open-restaurant` runs its section 2 through this skill, and it also runs alone on a card.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### contract
+
+The contract step for a parent and its sub-issues. It reads a work card's `task` or an `open-restaurant` service card's `parent`. A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes into `contract.json`; the skill posts it as `## Contract <id>` on the parent, copies it and the comment's link into the card's `## Contract`, and ends `done`. A shape no issue states goes to `gaps`, written to `## Open Questions`, and the skill ends `gaps` with `runStatus: needs-input`. An issue with no sub-issues needs no contract. It leaves `phase` and `phasesCompleted` alone and reads `open-restaurant.judgeModel`. `open-restaurant` runs its section 3 through this skill, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -320,6 +326,7 @@ skills/
   review-fix/         SKILL.md + stage.json + scripts/
   ui-review/          SKILL.md + stage.json + scripts/
   judge/              SKILL.md + stage.json + scripts/
+  contract/           SKILL.md + stage.json + scripts/
   merge/              SKILL.md + stage.json + scripts/
   open-restaurant/    SKILL.md + scripts/
   recipe-relay/       SKILL.md + scripts/
@@ -363,6 +370,7 @@ python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/review-fix/scripts/check-review-fix.py
 python3 skills/ui-review/scripts/check-ui-review.py
 python3 skills/judge/scripts/check-judge.py
+python3 skills/contract/scripts/check-contract.py
 python3 skills/merge/scripts/check-merge.py
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/evaluate-ticket
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/plan-code
@@ -373,6 +381,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/review-fix
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/ui-review
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/contract
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/merge
 python3 skills/assembly-line/scripts/test_check_stage_spec.py
 python3 skills/assembly-line/scripts/check-line-format.py
@@ -535,6 +544,18 @@ judge rules, the one-ticket rule, the not-ready or ready step or its
 names private content, if `open-restaurant` stops loading it, or if this README
 loses its section. Offline, stdlib only — run it after editing `judge`.
 
+`check-contract.py` is `contract`'s own check: it fails if the skill loses its
+frontmatter, stops naming the work card, `task`, the service card and `parent`
+as its input, stops ending `blocked` on bad input or `done` on an issue with no
+sub-issues, stops listing the card fields it writes or leaving `phase` and
+`phasesCompleted` alone, stops reading its setting, drops the shapes, post, gaps
+or done step, loses the rule that the latest `## Contract` comment wins, drops
+its `## Headless` section, says "recipe card", links a file that does not
+exist, names private content, if `stage.json` stops returning `gaps` to
+`contract` with limit 0 and gate `auto`, if `open-restaurant` stops loading it,
+or if this README loses its section or its Validate lines. Offline, stdlib only
+— run it after editing `contract`.
+
 `check-merge.py` is `merge`'s own check: it fails if the skill loses its
 frontmatter, stops naming the work card, `task`, `prUrl`, `## PR`, the service
 card and `parent` as its input, stops ending `blocked` on bad input, stops
@@ -585,7 +606,7 @@ the relay stops loading it. Offline, stdlib only — run it after editing
 section goes missing, if the readiness gate, read from `judge`, stops blocking on gaps,
 if section 2 stops loading `judge`, if the merge gate, read from `merge`, stops
 holding for a human or section 11 stops loading `merge`, if the
-contract may invent a shape, if same-repo sub-issues stop running one at a
+contract, read from `contract`, may invent a shape, if section 3 stops loading `contract`, if same-repo sub-issues stop running one at a
 time, if the early unblock loses its note file, follow-up or change rule, if
 the integration branch may be pushed or a fix forced, if the QA limits or the
 human review and merge gates go, if the skill names private content, if

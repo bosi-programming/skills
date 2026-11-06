@@ -20,7 +20,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "75dfbb321f61"
+      "version": "1364f4b9b9e0"
     },
     {
       "name": "better-code-review",
@@ -67,6 +67,15 @@
         "scripts/check-tooling-rule.py"
       ],
       "version": "d2f81862f49e"
+    },
+    {
+      "name": "contract",
+      "files": [
+        "SKILL.md",
+        "scripts/check-contract.py",
+        "stage.json"
+      ],
+      "version": "ad27e679c923"
     },
     {
       "name": "epistemic-action",
@@ -154,7 +163,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "3375ce4400d3"
+      "version": "1ec356b778e9"
     },
     {
       "name": "pause-work",
@@ -242,7 +251,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "482d66707761"
+      "version": "057a9dc0f0ec"
     },
     {
       "name": "ship-pr",

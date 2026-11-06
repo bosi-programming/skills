@@ -37,7 +37,7 @@ first, then `$HOME`, then the default:
 - `open-restaurant.reviewChannel` — chat channel the review request goes to.
   Default `''`: no request.
 - `open-restaurant.judgeModel` — model for the readiness judge (run through `judge`)
-  and the contract. Default `''`: the model this session runs on.
+  and the contract (run through `contract`). Default `''`: the model this session runs on.
 - `open-restaurant.qaModel` — model for the QA agent. Default `''`.
 - `open-restaurant.fixModel` — model for the QA fix agent. Default `''`.
 
@@ -120,13 +120,10 @@ section 3.
 
 ## 3. Contract
 
-Parents only. One sub-agent on `open-restaurant.judgeModel`, allowed to write
-files and nothing else, lists each shape one sub-issue produces and another
-consumes: `{ name, kind: api|event|config, producer, consumers, shape }`. It
-copies each shape word for word from the issues and must never invent one; a
-part no issue states goes to `gaps`. It writes `contract.json` at the folder
-root, and this session posts it as `## Contract <id>` on the parent and copies
-it into the service card.
+Parents only. Load, read completely and execute `../contract/SKILL.md` on the
+service card; it writes `contract.json`, posts it as `## Contract <id>` on the
+parent and copies it into the service card's `## Contract`. On `gaps` it has
+set `runStatus: needs-input`: stop. On `done`, go on to section 4.
 
 Every later step reads the latest `## Contract` comment on the parent, not the
 file: the latest `## Contract` comment wins, since a person may have edited
