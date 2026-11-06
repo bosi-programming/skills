@@ -275,6 +275,37 @@
       "signals": [],
       "gate": "auto"
     },
+    "reproduce": {
+      "spec": "../assembly-line/references/stage-spec.md",
+      "takes": [
+        "task"
+      ],
+      "delivers": {
+        "sections": [
+          "## Reproduction",
+          "## Decisions",
+          "## Open Questions"
+        ],
+        "fields": [
+          "runStatus",
+          "runQuestion",
+          "lastTouched"
+        ],
+        "verdicts": [
+          "reproduced",
+          "not-reproduced"
+        ]
+      },
+      "return": {
+        "not-reproduced": {
+          "to": "reproduce",
+          "limit": 0,
+          "past": "human"
+        }
+      },
+      "signals": [],
+      "gate": "auto"
+    },
     "review-fix": {
       "spec": "../assembly-line/references/stage-spec.md",
       "takes": [

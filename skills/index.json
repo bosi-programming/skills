@@ -125,7 +125,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "b0fbd69256b2"
+      "version": "2dec6eba0a5c"
     },
     {
       "name": "judge",
@@ -163,7 +163,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "1ec356b778e9"
+      "version": "a7e37f899423"
     },
     {
       "name": "pause-work",
@@ -184,7 +184,7 @@
         "SKILL.md",
         "scripts/check-plan-assembly-line.py"
       ],
-      "version": "ae4d6981e28f"
+      "version": "5c07eb0e21b5"
     },
     {
       "name": "plan-code",
@@ -233,6 +233,15 @@
         "scripts/check-ui-review.py"
       ],
       "version": "b9b3bea3cbcc"
+    },
+    {
+      "name": "reproduce",
+      "files": [
+        "SKILL.md",
+        "scripts/check-reproduce.py",
+        "stage.json"
+      ],
+      "version": "cd961e3d44fb"
     },
     {
       "name": "review-fix",

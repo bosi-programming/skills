@@ -156,10 +156,12 @@ per sub-issue, then decide when each may start.
      blocker's unblock note reaches it, as section 6 says. Sub-issues in
      different repos run in parallel.
    - No blocker: it starts at once, subject to its repo being free.
-4. **Bugs.** A sub-issue the section's bug marker flags gets one sub-agent
-   before its Phase 1 that tries to reproduce it on
-   `origin/<default branch>`. Not reproduced: comment `## Blocked <id>` with
-   what it tried, mark the row `blocked`, and start nothing that depends on it.
+4. **Bugs.** Before its Phase 1, a sub-issue the section's bug marker flags
+   goes through `../reproduce/SKILL.md`: load, read completely and execute it
+   on the sub-issue's card, in its repo's checkout. On `not-reproduced` it has
+   commented `## Blocked <id>` with what it tried and set the card's
+   `runStatus: blocked`: mark the row `blocked`, and start nothing that depends
+   on it. On `reproduced`, go on.
 
 ## 5. Cook the cards
 

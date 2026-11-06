@@ -12,6 +12,7 @@ DSH_TEST = REPO / "dsh" / "index.test.mjs"
 JUDGE = SKILLS / "judge" / "SKILL.md"
 MERGE = SKILLS / "merge" / "SKILL.md"
 CONTRACT = SKILLS / "contract" / "SKILL.md"
+REPRODUCE = SKILLS / "reproduce" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -56,6 +57,7 @@ readme = read(README)
 judge = read(JUDGE)
 merge = read(MERGE)
 contract = read(CONTRACT)
+reproduce = read(REPRODUCE)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -104,6 +106,10 @@ check_all("same-repo-serial", text["plan"], "one at a time", "same repo")
 check_all("cross-repo-parallel", text["plan"], "parallel", "unblock note")
 check_all("stacked-base", text["plan"], "stack", "blocker's branch")
 check_all("bug-reproduce", text["plan"], "reproduce", "`## blocked")
+check_all("reproduce-copied", reproduce, "`origin/<default branch>`", "`## blocked <id>`", "what it tried")
+check_all("reproduce-loads-skill", text["plan"],
+          "`../reproduce/skill.md`", "bug marker", "phase 1", "`not-reproduced`", "start nothing that depends on it")
+check_none("reproduce-text-moved", text["plan"], "sub-agent")
 
 check_all("plating-overrides", text["cards"], "one pr", "ready for review", "never as a draft", "no chunks", "base", "no closing word")
 check_all("review-per-pr", text["cards"], "review per pr", "own background sub-agent", "one per pr", "--headless", "never batch")
