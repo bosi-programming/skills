@@ -1,0 +1,16 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "parent", "## Sub-issues", "## Integration"],
+  "delivers": {
+    "sections": ["## QA", "## Decisions", "## Open Questions"],
+    "fields": ["runStatus", "runQuestion", "gate", "qaRounds", "fixChecks", "lastTouched"],
+    "verdicts": ["pass", "fail", "inconclusive", "blocked"]
+  },
+  "return": {
+    "fail": { "to": "code", "limit": 2, "past": "human" },
+    "inconclusive": { "to": "qa", "limit": 0, "past": "human" },
+    "blocked": { "to": "qa", "limit": 0, "past": "human" }
+  },
+  "signals": [],
+  "gate": "auto"
+}

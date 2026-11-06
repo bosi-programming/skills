@@ -101,11 +101,11 @@ every key.
 | `open-restaurant.repoByLabel` | `{}` | Map from a sub-issue label to the folder of the repo it works in. Empty means take the repo from the sub-issue's text. |
 | `open-restaurant.implementedState` | `In Review` | Tracker state a sub-issue moves to once its PR is open. Empty means no move. |
 | `open-restaurant.doneState` | `Done` | State a merged sub-issue, and a parent with no open criterion, moves to (in `merge`). |
-| `open-restaurant.envName` | `{parent}` | Name of the one QA env per parent; `{parent}` stands for the parent identifier in lower case. |
+| `open-restaurant.envName` | `{parent}` | Name of the one QA env (in `qa`) per parent; `{parent}` stands for the parent identifier in lower case. |
 | `open-restaurant.reviewChannel` | `''` | Chat channel the review request goes to once the PRs are ready. Empty skips the request. |
 | `open-restaurant.judgeModel` | `''` | Model for the readiness judge (in `judge`) and the contract (in `contract`). Empty means the model the session runs on. |
-| `open-restaurant.qaModel` | `''` | Model for the parent QA agent. Empty means the model the session runs on. |
-| `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria. Empty means the model the session runs on. |
+| `open-restaurant.qaModel` | `''` | Model for the parent QA agent (in `qa`). Empty means the model the session runs on. |
+| `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria (in `qa`). Empty means the model the session runs on. |
 | `pause-work.destination` | `''` | MCP server or CLI the paused-work task goes to, such as `Todoist`, `Linear` or `gh`. A ticket tool gets a comment on the ticket. Empty means ask to use the one to-do or tracker tool the session has, else print the task. |
 | `pause-work.project` | `''` | Project, list or team the task goes in. Empty means the tool's inbox or default. |
 | `pause-work.due` | `tomorrow` | Due date of the task, in the words the tool takes. |

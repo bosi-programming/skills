@@ -267,35 +267,14 @@ Once no card can start or move:
    in blocks order, which it never pushes. On `no-scope`, go to section 9. On
    `conflict` it has set `runStatus: needs-input`, naming the two branches:
    stop. On `integrated`, go on.
-2. **QA.** Bring up one env named from `open-restaurant.envName`, the way the
-   section's QA env entry says: one env for the parent, never per sub-issue.
-   One sub-agent on `open-restaurant.qaModel` follows the QA skill the section
-   names, or, with none, proves each criterion by running the integrated
-   system. It saves evidence under `./qa-proof/<parent>/`, one
-   `proof/<issue>/<n>/verdict.json` per criterion, and a manual criterion
-   stays pending with its owner. It never edits the checkouts. It returns
-   `pass`, `fail`, `inconclusive` or `blocked`. Run the section's QA checks on
-   its output, and post the round as `## QA <parent>` on the parent and under
-   `## QA` in the service card.
-3. **On fail.** Save the proof bundle, tear the env down, switch every
-   checkout off `integration/<parent>`, then fix.
-4. **Fix.** One sub-agent on `open-restaurant.fixModel`. For each failed
-   criterion it picks one owning sub-issue: the criterion's own, else the
-   contract's producer, else the branch that touched the failing files. It
-   fixes on a detached HEAD of `origin/<owner branch>`, commits
-   `fix(<owner>): <criterion id> <summary>`, and pushes fast-forward only:
-   never `--force`, and never on `integration/<parent>`. It returns
-   `{ fixes: [{ criterion, owner, branch, repo, sha, summary }] }`.
-5. **Fix check.** Run the section's fix check, or, with none: each sha sits
-   on `origin/<owner branch>` and each checkout is clean. A refused fix goes
-   back to the fix agent. Once all land, delete and rebuild
-   `integration/<parent>` from the new tips, bring the env back up and re-run
-   every criterion in scope.
-6. **Limits.** QA to fix runs at most 2 times, and fix to fix check at most 4
-   times; past either, stop at a human gate (`gate: qa`). `inconclusive` and
-   `blocked` also go to the human gate. A `blocked` the human approves goes to
-   fix, with the blocker counted in scope.
-7. **On pass.** Tear the env down and go on to proof.
+2. **QA.** Load, read completely and execute `../qa/SKILL.md` on the service
+   card. It brings up one env for the parent, proves each criterion in scope on
+   `integration/<parent>`, and on a fail sends the fix to the owning
+   sub-issue's branch, fast-forward only, rebuilds `integration/<parent>`
+   through `integrate` and runs again, at most twice. On `pass`, go to
+   section 9. Past its limits, or on `inconclusive` or `blocked`, it has set
+   `runStatus: gate` and `gate: qa`: stop for a human. If a rebuild hits a
+   conflict, `integrate` has set `runStatus: needs-input`: stop.
 
 ## 9. Proof
 
