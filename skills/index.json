@@ -172,7 +172,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "992a723963eb"
+      "version": "80111df6808e"
     },
     {
       "name": "pause-work",
@@ -239,7 +239,7 @@
         "scripts/check-qa.py",
         "stage.json"
       ],
-      "version": "64aab0e6cdcb"
+      "version": "be78be90cade"
     },
     {
       "name": "recipe-relay",

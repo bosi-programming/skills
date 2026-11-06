@@ -125,6 +125,18 @@ check("stage-delivers",
 check("stage-verdicts", delivers.get("verdicts") == ["pass", "fail", "inconclusive", "blocked"],
       "stage.json must deliver the verdicts pass, fail, inconclusive, blocked")
 
+WORD_NUMBERS = {"once": 1, "twice": 2}
+limits_text = flatten(block(skill, "## 6. Limits", r"^## "))
+line_text = flatten(block(skill, "## Under a line", r"^## "))
+stated_qa = re.search(r"qa to fix runs at most (\d+) times", limits_text)
+stated_line = re.search(r"at most (\w+)", line_text)
+fail_limit = (stage.get("return") or {}).get("fail", {}).get("limit")
+check("limits-match-stage",
+      stated_qa is not None and stated_line is not None
+      and int(stated_qa.group(1)) == fail_limit
+      and WORD_NUMBERS.get(stated_line.group(1), None) == fail_limit,
+      f"SKILL.md states {stated_qa and stated_qa.group(1)} and {stated_line and stated_line.group(1)}; stage.json return.fail.limit is {fail_limit}")
+
 check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 8. Integrate, QA and fix", r"^## "),
           "`../qa/SKILL.md`", "`pass`", "`gate: qa`", "section 9")
 

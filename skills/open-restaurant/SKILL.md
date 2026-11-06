@@ -268,13 +268,8 @@ Once no card can start or move:
    `conflict` it has set `runStatus: needs-input`, naming the two branches:
    stop. On `integrated`, go on.
 2. **QA.** Load, read completely and execute `../qa/SKILL.md` on the service
-   card. It brings up one env for the parent, proves each criterion in scope on
-   `integration/<parent>`, and on a fail sends the fix to the owning
-   sub-issue's branch, fast-forward only, rebuilds `integration/<parent>`
-   through `integrate` and runs again, at most twice. On `pass`, go to
-   section 9. Past its limits, or on `inconclusive` or `blocked`, it has set
-   `runStatus: gate` and `gate: qa`: stop for a human. If a rebuild hits a
-   conflict, `integrate` has set `runStatus: needs-input`: stop.
+   card. On `pass`, go to section 9. On `gate: qa` or `runStatus: needs-input`,
+   stop for a human.
 
 ## 9. Proof
 
