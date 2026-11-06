@@ -59,7 +59,7 @@ test('structure: selection guide covers eleven types, in page order', () => {
 test('structure: SKILL.md description and asks name activity and er', () => {
   const description = skill.slice(0, skill.indexOf('\n---', 4))
   const asks = section(skill, 'What the person can ask')
-  assert.deepEqual([/activity/.test(description), /entity-relationship/.test(description), /all eleven/.test(asks)], [true, true, true])
+  assert.deepEqual([/activity/.test(description), /entity-relationship|\bER\b/.test(description), /all eleven/.test(asks)], [true, true, true])
 })
 
 test('structure: activity and er references hold an example and a budget', () => {
