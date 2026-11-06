@@ -23,6 +23,7 @@ const SKILLS = [
   'epistemic-action',
   'evaluate-ticket',
   'feature-recipe',
+  'integrate',
   'judge',
   'merge',
   'non-functional-requirements',

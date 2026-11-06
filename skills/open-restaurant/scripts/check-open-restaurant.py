@@ -13,6 +13,7 @@ JUDGE = SKILLS / "judge" / "SKILL.md"
 MERGE = SKILLS / "merge" / "SKILL.md"
 CONTRACT = SKILLS / "contract" / "SKILL.md"
 REPRODUCE = SKILLS / "reproduce" / "SKILL.md"
+INTEGRATE = SKILLS / "integrate" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -58,6 +59,7 @@ judge = read(JUDGE)
 merge = read(MERGE)
 contract = read(CONTRACT)
 reproduce = read(REPRODUCE)
+integrate = read(INTEGRATE)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -131,6 +133,11 @@ check_all("unfinished-park", text["pass"], "park", "`## blocked")
 check_all("interfaces-match", text["pass"], "mismatch", "`runstatus: needs-input`")
 
 check_all("integration-local", text["qa"], "`integration/<parent>`", "never push")
+check_all("integrate-copied", integrate,
+          "`integration/<parent>`", "`origin/<default branch>`", "blocks order", "never push", "`runstatus: needs-input`", "two branches")
+check_all("integrate-loads-skill", text["qa"],
+          "`../integrate/skill.md`", "service card", "`no-scope`", "section 9", "`conflict`")
+check_none("integrate-text-moved", text["qa"], "qa scope names", "merge the sub-issue branches")
 check_all("one-env", text["qa"], "one env", "`open-restaurant.envName`", "never per sub-issue")
 check_all("env-torn-down", text["qa"], "tear the env down")
 check_all("fix-owner-branch", text["qa"], "owner", "fast-forward", "never `--force`", "never on `integration/<parent>`")
