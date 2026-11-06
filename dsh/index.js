@@ -130,6 +130,11 @@ export function parseSkill(contents) {
   }
 }
 
+export async function isStage(skillName) {
+  const info = await stat(join(SKILLS_DIR, skillName, 'stage.json')).catch(() => undefined)
+  return info?.isFile() === true
+}
+
 /**
  * Read every skill directory beside this module.
  *
