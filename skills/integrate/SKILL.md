@@ -86,7 +86,8 @@ and log it.
 On a merge conflict, run `git merge --abort`, so the checkout is clean on
 `integration/<parent>` with the merges before it. Name the two branches: the one
 it was merging, and the merged ref or `origin/<default branch>` that last
-touched a conflicting file (`git log -1 --format=%D -- <file>` on the branch).
+touched a conflicting file: run `git log -1 --format=%ct <ref> -- <file>` on
+each of them and take the one with the newest time.
 Write `i1` to `## Open Questions`
 (`- i1 — integrate: <branch a> and <branch b> conflict in <repo> on <files> — options: fix the conflict on <branch b> | change the blocks order — recommendation: fix the conflict on <branch b> — answer:`),
 set `runStatus: needs-input` and `runQuestion` to `i1` where the card has the

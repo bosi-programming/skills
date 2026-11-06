@@ -80,6 +80,10 @@ check_all("integrate-step", integrate_block,
 check_all("rebuild-guard", integrate_block, "rebuilt", "`runStatus: blocked`")
 check_all("conflict-step", block(skill, "## 3. Conflict", r"^## "),
           "`git merge --abort`", "two branches", "`i1`", "`runStatus: needs-input`", "`runQuestion`", "`conflict`")
+conflict_block = block(skill, "## 3. Conflict", r"^## ")
+check_all("conflict-names-branch", conflict_block, "`git log -1 --format=%ct <ref> -- <file>`", "newest")
+check("conflict-no-ref-names", "--format=%D" not in conflict_block,
+      "%D prints ref names only when the commit is a branch tip, so it can print nothing")
 check_all("integrated-step", block(skill, "## 4. Integrated", r"^## "),
           "`integrated`", "`## Integration`", "`lastTouched`")
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),

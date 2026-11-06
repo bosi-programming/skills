@@ -134,7 +134,7 @@
         "scripts/check-integrate.py",
         "stage.json"
       ],
-      "version": "2003b222018e"
+      "version": "f7b897575928"
     },
     {
       "name": "judge",
