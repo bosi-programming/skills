@@ -38,6 +38,7 @@ const SKILLS = [
   'recipe-relay',
   'reproduce',
   'review-fix',
+  'review-request',
   'setup',
   'ship-pr',
   'summarize-llm-response',

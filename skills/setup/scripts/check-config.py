@@ -108,6 +108,7 @@ CONSUMERS = {
     SKILLS / "contract" / "SKILL.md": ["open-restaurant.judgeModel"],
     SKILLS / "merge" / "SKILL.md": ["open-restaurant.doneState"],
     SKILLS / "qa" / "SKILL.md": ["open-restaurant.envName", "open-restaurant.qaModel", "open-restaurant.fixModel"],
+    SKILLS / "review-request" / "SKILL.md": ["open-restaurant.reviewChannel"],
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
     SKILLS / "weekly-planning" / "SKILL.md": [key for key in KEYS if key.startswith("weekly-planning.")],
     SKILLS / "plan-work" / "SKILL.md": [key for key in KEYS if key.startswith("plan-work.")],
