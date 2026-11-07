@@ -20,7 +20,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "418184a381b0"
+      "version": "a95137be1927"
     },
     {
       "name": "better-code-review",
@@ -172,7 +172,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "80111df6808e"
+      "version": "f24e80f6ae63"
     },
     {
       "name": "pause-work",
@@ -193,7 +193,7 @@
         "SKILL.md",
         "scripts/check-plan-assembly-line.py"
       ],
-      "version": "7a9638348382"
+      "version": "e1765ad44127"
     },
     {
       "name": "plan-code",
@@ -231,6 +231,15 @@
         "stage.json"
       ],
       "version": "208d0d33e0c5"
+    },
+    {
+      "name": "proof",
+      "files": [
+        "SKILL.md",
+        "scripts/check-proof.py",
+        "stage.json"
+      ],
+      "version": "ac4a246b0f61"
     },
     {
       "name": "qa",

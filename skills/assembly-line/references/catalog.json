@@ -309,6 +309,41 @@
       "signals": [],
       "gate": "auto"
     },
+    "proof": {
+      "spec": "../assembly-line/references/stage-spec.md",
+      "takes": [
+        "task",
+        "parent",
+        "## Sub-issues",
+        "prUrl",
+        "## QA"
+      ],
+      "delivers": {
+        "sections": [
+          "## Proof",
+          "## Decisions",
+          "## Open Questions"
+        ],
+        "fields": [
+          "runStatus",
+          "runQuestion",
+          "lastTouched"
+        ],
+        "verdicts": [
+          "done",
+          "blocked"
+        ]
+      },
+      "return": {
+        "blocked": {
+          "to": "proof",
+          "limit": 0,
+          "past": "human"
+        }
+      },
+      "signals": [],
+      "gate": "auto"
+    },
     "qa": {
       "spec": "../assembly-line/references/stage-spec.md",
       "takes": [

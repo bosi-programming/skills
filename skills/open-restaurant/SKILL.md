@@ -273,10 +273,10 @@ Once no card can start or move:
 
 ## 9. Proof
 
-Write `## Proof` on each sub-issue's PR: the criteria it owns, each with its
-verdict and evidence. Write one `## Proof <parent>` comment on the parent: one
-entry per parent criterion with its evidence uploaded to the tracker, then a
-`### Sub-issues` list with each PR and how many of its criteria are met.
+Load, read completely and execute `../proof/SKILL.md` on the service card. It
+writes `## Proof` on each sub-issue's PR and one `## Proof <parent>` comment on
+the parent, with each criterion's verdict and evidence. On `done`, go to
+section 10. On `blocked` it has set `runStatus: blocked`: stop.
 
 ## 10. Review gate
 
