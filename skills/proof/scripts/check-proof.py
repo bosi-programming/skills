@@ -82,7 +82,7 @@ check_all("criteria-step", block(skill, "## 1. Criteria", r"^## "),
           "`not proved`", "manual")
 check_all("pr-step", block(skill, "## 2. Proof on each PR", r"^## "),
           "`## Proof`", "verdict", "evidence", "`gh pr comment <pr> --body-file <file>`",
-          "latest `## Proof` comment wins")
+          "latest `## Proof` comment wins", "no PR gets no PR comment")
 check_all("parent-step", block(skill, "## 3. Proof on the parent", r"^## "),
           "`## Proof <parent>`", "uploaded to the tracker", "`### Sub-issues`",
           "how many of its criteria are met", "no PR")

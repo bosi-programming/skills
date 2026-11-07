@@ -63,7 +63,8 @@ not bad input.
 Write `## Proof` on each sub-issue's PR: the criteria it owns, each with its
 verdict and evidence. Write the body to a file and post with
 `gh pr comment <pr> --body-file <file>`. A re-run posts a new comment: the
-latest `## Proof` comment wins.
+latest `## Proof` comment wins. A sub-issue with no PR gets no PR comment and is
+listed as `no PR` in section 3.
 
 ## 3. Proof on the parent
 

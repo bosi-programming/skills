@@ -239,7 +239,7 @@
         "scripts/check-proof.py",
         "stage.json"
       ],
-      "version": "ac4a246b0f61"
+      "version": "574f5ddb3f67"
     },
     {
       "name": "qa",
