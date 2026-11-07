@@ -33,6 +33,7 @@ const SKILLS = [
   'plan-code',
   'plan-work',
   'prepare-pr',
+  'proof',
   'qa',
   'recipe-relay',
   'reproduce',

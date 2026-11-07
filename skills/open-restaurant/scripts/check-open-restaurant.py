@@ -15,6 +15,7 @@ CONTRACT = SKILLS / "contract" / "SKILL.md"
 REPRODUCE = SKILLS / "reproduce" / "SKILL.md"
 INTEGRATE = SKILLS / "integrate" / "SKILL.md"
 QA_SKILL = SKILLS / "qa" / "SKILL.md"
+PROOF_SKILL = SKILLS / "proof" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -62,6 +63,7 @@ contract = read(CONTRACT)
 reproduce = read(REPRODUCE)
 integrate = read(INTEGRATE)
 qa_skill = read(QA_SKILL)
+proof_skill = read(PROOF_SKILL)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
@@ -149,7 +151,10 @@ check_all("qa-loads-skill", text["qa"],
           "`../qa/skill.md`", "service card", "`pass`", "section 9", "`gate: qa`")
 check_none("qa-text-moved", text["qa"], "`open-restaurant.qamodel`", "detached head", "`proof/<issue>/<n>/verdict.json`")
 
-check_all("proof", text["proof"], "`## proof <parent>`", "`### sub-issues`")
+check_all("proof", proof_skill, "`## proof <parent>`", "`### sub-issues`")
+check_all("proof-loads-skill", text["proof"],
+          "`../proof/skill.md`", "service card", "`done`", "section 10", "`runstatus: blocked`")
+check_none("proof-text-moved", text["proof"], "`### sub-issues`", "uploaded to the tracker")
 check_all("review-human", text["review"], "human", "ready", "`open-restaurant.reviewChannel`", "never guess")
 check_all("merge-human", merge, "human", "blocks order", "retarget", "`## open criteria", "`open-restaurant.doneState`")
 check_all("merge-resume", merge, "merged", "failed", "pending")
