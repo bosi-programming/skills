@@ -172,7 +172,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "f24e80f6ae63"
+      "version": "ebf23b689f91"
     },
     {
       "name": "pause-work",
@@ -193,7 +193,7 @@
         "SKILL.md",
         "scripts/check-plan-assembly-line.py"
       ],
-      "version": "e1765ad44127"
+      "version": "ef9172f1dc9d"
     },
     {
       "name": "plan-code",
@@ -280,6 +280,15 @@
       "version": "98a00e0bda91"
     },
     {
+      "name": "review-request",
+      "files": [
+        "SKILL.md",
+        "scripts/check-review-request.py",
+        "stage.json"
+      ],
+      "version": "f236bae062e1"
+    },
+    {
       "name": "setup",
       "files": [
         "SKILL.md",
@@ -287,7 +296,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "0c4ddac432d4"
+      "version": "d10aad9c8328"
     },
     {
       "name": "ship-pr",

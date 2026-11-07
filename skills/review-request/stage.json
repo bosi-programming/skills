@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "parent", "## Sub-issues", "prUrl"],
+  "delivers": {
+    "sections": ["## Review Request", "## Decisions"],
+    "fields": ["runStatus", "lastTouched"],
+    "verdicts": ["requested", "skipped"]
+  },
+  "return": {
+    "skipped": { "to": "review-request", "limit": 0, "past": "human" }
+  },
+  "signals": [],
+  "gate": "auto"
+}

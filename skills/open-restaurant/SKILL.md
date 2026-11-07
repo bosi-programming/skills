@@ -282,15 +282,11 @@ section 10. On `blocked` it has set `runStatus: blocked`: stop.
 
 Stop for a human: set `runStatus: gate`, `gate: review`, and report the PRs,
 their proof, what each PR's review found and fixed, and what stays open. The
-PRs are already ready for review. On approve:
-
-1. Wait for each sub-issue PR's checks, the way the section's review ready
-   entry says. Green goes on; red or a timeout skips the request and reports
-   why.
-2. When `open-restaurant.reviewChannel` is set, post one message there with
-   every PR, tagging the review groups the section's review groups entry maps
-   from the team. Never guess a group: an unmapped team gets no tag and a line
-   in the report. A chat failure does not stop the run.
+PRs are already ready for review. On approve, load, read completely and execute
+`../review-request/SKILL.md` on the service card. It waits on each sub-issue
+PR's checks and, when `open-restaurant.reviewChannel` is set, posts one message
+with every PR. On `requested` or `skipped`, go to section 11; a skip goes in the
+report with its reason. On `blocked` it has set `runStatus: blocked`: stop.
 
 ## 11. Merge gate
 

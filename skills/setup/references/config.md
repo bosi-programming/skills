@@ -102,7 +102,7 @@ every key.
 | `open-restaurant.implementedState` | `In Review` | Tracker state a sub-issue moves to once its PR is open. Empty means no move. |
 | `open-restaurant.doneState` | `Done` | State a merged sub-issue, and a parent with no open criterion, moves to (in `merge`). |
 | `open-restaurant.envName` | `{parent}` | Name of the one QA env (in `qa`) per parent; `{parent}` stands for the parent identifier in lower case. |
-| `open-restaurant.reviewChannel` | `''` | Chat channel the review request goes to once the PRs are ready. Empty skips the request. |
+| `open-restaurant.reviewChannel` | `''` | Chat channel the review request (in `review-request`) goes to once the PRs are ready. Empty skips the request. |
 | `open-restaurant.judgeModel` | `''` | Model for the readiness judge (in `judge`) and the contract (in `contract`). Empty means the model the session runs on. |
 | `open-restaurant.qaModel` | `''` | Model for the parent QA agent (in `qa`). Empty means the model the session runs on. |
 | `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria (in `qa`). Empty means the model the session runs on. |
