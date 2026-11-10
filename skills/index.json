@@ -75,7 +75,7 @@
         "scripts/check-contract.py",
         "stage.json"
       ],
-      "version": "ad27e679c923"
+      "version": "e008bdc44d98"
     },
     {
       "name": "epistemic-action",
@@ -134,7 +134,7 @@
         "scripts/check-integrate.py",
         "stage.json"
       ],
-      "version": "f7b897575928"
+      "version": "7d18c415a0ba"
     },
     {
       "name": "judge",
@@ -143,7 +143,7 @@
         "scripts/check-judge.py",
         "stage.json"
       ],
-      "version": "851e0a422db6"
+      "version": "e974b82c5d24"
     },
     {
       "name": "merge",
@@ -152,7 +152,7 @@
         "scripts/check-merge.py",
         "stage.json"
       ],
-      "version": "91af9496b9c3"
+      "version": "7e71f2ff99b9"
     },
     {
       "name": "non-functional-requirements",
@@ -172,7 +172,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "ebf23b689f91"
+      "version": "31423decde40"
     },
     {
       "name": "pause-work",
@@ -239,7 +239,7 @@
         "scripts/check-proof.py",
         "stage.json"
       ],
-      "version": "574f5ddb3f67"
+      "version": "42e5ca87367e"
     },
     {
       "name": "qa",
@@ -248,7 +248,7 @@
         "scripts/check-qa.py",
         "stage.json"
       ],
-      "version": "be78be90cade"
+      "version": "b0a448bef2cf"
     },
     {
       "name": "recipe-relay",
@@ -268,7 +268,7 @@
         "scripts/check-reproduce.py",
         "stage.json"
       ],
-      "version": "cd961e3d44fb"
+      "version": "7061054c8f7b"
     },
     {
       "name": "review-fix",
@@ -286,7 +286,7 @@
         "scripts/check-review-request.py",
         "stage.json"
       ],
-      "version": "f236bae062e1"
+      "version": "92bacb1e1af9"
     },
     {
       "name": "setup",
