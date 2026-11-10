@@ -93,7 +93,7 @@ check_all("group-required", text["order"], 'holds no `{"group": "sub-issues"}`')
 check_all("no-sub-issues-one-ticket", text["order"], "no sub-issues", "`../assembly-line/SKILL.md`")
 
 check_all("parent-line-assembly", text["line"],
-          "`../assembly-line/SKILL.md`", "service card", '`{"group": "sub-issues"}`', "sections 3 to 6")
+          "`../assembly-line/SKILL.md`", "service card", '`{"group": "sub-issues"}`', "sections 3 to 6", "its section 2 does not apply")
 check_all("only-named-stages", text["line"], "only the stages the parent's line names")
 check_all("restaurant-prefix", text["line"], "`restaurant:` in place of `line:`")
 check_all("return-off-line", text["line"], "not on the parent's line", "`past`")
@@ -110,8 +110,8 @@ check_all("parent-contract", text["plan"], "`## parent contract`")
 check_none("no-reproduce-item", text["plan"], "`../reproduce/skill.md`", "bug marker")
 
 check_all("cards-through-assembly-line", text["cards"], "`../assembly-line/SKILL.md`", "own line")
-check_all("sub-issue-no-merge", text["cards"], "without its `merge`")
-check_all("shared-files-once", text["cards"], "once per session", "frontmatter")
+check_all("sub-issue-no-merge", text["cards"], "without its `merge`", "`restaurant: skipped merge`", "not run")
+check_all("shared-files-once", text["cards"], "once per session", "frontmatter", "a card is finished when its pr's `review-fix`")
 check_all("prepare-pr-overrides", text["cards"],
           "`prepare-pr`", "one pr", "ready for review", "never as a draft", "no chunks", "base", "no closing word")
 check_all("review-per-pr", text["cards"], "`review-fix`", "one per pr", "never batch")
@@ -124,13 +124,14 @@ check_all("unblock-file", text["unblock"], "`{scratch}/unblock/<a>-to-<b>.md`", 
 check_all("unblock-earliest", text["unblock"], "`plan-code`", "later point")
 check_all("unblock-follow-up", text["unblock"], "follow-up", "never guess")
 check_all("unblock-change", text["unblock"], "dated entry", "back to its `code` stage")
+check_all("no-contract-no-early-unblock", skill, "no `## contract`", "no `## parent contract`", "no early unblock")
 check_all("unblock-chain", text["unblock"], "chain")
 check_none("no-interfaces-unit", skill, "interfaces unit")
 check_none("no-nesting-claim", skill, "cannot start sub-agents")
 check_none("no-design-unit", skill, "design unit", "phase 1")
 
-check_all("unfinished-park", text["close"], "park", "`## blocked")
-check_all("interfaces-match", text["close"], "mismatch", "`runstatus: needs-input`")
+check_all("unfinished-park", text["close"], "park", "`## blocked", "`gate: unfinished`", "`runStatus: gate`")
+check_all("interfaces-match", text["close"], "mismatch", "`runstatus: needs-input`", "compare each producer's final `## interfaces`")
 check_all("close-returns", text["close"], "next step of the parent's line")
 
 check_all("resume", text["stops"], "service card", "`restaurant: step`")

@@ -122,7 +122,9 @@ service card is the card.
 - Its section 2 does not apply: the service card is the card.
 - The `{"group": "sub-issues"}` step does not stop the read. The group step
   runs this skill's sections 3 to 6.
-- Run only the stages the parent's line names, in its order.
+- Run only the stages the parent's line names, in its order. A parent line
+  without `contract` leaves no `## Contract` on the service card; section 3
+  then writes no `## Parent contract` and section 5 does no early unblock.
 - Log prefix: `restaurant:` in place of `line:`. Each stage still sees its own
   `restaurant:` mode, so `qa` runs its own fix rounds and human gate.
 - Log each finished step as `restaurant: step <n>/<total> <stage> <verdict>`.
@@ -144,8 +146,9 @@ sub-issue, then decide when each may start.
 1. **Card.** Make each sub-issue's card as `../assembly-line/SKILL.md` section 2
    says, with `task` set to the sub-issue identifier. Add a `## Parent contract`
    section holding the contract entries where this sub-issue is producer or
-   consumer; its `## Interfaces` must match them, and its `plan-code` stage
-   logs any difference to `## Decisions`.
+   consumer, when the service card holds a `## Contract`; with no `## Contract`
+   write no `## Parent contract`. Its `## Interfaces` must match them, and its
+   `plan-code` stage logs any difference to `## Decisions`.
 2. **Branch.** The branch is the one the tracker gives for the sub-issue, so
    the tracker links the PR to it. When the card starts, switch its repo's
    checkout to it: `git switch -c <branch> origin/<default branch>`, or off
@@ -167,7 +170,8 @@ sub-issue, then decide when each may start.
 
 Run each card through `../assembly-line/SKILL.md` as written, on its own line
 and in its repo's checkout, without its `merge`: the parent's line holds the
-merge. Read the shared stage files once per session; for each later card, read
+merge. When the sub-issue's line names `merge`, that step is not run; log it to
+the card's `## Decisions` as `restaurant: skipped merge` and go on. Read the shared stage files once per session; for each later card, read
 only its frontmatter to route it. On top of `assembly-line`:
 
 - **Plating.** `prepare-pr` delivers one PR, no chunks, open and ready for
@@ -202,6 +206,11 @@ A card is finished when its PR's `review-fix` and the fixes it led to are
 done. Mark the row `done`, then free the repo for the next card in it.
 
 ## 5. Early unblock
+
+Early unblock needs the service card's `## Contract`. With no `## Contract`
+there is no early unblock: a dependent in another repo waits until the
+blocker's card is finished. A sub-issue line without `plan-code` writes no
+unblock note, which has the same effect.
 
 When B is blocked by A in another repo, B needs A's shapes, not A's code, so
 it starts long before A's PR.
