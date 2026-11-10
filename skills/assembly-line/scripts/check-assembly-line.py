@@ -96,6 +96,17 @@ check_all("next-stage", block(skill, "## 5. Move to the next stage", r"^## "),
 check_all("stop-conditions", block(skill, "## 6. Stop conditions", r"^## "),
           "`blocked`", "`needs-input`", "`runStatus: gate`", "report the open question to the user",
           "never merely because")
+check_all("applies-signals", block(skill, "## 5. Move to the next stage", r"^## "),
+          "`$SKILL_DIR/scripts/apply-signals.py`", "`## Signals`", "`--done`", "`./references/signals.json`",
+          "no approval", "line comment", "`## Decisions`", "`line: signal`", '`"rejected"`', '`"applied"`')
+check_all("signal-rows-doc",
+          block(read(SKILL / "references" / "stage-spec.md"), "## Signal rows", r"^## "),
+          "`signal`", "`raisedBy`", "`add`", "`remove`", "`where`", "`judge`", "`merge`", "`gate: human`",
+          "<signal> — <stage> — <evidence>")
+check_all("template-signals",
+          block(read(REPO / "skills" / "feature-recipe" / "references" / "recipe-card-template.md"),
+                "## Signals", r"^## "),
+          "<signal> — <stage> — <evidence>")
 check("no-headless-mode", SKILL_MD.exists() and "runmode: headless" not in flatten(skill),
       "SKILL.md missing or sets runMode: headless")
 check("no-skill-dir-var", SKILL_MD.exists() and "${CLAUDE_SKILL_DIR}" not in skill,
@@ -119,6 +130,9 @@ check("readme-section", re.search(r"^### assembly-line$", readme, re.MULTILINE),
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "skills/assembly-line/scripts/check-assembly-line.py")
 check_all("readme-saved-line", block(readme, "### assembly-line", r"^### "), "saved line", "`from`")
+check_all("readme-signals", block(readme, "### assembly-line", r"^### "), "`## Signals`", "`signals.json`")
+check_all("readme-validate-apply", block(readme, "## Validate a change", r"^## "),
+          "skills/assembly-line/scripts/test_apply_signals.py")
 check_all("config-names-section", read(CONFIG_MD), "`## assembly-line`")
 
 width = max(len(name) for name, _, _ in results)

@@ -148,7 +148,8 @@ class BuildCatalog(unittest.TestCase):
         self.assertIn("FAIL catalog-exists", result.stdout)
 
     def test_check_fails_when_signals_change(self):
-        self.two_stages()
+        self.stage("alpha", {**VALID, "signals": ["s"]})
+        self.stage("beta")
         self.build()
         self.signals({"signals": [{"signal": "s", "raisedBy": "alpha", "add": "beta",
                                    "where": "after alpha"}]})
@@ -157,7 +158,8 @@ class BuildCatalog(unittest.TestCase):
         self.assertIn("FAIL catalog-current signals: changed since catalog was written", result.stdout)
 
     def test_merges_signal_rows(self):
-        self.two_stages()
+        self.stage("alpha", {**VALID, "signals": ["s"]})
+        self.stage("beta")
         row = {"signal": "s", "raisedBy": "alpha", "add": "beta", "where": "after alpha"}
         self.signals({"signals": [row]})
         result = self.build()
@@ -208,9 +210,63 @@ class BuildCatalog(unittest.TestCase):
         result = run("--check")
         self.assertEqual(result.returncode, 0, result.stdout)
 
-    def test_real_signals_table_is_empty(self):
+    def test_real_signals_table_holds_the_code_row(self):
         path = SKILLS / "assembly-line" / "references" / "signals.json"
-        self.assertEqual(json.loads(path.read_text()), {"signals": []})
+        self.assertEqual(json.loads(path.read_text()), {"signals": [
+            {"signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review"}]})
+
+    def kept_stage_case(self, stages, remove, expected):
+        for name, body in stages:
+            self.stage(name, body)
+        self.signals({"signals": [{"signal": "s", "raisedBy": "alpha", "remove": remove}]})
+        for label, runner in (("build", self.build), ("check", self.check)):
+            with self.subTest(mode=label):
+                result = runner()
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(expected, result.stdout)
+                self.assertIn("catalog.json not written", result.stdout)
+                self.assertFalse(self.catalog.exists())
+
+    def test_fails_on_a_row_removing_merge(self):
+        self.kept_stage_case([("alpha", {**VALID, "signals": ["s"]}), ("merge", None)],
+                             "merge", "FAIL signals-kept-stage merge")
+
+    def test_fails_on_a_row_removing_judge(self):
+        self.kept_stage_case([("alpha", {**VALID, "signals": ["s"]}), ("judge", None)],
+                             "judge", "FAIL signals-kept-stage judge")
+
+    def test_fails_on_a_row_removing_a_human_gate(self):
+        self.kept_stage_case([("alpha", {**VALID, "signals": ["s"]}),
+                              ("beta", {**VALID, "gate": "human"})],
+                             "beta", "FAIL signals-kept-stage beta")
+
+    def test_fails_on_an_undeclared_signal(self):
+        self.two_stages()
+        self.signals({"signals": [{"signal": "s", "raisedBy": "alpha", "remove": "beta"}]})
+        result = self.build()
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("FAIL signals-declared alpha", result.stdout)
+        self.assertFalse(self.catalog.exists())
+
+    def test_fails_on_a_bad_row_shape(self):
+        cases = [
+            ({"raisedBy": "alpha", "remove": "beta"}, "row 1 needs a signal"),
+            ({"signal": "s", "raisedBy": "alpha", "add": "beta", "remove": "beta", "where": "after alpha"},
+             "row 1 needs exactly one of add or remove"),
+            ({"signal": "s", "raisedBy": "alpha"}, "row 1 needs exactly one of add or remove"),
+            ({"signal": "s", "raisedBy": "alpha", "add": "beta"}, "row 1 add needs where"),
+            ({"signal": "s", "raisedBy": "alpha", "remove": "beta", "where": "after alpha"},
+             "row 1 remove takes no where"),
+        ]
+        for row, message in cases:
+            with self.subTest(message=message, row=row):
+                self.stage("alpha", {**VALID, "signals": ["s"]})
+                self.stage("beta")
+                self.signals({"signals": [row]})
+                result = self.build()
+                self.assertEqual(result.returncode, 1, result.stdout)
+                self.assertIn(f"FAIL signals-row signals.json: {message}", result.stdout)
+                self.assertFalse(self.catalog.exists())
 
     def test_readme_validates_the_catalog(self):
         text = (REPO / "README.md").read_text()

@@ -63,6 +63,9 @@ check_all(
 )
 check_all("writes-stage-name", skill, "`phase: 'code'`")
 
+check_all("signal-line", block(skill, "## 11. Close stage", r"^## "),
+          "`no-screen-change — code — <evidence>`")
+
 check_all("standards", block(skill, "## 1. Find the standards", r"^## "), "`../code-standards/SKILL.md`")
 check_all("tests-come-from-test", block(skill, "## 2. Write the code", r"^## "), "`../test/SKILL.md`", "fix the code, not the test")
 check_all("beside-test", block(skill, "## Beside test", r"^## "), "driver", "test file", "again")
