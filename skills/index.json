@@ -12,6 +12,8 @@
         "references/lines/small-fix.json",
         "references/signals.json",
         "references/stage-spec.md",
+        "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
+        "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/build-catalog.py",
         "scripts/check-assembly-line.py",
         "scripts/check-line-format.py",
@@ -24,7 +26,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "3792b98c8e37"
+      "version": "d28dcb64edd8"
     },
     {
       "name": "better-code-review",
@@ -222,10 +224,12 @@
         "evals/scenario-07.json",
         "references/review-report.md",
         "references/standard.md",
+        "scripts/__pycache__/check_plan.cpython-315.pyc",
+        "scripts/__pycache__/test_check_plan.cpython-315.pyc",
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "2d6a44f92eac"
+      "version": "19579aee5c0b"
     },
     {
       "name": "prepare-pr",
