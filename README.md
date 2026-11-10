@@ -95,6 +95,7 @@ How the line runs:
 3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; the `code` after them is the fix and taste agent.
 4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
 5. **Gates.** A stage with `gate: human`, today `merge`, stops at `runStatus: gate` with a question in chat and on the card, and runs only on the person's approval.
+6. **Signals.** After each stage the run reads `## Signals` on the card and applies the rows in `signals.json` to the steps not yet run, through `apply-signals.py`. No approval: a row is the approval. Each change posts a line comment naming the signal, the stage that raised it and the stage added or removed; a change `validate-line.py` rejects leaves the line and is logged.
 
 `assembly-line.codingModel`, `assembly-line.uiReviewerModel` and `assembly-line.routineModel` pick the models; `assembly-line.reviewState` (`In Review`) and `assembly-line.doneState` (`Done`) pick the tracker states. A `## assembly-line` section in a project's `.bosi-skills.md` adds rules every sub-agent follows there; the line reads `## recipe-relay` when it has none.
 
@@ -428,6 +429,7 @@ python3 skills/assembly-line/scripts/test_check_line_format.py
 python3 skills/assembly-line/scripts/build-catalog.py --check
 python3 skills/assembly-line/scripts/test_build_catalog.py
 python3 skills/assembly-line/scripts/test_validate_line.py
+python3 skills/assembly-line/scripts/test_apply_signals.py
 python3 skills/assembly-line/scripts/check-assembly-line.py
 python3 skills/assembly-line/scripts/check-no-pause.py
 python3 skills/assembly-line/scripts/check-split-cooking.py

@@ -82,7 +82,7 @@ lastTouched: '<date>'
 
 ## Signals
 
-<!-- written by a stage that raises a signal, such as code's no-screen-change -->
+<!-- written by the stage that raises a signal, one per line: <signal> — <stage> — <evidence>, e.g. no-screen-change — code — only scripts changed -->
 
 ## PR
 

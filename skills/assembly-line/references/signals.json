@@ -1,3 +1,5 @@
 {
-  "signals": []
+  "signals": [
+    { "signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review" }
+  ]
 }

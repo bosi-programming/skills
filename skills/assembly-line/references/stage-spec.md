@@ -38,6 +38,24 @@ Each key is a verdict from `delivers.verdicts`. Its value is an object:
 `to` names a role, never a position. Lines differ per ticket, so "two stages
 back" means something different on each one; "the latest `code`" does not.
 
+## Signal rows
+
+A stage writes each signal it raises to `## Signals` on the card, one per line:
+`<signal> — <stage> — <evidence>`. Rows in `../assembly-line/references/signals.json`
+(or `./signals.json` from this folder; one of the two must resolve) say what a
+signal does to the line. Each row holds:
+
+| Key | Holds |
+| --- | --- |
+| `signal` | The signal's name. The `raisedBy` stage lists it in its `signals`. |
+| `raisedBy` | The stage that raises it. A row matches only a signal from this stage. |
+| `add` or `remove` | Exactly one: the stage to add to the line or to remove from it. |
+| `where` | `after <stage>` or `before <stage>`. Required with `add`, not allowed with `remove`. |
+
+A row never removes `judge`, `merge` or a stage with `gate: human`;
+`build-catalog.py` fails the build on one. A row applies without approval and
+changes only the steps not yet run.
+
 ## Example
 
 `skills/evaluate-ticket/stage.json`:

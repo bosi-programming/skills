@@ -7,6 +7,7 @@ from pathlib import Path
 USAGE = "usage: build-catalog.py [--check] [--skills <dir>]"
 FORMAT = "assembly-line-catalog/1"
 GENERATED_BY = "skills/assembly-line/scripts/build-catalog.py"
+KEPT = ("judge", "merge")
 STAGE_KEYS = ("raisedBy", "add", "remove")
 WHERE = re.compile(r"^(after|before) (\S+)$")
 
@@ -74,10 +75,51 @@ def load_signals(path, failures):
     return rows
 
 
-def check_rows(rows, names, failures):
+def check_shape(number, row, failures):
+    signal = row.get("signal")
+    if not isinstance(signal, str) or not signal:
+        failures.append(f"FAIL signals-row signals.json: row {number} needs a signal")
+    has_add = "add" in row
+    has_remove = "remove" in row
+    if has_add == has_remove:
+        failures.append(f"FAIL signals-row signals.json: row {number} needs exactly one of add or remove")
+    elif has_add and "where" not in row:
+        failures.append(f"FAIL signals-row signals.json: row {number} add needs where")
+    elif has_remove and "where" in row:
+        failures.append(f"FAIL signals-row signals.json: row {number} remove takes no where")
+
+
+def check_declared(number, row, stages, failures):
+    raised_by = row.get("raisedBy")
+    signal = row.get("signal")
+    if not isinstance(raised_by, str) or raised_by not in stages or not isinstance(signal, str):
+        return
+    declared = stages[raised_by].get("signals")
+    if not isinstance(declared, list) or signal not in declared:
+        failures.append(
+            f"FAIL signals-declared {raised_by}: row {number} signal {signal} is not in {raised_by}'s stage.json signals"
+        )
+
+
+def check_kept(number, row, stages, failures):
+    removed = row.get("remove")
+    if not isinstance(removed, str):
+        return
+    human = removed in stages and stages[removed].get("gate") == "human"
+    if removed in KEPT or human:
+        failures.append(
+            f"FAIL signals-kept-stage {removed}: row {number} removes {removed}; judge, merge and human gates stay"
+        )
+
+
+def check_rows(rows, stages, failures):
+    names = set(stages)
     for number, row in enumerate(rows, 1):
         if not isinstance(row, dict):
             continue
+        check_shape(number, row, failures)
+        check_declared(number, row, stages, failures)
+        check_kept(number, row, stages, failures)
         for key in STAGE_KEYS:
             value = row.get(key)
             if isinstance(value, str) and value not in names:
@@ -104,7 +146,7 @@ def build(skills):
     directories = stage_dirs(skills)
     stages = load_stages(directories, failures)
     rows = load_signals(skills / "assembly-line" / "references" / "signals.json", failures)
-    check_rows(rows, {d.name for d in directories}, failures)
+    check_rows(rows, stages, failures)
     catalog = {"format": FORMAT, "generatedBy": GENERATED_BY, "stages": stages, "signals": rows}
     return catalog, failures
 

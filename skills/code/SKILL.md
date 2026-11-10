@@ -36,8 +36,8 @@ The same work card, with this stage's parts written:
 - `## Quality Gate Results` — the review's `Reviewed:` line and
   `Not verified:` entries, judgement calls, what passed, and what is deferred
   to CI and why.
-- `## Signals` — `no-screen-change` when the change touches no surface a
-  person sees.
+- `## Signals` — `no-screen-change — code — <evidence>` when the change
+  touches no surface a person sees.
 - `## Decisions` — one line for the stage, and any deviation from the plan.
 - `## Open Questions` — any gap nothing could settle.
 - Frontmatter — `phase` set to `code`, `code` appended to `phasesCompleted`
@@ -166,7 +166,7 @@ is honestly marked deferred to CI.
 Summarize what was implemented against the Implementation Plan. Write the
 results — what passed, what's deferred to CI and why — to
 `## Quality Gate Results`. When the change touches no surface a person sees,
-write `no-screen-change` to `## Signals`. Append one line to `## Decisions`.
+write `no-screen-change — code — <evidence>` to `## Signals`. Append one line to `## Decisions`.
 Update the frontmatter — `phase: 'code'`, append `code` to `phasesCompleted` (once, even
 on a redo), `lastTouched`.
 

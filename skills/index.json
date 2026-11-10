@@ -14,19 +14,21 @@
         "references/stage-spec.md",
         "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
         "scripts/__pycache__/test_validate_line.cpython-315.pyc",
+        "scripts/apply-signals.py",
         "scripts/build-catalog.py",
         "scripts/check-assembly-line.py",
         "scripts/check-line-format.py",
         "scripts/check-no-pause.py",
         "scripts/check-split-cooking.py",
         "scripts/check-stage-spec.py",
+        "scripts/test_apply_signals.py",
         "scripts/test_build_catalog.py",
         "scripts/test_check_line_format.py",
         "scripts/test_check_stage_spec.py",
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "56af4baa0fac"
+      "version": "41a477a1f3d2"
     },
     {
       "name": "better-code-review",
@@ -50,7 +52,7 @@
         "scripts/check-code.py",
         "stage.json"
       ],
-      "version": "7316de9a2d39"
+      "version": "b8f12c9680d7"
     },
     {
       "name": "code-docs",
@@ -131,7 +133,7 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "2dec6eba0a5c"
+      "version": "565ec96caf1f"
     },
     {
       "name": "integrate",
