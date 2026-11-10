@@ -12,6 +12,8 @@
         "references/lines/small-fix.json",
         "references/signals.json",
         "references/stage-spec.md",
+        "scripts/__pycache__/apply-signals.cpython-315.pyc",
+        "scripts/__pycache__/build-catalog.cpython-315.pyc",
         "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
         "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/apply-signals.py",
@@ -28,7 +30,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "41a477a1f3d2"
+      "version": "b911a3a6e2e2"
     },
     {
       "name": "better-code-review",
@@ -52,7 +54,7 @@
         "scripts/check-code.py",
         "stage.json"
       ],
-      "version": "b8f12c9680d7"
+      "version": "0ef1aa7da25c"
     },
     {
       "name": "code-docs",

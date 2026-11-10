@@ -63,7 +63,7 @@ check_all(
 )
 check_all("writes-stage-name", skill, "`phase: 'code'`")
 
-check_all("signal-line", block(skill, "## 11. Close stage", r"^## "),
+check_all("signal-line", block(skill, "## 11. Close the stage", r"^## "),
           "`no-screen-change — code — <evidence>`")
 
 check_all("standards", block(skill, "## 1. Find the standards", r"^## "), "`../code-standards/SKILL.md`")
