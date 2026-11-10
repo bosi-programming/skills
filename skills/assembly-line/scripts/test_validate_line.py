@@ -346,7 +346,8 @@ class ValidateLine(unittest.TestCase):
 
     def test_a_saved_line_has_no_line_key(self):
         result = run(LINES / "feature.json")
-        self.assertNotIn("line", json.loads(result.stdout))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
 
     def test_from_feature_drop_ui_review_expands(self):
         code, out = self.validate(self.from_line("feature", drop=["ui-review"]))
