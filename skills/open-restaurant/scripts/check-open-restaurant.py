@@ -89,6 +89,7 @@ check_all("no-worktrees", text["order"], "never creates or removes", "worktree")
 check_all("missing-checkout-stops", text["order"], "missing", "stop")
 check_all("line-missing-stops", text["order"], "no line comment", "`plan-assembly-line`", "`runStatus: needs-input`")
 check_all("lines-validated", text["order"], "`validate-line.py`", "before any card")
+check_all("lines-expanded", text["order"], "`from`", '`"line"`', "expanded")
 check_all("group-required", text["order"], 'holds no `{"group": "sub-issues"}`')
 check_all("no-sub-issues-one-ticket", text["order"], "no sub-issues", "`../assembly-line/SKILL.md`")
 

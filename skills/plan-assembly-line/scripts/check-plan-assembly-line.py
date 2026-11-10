@@ -89,11 +89,19 @@ check("only-catalog-stages", catalog_ok and offered and offered <= stages,
 
 check_all("suggestion-rules", section2, "`[unit]`", "`[int]`", "`[e2e]`", "`[story]`", "`## Design`", "`[ui]`",
           "`[docs]`", "`feat`", '`{"group": "sub-issues"}`', "sub-issues join the list", "why")
+check_all("suggests-saved-line", section2, "`../assembly-line/references/lines/`", "`feature`", "`bug`",
+          "`small-fix`", "`parent`", "`from`", "`drop`", "`add`", "saved line")
+check_all("kind-rules", section2, "matches the ticket's kind", "`fix`")
+LINES = SKILLS / "assembly-line" / "references" / "lines"
+absent = [f"{n}.json" for n in ("feature", "bug", "small-fix", "parent") if not (LINES / f"{n}.json").is_file()]
+check("saved-lines-exist", not absent, f"missing: {absent}")
 check_all("validates-before-showing", block(skill, "## 3. Validate each line", r"^## "),
           "`$SKILL_DIR/../assembly-line/scripts/validate-line.py`", "`{scratch}/<ticket>.line.json`", '`"valid"`',
           "before showing", "`stage`", "`rule`", "stage to add", "`takes-met`", "delivered by")
 check_all("line-file-is-full-object", block(skill, "## 3. Validate each line", r"^## "),
           "full line object", "`format`", "`ticket`", "`stages`", "not a bare list")
+check_all("shows-expanded", block(skill, "## 3. Validate each line", r"^## "), "`from`", '`"line"`', "expanded stages")
+check_all("saves-from-form", block(skill, "## 5. Save", r"^## "), "`from`", "not the expanded")
 check("validator-resolves",(SKILL / "../assembly-line/scripts/validate-line.py").resolve().exists(),
       f"{VALIDATOR} missing")
 check_all("approval-first", block(skill, "## 4. Show and approve", r"^## "),
@@ -124,6 +132,7 @@ check("readme-section", re.search(r"^### plan-assembly-line$", readme, re.MULTIL
       "README has no ### plan-assembly-line")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/check-plan-assembly-line.py")
+check_all("readme-saved-line", block(readme, "### plan-assembly-line", r"^### "), "saved line", "`from`")
 check_all("readme-count", readme, "thirty-four claude code skills", "the other thirty-two", "the same thirty-four")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")

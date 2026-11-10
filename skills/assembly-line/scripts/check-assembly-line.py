@@ -66,6 +66,7 @@ check_all("reads-line-comment", line, "`assembly-line/1`", "created last", "`./r
 check_all("validates-first", line, "`$SKILL_DIR/scripts/validate-line.py`", "`{scratch}/line.json`", '`"valid"`',
           "before any stage runs", "names the missing stage")
 check_all("no-line-stops", line, "no line comment", "`plan-assembly-line`", "writes nothing")
+check_all("expands-saved-line", line, "`from`", '`"line"`', "expanded line")
 check_all("sub-issue-group-stops", line, '`{"group": "sub-issues"}`', "`open-restaurant`")
 
 card = block(skill, "## 2. Find or make the card", r"^## ")
@@ -117,6 +118,7 @@ check("catalog-ui-limit", ui_fail == {"to": "code", "limit": 2, "past": "needs-i
 check("readme-section", re.search(r"^### assembly-line$", readme, re.MULTILINE), "README has no ### assembly-line")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "skills/assembly-line/scripts/check-assembly-line.py")
+check_all("readme-saved-line", block(readme, "### assembly-line", r"^### "), "saved line", "`from`")
 check_all("config-names-section", read(CONFIG_MD), "`## assembly-line`")
 
 width = max(len(name) for name, _, _ in results)

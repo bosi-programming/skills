@@ -12,6 +12,7 @@ SKILLS = Path(__file__).resolve().parents[2]
 REPO = SKILLS.parent
 CATALOG = SKILLS / "assembly-line" / "references" / "catalog.json"
 LINE_FORMAT = SKILLS / "assembly-line" / "references" / "line-format.md"
+LINES = SKILLS / "assembly-line" / "references" / "lines"
 
 USAGE = "usage: validate-line.py"
 SHORT = ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"]
@@ -50,10 +51,12 @@ class ValidateLine(unittest.TestCase):
         path.write_text(content if isinstance(content, str) else json.dumps(content))
         return path
 
-    def validate(self, line, catalog=None):
+    def validate(self, line, catalog=None, lines=None):
         args = [self.write("line.json", line)]
         if catalog is not None:
             args += ["--catalog", self.write("catalog.json", catalog)]
+        if lines is not None:
+            args += ["--lines", lines]
         result = run(*args)
         return result.returncode, json.loads(result.stdout)
 
@@ -309,6 +312,157 @@ class ValidateLine(unittest.TestCase):
         result = run(path)
         self.assertEqual(result.returncode, 0)
         self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
+
+    def from_line(self, saved, **extra):
+        return {"format": "assembly-line/1", "ticket": "BOS-1", "from": saved, **extra}
+
+    def saved(self, name):
+        return json.loads((LINES / f"{name}.json").read_text())
+
+    def test_every_saved_line_passes(self):
+        paths = sorted(LINES.glob("*.json"))
+        self.assertTrue(paths)
+        for path in paths:
+            with self.subTest(line=path.name):
+                result = run(path)
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
+
+    def test_saved_lines_are_the_four(self):
+        expected = {
+            "feature": ["judge", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]}, "code",
+                        "ui-review", "prepare-pr", "review-fix", "code-docs", "merge"],
+            "bug": ["judge", "reproduce", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]},
+                    "code", "ui-review", "prepare-pr", "review-fix", "code-docs", "merge"],
+            "small-fix": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"],
+            "parent": ["judge", "contract", {"group": "sub-issues"}, "integrate", "qa", "proof",
+                       "review-request", "merge"],
+        }
+        self.assertEqual(sorted(path.stem for path in LINES.glob("*.json")), sorted(expected))
+        for name, stages in expected.items():
+            with self.subTest(line=name):
+                self.assertEqual(self.saved(name),
+                                 {"format": "assembly-line/1", "name": name, "stages": stages})
+
+    def test_a_saved_line_has_no_line_key(self):
+        result = run(LINES / "feature.json")
+        self.assertNotIn("line", json.loads(result.stdout))
+
+    def test_from_feature_drop_ui_review_expands(self):
+        code, out = self.validate(self.from_line("feature", drop=["ui-review"]))
+        self.assertEqual(code, 0, out)
+        stages = [s for s in self.saved("feature")["stages"] if s != "ui-review"]
+        self.assertEqual(out.get("line"), {"format": "assembly-line/1", "ticket": "BOS-1", "stages": stages})
+        self.assertEqual(list(out), ["valid", "errors", "line"])
+
+    def test_drop_merge_is_rejected(self):
+        code, out = self.validate(self.from_line("feature", drop=["merge"]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "merge", "line-edit")
+        self.assertNotIn("line", out)
+
+    def test_drop_judge_is_rejected(self):
+        code, out = self.validate(self.from_line("feature", drop=["judge"]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "judge", "line-edit")
+
+    def test_drop_a_stage_not_on_the_saved_line(self):
+        code, out = self.validate(self.from_line("small-fix", drop=["ui-review"]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "ui-review", "line-edit")
+
+    def test_drop_a_parallel_branch(self):
+        code, out = self.validate(self.from_line("feature", drop=["test"]))
+        self.assertEqual(code, 0, out)
+        stages = out["line"]["stages"]
+        self.assertIn({"parallel": ["code"]}, stages)
+        self.assertNotIn({"parallel": ["test", "code"]}, stages)
+
+    def test_drop_every_branch_removes_the_group(self):
+        saved = {"format": "assembly-line/1", "name": "grouped",
+                 "stages": ["judge", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]},
+                            "prepare-pr", "review-fix", "merge"]}
+        folder = self.root / "lines"
+        folder.mkdir()
+        (folder / "grouped.json").write_text(json.dumps(saved))
+        code, out = self.validate(self.from_line("grouped", drop=["test", "code"]), lines=folder)
+        self.assertEqual(out["line"]["stages"],
+                         ["judge", "evaluate-ticket", "plan-code", "prepare-pr", "review-fix", "merge"])
+
+    def test_add_after_the_last_top_level_stage(self):
+        code, out = self.validate(self.from_line("small-fix", add=[{"after": "code", "item": "ui-review"}]))
+        self.assertEqual(code, 0, out)
+        stages = out["line"]["stages"]
+        self.assertEqual(stages[stages.index("code") + 1], "ui-review")
+        self.assertEqual(stages.count("ui-review"), 1)
+
+    def test_adds_apply_in_order(self):
+        adds = [{"after": "code", "item": "ui-review"}, {"after": "ui-review", "item": "code-docs"}]
+        code, out = self.validate(self.from_line("small-fix", add=adds))
+        stages = out["line"]["stages"]
+        at = stages.index("code")
+        self.assertEqual(stages[at:at + 3], ["code", "ui-review", "code-docs"])
+
+    def test_add_after_a_stage_not_on_the_line(self):
+        code, out = self.validate(self.from_line("small-fix", add=[{"after": "qa", "item": "ui-review"}]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "qa", "line-edit")
+
+    def test_unknown_saved_line(self):
+        code, out = self.validate(self.from_line("nope"))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "saved-line", "from")
+        self.assertNotIn("line", out)
+
+    def test_from_with_a_bad_name(self):
+        code, out = self.validate(self.from_line("../catalog"))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "saved-line")
+
+    def test_from_line_shapes(self):
+        stages = ["judge", "merge"]
+        item = {"after": "code", "item": "ui-review"}
+        cases = {
+            "from with stages": self.from_line("feature", stages=stages),
+            "drop without from": {**line_of(stages), "drop": ["code"]},
+            "add without from": {**line_of(stages), "add": [item]},
+            "ticket and name": {"format": "assembly-line/1", "ticket": "BOS-1", "name": "x", "stages": stages},
+            "name with from": {"format": "assembly-line/1", "name": "x", "from": "feature"},
+            "drop not strings": self.from_line("feature", drop=[1]),
+            "drop not a list": self.from_line("feature", drop="code"),
+            "add missing after": self.from_line("feature", add=[{"item": "ui-review"}]),
+            "add missing item": self.from_line("feature", add=[{"after": "code"}]),
+            "add another key": self.from_line("feature", add=[{**item, "extra": 1}]),
+            "from empty": self.from_line(""),
+        }
+        for label, line in cases.items():
+            with self.subTest(case=label):
+                code, out = self.validate(line)
+                self.assertEqual(code, 1, out)
+                self.assertTrue(out["errors"], out)
+                self.assertEqual({e["rule"] for e in out["errors"]}, {"line-shape"}, out)
+
+    def test_expanded_line_runs_every_rule(self):
+        code, out = self.validate(self.from_line("feature", drop=["plan-code"]))
+        self.assertEqual(code, 1)
+        self.assertRegex(json.dumps(out["errors"]), "takes-met")
+        self.assertIn("line", out)
+
+    def test_lines_flag_replaces_the_default(self):
+        folder = self.root / "lines"
+        folder.mkdir()
+        custom = {"format": "assembly-line/1", "name": "feature", "stages": SHORT}
+        (folder / "feature.json").write_text(json.dumps(custom))
+        code, out = self.validate(self.from_line("feature"), lines=folder)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out["line"]["stages"], SHORT)
+        result = run(self.write("line.json", self.from_line("feature")), "--lines")
+        self.assertEqual(result.returncode, 2)
+        self.assertTrue(result.stdout.startswith(USAGE))
+
+    def test_from_example_passes(self):
+        code, out = self.validate(example("## Example: line from a saved line"))
+        self.assertEqual(code, 0, out)
 
     def test_readme_runs_the_validator_tests(self):
         text = (REPO / "README.md").read_text()

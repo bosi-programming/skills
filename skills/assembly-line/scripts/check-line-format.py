@@ -15,6 +15,8 @@ SECTIONS = {
     "parallel": ("## Parallel groups", ['"parallel"']),
     "latest-wins": ("## More than one line comment", ["created last"]),
     "sub-issues": ("## Sub-issue groups", ['"group"', '"sub-issues"', "`merge`"]),
+    "saved": ("## Saved lines", ['"name"', '"from"', '"add"', '"drop"', '"after"', '"item"', "`./lines/`",
+                                 "cannot be dropped", "`saved-line`", "`line-edit`"]),
 }
 
 EXAMPLES = {
@@ -124,6 +126,31 @@ def check_examples(text):
             check("parent-has-group", {"group": "sub-issues"} in items, 'the parent line must hold {"group": "sub-issues"}')
 
 
+def check_from_example(text):
+    heading = "## Example: line from a saved line"
+    body = block(text, heading)
+    if body is None:
+        check("example-from", False, f"no {heading} section")
+        return
+    fence = re.search(r"```json\n(.*?)\n```", body, re.DOTALL)
+    if not fence:
+        check("example-from", False, "no ```json block")
+        return
+    try:
+        line = json.loads(fence.group(1))
+    except ValueError as error:
+        check("example-from", False, str(error))
+        return
+    if not isinstance(line, dict) or not isinstance(line.get("from"), str):
+        check("example-from", False, "must be an object with a string from")
+        return
+    if "stages" in line:
+        check("example-from", False, "must not hold stages")
+        return
+    saved = SKILL / "references" / "lines" / f"{line['from']}.json"
+    check("example-from", saved.is_file(), f"no saved line {line['from']!r}")
+
+
 def main():
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT
     check("exists", path.is_file(), f"{path} missing")
@@ -131,6 +158,7 @@ def main():
         text = path.read_text()
         check_sections(text)
         check_examples(text)
+        check_from_example(text)
     width = max(len(name) for name, _, _ in results)
     for name, ok, detail in results:
         line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

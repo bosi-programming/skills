@@ -21,7 +21,11 @@ SECTIONS = {
     "latest-wins": "## More than one line comment\n\nThe line comment created last wins.\n",
     "sub-issues": '## Sub-issue groups\n\n`{"group": "sub-issues"}` runs each sub-issue\'s own line '
                   "without its `merge`; the parent's `merge` merges them all.\n",
+    "saved": '## Saved lines\n\nA saved line has `"name"`; a line comment uses `"from"` with `"add"` and '
+             '`"drop"`. An add holds `"after"` and `"item"`. Saved lines live in `./lines/`. A stage '
+             "`judge` or `merge` cannot be dropped. Errors are `saved-line` and `line-edit`.\n",
 }
+FROM_LINE = {"format": "assembly-line/1", "ticket": "BOS-1", "from": "feature", "drop": ["ui-review"]}
 
 
 def example(title, stages):
@@ -29,13 +33,18 @@ def example(title, stages):
     return f"## {title}\n\n```json\n{body}\n```\n"
 
 
-def document(drop=(), full=FULL, short=SHORT):
+def document(drop=(), full=FULL, short=SHORT, from_example=None):
     parts = ["# Line format\n"]
     parts += [text for name, text in SECTIONS.items() if name not in drop]
     if "full" not in drop:
         parts.append(full if isinstance(full, str) else example("Example: full line", full))
     if "short" not in drop:
         parts.append(short if isinstance(short, str) else example("Example: short line", short))
+    if "from" not in drop:
+        if from_example is None:
+            body = json.dumps(FROM_LINE, indent=2)
+            from_example = f"## Example: line from a saved line\n\n```json\n{body}\n```\n"
+        parts.append(from_example)
     return "\n".join(parts)
 
 
@@ -134,6 +143,23 @@ class LineFormatCheck(unittest.TestCase):
         short = SHORT[:-1] + [{"stage": "ui-review", "with": {"url": "http://localhost:3000"}}, "merge"]
         result = self.write(document(short=short))
         self.assertEqual(result.returncode, 0, result.stdout)
+
+    def test_fails_without_the_saved_section(self):
+        result = self.write(document(drop=["saved"]))
+        self.assertEqual(result.returncode, 1)
+        self.assertRegex(result.stdout, r"FAIL\s+section-saved\b")
+
+    def test_fails_without_the_from_example(self):
+        result = self.write(document(drop=["from"]))
+        self.assertEqual(result.returncode, 1)
+        self.assertRegex(result.stdout, r"FAIL\s+example-from\b")
+
+    def test_from_example_must_name_a_saved_line(self):
+        body = json.dumps({**FROM_LINE, "from": "nope"}, indent=2)
+        broken = f"## Example: line from a saved line\n\n```json\n{body}\n```\n"
+        result = self.write(document(from_example=broken))
+        self.assertEqual(result.returncode, 1)
+        self.assertRegex(result.stdout, r"FAIL\s+example-from\b")
 
 
 if __name__ == "__main__":
