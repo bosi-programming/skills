@@ -6,8 +6,7 @@ description: Bring up one env for a parent, prove each criterion in QA scope on 
 # qa
 
 The QA and fix step for a parent and its sub-issues, or one ticket, run after
-`integrate`. `open-restaurant` runs item 2 of its section 8 through this skill,
-and it also runs alone. Prefix each log line `restaurant:` under
+`integrate`. It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. Prefix each log line `restaurant:` under
 `open-restaurant`, `unattended:` in a headless run, `qa:` when run alone.
 
 ## Input

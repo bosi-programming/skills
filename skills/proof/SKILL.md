@@ -6,7 +6,7 @@ description: Post the proof for a parent and its sub-issues after QA — a Proof
 # proof
 
 The proof step for a parent and its sub-issues, or one ticket, run after `qa`.
-`open-restaurant` runs its section 9 through this skill, and it also runs alone.
+It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone.
 Prefix each log line `restaurant:` under `open-restaurant`, `unattended:` in a
 headless run, `proof:` when run alone.
 

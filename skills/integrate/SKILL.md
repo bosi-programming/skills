@@ -6,8 +6,7 @@ description: List the criteria a parent's QA proves, then in each repo checkout 
 # integrate
 
 The integration step for a parent and its sub-issues, run before QA.
-`open-restaurant` runs item 1 of its section 8 through this skill, and it also
-runs alone. It never pushes `integration/<parent>`. Prefix each log line
+It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. It never pushes `integration/<parent>`. Prefix each log line
 `restaurant:` under `open-restaurant`, `unattended:` in a headless run,
 `integrate:` when run alone.
 

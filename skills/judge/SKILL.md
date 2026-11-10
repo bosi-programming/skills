@@ -5,8 +5,7 @@ description: Check a ticket, or a parent and its sub-issues, for readiness befor
 
 # judge
 
-The readiness gate, run before anything is designed. `open-restaurant` runs its
-section 2 through this skill, and it also runs alone. A hard gate: gaps stop the
+The readiness gate, run before anything is designed. It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. A hard gate: gaps stop the
 run; they are never answered on the issue's behalf. Prefix each log line
 `restaurant:` under `open-restaurant`, `unattended:` in a headless run,
 `judge:` when run alone.

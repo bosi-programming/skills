@@ -6,8 +6,7 @@ description: Ask for review once a parent's or a ticket's PRs are ready — wait
 # review-request
 
 The review request step for a parent and its sub-issues, or one ticket, run once
-the PRs are ready for review. `open-restaurant` runs its section 10's approve
-step through this skill, and it also runs alone. Prefix each log line
+the PRs are ready for review. It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. Prefix each log line
 `restaurant:` under `open-restaurant`, `unattended:` in a headless run,
 `review-request:` when run alone.
 

@@ -5,8 +5,7 @@ description: The last human gate on a line. Check the PRs a work card or a paren
 
 # merge
 
-The last human gate on every line. `open-restaurant` runs its section 11
-through this skill, and it also runs alone. This skill never merges without a
+The last human gate on every line. It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. This skill never merges without a
 person approving at the gate. Prefix each log line `restaurant:` under
 `open-restaurant`, `unattended:` in a headless run, `merge:` when run alone.
 

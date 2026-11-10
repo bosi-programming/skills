@@ -5,8 +5,7 @@ description: List each shape one sub-issue of a parent produces and another cons
 
 # contract
 
-The contract step for a parent and its sub-issues. `open-restaurant` runs its
-section 3 through this skill, and it also runs alone. It never invents a shape.
+The contract step for a parent and its sub-issues. It is a stage on a line, a parent's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. It never invents a shape.
 Prefix each log line `restaurant:` under `open-restaurant`, `unattended:` in a
 headless run, `contract:` when run alone.
 

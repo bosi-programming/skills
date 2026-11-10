@@ -5,8 +5,7 @@ description: Try to reproduce a bug ticket on origin/<default branch> in one sub
 
 # reproduce
 
-The bug reproduction step, run before a bug's design. `open-restaurant` runs
-item 4 of its section 4 through this skill, and it also runs alone. Prefix each
+The bug reproduction step, run before a bug's design. It is a stage on a line, a sub-issue's line included, which `open-restaurant` runs through `assembly-line`, and it also runs alone. Prefix each
 log line `restaurant:` under `open-restaurant`, `unattended:` in a headless run,
 `reproduce:` when run alone.
 

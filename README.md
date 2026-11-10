@@ -3,7 +3,7 @@
 Thirty-four Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
-- **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs `recipe-relay` once per sub-issue, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates for review and merge.
+- **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs the parent's line and each sub-issue's line through `assembly-line`, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates the lines name.
 
 The other thirty-two feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
@@ -132,17 +132,17 @@ It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`
 
 ### open-restaurant
 
-An LLM factory. Hand it a parent issue — an epic or a story with sub-issues — and it delivers every sub-issue, each through `recipe-relay` on its own recipe card, to its own PR, then puts the parts together and proves they work as one. The parent is the order and each sub-issue a dish: this session runs the kitchen and never cooks a dish itself. A person comes in at two gates: before review is requested and before anything merges.
+An LLM factory. Hand it a parent issue — an epic or a story with sub-issues — and it delivers every sub-issue to its own PR, then puts the parts together and proves they work as one. The parent is the order and each sub-issue a dish: this session runs the kitchen and never cooks a dish itself. It runs the parent's line and each sub-issue's line through `assembly-line`, so a ticket gets only the stages its line names. A person comes in at the gates the lines name, and nothing merges without one.
 
-The line, in order:
+The run, in order:
 
-1. **Readiness gate** (`judge`). A lint, then a judge sub-agent, look for open decisions, "same as X" shorthand, shapes passed between sub-issues that neither one states, and manual checks with no reason. A gap stops the run with a `## Not ready` comment and an issue that blocks the parent. It never fills a gap on the parent's behalf.
-2. **Contract** (`contract`). A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes, and posts it on the parent. A person may edit it there; the latest comment wins. A shape no issue states stops the run.
-3. **Cooking.** A bug sub-issue first goes through `reproduce`; one that does not reproduce gets a `## Blocked` comment, and nothing that depends on it starts. Sub-issues in different repos cook at the same time. Those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's Interfaces unit writes it an unblock note with the shapes it needs, not when the blocker's PR opens.
-4. **Review per PR.** Each PR opens ready for review, linked to its own sub-issue, which moves to `open-restaurant.implementedState`. Its own headless `better-code-review` sub-agent starts the moment it opens, and the findings get fixed on its branch.
+1. **Lines first.** It reads the line comment of the parent and of every sub-issue, and validates each with `validate-line.py` before any card exists. A missing line, an invalid line, or a parent line with no `{"group": "sub-issues"}` stops the run and points to `plan-assembly-line`. An issue with no sub-issues runs alone through `assembly-line`.
+2. **The parent's line.** It runs the stages the parent's line names through `assembly-line`, on a service card. A parent line can hold `judge` (readiness gate), `contract`, `integrate`, `qa`, `proof`, `review-request` and `merge`, in the order the line gives. At the `{"group": "sub-issues"}` step it seats and cooks the sub-issues.
+3. **Cooking.** Each sub-issue runs its own line on its own recipe card, without its `merge`. A bug sub-issue's line names `reproduce`; one that does not reproduce gets a `## Blocked` comment, and nothing that depends on it starts. Sub-issues in different repos cook at the same time. Those in one repo cook one at a time in its checkout, and one blocked by another in the same repo stacks its PR on the blocker's branch. A sub-issue blocked by one in another repo starts as soon as the blocker's `plan-code` stage writes it an unblock note with the shapes it needs, not when the blocker's PR opens.
+4. **Review per PR.** Each PR opens ready for review, linked to its own sub-issue, which moves to `open-restaurant.implementedState`. `review-fix` runs for each PR the moment it opens, and the findings get fixed on its branch.
 5. **Integrate and QA.** Once every card ends, `integrate` lists the criteria QA proves and merges the branches into a local integration branch it never pushes. `qa` then brings up one QA env for the parent and proves each criterion with saved evidence. Failures get fixed on the owning sub-issue's branch, fast-forward only, for at most two QA rounds.
 6. **Proof** (`proof`). A `## Proof` on each PR, and one on the parent with each criterion and its evidence.
-7. **Human gates** (`review-request` for the review request, `merge` for the merge gate). It stops before asking for review, then waits on checks and posts the PRs to `open-restaurant.reviewChannel`. It stops again before merging, then merges in blocks order and moves the sub-issues, and the parent when no criterion is left open, to `open-restaurant.doneState`.
+7. **Review request and merge** (`review-request`, `merge`). `review-request` waits on checks and posts the PRs to `open-restaurant.reviewChannel`. `merge` stops for a person every time, then merges in blocks order and moves the sub-issues, and the parent when no criterion is left open, to `open-restaurant.doneState`.
 
 Every stop writes its state to a service card next to the recipe cards; running it again on the same parent goes on from there.
 
@@ -218,39 +218,39 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### judge
 
-The readiness gate, run before anything is designed. It reads a work card's `task` or an `open-restaurant` service card's `parent`, runs a lint and then a judge sub-agent. One ticket gets only `open-decision` and `manual-reason`; a parent gets all four rules. A gap comments `## Not ready`, opens an issue that blocks the ticket, writes the gaps to `## Open Questions` and stops `blocked`; otherwise it comments `## Ready`. It leaves `phase` and `phasesCompleted` alone, and reads `open-restaurant.judgeModel` and the settings file's `## open-restaurant` section. `open-restaurant` runs its section 2 through this skill, and it also runs alone on a card.
+The readiness gate, run before anything is designed. It reads a work card's `task` or an `open-restaurant` service card's `parent`, runs a lint and then a judge sub-agent. One ticket gets only `open-decision` and `manual-reason`; a parent gets all four rules. A gap comments `## Not ready`, opens an issue that blocks the ticket, writes the gaps to `## Open Questions` and stops `blocked`; otherwise it comments `## Ready`. It leaves `phase` and `phasesCompleted` alone, and reads `open-restaurant.judgeModel` and the settings file's `## open-restaurant` section. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### contract
 
-The contract step for a parent and its sub-issues. It reads a work card's `task` or an `open-restaurant` service card's `parent`. A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes into `contract.json`; the skill posts it as `## Contract <id>` on the parent, copies it and the comment's link into the card's `## Contract`, and ends `done`. A shape no issue states goes to `gaps`, written to `## Open Questions`, and the skill ends `gaps` with `runStatus: needs-input`. An issue with no sub-issues needs no contract. It leaves `phase` and `phasesCompleted` alone and reads `open-restaurant.judgeModel`. `open-restaurant` runs its section 3 through this skill, and it also runs alone on a card.
+The contract step for a parent and its sub-issues. It reads a work card's `task` or an `open-restaurant` service card's `parent`. A sub-agent copies, word for word from the issues, each shape one sub-issue produces and another consumes into `contract.json`; the skill posts it as `## Contract <id>` on the parent, copies it and the comment's link into the card's `## Contract`, and ends `done`. A shape no issue states goes to `gaps`, written to `## Open Questions`, and the skill ends `gaps` with `runStatus: needs-input`. An issue with no sub-issues needs no contract. It leaves `phase` and `phasesCompleted` alone and reads `open-restaurant.judgeModel`. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### reproduce
 
-The bug reproduction step, run before a bug's design. It reads a work card's `task`. One sub-agent tries the bug on `origin/<default branch>`, editing no tracked file and committing nothing. If it reproduces, the skill writes what it tried to `## Reproduction` and ends `reproduced`. If not, it comments `## Blocked <id>` on the ticket with what it tried, writes the comment's link to `## Reproduction` and `r1` to `## Open Questions`, and ends `not-reproduced` with `runStatus: blocked`. It leaves `phase` and `phasesCompleted` alone and reads no setting. `open-restaurant` runs item 4 of its section 4 through this skill, and it also runs alone on a card.
+The bug reproduction step, run before a bug's design. It reads a work card's `task`. One sub-agent tries the bug on `origin/<default branch>`, editing no tracked file and committing nothing. If it reproduces, the skill writes what it tried to `## Reproduction` and ends `reproduced`. If not, it comments `## Blocked <id>` on the ticket with what it tried, writes the comment's link to `## Reproduction` and `r1` to `## Open Questions`, and ends `not-reproduced` with `runStatus: blocked`. It leaves `phase` and `phasesCompleted` alone and reads no setting. `open-restaurant` runs it as a stage on a sub-issue's line, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### integrate
 
-The integration step for a parent and its sub-issues, run before QA. It reads a work card's `task`, or a service card's `parent` and `## Sub-issues`. It lists the criteria the parent QA proves under `## Integration`, and ends `no-scope` when there are none. In each repo checkout it builds `integration/<parent>` from `origin/<default branch>`, merging each sub-issue branch in blocks order, and never pushes it. It ends `integrated`, or on a merge conflict writes `i1` naming the two branches and ends `conflict` with `runStatus: needs-input`. It leaves `phase` and `phasesCompleted` alone and reads no setting key. `open-restaurant` runs item 1 of its section 8 through this skill, and it also runs alone on a card.
+The integration step for a parent and its sub-issues, run before QA. It reads a work card's `task`, or a service card's `parent` and `## Sub-issues`. It lists the criteria the parent QA proves under `## Integration`, and ends `no-scope` when there are none. In each repo checkout it builds `integration/<parent>` from `origin/<default branch>`, merging each sub-issue branch in blocks order, and never pushes it. It ends `integrated`, or on a merge conflict writes `i1` naming the two branches and ends `conflict` with `runStatus: needs-input`. It leaves `phase` and `phasesCompleted` alone and reads no setting key. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### qa
 
-The QA and fix step for a parent and its sub-issues, run after `integrate`. It reads a work card's `task` or a service card's `parent` and `## Sub-issues`, and the `## Integration` section `integrate` writes. It brings up one env, proves each criterion in QA scope with a `verdict.json` each, and posts each round as `## QA <parent>`. On `fail` it sends the fix to the owning branch, fast-forward only, rebuilds through `integrate` and runs again, at most twice. Past that, or on `inconclusive` or `blocked`, it stops at a human gate with `runStatus: gate`. Under a line it ends at the verdict, and the line sends `fail` back to `code`. It leaves `phase` and `phasesCompleted` alone and reads `open-restaurant.envName`, `open-restaurant.qaModel` and `open-restaurant.fixModel`. `open-restaurant` runs item 2 of its section 8 through this skill, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
+The QA and fix step for a parent and its sub-issues, run after `integrate`. It reads a work card's `task` or a service card's `parent` and `## Sub-issues`, and the `## Integration` section `integrate` writes. It brings up one env, proves each criterion in QA scope with a `verdict.json` each, and posts each round as `## QA <parent>`. On `fail` it sends the fix to the owning branch, fast-forward only, rebuilds through `integrate` and runs again, at most twice. Past that, or on `inconclusive` or `blocked`, it stops at a human gate with `runStatus: gate`. Under a line it ends at the verdict, and the line sends `fail` back to `code`. It leaves `phase` and `phasesCompleted` alone and reads `open-restaurant.envName`, `open-restaurant.qaModel` and `open-restaurant.fixModel`. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### proof
 
-The proof step for a parent and its sub-issues, run after `qa`. It reads a work card's `task` and `prUrl`, or a service card's `parent` and `## Sub-issues`, and the `## QA` section `qa` writes. It posts `## Proof` on each PR with the criteria it owns, each with its verdict and evidence, and one `## Proof <parent>` on the parent with each parent criterion, its evidence uploaded to the tracker, and a `### Sub-issues` list with each PR and how many of its criteria are met. A criterion QA did not prove takes its verdict from the sub-issue's card. It ends `done`, or `blocked` when a post does not land or there is no PR. It leaves `phase` and `phasesCompleted` alone and reads no setting key. `open-restaurant` runs its section 9 through this skill, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
+The proof step for a parent and its sub-issues, run after `qa`. It reads a work card's `task` and `prUrl`, or a service card's `parent` and `## Sub-issues`, and the `## QA` section `qa` writes. It posts `## Proof` on each PR with the criteria it owns, each with its verdict and evidence, and one `## Proof <parent>` on the parent with each parent criterion, its evidence uploaded to the tracker, and a `### Sub-issues` list with each PR and how many of its criteria are met. A criterion QA did not prove takes its verdict from the sub-issue's card. It ends `done`, or `blocked` when a post does not land or there is no PR. It leaves `phase` and `phasesCompleted` alone and reads no setting key. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### review-request
 
-The review request step for a parent and its sub-issues, or one ticket, once the PRs are ready. It reads a work card's `task` and `prUrl`, or a service card's `parent` and `## Sub-issues`. It waits on each PR's checks, then posts one message naming every PR to `open-restaurant.reviewChannel`, tagging the review groups the settings map from the team, and attaches the message link to the parent or ticket. It ends `requested`, or `skipped` with the reason on a red check, a timeout, no channel or a chat failure. It leaves `phase`, `phasesCompleted` and `gate` alone. `open-restaurant` runs its section 10's approve step through this skill, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
+The review request step for a parent and its sub-issues, or one ticket, once the PRs are ready. It reads a work card's `task` and `prUrl`, or a service card's `parent` and `## Sub-issues`. It waits on each PR's checks, then posts one message naming every PR to `open-restaurant.reviewChannel`, tagging the review groups the settings map from the team, and attaches the message link to the parent or ticket. It ends `requested`, or `skipped` with the reason on a red check, a timeout, no channel or a chat failure. It leaves `phase`, `phasesCompleted` and `gate` alone. `open-restaurant` runs it as a stage on a parent's line, and it also runs alone on a card. Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### merge
 
@@ -580,7 +580,7 @@ read the issue, stops listing the card fields it writes or leaving `phase` and
 `phasesCompleted` alone, stops reading its setting, drops the lint, the four
 judge rules, the one-ticket rule, the not-ready or ready step or its
 `## Headless` section, says "recipe card", links a file that does not exist,
-names private content, if `open-restaurant` stops loading it, or if this README
+names private content, if its intro points at an `open-restaurant` section again, or if this README
 loses its section. Offline, stdlib only — run it after editing `judge`.
 
 `check-contract.py` is `contract`'s own check: it fails if the skill loses its
@@ -591,7 +591,7 @@ sub-issues, stops listing the card fields it writes or leaving `phase` and
 or done step, loses the rule that the latest `## Contract` comment wins, drops
 its `## Headless` section, says "recipe card", links a file that does not
 exist, names private content, if `stage.json` stops returning `gaps` to
-`contract` with limit 0 and gate `auto`, if `open-restaurant` stops loading it,
+`contract` with limit 0 and gate `auto`, if its intro points at an `open-restaurant` section again,
 or if this README loses its section or its Validate lines. Offline, stdlib only
 — run it after editing `contract`.
 
@@ -604,7 +604,7 @@ try, not-reproduced or reproduced step, stops trying on
 stops commenting `## Blocked <id>` with what it tried, drops its `## Headless`
 section, says "recipe card", links a file that does not exist, names private
 content, if `stage.json` stops returning `not-reproduced` to `reproduce` with
-limit 0, past `human` and gate `auto`, if `open-restaurant` stops loading it, or
+limit 0, past `human` and gate `auto`, if its intro points at an `open-restaurant` section again, or
 if this README loses its section or its Validate lines. Offline, stdlib only —
 run it after editing `reproduce`.
 
@@ -619,7 +619,7 @@ may push it, loses its rebuild guard, stops aborting a conflicting merge and
 naming the two branches, drops its `## Headless` section, says "recipe card",
 links a file that does not exist, names private content, if `stage.json` stops
 returning `conflict` to `integrate` with limit 0, past `needs-input` and gate
-`auto`, if `open-restaurant` stops loading it, or if this README loses its
+`auto`, if its intro points at an `open-restaurant` section again, or if this README loses its
 section or its Validate lines. Offline, stdlib only — run it after editing
 `integrate`.
 
@@ -634,7 +634,7 @@ running one env for the parent, may force a push or push `integration/<parent>`,
 stops rebuilding through `integrate`, drops its `## Headless` section, says
 "recipe card", links a file that does not exist, names private content, if
 `stage.json` stops taking, delivering or returning as `qa` needs, with gate
-`auto`, if `open-restaurant` stops loading it, or if this README loses its
+`auto`, if its intro points at an `open-restaurant` section again, or if this README loses its
 section or its Validate lines. Offline, stdlib only — run it after editing `qa`.
 
 `check-proof.py` is `proof`'s own check: it fails if the skill loses its
@@ -646,7 +646,7 @@ drops the criteria, PR, parent, check or done step, stops posting `## Proof` on
 each PR and `## Proof <parent>` on the parent, drops its `## Headless` section,
 says "recipe card", links a file that does not exist, names private content, if
 `stage.json` stops taking, delivering or returning as `proof` needs, with gate
-`auto`, if `open-restaurant` stops loading it, or if this README loses its
+`auto`, if its intro points at an `open-restaurant` section again, or if this README loses its
 section or its Validate lines. Offline, stdlib only — run it after editing
 `proof`.
 
@@ -661,7 +661,7 @@ checks as green or skipping on red or a timeout, stops posting one message with
 every PR, never guessing a group or retrying a post once, drops its `## Headless`
 section, says "recipe card", links a file that does not exist, names private
 content, if `stage.json` stops taking, delivering or returning as
-`review-request` needs, with gate `auto`, if `open-restaurant` stops loading it,
+`review-request` needs, with gate `auto`, if its intro points at an `open-restaurant` section again,
 or if this README loses its section or its Validate lines. Offline, stdlib only
 — run it after editing `review-request`.
 
@@ -672,8 +672,7 @@ listing the card fields it writes or leaving `phase`, `phasesCompleted` and
 `status` alone, stops reading its setting, drops the threads, gate, merge or
 done step, merges without approval, loses its `## Headless` section, says
 "recipe card", links a file that does not exist, names private content, if
-`stage.json` stops returning `threads-open` to `review-fix`, if `open-restaurant`
-stops loading it, if the work card template's `runStatus` loses `gate`, or if
+`stage.json` stops returning `threads-open` to `review-fix`, if its intro points at an `open-restaurant` section again, if the work card template's `runStatus` loses `gate`, or if
 this README loses its section. Offline, stdlib only — run it after editing
 `merge`.
 
@@ -712,16 +711,19 @@ the relay stops loading it. Offline, stdlib only — run it after editing
 `recipe-relay`.
 
 `check-open-restaurant.py` is `open-restaurant`'s own check: it fails if a
-section goes missing, if the readiness gate, read from `judge`, stops blocking on gaps,
-if section 2 stops loading `judge`, if the merge gate, read from `merge`, stops
-holding for a human or section 11 stops loading `merge`, if the
-contract, read from `contract`, may invent a shape, if section 3 stops loading `contract`, if the bug step, read from `reproduce`, stops trying on `origin/<default branch>` or commenting `## Blocked`, if section 4 stops loading `reproduce`, if the integration step, read from `integrate`, may push `integration/<parent>` or stops stopping on a conflict, if section 8 stops loading `integrate`, if the QA and fix step, read from `qa`, loses its one env, its fast-forward rule or its limits, if section 8 stops loading `qa`, if the proof step, read from `proof`, stops posting `## Proof <parent>` with its `### Sub-issues` list, if section 9 stops loading `proof`, if the review request, read from `review-request`, stops tagging only mapped groups, if section 10 stops loading `review-request` or stops stopping for a human, if same-repo sub-issues stop running one at a
-time, if the early unblock loses its note file, follow-up or change rule, if
-the integration branch may be pushed or a fix forced, if the QA limits or the
-human review and merge gates go, if the skill names private content, if
-`prepare-pr` stops taking a named base branch, or if this README or the DeepSeek
-Harness test stops listing the skill. Offline, stdlib only — run it after
-editing `open-restaurant` or `prepare-pr`.
+section goes missing, if an old fixed-stage section (readiness gate, contract,
+integrate and QA, proof, review gate, merge gate) comes back, if the skill
+names `recipe-relay`, a `gate: review` or a stage `SKILL.md` link, if it stops
+reading every line before any card exists, stops requiring a line comment, a
+valid line and a `{"group": "sub-issues"}`, or stops running the parent's line
+through `assembly-line` with the `restaurant:` prefix, the returns off the
+line and the merge gate, if same-repo sub-issues stop running one at a time, if
+the sub-issue PR may be a draft, batched in one review or linked to the parent,
+if the early unblock loses its note file, follow-up or change rule, if the
+skill names private content, if `prepare-pr` stops taking a named base branch,
+or if this README or the DeepSeek Harness test stops listing the skill.
+Offline, stdlib only — run it after editing `open-restaurant` or
+`prepare-pr`.
 
 `check-tooling-rule.py` is `code-standards`' own check: it fails if the catalog
 goes back to guessing what tooling enforces instead of reading the lint,
