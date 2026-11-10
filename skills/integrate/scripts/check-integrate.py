@@ -9,7 +9,6 @@ REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
-RESTAURANT = REPO / "skills" / "open-restaurant" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -41,6 +40,12 @@ def check_all(name, text, *phrases):
     lowered = flatten(text)
     missing = [phrase for phrase in phrases if phrase.lower() not in lowered]
     check(name, not missing, f"missing: {missing}" if missing else "")
+
+
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
 
 
 skill = read(SKILL_MD)
@@ -106,8 +111,8 @@ check("stage-takes", stage.get("takes") == ["task", "parent", "## Sub-issues"],
 check("stage-verdicts", delivers.get("verdicts") == ["integrated", "no-scope", "conflict"],
       "stage.json must deliver the verdicts integrated, no-scope, conflict")
 
-check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 8. Integrate, QA and fix", r"^## "),
-          "`../integrate/SKILL.md`", "`no-scope`", "`conflict`", "`integrated`")
+check_all("restaurant-runs-it-on-a-line", skill, "a parent's line", "`open-restaurant`")
+check_none("restaurant-section-gone", skill, "its section")
 
 check("readme-section", re.search(r"^### integrate$", readme, re.MULTILINE), "README has no ### integrate")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"),

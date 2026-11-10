@@ -9,7 +9,6 @@ REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
-RESTAURANT = REPO / "skills" / "open-restaurant" / "SKILL.md"
 TEMPLATE = REPO / "skills" / "feature-recipe" / "references" / "recipe-card-template.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
@@ -42,6 +41,12 @@ def check_all(name, text, *phrases):
     lowered = flatten(text)
     missing = [phrase for phrase in phrases if phrase.lower() not in lowered]
     check(name, not missing, f"missing: {missing}" if missing else "")
+
+
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
 
 
 skill = read(SKILL_MD)
@@ -101,9 +106,8 @@ check("stage-return-review-fix",
       returns.get("threads-open") == {"to": "review-fix", "limit": 2, "past": "human"} and stage.get("gate") == "human",
       "stage.json must return threads-open to review-fix twice, then human, with gate human")
 
-check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 11. Merge gate", r"^## "), "`../merge/SKILL.md`")
-check_all("restaurant-handles-threads-open", block(read(RESTAURANT), "## 11. Merge gate", r"^## "),
-          "`threads-open`", "`gate: merge`")
+check_all("restaurant-runs-it-on-a-line", skill, "a parent's line", "`open-restaurant`")
+check_none("restaurant-section-gone", skill, "its section")
 
 status_line = next((line for line in read(TEMPLATE).splitlines() if line.startswith("runStatus:")), "")
 check("template-gate-status", "gate" in status_line, "template runStatus line must name gate")

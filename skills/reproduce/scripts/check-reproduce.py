@@ -9,7 +9,6 @@ REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
-RESTAURANT = REPO / "skills" / "open-restaurant" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -41,6 +40,12 @@ def check_all(name, text, *phrases):
     lowered = flatten(text)
     missing = [phrase for phrase in phrases if phrase.lower() not in lowered]
     check(name, not missing, f"missing: {missing}" if missing else "")
+
+
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
 
 
 skill = read(SKILL_MD)
@@ -93,8 +98,8 @@ check("stage-return-self",
       "stage.json must return not-reproduced to reproduce with limit 0, past human, and gate auto")
 check("stage-takes-task", stage.get("takes") == ["task"], "stage.json must take exactly [task]")
 
-check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 4. Seat the cards", r"^## "),
-          "`../reproduce/SKILL.md`", "`not-reproduced`", "`reproduced`")
+check_all("restaurant-runs-it-on-a-line", skill, "a sub-issue's line", "`open-restaurant`")
+check_none("restaurant-section-gone", skill, "its section")
 
 check("readme-section", re.search(r"^### reproduce$", readme, re.MULTILINE), "README has no ### reproduce")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"),

@@ -7,7 +7,6 @@ SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
-RESTAURANT = REPO / "skills" / "open-restaurant" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -39,6 +38,12 @@ def check_all(name, text, *phrases):
     lowered = flatten(text)
     missing = [phrase for phrase in phrases if phrase.lower() not in lowered]
     check(name, not missing, f"missing: {missing}" if missing else "")
+
+
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
 
 
 skill = read(SKILL_MD)
@@ -87,7 +92,8 @@ check("links-resolve", SKILL_MD.exists() and not broken, f"broken: {broken}")
 leaks = [word for word in PRIVATE if word in skill.lower()]
 check("private-free", SKILL_MD.exists() and not leaks, f"private content: {leaks}")
 
-check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 2. Readiness gate", r"^## "), "`../judge/SKILL.md`")
+check_all("restaurant-runs-it-on-a-line", skill, "a parent's line", "`open-restaurant`")
+check_none("restaurant-section-gone", skill, "its section")
 
 check("readme-section", re.search(r"^### judge$", readme, re.MULTILINE), "README has no ### judge")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"), "check-judge.py")

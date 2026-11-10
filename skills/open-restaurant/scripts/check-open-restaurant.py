@@ -9,14 +9,6 @@ SKILL_MD = SKILL / "SKILL.md"
 README = REPO / "README.md"
 PLATING = SKILLS / "prepare-pr" / "SKILL.md"
 DSH_TEST = REPO / "dsh" / "index.test.mjs"
-JUDGE = SKILLS / "judge" / "SKILL.md"
-MERGE = SKILLS / "merge" / "SKILL.md"
-CONTRACT = SKILLS / "contract" / "SKILL.md"
-REPRODUCE = SKILLS / "reproduce" / "SKILL.md"
-INTEGRATE = SKILLS / "integrate" / "SKILL.md"
-QA_SKILL = SKILLS / "qa" / "SKILL.md"
-PROOF_SKILL = SKILLS / "proof" / "SKILL.md"
-REVIEW_REQUEST = SKILLS / "review-request" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -58,38 +50,33 @@ def check_none(name, text, *phrases):
 
 skill = read(SKILL_MD)
 readme = read(README)
-judge = read(JUDGE)
-merge = read(MERGE)
-contract = read(CONTRACT)
-reproduce = read(REPRODUCE)
-integrate = read(INTEGRATE)
-qa_skill = read(QA_SKILL)
-proof_skill = read(PROOF_SKILL)
-review_request = read(REVIEW_REQUEST)
 
 check("skill-exists", re.search(r"^name: open-restaurant$", skill, re.MULTILINE), "skills/open-restaurant/SKILL.md must declare name: open-restaurant")
 
 sections = {
     "settings": "## Settings",
     "order": "## 1. Take the order",
-    "readiness": "## 2. Readiness gate",
-    "contract": "## 3. Contract",
-    "plan": "## 4. Seat the cards",
-    "cards": "## 5. Cook the cards",
-    "unblock": "## 6. Early unblock",
-    "pass": "## 7. Close the cards",
-    "qa": "## 8. Integrate, QA and fix",
-    "proof": "## 9. Proof",
-    "review": "## 10. Review gate",
-    "merge": "## 11. Merge gate",
-    "stops": "## 12. Stops and resume",
-    "report": "## 13. Report",
+    "line": "## 2. Run the parent's line",
+    "plan": "## 3. Seat the cards",
+    "cards": "## 4. Cook the cards",
+    "unblock": "## 5. Early unblock",
+    "close": "## 6. Close the cards",
+    "stops": "## 7. Stops and resume",
+    "report": "## 8. Report",
 }
 text = {key: block(skill, heading, r"^## ") for key, heading in sections.items()}
 for key, heading in sections.items():
     check(f"section:{key}", text[key], f"missing `{heading}`")
 
-check_all("drives-relay", skill, "`../recipe-relay/SKILL.md`", "`../feature-recipe/")
+check_none("removed-sections", skill,
+           "## 2. readiness gate", "## 3. contract", "## 8. integrate, qa and fix",
+           "## 9. proof", "## 10. review gate", "## 11. merge gate")
+check_none("no-review-gate", skill, "`gate: review`")
+check_all("drives-assembly-line", skill, "`../assembly-line/SKILL.md`", "`plan-assembly-line`")
+check_none("no-relay", skill, "recipe-relay", "`../feature-recipe/")
+check_none("no-fixed-stages", skill,
+           "`../judge/SKILL.md`", "`../contract/SKILL.md`", "`../reproduce/SKILL.md`", "`../integrate/SKILL.md`",
+           "`../qa/SKILL.md`", "`../proof/SKILL.md`", "`../review-request/SKILL.md`", "`../merge/SKILL.md`")
 check_all("settings-body", text["settings"], "`## open-restaurant`", "`../setup/references/config.md`")
 check_all("settings-keys", text["settings"],
           "`open-restaurant.repoByLabel`", "`open-restaurant.implementedState`", "`open-restaurant.doneState`",
@@ -97,76 +84,58 @@ check_all("settings-keys", text["settings"],
           "`open-restaurant.qaModel`", "`open-restaurant.fixModel`")
 
 check_all("service-card", text["order"], ".service.md`", "service card")
+check_all("service-card-row", text["order"], "| id | repo | branch | base | blocked by | line | card | status | PR |")
 check_all("no-worktrees", text["order"], "never creates or removes", "worktree")
 check_all("missing-checkout-stops", text["order"], "missing", "stop")
+check_all("line-missing-stops", text["order"], "no line comment", "`plan-assembly-line`", "`runStatus: needs-input`")
+check_all("lines-validated", text["order"], "`validate-line.py`", "before any card")
+check_all("group-required", text["order"], 'holds no `{"group": "sub-issues"}`')
+check_all("no-sub-issues-one-ticket", text["order"], "no sub-issues", "`../assembly-line/SKILL.md`")
 
-check_all("readiness-lint-judge", judge, "lint", "judge", "`open-decision`")
-check_all("readiness-blocks", judge, "`## not ready", "readiness gaps", "blocks the parent", "`## ready")
-check_all("readiness-loads-judge", text["readiness"], "`../judge/skill.md`", "service card")
-check_none("readiness-text-moved", text["readiness"], "parity-shorthand")
+check_all("parent-line-assembly", text["line"],
+          "`../assembly-line/SKILL.md`", "service card", '`{"group": "sub-issues"}`', "sections 3 to 6")
+check_all("only-named-stages", text["line"], "only the stages the parent's line names")
+check_all("restaurant-prefix", text["line"], "`restaurant:` in place of `line:`")
+check_all("return-off-line", text["line"], "not on the parent's line", "`past`")
+check_all("merge-gate", text["line"],
+          "`gate: human`", "`open-restaurant.doneState`", "`threads-open`", "`integration/<parent>`", "`stage: closed`")
+check_all("step-log", text["line"], "`restaurant: step <n>/<total> <stage> <verdict>`")
 
-check_all("contract-copied", contract, "`contract.json`", "`## contract", "never invent", "latest `## contract` comment wins")
-check_all("contract-loads-skill", text["contract"], "`../contract/skill.md`", "service card", "`gaps`", "latest `## contract` comment wins")
-check_none("contract-text-moved", text["contract"], "word for word")
-
-check_all("one-card-per-sub-issue", text["plan"], "one recipe card", "one pr")
+check_all("one-card-per-sub-issue", text["plan"], "one card", "one pr")
 check_all("same-repo-serial", text["plan"], "one at a time", "same repo")
 check_all("cross-repo-parallel", text["plan"], "parallel", "unblock note")
 check_all("stacked-base", text["plan"], "stack", "blocker's branch")
-check_all("bug-reproduce", text["plan"], "reproduce", "`## blocked")
-check_all("reproduce-copied", reproduce, "`origin/<default branch>`", "`## blocked <id>`", "what it tried")
-check_all("reproduce-loads-skill", text["plan"],
-          "`../reproduce/skill.md`", "bug marker", "phase 1", "`not-reproduced`", "start nothing that depends on it")
-check_none("reproduce-text-moved", text["plan"], "sub-agent")
+check_all("two-blockers-stop", text["plan"], "do not form a chain")
+check_all("parent-contract", text["plan"], "`## parent contract`")
+check_none("no-reproduce-item", text["plan"], "`../reproduce/skill.md`", "bug marker")
 
-check_all("plating-overrides", text["cards"], "one pr", "ready for review", "never as a draft", "no chunks", "base", "no closing word")
-check_all("review-per-pr", text["cards"], "review per pr", "own background sub-agent", "one per pr", "--headless", "never batch")
+check_all("cards-through-assembly-line", text["cards"], "`../assembly-line/SKILL.md`", "own line")
+check_all("sub-issue-no-merge", text["cards"], "without its `merge`")
+check_all("shared-files-once", text["cards"], "once per session", "frontmatter")
+check_all("prepare-pr-overrides", text["cards"],
+          "`prepare-pr`", "one pr", "ready for review", "never as a draft", "no chunks", "base", "no closing word")
+check_all("review-per-pr", text["cards"], "`review-fix`", "one per pr", "never batch")
 check_none("no-draft-pr", skill, "one draft pr", "anything but a draft", "mark every sub-issue pr ready", "never mark a pr ready")
 check_all("pr-to-sub-issue", text["cards"], "never to the parent", "attachment")
-check_all("implemented-state", text["cards"], "`open-restaurant.implementedState`")
-check_all("relay-review-per-card", text["cards"], "better-code-review")
+check_all("implemented-state", text["cards"], "`open-restaurant.implementedState`", "in place of `assembly-line.reviewState`")
+check_all("card-stops", text["cards"], "`## blocked <id>`", "does not depend on it")
 
 check_all("unblock-file", text["unblock"], "`{scratch}/unblock/<a>-to-<b>.md`", "`## upstream interfaces (<a>)`")
-check_all("unblock-earliest", text["unblock"], "design unit", "later point")
+check_all("unblock-earliest", text["unblock"], "`plan-code`", "later point")
+check_all("unblock-follow-up", text["unblock"], "follow-up", "never guess")
+check_all("unblock-change", text["unblock"], "dated entry", "back to its `code` stage")
+check_all("unblock-chain", text["unblock"], "chain")
 check_none("no-interfaces-unit", skill, "interfaces unit")
 check_none("no-nesting-claim", skill, "cannot start sub-agents")
-check_all("shared-files-once", text["cards"], "once per session", "frontmatter")
-check_all("unblock-follow-up", text["unblock"], "follow-up", "never guess")
-check_all("unblock-change", text["unblock"], "dated entry", "one more fix and taste round")
-check_all("unblock-chain", text["unblock"], "chain")
+check_none("no-design-unit", skill, "design unit", "phase 1")
 
-check_all("unfinished-park", text["pass"], "park", "`## blocked")
-check_all("interfaces-match", text["pass"], "mismatch", "`runstatus: needs-input`")
+check_all("unfinished-park", text["close"], "park", "`## blocked")
+check_all("interfaces-match", text["close"], "mismatch", "`runstatus: needs-input`")
+check_all("close-returns", text["close"], "next step of the parent's line")
 
-check_all("integration-local", text["qa"], "`integration/<parent>`", "never push")
-check_all("integrate-copied", integrate,
-          "`integration/<parent>`", "`origin/<default branch>`", "blocks order", "never push", "`runstatus: needs-input`", "two branches")
-check_all("integrate-loads-skill", text["qa"],
-          "`../integrate/skill.md`", "service card", "`no-scope`", "section 9", "`conflict`")
-check_none("integrate-text-moved", text["qa"], "qa scope names", "merge the sub-issue branches")
-check_all("one-env", qa_skill, "one env", "`open-restaurant.envName`", "never per sub-issue")
-check_all("env-torn-down", qa_skill, "tear the env down")
-check_all("fix-owner-branch", qa_skill, "owner", "fast-forward", "never `--force`", "never on `integration/<parent>`")
-check_all("fix-limits", qa_skill, "at most 2", "at most 4", "human gate")
-check_all("verdicts", qa_skill, "pass", "fail", "inconclusive", "blocked", "verdict.json`", "`## qa")
-check_all("qa-loads-skill", text["qa"],
-          "`../qa/skill.md`", "service card", "`pass`", "section 9", "`gate: qa`")
-check_none("qa-text-moved", text["qa"], "`open-restaurant.qamodel`", "detached head", "`proof/<issue>/<n>/verdict.json`")
-
-check_all("proof", proof_skill, "`## proof <parent>`", "`### sub-issues`")
-check_all("proof-loads-skill", text["proof"],
-          "`../proof/skill.md`", "service card", "`done`", "section 10", "`runstatus: blocked`")
-check_none("proof-text-moved", text["proof"], "`### sub-issues`", "uploaded to the tracker")
-check_all("review-human", text["review"], "human", "ready", "`open-restaurant.reviewChannel`")
-check_all("review-request", review_request, "never guess", "no tag", "`open-restaurant.reviewChannel`")
-check_all("review-loads-skill", text["review"],
-          "`../review-request/SKILL.md`", "service card", "`requested`", "`skipped`", "section 11",
-          "`runStatus: gate`", "`gate: review`")
-check_none("review-text-moved", text["review"], "never guess", "unmapped team")
-check_all("merge-human", merge, "human", "blocks order", "retarget", "`## open criteria", "`open-restaurant.doneState`")
-check_all("merge-resume", merge, "merged", "failed", "pending")
-check_all("merge-loads-skill", text["merge"], "`../merge/skill.md`", "service card", "`integration/<parent>`", "`stage: closed`")
-check_none("merge-text-moved", text["merge"], "retarget")
+check_all("resume", text["stops"], "service card", "`restaurant: step`")
+check_all("gate-stop", text["stops"], "`runStatus: gate`")
+check_all("report", text["report"], "unblock notes", "`restaurant:`")
 
 check_all("one-way-doors", skill, "never merges", "without a human")
 
@@ -177,7 +146,9 @@ leaks = [word for word in PRIVATE if word in skill.lower()]
 check("private-free", not leaks, f"private content: {leaks}")
 
 check_all("plating-allows-named-base", read(PLATING), "a driver names a base branch")
-check_all("readme-section", block(readme, "### open-restaurant", r"^###? "), "recipe-relay", "parent")
+readme_section = block(readme, "### open-restaurant", r"^###? ")
+check_all("readme-section", readme_section, "assembly-line", "parent", "line")
+check_none("readme-no-relay", readme_section, "recipe-relay")
 check_all("readme-layout", block(readme, "## Layout", r"^## "), "open-restaurant/")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-open-restaurant.py")
 check("dsh-lists-skill", "'open-restaurant'" in read(DSH_TEST), "dsh/index.test.mjs must list open-restaurant")

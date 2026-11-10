@@ -9,7 +9,6 @@ REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
 STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
-RESTAURANT = REPO / "skills" / "open-restaurant" / "SKILL.md"
 
 PRIVATE = ["~/dev/", "aopost", "felipe", "linear-server", "goto-", "cw new", "controller", "ao-adr", "🐞"]
 
@@ -41,6 +40,12 @@ def check_all(name, text, *phrases):
     lowered = flatten(text)
     missing = [phrase for phrase in phrases if phrase.lower() not in lowered]
     check(name, not missing, f"missing: {missing}" if missing else "")
+
+
+def check_none(name, text, *phrases):
+    lowered = flatten(text)
+    present = [phrase for phrase in phrases if phrase.lower() in lowered]
+    check(name, not present, f"must not say: {present}" if present else "")
 
 
 skill = read(SKILL_MD)
@@ -115,8 +120,8 @@ check("stage-return",
 check("stage-gate", stage.get("gate") == "auto" and stage.get("signals") == [],
       "stage.json must have gate auto and no signals")
 
-check_all("restaurant-loads-skill", block(read(RESTAURANT), "## 9. Proof", r"^## "),
-          "`../proof/SKILL.md`", "`done`", "section 10")
+check_all("restaurant-runs-it-on-a-line", skill, "a parent's line", "`open-restaurant`")
+check_none("restaurant-section-gone", skill, "its section")
 
 check("readme-section", re.search(r"^### proof$", readme, re.MULTILINE), "README has no ### proof")
 check_all("readme-section-content", block(readme, "### proof\n", r"^##"),
