@@ -6,6 +6,10 @@
         "SKILL.md",
         "references/catalog.json",
         "references/line-format.md",
+        "references/lines/bug.json",
+        "references/lines/feature.json",
+        "references/lines/parent.json",
+        "references/lines/small-fix.json",
         "references/signals.json",
         "references/stage-spec.md",
         "scripts/build-catalog.py",
@@ -20,7 +24,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "780293a36c18"
+      "version": "3792b98c8e37"
     },
     {
       "name": "better-code-review",
@@ -172,7 +176,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "dbda786b5b77"
+      "version": "20fd993fcf70"
     },
     {
       "name": "pause-work",
@@ -193,7 +197,7 @@
         "SKILL.md",
         "scripts/check-plan-assembly-line.py"
       ],
-      "version": "ef9172f1dc9d"
+      "version": "6717e936fc14"
     },
     {
       "name": "plan-code",

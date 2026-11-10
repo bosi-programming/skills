@@ -33,15 +33,17 @@ Stop and write nothing, naming `plan-assembly-line`, in each of these cases:
 
 - there is no line comment;
 - the line's `ticket` names another ticket;
-- the line holds `{"group": "sub-issues"}`, which is `open-restaurant`'s work.
+- the line holds `{"group": "sub-issues"}`, which is `open-restaurant`'s work (a `from` line is checked after validation, below).
 
-Otherwise write the line's JSON to `{scratch}/line.json`. In the command below, `$SKILL_DIR` is this skill's folder.
+Write the line's JSON to `{scratch}/line.json`. In the command below, `$SKILL_DIR` is this skill's folder.
 
 ```bash
 python3 "$SKILL_DIR/scripts/validate-line.py" {scratch}/line.json
 ```
 
 The validator, `$SKILL_DIR/scripts/validate-line.py`, runs before any stage runs. When its `"valid"` is false, the run stops, writes nothing, and names each error's `stage` and `rule`; for a stage that lacks what it takes, it names the missing stage. Point the user to `plan-assembly-line`.
+
+When the line has `from`, it starts from a saved line: the run uses the validator's `"line"`, the expanded line, from here on. Its stages are the ones run, and the `{"group": "sub-issues"}` stop is checked on the expanded line, so for a `from` line that check comes after validation.
 
 ## 2. Find or make the card
 

@@ -73,6 +73,8 @@ look there; where the section names nothing, take the default given here:
    any sub-issue has no line comment, when a line fails `validate-line.py`
    (in `../assembly-line/scripts/`; write each line to `{scratch}` and run it
    on that file), or when the parent's line holds no `{"group": "sub-issues"}`.
+   A line with `from` is read through the validator's `"line"`: the group check
+   and each card's stages use that expanded line.
    Gaps are never answered on the parent's behalf. Validate every line before
    any card exists.
 3. The session runs from a folder that holds one checkout per repo, as

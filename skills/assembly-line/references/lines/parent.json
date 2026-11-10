@@ -1,0 +1,16 @@
+{
+  "format": "assembly-line/1",
+  "name": "parent",
+  "stages": [
+    "judge",
+    "contract",
+    {
+      "group": "sub-issues"
+    },
+    "integrate",
+    "qa",
+    "proof",
+    "review-request",
+    "merge"
+  ]
+}

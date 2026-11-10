@@ -13,7 +13,7 @@ In a comment on the ticket. The work card stays the hand-off between stages:
 the line names the stages, the card carries what they read and write.
 
 The same JSON object can stand alone as a file, so a saved line in the repo
-uses this format too.
+uses this format too, with `name` in place of `ticket`.
 
 ## Marker
 
@@ -44,7 +44,11 @@ Small fix with no screen change, so no `test` or `ui-review`.
 | --- | --- | --- |
 | `format` | string | Always `assembly-line/1`. A new version gets a new value. |
 | `ticket` | string | The ticket the line is for. A reader stops if it does not match the ticket the comment is on. |
-| `stages` | list | The stages, in order. See below. |
+| `name` | string | In a saved line, its name, equal to the file name; in place of `ticket`. |
+| `stages` | list | The stages, in order. See below. A line comment may use `from` instead. |
+| `from` | string | A line comment only: the saved line to start from, in place of `stages`. See `## Saved lines`. |
+| `drop` | list | With `from`: stage names to remove. |
+| `add` | list | With `from`: `{"after": <stage>, "item": <item>}` entries to insert. |
 
 ## Stages and inputs
 
@@ -88,6 +92,30 @@ blocks relations set. A sub-issue's line runs without its `merge`: the parent's
 A sub-issue with no line comment stops the group with `runStatus: needs-input`
 and names `plan-assembly-line`.
 
+## Saved lines
+
+Common lines live in the repo, one file each, in [`./lines/`](./lines/):
+`feature`, `bug`, `small-fix` and `parent`. A saved line has `"format"`,
+`"name"` (equal to the file name) and `stages`, and no `ticket`.
+
+A line comment may start from one: it holds `"from": "<saved line>"` in place
+of `stages`, with optional `"drop"` (a list of stage names) and `"add"` (a list
+of `{"after": "<stage>", "item": <item>}`). Expansion goes in this order:
+
+1. Copy the saved line's stages.
+2. Remove every dropped stage, at the top level and from parallel branches. A
+   parallel group left with no branch goes. `judge` and `merge` cannot be
+   dropped.
+3. Apply each add in list order, right after the last top-level stage named in
+   `"after"`.
+
+A name to drop must be on the saved line, and `"after"` must be a top-level
+stage on the line as it stands. A saved line has no `from` of its own.
+
+`validate-line.py` expands the line, runs every rule on the expansion, and
+prints it under `"line"`. A line comment keeps the `from` form; readers run
+the expanded line. A rejected edit gives `saved-line` or `line-edit`.
+
 ## Rules
 
 - The first stage is `judge`.
@@ -99,7 +127,9 @@ and names `plan-assembly-line`.
 `validate-line.py` enforces these and the rules that need the catalog:
 
 - `line-parses`: the line file exists and holds JSON.
-- `line-shape`: `format`, `ticket`, `stages` and every item have the shapes above.
+- `line-shape`: `format`, `ticket` or `name`, `stages` or `from`, `drop`, `add` and every item have the shapes above.
+- `saved-line`: `from` names a saved line in `lines/` that parses and has the saved-line shape.
+- `line-edit`: no `drop` of `judge`, `merge` or a stage not on the saved line; every `add` anchors on a top-level stage.
 - `catalog-parses`: the catalog file exists and holds a `stages` object.
 - `known-stage`: every stage name is in the catalog.
 - `first-judge`: the first item is `judge`.
@@ -160,6 +190,19 @@ A parent whose sub-issues each run their own line:
   "format": "assembly-line/1",
   "ticket": "BOS-3",
   "stages": ["judge", "evaluate-ticket", { "group": "sub-issues" }, "merge"]
+}
+```
+
+## Example: line from a saved line
+
+A feature with no screen change:
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-4",
+  "from": "feature",
+  "drop": ["ui-review"]
 }
 ```
 

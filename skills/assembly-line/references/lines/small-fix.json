@@ -1,0 +1,13 @@
+{
+  "format": "assembly-line/1",
+  "name": "small-fix",
+  "stages": [
+    "judge",
+    "evaluate-ticket",
+    "plan-code",
+    "code",
+    "prepare-pr",
+    "review-fix",
+    "merge"
+  ]
+}

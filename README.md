@@ -86,7 +86,7 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### assembly-line
 
-Runs one ticket's line: the ordered stages its line comment names. It reads the ticket's comments through the tracker and takes the line comment created last, the one with `"format": "assembly-line/1"`. It changes no stage's files, and `recipe-relay` stays until BOS-112.
+Runs one ticket's line: the ordered stages its line comment names. It reads the ticket's comments through the tracker and takes the line comment created last, the one with `"format": "assembly-line/1"`. A line comment may start from a saved line with `from`, edited by `add` and `drop`, and the run uses the expanded line. It changes no stage's files, and `recipe-relay` stays until BOS-112.
 
 How the line runs:
 
@@ -105,7 +105,7 @@ Suggests each ticket's line and saves it as a comment on the ticket, in the shap
 How it plans:
 
 1. **Read.** It reads each ticket's body and comments through the tracker. A line comment already there, the one created last, is the starting suggestion.
-2. **Suggest.** It starts from the full line in `catalog.json` and drops or adds stages by rule: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. Each line comes with a short why.
+2. **Suggest.** It starts from the saved line that matches the ticket's kind (`feature`, `bug`, `small-fix` or `parent`) and drops or adds stages by rule, saving it with `from`: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. Each line comes with a short why.
 3. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
 4. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
 5. **Save.** One comment per ticket, in the `line-format.md` shape. It never edits or deletes an old line comment.

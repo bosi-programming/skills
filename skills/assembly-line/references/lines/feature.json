@@ -1,0 +1,21 @@
+{
+  "format": "assembly-line/1",
+  "name": "feature",
+  "stages": [
+    "judge",
+    "evaluate-ticket",
+    "plan-code",
+    {
+      "parallel": [
+        "test",
+        "code"
+      ]
+    },
+    "code",
+    "ui-review",
+    "prepare-pr",
+    "review-fix",
+    "code-docs",
+    "merge"
+  ]
+}

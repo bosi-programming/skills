@@ -1,6 +1,6 @@
 ---
 name: plan-assembly-line
-description: Suggests each ticket's line of stages from its body and the stage catalog, validates it, lets the engineer confirm or edit it, and saves it as a line comment on the ticket only after approval. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
+description: Suggests each ticket's line of stages from its body and the stage catalog, starting from the saved line that matches the ticket's kind, validates it, lets the engineer confirm or edit it, and saves it as a line comment on the ticket only after approval. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
 ---
 
 # Plan Assembly Line
@@ -21,12 +21,17 @@ A comment is a line comment when its json block parses to an object whose `"form
 
 Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line starts at `judge` and ends at `merge`.
 
-Start from the full line: `judge`, `evaluate-ticket`, `plan-code`, `{"parallel": ["test", "code"]}`, `code`, `prepare-pr`, `review-fix`, `code-docs`, `merge`. Then apply these rules:
+Start from the saved line that matches the ticket's kind. The saved lines are the files in `../assembly-line/references/lines/`: `feature`, `bug`, `small-fix` and `parent`. Pick by kind, in this order:
 
-- Drop the parallel group when no criterion is tagged `[unit]`, `[int]`, `[e2e]` or `[story]`.
-- Add `ui-review` right after the last `code` when the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count.
-- Keep `code-docs` only when the title type is `feat` or a criterion is tagged `[docs]`.
-- A parent with sub-issues gets `judge`, `evaluate-ticket`, `{"group": "sub-issues"}` and `merge`. Its sub-issues join the list and get lines of their own.
+- A parent with sub-issues: `parent`. Its sub-issues join the list and get lines of their own. The saved line holds `{"group": "sub-issues"}`.
+- No criterion tagged `[unit]`, `[int]`, `[e2e]` or `[story]`: `small-fix`.
+- Title type `fix`: `bug`.
+- Otherwise: `feature`.
+
+Then apply these rules as `drop` and `add` edits on that saved line, each with `from`:
+
+- Drop `ui-review` unless the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count. On `small-fix`, add `ui-review` right after `code` when one of those holds.
+- Drop `code-docs` unless the title type is `feat` or a criterion is tagged `[docs]`. On `small-fix`, add `code-docs` right after `review-fix` when a criterion is tagged `[docs]`.
 
 If the ticket already has a line, start from it and change only what the rules require.
 
@@ -34,13 +39,13 @@ Each suggestion carries one or two sentences of why.
 
 ## 3. Validate each line
 
-Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. In the command below, `$SKILL_DIR` is this skill's folder.
+Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. When the line starts from a saved line, the file holds `from`, with `drop` and `add`, in place of `stages`. In the command below, `$SKILL_DIR` is this skill's folder.
 
 ```bash
 python3 "$SKILL_DIR/../assembly-line/scripts/validate-line.py" {scratch}/<ticket>.line.json
 ```
 
-Run the validator, `$SKILL_DIR/../assembly-line/scripts/validate-line.py`, on every line before showing it. It prints a json object with `"valid"` and a list of errors. Exit `0` means valid, `1` invalid, `2` a usage error.
+Run the validator, `$SKILL_DIR/../assembly-line/scripts/validate-line.py`, on every line before showing it. It prints a json object with `"valid"` and a list of errors, and for a `from` line the expanded stages under `"line"`; show those expanded stages, not the `from` form. Exit `0` means valid, `1` invalid, `2` a usage error.
 
 Fix a suggestion of your own that fails, then run it again. For an error on a line the engineer edited, show its `stage` and `rule`. For a `takes-met` error, show the stage to add: the stage named after `delivered by` in the message. If the message says no stage in the catalog delivers it, say that.
 
@@ -52,7 +57,7 @@ Nothing is written before the engineer approves. An edit is validated again. A l
 
 ## 5. Save
 
-Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line.
+Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line: the `from` form as approved, not the expanded stages.
 
 Never edit or delete an old line comment. A new comment replaces it, because the one created last wins.
 
