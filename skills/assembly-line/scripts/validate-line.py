@@ -126,7 +126,7 @@ def check_shape(line):
         bad("drop must be a list of stage names")
     if "add" in line:
         if not isinstance(line["add"], list):
-            bad('add item 1 must be {"after": <stage>, "item": <item>}')
+            bad('add must be a list of {"after": <stage>, "item": <item>}')
         else:
             for number, entry in enumerate(line["add"], 1):
                 if not valid_add(entry):

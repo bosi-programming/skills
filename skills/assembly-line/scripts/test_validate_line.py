@@ -397,6 +397,45 @@ class ValidateLine(unittest.TestCase):
         self.assertEqual(stages[stages.index("code") + 1], "ui-review")
         self.assertEqual(stages.count("ui-review"), 1)
 
+    def test_add_lands_after_the_last_of_a_repeated_anchor(self):
+        saved = {"format": "assembly-line/1", "name": "twice",
+                 "stages": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "code",
+                            "review-fix", "merge"]}
+        folder = self.root / "lines"
+        folder.mkdir()
+        (folder / "twice.json").write_text(json.dumps(saved))
+        code, out = self.validate(
+            self.from_line("twice", add=[{"after": "code", "item": "ui-review"}]), lines=folder)
+        stages = out["line"]["stages"]
+        self.assertEqual(stages[stages.index("ui-review") - 1], "code")
+        self.assertEqual(stages.index("ui-review"), len(stages) - 3)
+
+    def test_a_saved_line_with_from_is_rejected(self):
+        saved = {"format": "assembly-line/1", "name": "nested", "from": "feature",
+                 "stages": ["judge", "merge"]}
+        folder = self.root / "lines"
+        folder.mkdir()
+        (folder / "nested.json").write_text(json.dumps(saved))
+        code, out = self.validate(self.from_line("nested"), lines=folder)
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "saved-line")
+        self.assertNotIn("line", out)
+
+    def test_from_cannot_climb_out_of_the_lines_folder(self):
+        saved = {"format": "assembly-line/1", "name": "outside", "stages": ["judge", "merge"]}
+        (self.root / "outside.json").write_text(json.dumps(saved))
+        folder = self.root / "lines"
+        folder.mkdir()
+        code, out = self.validate(self.from_line("../outside"), lines=folder)
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "saved-line", "not a saved line name")
+        self.assertNotIn("line", out)
+
+    def test_add_that_is_not_a_list_has_its_own_message(self):
+        code, out = self.validate(self.from_line("feature", add="x"))
+        self.assertEqual(code, 1)
+        self.assertError(out, None, "line-shape", "add must be a list")
+
     def test_adds_apply_in_order(self):
         adds = [{"after": "code", "item": "ui-review"}, {"after": "ui-review", "item": "code-docs"}]
         code, out = self.validate(self.from_line("small-fix", add=adds))
