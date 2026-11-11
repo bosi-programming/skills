@@ -56,7 +56,7 @@ check("frontmatter-description", len(fields.get("description", "")) > 40, "descr
 check_all("input-is-ticket", block(skill, "## Input", r"^## "), "ticket id", "`open-restaurant`")
 check_all("reads-settings", block(skill, "## Settings", r"^## "),
           "`assembly-line.codingModel`", "`assembly-line.routineModel`", "`assembly-line.uiReviewerModel`",
-          "`assembly-line.reviewState`", "`assembly-line.doneState`", "`assembly-line.runLog`", "`../setup/references/config.md`",
+          "`assembly-line.reviewState`", "`assembly-line.doneState`", "`assembly-line.runLog`", "`feature-recipe.cardsDir`", "`../setup/references/config.md`",
           "grep -n -A8 '^assembly-line:'", "`## assembly-line`", "`## recipe-relay`", "Project rules:")
 check("no-whole-config-read", SKILL_MD.exists() and "read `../setup/references/config.md`" not in flatten(skill),
       "SKILL.md missing or reads the whole config.md")
@@ -101,6 +101,9 @@ check_all("run-log-kind", line, "`kind`", "`## Bug report`", "`## Why this shape
 check_all("run-log", block(skill, "### Run log", r"^##"),
           "`$SKILL_DIR/scripts/run-log.py`", "`assembly-line.runLog`", "`--log`", "every stage run", "`startedAt`",
           "`loops`", "`tokens`", "`changedBy`", "`null`", "line: run-log failed", "never stops the run")
+check_all("line-board", block(skill, "### Line board", r"^##"),
+          "`$SKILL_DIR/scripts/board.py`", "`feature-recipe.cardsDir`", "`assembly-line.runLog`", "`--cards`", "`--log`",
+          "after each step", "more than one ticket", "line: board failed", "never stops the run")
 check_all("applies-signals", block(skill, "## 5. Move to the next stage", r"^## "),
           "`$SKILL_DIR/scripts/apply-signals.py`", "`## Signals`", "`--done`", "`./references/signals.json`",
           "no approval", "line comment", "`## Decisions`", "`line: signal`", '`"rejected"`', '`"applied"`')
@@ -142,6 +145,10 @@ check_all("readme-run-log", block(readme, "### assembly-line", r"^### "),
           "`runs.jsonl`", "`assembly-line.runLog`", "`run-log.py`")
 check_all("readme-validate-run-log", block(readme, "## Validate a change", r"^## "),
           "skills/assembly-line/scripts/test_run_log.py")
+check_all("readme-line-board", block(readme, "### assembly-line", r"^### "),
+          "`board.py`", "`feature-recipe.cardsDir`", "bottleneck")
+check_all("readme-validate-board", block(readme, "## Validate a change", r"^## "),
+          "skills/assembly-line/scripts/test_board.py")
 check_all("config-names-section", read(CONFIG_MD), "`## assembly-line`")
 
 width = max(len(name) for name, _, _ in results)

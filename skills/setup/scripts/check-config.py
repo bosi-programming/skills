@@ -94,7 +94,7 @@ CONSUMERS = {
     ],
     SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
     SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
-    SKILLS / "assembly-line" / "SKILL.md": [key for key in KEYS if key.startswith("assembly-line.")],
+    SKILLS / "assembly-line" / "SKILL.md": [key for key in KEYS if key.startswith("assembly-line.")] + ["feature-recipe.cardsDir"],
     SKILLS / "plan-assembly-line" / "SKILL.md": ["assembly-line.runLog"],
     SKILLS / "review-fix" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel"],
     SKILLS / "ui-review" / "SKILL.md": ["recipe-relay.uiReviewerModel"],
