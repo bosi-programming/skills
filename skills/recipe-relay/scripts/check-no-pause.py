@@ -61,6 +61,7 @@ lowered_close = flatten(close)
 gaps = [p for p in ('every stop', '`taskstop`', 'background shell', 'still running', 'port or pid', '`relay: closed down') if p not in lowered_close]
 gaps += [p for p in ("section 6",) if p not in flatten(stops)]
 gaps += [p for p in ("stops what it brought up",) if p not in flatten(shots)]
+gaps += [p for p in ("stalled", "30 minutes", "`relay: stalled", "once", "`runstatus: blocked`") if p not in lowered_close]
 check("close-down", not gaps, f"missing: {gaps}")
 
 validate = block(read(README), "## Validate a change", r"^## ")

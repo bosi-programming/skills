@@ -141,6 +141,7 @@ check_all("gate-stop", text["stops"], "`runStatus: gate`")
 check_all("report", text["report"], "unblock notes", "`restaurant:`")
 
 check_all("close-down", text["closedown"], "every stop", "`taskstop`", "background shell", "still running", "port or pid", "env", "`restaurant: closed down")
+check_all("stalls", text["closedown"], "stalled", "30 minutes", "`restaurant: stalled", "once", "`runStatus: blocked`")
 check_all("stops-close-down", text["stops"], "section 9")
 
 check_all("one-way-doors", skill, "never merges", "without a human")
