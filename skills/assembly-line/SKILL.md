@@ -46,7 +46,7 @@ The validator, `$SKILL_DIR/scripts/validate-line.py`, runs before any stage runs
 
 When the line has `from`, it starts from a saved line: the run uses the validator's `"line"`, the expanded line, from here on. Its stages are the ones run, and the `{"group": "sub-issues"}` stop is checked on the expanded line, so for a `from` line that check comes after validation.
 
-Work out `kind` once, from the block the ticket's body carries: `## Bug report` is `bug`; `## Why this shape` is `enablement`; `## Design deliverable` is `design`; `## Before → after` is `feature`. A ticket with none of them has `kind` `null`.
+Work out `kind` once, from the block the ticket's body carries: `## Bug report` is `Bug`; `## Why this shape` or `## Removes` is `Enablement`; `## Design deliverable` is `Design`; `## Before → after` is `Feature`. A ticket with none of them has `kind` `null`.
 
 ## 2. Find or make the card
 
@@ -109,19 +109,22 @@ After each step, apply the signals the stages raised. Write the line in use to `
 
 ### Run log
 
-Note `startedAt` before each stage starts and `endedAt` when it returns, both UTC ISO 8601 from `date -u +%Y-%m-%dT%H:%M:%SZ`. After every stage run, append one line to the file `assembly-line.runLog` names, before applying signals. Go-back reruns and each parallel branch count as a stage run. In the command, `$SKILL_DIR` is this skill's folder.
+Note `startedAt` before each stage starts and `endedAt` when it returns, both UTC ISO 8601 from `date -u +%Y-%m-%dT%H:%M:%SZ`. After every stage run, append one line to the file `assembly-line.runLog` names, before applying signals. Go-back reruns and each parallel branch count as a stage run. The script is `$SKILL_DIR/scripts/run-log.py`, where `$SKILL_DIR` is this skill's folder; it does not read the settings file.
 
 ```bash
 python3 "$SKILL_DIR/scripts/run-log.py" append --log <assembly-line.runLog> --ticket <id> --kind <kind> --line <from> --stage <stage> --started-at <iso> --ended-at <iso> --verdict <verdict> --loops <n> --tokens <n> --changed-by <signal>
 ```
 
 - `--log` is the value of `assembly-line.runLog`; leave it out for the default.
-- `--kind` is the `kind` from section 1, `--line` the line's `from` name; leave a flag out when its value is `null`, and the record holds `null`.
-- `--loops` is how many go-backs this stage has had so far in the run, `0` for the first run.
-- `--tokens` is the sub-agent's token count when it reports one; leave it out otherwise.
-- `--changed-by` is the signal that added this stage to the line; leave it out when the line planned it.
+- `--kind` is the `kind` from section 1 and `--line` the name the line comment starts `from`; leave a flag out when its value is `null`, and the record holds `null`.
+- `--line` is `null` for a line written out in `stages`.
+- `--loops` (`loops`) is how many times this stage already ran earlier in this run of the line: `0` on its first run, one more for each go-back rerun.
+- `--tokens` (`tokens`) is the total the harness reports for the stage's sub-agent. Leave it out, so it is `null`, when there is none, and always for `judge`, `ui-review` and `review-fix`, which run in this session.
+- `--changed-by` (`changedBy`) is the signal name from an `apply-signals.py` `"applied"` add entry for that stage; leave it out, so it is `null`, otherwise.
+- `--verdict` is the stage's `Verdict:`; a stage that stops without one logs its `runStatus` (`blocked`, `needs-input`, `gate`).
+- A parallel group logs one line per branch stage, each with its own times.
 
-A failed append (exit 1 or 2) is logged to `## Decisions` as `line: run-log failed`, and the run goes on: the run log never stops the run.
+A failed append (exit 1 or 2) is logged to `## Decisions` as `line: run-log failed <stage>: <error>`, and the run goes on: the run log never stops the run.
 
 ## 6. Stop conditions
 

@@ -23,14 +23,16 @@
         "scripts/check-no-pause.py",
         "scripts/check-split-cooking.py",
         "scripts/check-stage-spec.py",
+        "scripts/run-log.py",
         "scripts/test_apply_signals.py",
         "scripts/test_build_catalog.py",
         "scripts/test_check_line_format.py",
         "scripts/test_check_stage_spec.py",
+        "scripts/test_run_log.py",
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "b911a3a6e2e2"
+      "version": "b377854f731f"
     },
     {
       "name": "better-code-review",
@@ -308,7 +310,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "d10aad9c8328"
+      "version": "482393f3a597"
     },
     {
       "name": "ship-pr",
