@@ -71,7 +71,7 @@ every key.
 | `week-summary.logicSymbols` | `true` | Write the terse sections with logical symbols (`&`, `->`, `=/`). |
 | `week-summary.valuesHeading` | `Values` | Heading of the section that sums up `work-summary.values` across the week. |
 | `week-summary.bragFile` | `''` | Brag file whose entries dated inside the week become the Weekly Update's Q4. Empty keeps Q4 as `{USER WILL FILL}`. |
-| `feature-recipe.cardsDir` | `./recipes` | Folder recipe cards go in, relative to the project root. |
+| `feature-recipe.cardsDir` | `./recipes` | Folder recipe cards go in, relative to the project root; `assembly-line`'s line board reads it. |
 | `feature-recipe.defaultMode` | `regular` | Mode a recipe runs in when the request names none: `regular` or `headless`. |
 | `feature-recipe.runWorkSummary` | `true` | Run `work-summary` at the end of Documentation, when the session has it. `false` skips it. |
 | `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. |

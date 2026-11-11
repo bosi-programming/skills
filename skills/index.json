@@ -17,6 +17,7 @@
         "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
         "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/apply-signals.py",
+        "scripts/board.py",
         "scripts/build-catalog.py",
         "scripts/check-assembly-line.py",
         "scripts/check-line-format.py",
@@ -25,6 +26,7 @@
         "scripts/check-stage-spec.py",
         "scripts/run-log.py",
         "scripts/test_apply_signals.py",
+        "scripts/test_board.py",
         "scripts/test_build_catalog.py",
         "scripts/test_check_line_format.py",
         "scripts/test_check_stage_spec.py",
@@ -32,7 +34,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "f3348e4763b7"
+      "version": "d2ea5db0aa44"
     },
     {
       "name": "better-code-review",
@@ -312,7 +314,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "76a7795cf4b6"
+      "version": "c8fafcd5e295"
     },
     {
       "name": "ship-pr",

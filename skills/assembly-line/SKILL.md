@@ -21,6 +21,7 @@ Read the keys below as `../setup/references/config.md` says: look them up with `
 - `assembly-line.reviewState` (`In Review`): tracker state once the PR is open. Empty skips the move.
 - `assembly-line.doneState` (`Done`): tracker state once `merge` merges. Empty skips the move.
 - `assembly-line.runLog` (`~/.bosi-skills/runs.jsonl`): the file the run log goes to.
+- `feature-recipe.cardsDir` (`./recipes`): the folder the line board reads cards from; look it up with `grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`.
 
 An empty model keeps the model this session runs on.
 
@@ -125,6 +126,19 @@ python3 "$SKILL_DIR/scripts/run-log.py" append --log <assembly-line.runLog> --ti
 - A parallel group logs one line per branch stage, each with its own times.
 
 A failed append (exit 1 or 2) is logged to `## Decisions` as `line: run-log failed <stage>: <error>`, and the run goes on: the run log never stops the run.
+
+### Line board
+
+After each step, after the run log append, run the board. The script is `$SKILL_DIR/scripts/board.py`, where `$SKILL_DIR` is this skill's folder; it does not read the settings file and writes nothing.
+
+```bash
+python3 "$SKILL_DIR/scripts/board.py" --cards <feature-recipe.cardsDir> --log <assembly-line.runLog>
+```
+
+- `--cards` is the value of `feature-recipe.cardsDir` and `--log` the value of `assembly-line.runLog`; leave a flag out for its default.
+- It prints a ticket table of every running card, a stage table with how many wait at each stage, and a `Bottleneck:` line.
+- When the ticket table lists more than one ticket, that step's one-line report to the user names the command.
+- A failed board (exit 1 or 2) is logged to `## Decisions` as `line: board failed: <error>`, and the run goes on: the board never stops the run.
 
 ## 6. Stop conditions
 
