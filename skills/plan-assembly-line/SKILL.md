@@ -53,7 +53,7 @@ python3 "$SKILL_DIR/scripts/stats.py" --kind <kind> --log <assembly-line.runLog>
 - `look`: the stage failed in a quarter or more of its runs. Show it only for a stage the line holds.
 - `cut`: the stage never failed. Show it only for a stage the line holds.
 
-A stage with fewer 5 runs has a null suggestion. Show each `because` as it stands. A suggestion from the log is shown and not applied: the engineer decides. When the script exits 1 or 2, or the log has no runs, planning goes on without log, and the table says why.
+A stage with fewer than 5 runs has a null suggestion. Show each `because` as it stands. A suggestion from the log is shown and not applied: the engineer decides. When the script exits 1 or 2, or the log has no runs, planning goes on without the log, and the table says why.
 
 ## 3. Validate each line
 
@@ -69,7 +69,7 @@ Fix a suggestion of your own that fails, then run it again. For an error on a li
 
 ## 4. Show and approve
 
-Show one table of every ticket: the line, why, a From run log column and the validator result. The From run log column carries each `because` verbatim, or `-` when there is none. Suggestions from the log are not applied; an engineer edit takes one, and the edit is validated again. The engineer confirms or edits each line.
+Show one table of every ticket: the line, why, a "From the run log" column and the validator result. The "From the run log" column carries each `because` verbatim, or `-` when there is none. Suggestions from the log are not applied; the engineer edits the line to take one, and the edit is validated again. The engineer confirms or edits each line.
 
 Nothing is written before the engineer approves. An edit is validated again. A line the validator rejects is not saved: show the errors and ask again. The engineer may approve some tickets and not others; only the approved ones go on to step 5.
 
