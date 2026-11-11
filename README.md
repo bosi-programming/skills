@@ -108,12 +108,13 @@ How it plans:
 
 1. **Read.** It reads each ticket's body and comments through the tracker. A line comment already there, the one created last, is the starting suggestion.
 2. **Suggest.** It starts from the saved line that matches the ticket's kind (`feature`, `bug`, `small-fix` or `parent`) and drops or adds stages by rule, saving it with `from`: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. Each line comes with a short why.
-3. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
-4. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
-5. **Save.** One comment per ticket, in the `line-format.md` shape. It never edits or deletes an old line comment.
-6. **Read back.** It reads each comment back and reports any difference from the approved line, with a link per ticket.
+3. **Run log.** `stats.py` reads the run log tickets of the same kind and suggests to add, look at or cut a stage, with the count behind it, from 5 runs up. Suggestions are shown, not applied.
+4. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
+5. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
+6. **Save.** One comment per ticket, in the `line-format.md` shape. It never edits or deletes an old line comment.
+7. **Read back.** It reads each comment back and reports any difference from the approved line, with a link per ticket.
 
-`plan-work` calls it on its new tickets when `plan-work.role` is `engineer`. It adds no setting.
+`plan-work` calls it on its new tickets when `plan-work.role` is `engineer`. It reads the run log `assembly-line.runLog` and has no setting of its own.
 
 ### recipe-relay
 
@@ -436,6 +437,7 @@ python3 skills/assembly-line/scripts/check-assembly-line.py
 python3 skills/assembly-line/scripts/check-no-pause.py
 python3 skills/assembly-line/scripts/check-split-cooking.py
 python3 skills/plan-assembly-line/scripts/check-plan-assembly-line.py
+python3 skills/plan-assembly-line/scripts/test_stats.py
 python3 skills/feature-recipe/scripts/check-pr-screenshots.py
 python3 skills/recipe-relay/scripts/check-review-evidence.py
 python3 skills/recipe-relay/scripts/check-split-cooking.py

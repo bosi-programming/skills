@@ -37,6 +37,24 @@ If the ticket already has a line, start from it and change only what the rules r
 
 Each suggestion carries one or two sentences of why.
 
+### Run log
+
+The run log tells which stages earned their place for tickets of the same kind. Work out the kind, passed as `--kind`, from the block the ticket's body carries: `## Bug report` is Bug; `## Why this shape` or `## Removes` is Enablement; `## Design deliverable` is Design; `## Before → after` is Feature. A ticket with no kind block has no kind: skip the log for it.
+
+Read the key `assembly-line.runLog` as `../setup/references/config.md` says: `grep -n -A8 '^assembly-line:' .bosi-skills.md ~/.bosi-skills.md`, the current folder first, then `$HOME`, then the default `~/.bosi-skills/runs.jsonl`. When the default holds, leave `--log` out. In the command below, `$SKILL_DIR` is this skill's folder.
+
+```bash
+python3 "$SKILL_DIR/scripts/stats.py" --kind <kind> --log <assembly-line.runLog>
+```
+
+`$SKILL_DIR/scripts/stats.py` prints one json object. Each stage in it has a `suggestion` and a `because`:
+
+- `add`: a signal added the stage in more than half its runs. Show it only for a stage the line lacks.
+- `look`: the stage failed in a quarter or more of its runs. Show it only for a stage the line holds.
+- `cut`: the stage never failed. Show it only for a stage the line holds.
+
+A stage with fewer 5 runs has a null suggestion. Show each `because` as it stands. A suggestion from the log is shown and not applied: the engineer decides. When the script exits 1 or 2, or the log has no runs, planning goes on without log, and the table says why.
+
 ## 3. Validate each line
 
 Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. When the line starts from a saved line, the file holds `from`, with `drop` and `add`, in place of `stages`. In the command below, `$SKILL_DIR` is this skill's folder.
@@ -51,7 +69,7 @@ Fix a suggestion of your own that fails, then run it again. For an error on a li
 
 ## 4. Show and approve
 
-Show one table of every ticket: the line, why, and the validator result. The engineer confirms or edits each line.
+Show one table of every ticket: the line, why, a From run log column and the validator result. The From run log column carries each `because` verbatim, or `-` when there is none. Suggestions from the log are not applied; an engineer edit takes one, and the edit is validated again. The engineer confirms or edits each line.
 
 Nothing is written before the engineer approves. An edit is validated again. A line the validator rejects is not saved: show the errors and ask again. The engineer may approve some tickets and not others; only the approved ones go on to step 5.
 
