@@ -63,6 +63,7 @@ sections = {
     "close": "## 6. Close the cards",
     "stops": "## 7. Stops and resume",
     "report": "## 8. Report",
+    "closedown": "## 9. Close down",
 }
 text = {key: block(skill, heading, r"^## ") for key, heading in sections.items()}
 for key, heading in sections.items():
@@ -138,6 +139,9 @@ check_all("close-returns", text["close"], "next step of the parent's line")
 check_all("resume", text["stops"], "service card", "`restaurant: step`")
 check_all("gate-stop", text["stops"], "`runStatus: gate`")
 check_all("report", text["report"], "unblock notes", "`restaurant:`")
+
+check_all("close-down", text["closedown"], "every stop", "`taskstop`", "background shell", "still running", "port or pid", "env", "`restaurant: closed down")
+check_all("stops-close-down", text["stops"], "section 9")
 
 check_all("one-way-doors", skill, "never merges", "without a human")
 
