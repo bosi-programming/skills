@@ -178,6 +178,14 @@ class RunLog(unittest.TestCase):
                 self.assertFalse(log.parent.exists())
                 self.assertFalse((self.home / ".bosi-skills").exists())
 
+    def test_unwritable_log_exits_one_with_error(self):
+        blocker = self.home / "blocker"
+        blocker.write_text("x")
+        log = blocker / "runs.jsonl"
+        result = self.run_script("append", "--log", str(log), *flags(REQUIRED))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("error", json.loads(result.stdout))
+
 
 if __name__ == "__main__":
     unittest.main()
