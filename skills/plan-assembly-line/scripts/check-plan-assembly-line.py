@@ -110,6 +110,14 @@ check_all("approval-first", block(skill, "## 4. Show and approve", r"^## "),
 check_all("saves-comment", block(skill, "## 5. Save", r"^## "),
           "one comment per ticket", "tracker tool", "`## Assembly line`", "json block",
           "exactly the approved line", "never edit or delete")
+run_log = block(skill, "### Run log", r"^##")
+check_all("run-log", run_log, "`$SKILL_DIR/scripts/stats.py`", "`assembly-line.runLog`", "`~/.bosi-skills/runs.jsonl`",
+          "`--log`", "`--kind`", "`because`", "`add`", "`look`", "`cut`", "fewer than 5 runs", "not applied",
+          "without the log", "`../setup/references/config.md`")
+check_all("run-log-kind", run_log, "`## Bug report`", "`## Why this shape`", "`## Removes`",
+          "`## Design deliverable`", "`## Before \u2192 after`", "no kind block")
+check_all("table-from-log", block(skill, "## 4. Show and approve", r"^## "), "from the run log", "`because`",
+          "not applied")
 check_all("reads-back", block(skill, "## 6. Read back", r"^## "),
           "reads it back", "matches the approved line", "link per ticket", "not saved and why", "not post again")
 check("no-skill-dir-var", SKILL_MD.exists() and "${CLAUDE_SKILL_DIR}" not in skill,
@@ -133,6 +141,12 @@ check("readme-section", re.search(r"^### plan-assembly-line$", readme, re.MULTIL
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/check-plan-assembly-line.py")
 check_all("readme-saved-line", block(readme, "### plan-assembly-line", r"^### "), "saved line", "`from`")
+readme_block = block(readme, "### plan-assembly-line", r"^### ")
+check_all("readme-run-log", readme_block, "`stats.py`", "`assembly-line.runLog`")
+check("readme-run-log-no-old-claim", "it adds no setting" not in flatten(readme_block),
+      "README still says 'it adds no setting'")
+check_all("readme-validate-stats", block(readme, "## Validate a change", r"^## "),
+          "skills/plan-assembly-line/scripts/test_stats.py")
 check_all("readme-count", readme, "thirty-four claude code skills", "the other thirty-two", "the same thirty-four")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
