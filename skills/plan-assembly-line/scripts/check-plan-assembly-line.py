@@ -112,11 +112,11 @@ check_all("saves-comment", block(skill, "## 5. Save", r"^## "),
           "exactly the approved line", "never edit or delete")
 run_log = block(skill, "### Run log", r"^##")
 check_all("run-log", run_log, "`$SKILL_DIR/scripts/stats.py`", "`assembly-line.runLog`", "`~/.bosi-skills/runs.jsonl`",
-          "`--log`", "`--kind`", "`because`", "`add`", "`look`", "`cut`", "fewer 5 runs", "not applied",
-          "without log", "`../setup/references/config.md`")
+          "`--log`", "`--kind`", "`because`", "`add`", "`look`", "`cut`", "fewer than 5 runs", "not applied",
+          "without the log", "`../setup/references/config.md`")
 check_all("run-log-kind", run_log, "`## Bug report`", "`## Why this shape`", "`## Removes`",
           "`## Design deliverable`", "`## Before \u2192 after`", "no kind block")
-check_all("table-from-log", block(skill, "## 4. Show and approve", r"^## "), "from run log", "`because`",
+check_all("table-from-log", block(skill, "## 4. Show and approve", r"^## "), "from the run log", "`because`",
           "not applied")
 check_all("reads-back", block(skill, "## 6. Read back", r"^## "),
           "reads it back", "matches the approved line", "link per ticket", "not saved and why", "not post again")
