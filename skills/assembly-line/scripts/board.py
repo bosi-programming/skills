@@ -54,7 +54,8 @@ def frontmatter(text):
 
 def read_cards(cards_dir):
     running = []
-    for path in sorted(cards_dir.glob("*.md")):
+    names = sorted(name for name in os.listdir(cards_dir) if name.endswith(".md"))
+    for path in (cards_dir / name for name in names):
         try:
             text = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
@@ -132,7 +133,10 @@ def main(argv):
     except (OSError, UnicodeDecodeError) as error:
         return fail(f"cannot read {values['log']}: {error}")
 
-    running = read_cards(cards_dir)
+    try:
+        running = read_cards(cards_dir)
+    except OSError as error:
+        return fail(f"cannot read {values['cards']}: {error}")
     if not running:
         print(f"No running lines in {cards_dir.resolve()}.")
         return 0

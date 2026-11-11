@@ -224,6 +224,17 @@ class Board(unittest.TestCase):
                 payload = json.loads(result.stdout)
                 self.assertIsInstance(payload["error"], str)
 
+    def test_unreadable_cards_folder(self):
+        locked = self.home / "locked"
+        locked.mkdir()
+        locked.chmod(0)
+        try:
+            result = self.run_board("--cards", str(locked), "--log", str(self.log))
+        finally:
+            locked.chmod(0o755)
+        self.assertEqual(result.returncode, 1)
+        self.assertIsInstance(json.loads(result.stdout)["error"], str)
+
 
 if __name__ == "__main__":
     unittest.main()

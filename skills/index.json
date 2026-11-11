@@ -13,7 +13,9 @@
         "references/signals.json",
         "references/stage-spec.md",
         "scripts/__pycache__/apply-signals.cpython-315.pyc",
+        "scripts/__pycache__/board.cpython-315.pyc",
         "scripts/__pycache__/build-catalog.cpython-315.pyc",
+        "scripts/__pycache__/test_board.cpython-315.pyc",
         "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
         "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/apply-signals.py",
@@ -34,7 +36,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "dd27724cf419"
+      "version": "774c01427174"
     },
     {
       "name": "better-code-review",
