@@ -34,7 +34,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "d2ea5db0aa44"
+      "version": "dd27724cf419"
     },
     {
       "name": "better-code-review",
@@ -314,7 +314,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "c8fafcd5e295"
+      "version": "1d1b9edbc0cb"
     },
     {
       "name": "ship-pr",
