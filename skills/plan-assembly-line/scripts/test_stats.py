@@ -216,6 +216,36 @@ class Stats(unittest.TestCase):
             self.assertIsNone(entry["suggestion"])
             self.assertIsNone(entry["because"])
 
+    def assert_error_exit(self, *args):
+        result = self.run_stats(*args)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(list(json.loads(result.stdout)), ["error"])
+
+    def test_unreadable_log_exits_one(self):
+        folder = self.home / "logdir"
+        folder.mkdir()
+        self.assert_error_exit("--kind", "feature", "--log", str(folder), "--catalog", str(self.catalog))
+
+    def test_missing_catalog_exits_one(self):
+        log = self.write_log([line("T-1", "qa")])
+        self.assert_error_exit("--kind", "feature", "--log", str(log), "--catalog", str(self.home / "absent.json"))
+
+    def test_catalog_without_stages_exits_one(self):
+        log = self.write_log([line("T-1", "qa")])
+        bad = self.home / "bad.json"
+        bad.write_text(json.dumps({"format": "x"}))
+        self.assert_error_exit("--kind", "feature", "--log", str(log), "--catalog", str(bad))
+
+    def test_default_catalog_counts_return_verdicts(self):
+        lines = [line(f"T-{i}", "qa", "fail" if i < 2 else "pass") for i in range(5)]
+        lines += [line(f"T-{i}", "review-request", "skipped" if i < 3 else "pass") for i in range(5)]
+        log = self.write_log(lines)
+        result = self.run_stats("--kind", "feature", "--log", str(log))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        data = json.loads(result.stdout)
+        self.assertEqual(self.stage(data, "qa")["fails"], 2)
+        self.assertEqual(self.stage(data, "review-request")["fails"], 3)
+
 
 if __name__ == "__main__":
     unittest.main()
