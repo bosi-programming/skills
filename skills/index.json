@@ -32,7 +32,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "b377854f731f"
+      "version": "f3348e4763b7"
     },
     {
       "name": "better-code-review",
@@ -203,9 +203,11 @@
       "name": "plan-assembly-line",
       "files": [
         "SKILL.md",
-        "scripts/check-plan-assembly-line.py"
+        "scripts/check-plan-assembly-line.py",
+        "scripts/stats.py",
+        "scripts/test_stats.py"
       ],
-      "version": "6717e936fc14"
+      "version": "e1768cca00d7"
     },
     {
       "name": "plan-code",
@@ -310,7 +312,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "482393f3a597"
+      "version": "76a7795cf4b6"
     },
     {
       "name": "ship-pr",
