@@ -207,7 +207,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "e1768cca00d7"
+      "version": "860c8e1cd98b"
     },
     {
       "name": "plan-code",
