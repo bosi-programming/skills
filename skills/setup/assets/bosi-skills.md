@@ -43,6 +43,8 @@ assembly-line:
   reviewState: In Review
   doneState: Done
   runLog: ~/.bosi-skills/runs.jsonl
+  lineFile: '{cardsDir}/{ticket}.line.json'
+  lineDestination: ticket
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -146,6 +148,11 @@ only needs the keys it changes.
   the line moves a ticket to once its PR is open and once `merge` merges it;
   empty skips the move.
 - `assembly-line.runLog` — the file the line appends one JSON line to per stage run.
+- `assembly-line.lineFile` — the local line file; `{cardsDir}` is
+  `feature-recipe.cardsDir` and `{ticket}` the ticket id. The line reads it
+  before the ticket's line comment.
+- `assembly-line.lineDestination` — `ticket` saves a planned line as a
+  comment on the ticket, `file` writes it to `assembly-line.lineFile`.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML

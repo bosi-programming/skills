@@ -1,6 +1,6 @@
 ---
 name: plan-assembly-line
-description: Suggests each ticket's line of stages from its body and the stage catalog, starting from the saved line that matches the ticket's kind, validates it, lets the engineer confirm or edit it, and saves it as a line comment on the ticket only after approval. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
+description: Suggests each ticket's line of stages from its body and the stage catalog, starting from the saved line that matches the ticket's kind, validates it, lets the engineer confirm or edit it, and saves it, only after approval, as a line comment on the ticket or in a local line file. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
 ---
 
 # Plan Assembly Line
@@ -16,6 +16,8 @@ One or more ticket ids. `plan-work` hands over the ids of the tickets it just sa
 Through the tracker tool in this session, read each ticket's body and comments. `../assembly-line/references/line-format.md` says what a line holds; read it here, and read `../assembly-line/references/catalog.json` for the stages.
 
 A comment is a line comment when its json block parses to an object whose `"format"` is `assembly-line/1`. If the ticket has one, take the one created last. It is the starting suggestion. Saving posts a new line comment, which wins; the old one stays.
+
+Read the line file too: the path `assembly-line.lineFile` names, read as in _Run log_ below. When it exists, it is the starting suggestion and wins over any line comment, as it does in `assembly-line`.
 
 ## 2. Suggest a line
 
@@ -75,14 +77,18 @@ Nothing is written before the engineer approves. An edit is validated again. A l
 
 ## 5. Save
 
-Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line: the `from` form as approved, not the expanded stages.
+Save each line where `assembly-line.lineDestination` says, read as in _Run log_ (default `ticket`). The request beats the setting: "save it locally" means `file`, "post it on the ticket" means `ticket`. `plan-work` passes on what the user picked.
+
+**`file`.** Write the approved line to the path `assembly-line.lineFile` names (default `{cardsDir}/{ticket}.line.json`), with `{cardsDir}` replaced by `feature-recipe.cardsDir` (`./recipes`; `grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`) and `{ticket}` by the ticket id, relative to the project root. Make the folder if it is missing. The file holds the approved line as the JSON object alone, the `from` form as approved, not the expanded stages: no heading, no prose. An existing file is overwritten; show its line in the table in step 4 first. The tracker gets no comment.
+
+**`ticket`.** Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line: the `from` form as approved, not the expanded stages.
 
 Never edit or delete an old line comment. A new comment replaces it, because the one created last wins.
 
-If the session has no tracker tool, stop before writing and show the lines.
+If the destination is `ticket` and the session has no tracker tool, stop before writing and show the lines.
 
 ## 6. Read back
 
-The skill reads it back: fetch each saved comment, parse its json block and check that it matches the approved line. A difference is reported, and the skill does not post again unless the engineer asks.
+The skill reads it back: fetch each saved comment, parse its json block and check that it matches the approved line. For a line file, read the file and parse it the same way. A difference is reported, and the skill does not post again unless the engineer asks.
 
-Reply with a link per ticket, and which tickets were not saved and why.
+Reply with a link per ticket, or a path per ticket for a line file, and which tickets were not saved and why.

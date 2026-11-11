@@ -86,11 +86,11 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### assembly-line
 
-Runs one ticket's line: the ordered stages its line comment names. It reads the ticket's comments through the tracker and takes the line comment created last, the one with `"format": "assembly-line/1"`. A line comment may start from a saved line with `from`, edited by `add` and `drop`, and the run uses the expanded line. It changes no stage's files, and `recipe-relay` stays until BOS-112.
+Runs one ticket's line: the ordered stages its line names. It reads the local line file `assembly-line.lineFile` names (`{cardsDir}/{ticket}.line.json`) and the ticket's comments through the tracker; the file wins when both exist, else it takes the line comment created last, the one with `"format": "assembly-line/1"`. A line comment may start from a saved line with `from`, edited by `add` and `drop`, and the run uses the expanded line. It changes no stage's files, and `recipe-relay` stays until BOS-112.
 
 How the line runs:
 
-1. **Validate.** The line goes through `validate-line.py` before any stage runs. An invalid line, a missing line comment or a `{"group": "sub-issues"}` line stops the run and writes nothing; it points to `plan-assembly-line`, or to `open-restaurant`.
+1. **Validate.** The line goes through `validate-line.py` before any stage runs. An invalid line, no line file and no line comment or a `{"group": "sub-issues"}` line stops the run and writes nothing; it points to `plan-assembly-line`, or to `open-restaurant`.
 2. **Stages.** Each stage runs in its own sub-agent, and every checkpoint takes its own recommendation, logged to the recipe card as `line:`. `judge`, `ui-review` and `review-fix` run in the session, because their own steps spawn sub-agents.
 3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; the `code` after them is the fix and taste agent.
 4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
@@ -104,7 +104,7 @@ How the line runs:
 
 ### plan-assembly-line
 
-Suggests each ticket's line and saves it as a comment on the ticket, in the shape `assembly-line` reads. It never runs the line.
+Suggests each ticket's line and saves it as a comment on the ticket or in a local line file, in the shape `assembly-line` reads. It never runs the line.
 
 How it plans:
 
@@ -113,10 +113,10 @@ How it plans:
 3. **Run log.** `stats.py` reads the run log for tickets of the same kind and suggests to add, look at or cut a stage, each with the count behind it, from 5 runs up. The suggestions are shown, not applied.
 4. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
 5. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
-6. **Save.** One comment per ticket, in the `line-format.md` shape. It never edits or deletes an old line comment.
+6. **Save.** `assembly-line.lineDestination` (`ticket`) picks where: one comment per ticket, in the `line-format.md` shape, or with `file` the JSON line alone at `assembly-line.lineFile`. It never edits or deletes an old line comment.
 7. **Read back.** It reads each comment back and reports any difference from the approved line, with a link per ticket.
 
-`plan-work` calls it on its new tickets when `plan-work.role` is `engineer`. It reads the run log at `assembly-line.runLog` and has no setting of its own.
+`plan-work` calls it on its new tickets when `plan-work.role` is `engineer`. It reads the run log at `assembly-line.runLog`, and `assembly-line.lineFile` and `assembly-line.lineDestination` for where lines live.
 
 ### recipe-relay
 
@@ -301,7 +301,7 @@ The tool, project, due date and labels are settings; see `setup`.
 
 Plans a feature into tickets, or reviews tickets already planned, in any tracker. In plan mode it reads the feature, its details and specs, checks the tracker for work that already exists, then decides the shape: one ticket or a project, milestones as vertical slices with clean-up last, and sub-issues only when the work needs more than one PR or repo. It writes each body from a template, puts a `[[gap Qn: …]]` marker and a numbered question where a fact is missing instead of guessing, runs a bundled lint (`scripts/check_plan.py`) on the draft, and shows it. Nothing reaches the tracker before approval; after writing, it reads the tickets back and lints them again. Review mode fills a fixed report, each finding with the exact change it proposes, and writes nothing.
 
-Screen work carries a `## Design` section with the design link and before/after screenshots; a design ticket always names the frontend ticket that builds it, existing or new. The rules live in a standard, bundled at `references/standard.md` or the team's own. The standard, lint, tracker team, labels, repos, whether every new Feature goes behind a feature flag and which flag tool, and whether to hand the tickets to `plan-assembly-line` are settings; see `setup`.
+Screen work carries a `## Design` section with the design link and before/after screenshots; a design ticket always names the frontend ticket that builds it, existing or new. The rules live in a standard, bundled at `references/standard.md` or the team's own. The standard, lint, tracker team, labels, repos, whether every new Feature goes behind a feature flag and which flag tool, whether to hand the tickets to `plan-assembly-line`, and whether their lines go on the ticket or in a local file (`assembly-line.lineDestination`) are settings; see `setup`.
 
 ### weekly-planning
 

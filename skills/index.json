@@ -36,7 +36,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "efc199f405a0"
+      "version": "2184ae208d6c"
     },
     {
       "name": "better-code-review",
@@ -211,7 +211,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "860c8e1cd98b"
+      "version": "337ae6de11fb"
     },
     {
       "name": "plan-code",
@@ -241,7 +241,7 @@
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "19579aee5c0b"
+      "version": "125741014789"
     },
     {
       "name": "prepare-pr",
@@ -316,7 +316,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "1d1b9edbc0cb"
+      "version": "b98089122147"
     },
     {
       "name": "ship-pr",

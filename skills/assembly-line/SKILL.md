@@ -1,6 +1,6 @@
 ---
 name: assembly-line
-description: Runs the stages a ticket's line comment names, in the line's order, each in its own sub-agent, taking every checkpoint's own recommendation; validates the line first, follows each stage's return on a failing verdict, and stops at the line's gates. Use when the user names one ticket and wants its line run, or says "run the line" or "assembly line".
+description: Runs the stages a ticket's line names, from its line comment or a local line file, in the line's order, each in its own sub-agent, taking every checkpoint's own recommendation; validates the line first, follows each stage's return on a failing verdict, and stops at the line's gates. Use when the user names one ticket and wants its line run, or says "run the line" or "assembly line".
 ---
 
 # Assembly Line
@@ -9,7 +9,7 @@ Runs one ticket's line: the ordered stages its line comment names. It changes no
 
 ## Input
 
-One ticket id. The line comes from the ticket's line comment. Several tickets, or a parent with sub-issues, are the work of `open-restaurant`.
+One ticket id. The line comes from the local line file, else from the ticket's line comment. Several tickets, or a parent with sub-issues, are the work of `open-restaurant`.
 
 ## Settings
 
@@ -21,6 +21,8 @@ Read the keys below as `../setup/references/config.md` says: look them up with `
 - `assembly-line.reviewState` (`In Review`): tracker state once the PR is open. Empty skips the move.
 - `assembly-line.doneState` (`Done`): tracker state once `merge` merges. Empty skips the move.
 - `assembly-line.runLog` (`~/.bosi-skills/runs.jsonl`): the file the run log goes to.
+- `assembly-line.lineFile` (`{cardsDir}/{ticket}.line.json`): the local line file. `{cardsDir}` stands for `feature-recipe.cardsDir` and `{ticket}` for the ticket id; the path is relative to the project root.
+- `assembly-line.lineDestination` (`ticket`): where `plan-assembly-line` saves a line, `ticket` or `file`. This skill reads both places whatever it holds.
 - `feature-recipe.cardsDir` (`./recipes`): the folder the line board reads cards from; look it up with `grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`.
 
 An empty model keeps the model this session runs on.
@@ -29,11 +31,11 @@ Project rules come from the settings file's `## assembly-line` section, else its
 
 ## 1. Read the line
 
-Read the line before any card exists. Through the tracker tool in this session, read the ticket's comments and take the line comment created last: the one whose json block parses to an object whose `"format"` is `assembly-line/1`. `./references/line-format.md` says what a line holds.
+Read the line before any card exists, from two places. First the line file: the path `assembly-line.lineFile` names, with `{cardsDir}` and `{ticket}` filled in. It holds the line's JSON object alone, the object a line comment's json block holds. Then, through the tracker tool in this session, read the ticket's comments and take the line comment created last: the one whose json block parses to an object whose `"format"` is `assembly-line/1`. When both exist, the file wins: someone saved it in this project on purpose. `./references/line-format.md` says what a line holds.
 
 Stop and write nothing, naming `plan-assembly-line`, in each of these cases:
 
-- there is no line comment;
+- there is no line comment and no line file;
 - the line's `ticket` names another ticket;
 - the line holds `{"group": "sub-issues"}`, which is `open-restaurant`'s work (a `from` line is checked after validation, below).
 
@@ -51,7 +53,7 @@ Work out `kind` once, from the block the ticket's body carries: `## Bug report` 
 
 ## 2. Find or make the card
 
-Read and follow `../feature-recipe/phases/phase-0-start.md` in this session, only up to the point it has a card. Follow it as an interactive invocation: take the task from what the user already said, and don't write `runMode` to the card. Its routing is not followed: the line routes. Log the link to the line comment to `## Decisions`, prefixed `line:`.
+Read and follow `../feature-recipe/phases/phase-0-start.md` in this session, only up to the point it has a card. Follow it as an interactive invocation: take the task from what the user already said, and don't write `runMode` to the card. Its routing is not followed: the line routes. Log the link to the line comment, or the path of the line file, to `## Decisions`, prefixed `line:`.
 
 ## 3. Run each stage
 
@@ -106,7 +108,7 @@ Once the entry's `limit` is used up, its `past` decides: `needs-input` stops the
 
 When a step returns, log `line: step <n>/<total> <stage> <verdict>` to `## Decisions`, keep `runNext` on the stage in flight so Phase 0 can resume it, and start the next step without waiting for a reply, whatever the stage's own file recommends at its end. Post one line per stage to the user: what it produced and which stage starts next.
 
-After each step, apply the signals the stages raised. Write the line in use to `{scratch}/line.json` (the expanded line for a `from` line) and run `$SKILL_DIR/scripts/apply-signals.py` on the card and that file, with `--done` set to the number of steps run: `python3 "$SKILL_DIR/scripts/apply-signals.py" <card> {scratch}/line.json --done <steps run>`. It reads `## Signals` on the card and applies the matching rows of `./references/signals.json` (through `./references/catalog.json`) to the steps not yet run, each change checked by `validate-line.py`. A row is the approval: ask no approval. For each entry in `"applied"`, post a line comment on the ticket (a `## Assembly line` heading, a sentence naming the signal, the stage that raised it, its evidence and the stage added or removed, then the changed line's JSON in `stages` form), log a `line: signal` entry, `line: signal <signal> <raisedBy> -> <change> <stage> (<comment link>)`, to `## Decisions`, and run the rest from the report's `"line"`. For each entry in `"rejected"`, log `line: signal <signal> <raisedBy> rejected: <stage> <rule>` for each of its errors and keep the line. The line comment created last is the line a resume reads.
+After each step, apply the signals the stages raised. Write the line in use to `{scratch}/line.json` (the expanded line for a `from` line) and run `$SKILL_DIR/scripts/apply-signals.py` on the card and that file, with `--done` set to the number of steps run: `python3 "$SKILL_DIR/scripts/apply-signals.py" <card> {scratch}/line.json --done <steps run>`. It reads `## Signals` on the card and applies the matching rows of `./references/signals.json` (through `./references/catalog.json`) to the steps not yet run, each change checked by `validate-line.py`. A row is the approval: ask no approval. For each entry in `"applied"`, post a line comment on the ticket (a `## Assembly line` heading, a sentence naming the signal, the stage that raised it, its evidence and the stage added or removed, then the changed line's JSON in `stages` form), log a `line: signal` entry, `line: signal <signal> <raisedBy> -> <change> <stage> (<comment link>)`, to `## Decisions`, and run the rest from the report's `"line"`. When the run took its line from the line file, rewrite the line file with the changed line in `stages` form instead of posting a comment, and log its path in place of the comment link. For each entry in `"rejected"`, log `line: signal <signal> <raisedBy> rejected: <stage> <rule>` for each of its errors and keep the line. A resume reads the line file when it exists, else the line comment created last.
 
 ### Run log
 

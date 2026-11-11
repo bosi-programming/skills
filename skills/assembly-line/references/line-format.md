@@ -9,7 +9,10 @@ and in what order.
 
 ## Where it lives
 
-In a comment on the ticket. The work card stays the hand-off between stages:
+In a comment on the ticket, or in a local line file: the JSON object alone,
+at the path `assembly-line.lineFile` names (`{cardsDir}/{ticket}.line.json`).
+When both exist, `assembly-line` takes the file. The work card stays the
+hand-off between stages:
 the line names the stages, the card carries what they read and write.
 
 The same JSON object can stand alone as a file, so a saved line in the repo

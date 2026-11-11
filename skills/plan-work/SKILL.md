@@ -236,7 +236,14 @@ why.
 ### 7. Hand off
 
 The skills that will build each ticket (its line) go in a comment on the
-ticket. `plan-assembly-line` writes that comment; this skill doesn't.
+ticket, or in a local file. `plan-assembly-line` writes it; this skill
+doesn't.
+
+Where the line goes is `assembly-line.lineDestination` (`ticket`; read as
+`../setup/references/config.md` says, under `assembly-line:`): `ticket` posts
+a comment, `file` writes the local file `assembly-line.lineFile` names
+(`{cardsDir}/{ticket}.line.json`). When handing off, offer both and recommend
+the setting's value; pass the choice to `plan-assembly-line`.
 
 - `role: engineer`: run `plan-assembly-line` on the new tickets.
 - `role: other`: stop, and say an engineer still has to pick the line.

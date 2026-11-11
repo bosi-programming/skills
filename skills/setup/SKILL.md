@@ -65,6 +65,8 @@ the ones in `./references/config.md`:
    l. State the line moves a ticket to once its PR opens, or `In Review`, and
       the state it moves it to once `merge` merges it, or `Done`.
    m. File the line appends its run log to, or `~/.bosi-skills/runs.jsonl`.
+   n. Where a planned line is saved: `ticket` (a comment) or `file` (a
+      local file), and the file's path, or `{cardsDir}/{ticket}.line.json`.
 8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.
