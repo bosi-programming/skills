@@ -56,7 +56,7 @@ check("frontmatter-description", len(fields.get("description", "")) > 40, "descr
 check_all("input-is-ticket", block(skill, "## Input", r"^## "), "ticket id", "`open-restaurant`")
 check_all("reads-settings", block(skill, "## Settings", r"^## "),
           "`assembly-line.codingModel`", "`assembly-line.routineModel`", "`assembly-line.uiReviewerModel`",
-          "`assembly-line.reviewState`", "`assembly-line.doneState`", "`assembly-line.runLog`", "`feature-recipe.cardsDir`", "`../setup/references/config.md`",
+          "`assembly-line.reviewState`", "`assembly-line.doneState`", "`assembly-line.runLog`", "`assembly-line.lineFile`", "`feature-recipe.cardsDir`", "`../setup/references/config.md`",
           "grep -n -A8 '^assembly-line:'", "`## assembly-line`", "`## recipe-relay`", "Project rules:")
 check("no-whole-config-read", SKILL_MD.exists() and "read `../setup/references/config.md`" not in flatten(skill),
       "SKILL.md missing or reads the whole config.md")
@@ -66,13 +66,15 @@ check_all("reads-line-comment", line, "`assembly-line/1`", "created last", "`./r
 check_all("validates-first", line, "`$SKILL_DIR/scripts/validate-line.py`", "`{scratch}/line.json`", '`"valid"`',
           "before any stage runs", "names the missing stage")
 check_all("no-line-stops", line, "no line comment", "`plan-assembly-line`", "writes nothing")
+check_all("reads-line-file", line, "`assembly-line.lineFile`", "line file", "`{ticket}`", "`{cardsDir}`",
+          "the file wins", "no line file")
 check_all("expands-saved-line", line, "`from`", '`"line"`', "expanded line")
 check_all("sub-issue-group-stops", line, '`{"group": "sub-issues"}`', "`open-restaurant`")
 
 card = block(skill, "## 2. Find or make the card", r"^## ")
 check_all("card-through-phase-0", card, "`../feature-recipe/phases/phase-0-start.md`", "interactive invocation",
           "`runMode`", "the line routes")
-check_all("links-to-comment", card, "link to the line comment")
+check_all("links-to-comment", card, "link to the line comment", "path of the line file")
 
 run = block(skill, "## 3. Run each stage", r"^## ")
 check_all("own-sub-agent", run, "own sub-agent", "`general-purpose`", "in this session")
@@ -106,7 +108,7 @@ check_all("line-board", block(skill, "### Line board", r"^##"),
           "after each step", "more than one ticket", "line: board failed", "never stops the run")
 check_all("applies-signals", block(skill, "## 5. Move to the next stage", r"^## "),
           "`$SKILL_DIR/scripts/apply-signals.py`", "`## Signals`", "`--done`", "`./references/signals.json`",
-          "no approval", "line comment", "`## Decisions`", "`line: signal`", '`"rejected"`', '`"applied"`')
+          "no approval", "line comment", "rewrite the line file", "`## Decisions`", "`line: signal`", '`"rejected"`', '`"applied"`')
 check_all("signal-rows-doc",
           block(read(SKILL / "references" / "stage-spec.md"), "## Signal rows", r"^## "),
           "`signal`", "`raisedBy`", "`add`", "`remove`", "`where`", "`judge`", "`merge`", "`gate: human`",

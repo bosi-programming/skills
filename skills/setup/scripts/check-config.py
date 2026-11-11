@@ -39,6 +39,8 @@ KEYS = {
     "assembly-line.reviewState": "In Review",
     "assembly-line.doneState": "Done",
     "assembly-line.runLog": "~/.bosi-skills/runs.jsonl",
+"assembly-line.lineFile": "{cardsDir}/{ticket}.line.json",
+"assembly-line.lineDestination": "ticket",
     "feature-recipe.runWorkSummary": "true",
     "feature-recipe.docsDestination": "''",
     "ship-pr.titleFormat": "type(scope): subject [KEY]",
@@ -95,7 +97,7 @@ CONSUMERS = {
     SKILLS / "better-code-review" / "SKILL.md": [key for key in KEYS if key.startswith("better-code-review.")],
     SKILLS / "recipe-relay" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel", "recipe-relay.reviewState", "recipe-relay.doneState"],
     SKILLS / "assembly-line" / "SKILL.md": [key for key in KEYS if key.startswith("assembly-line.")] + ["feature-recipe.cardsDir"],
-    SKILLS / "plan-assembly-line" / "SKILL.md": ["assembly-line.runLog"],
+    SKILLS / "plan-assembly-line" / "SKILL.md": ["assembly-line.runLog", "assembly-line.lineFile", "assembly-line.lineDestination"],
     SKILLS / "review-fix" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel"],
     SKILLS / "ui-review" / "SKILL.md": ["recipe-relay.uiReviewerModel"],
     SKILLS / "code-docs" / "SKILL.md": [
@@ -113,7 +115,7 @@ CONSUMERS = {
     SKILLS / "review-request" / "SKILL.md": ["open-restaurant.reviewChannel"],
     SKILLS / "pause-work" / "SKILL.md": [key for key in KEYS if key.startswith("pause-work.")],
     SKILLS / "weekly-planning" / "SKILL.md": [key for key in KEYS if key.startswith("weekly-planning.")],
-    SKILLS / "plan-work" / "SKILL.md": [key for key in KEYS if key.startswith("plan-work.")],
+    SKILLS / "plan-work" / "SKILL.md": [key for key in KEYS if key.startswith("plan-work.")] + ["assembly-line.lineDestination", "assembly-line.lineFile"],
 }
 
 SECTIONS = {

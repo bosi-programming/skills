@@ -110,6 +110,11 @@ check_all("approval-first", block(skill, "## 4. Show and approve", r"^## "),
 check_all("saves-comment", block(skill, "## 5. Save", r"^## "),
           "one comment per ticket", "tracker tool", "`## Assembly line`", "json block",
           "exactly the approved line", "never edit or delete")
+check_all("reads-line-file", block(skill, "## 1. Read each ticket", r"^## "), "`assembly-line.lineFile`", "line file")
+check_all("saves-file", block(skill, "## 5. Save", r"^## "),
+          "`assembly-line.lineDestination`", "`assembly-line.lineFile`", "`ticket`", "`file`", "`{ticket}`",
+          "`{cardsDir}`", "the request", "no tracker tool")
+check_all("reads-back-file", block(skill, "## 6. Read back", r"^## "), "read the file", "path per ticket")
 run_log = block(skill, "### Run log", r"^##")
 check_all("run-log", run_log, "`$SKILL_DIR/scripts/stats.py`", "`assembly-line.runLog`", "`~/.bosi-skills/runs.jsonl`",
           "`--log`", "`--kind`", "`because`", "`add`", "`look`", "`cut`", "fewer than 5 runs", "not applied",
@@ -134,7 +139,7 @@ leaks = [word for word in PRIVATE if word in skill.lower()]
 check("private-free", SKILL_MD.exists() and not leaks, f"private content: {leaks}")
 
 check_all("plan-work-hands-off", block(read(PLAN_WORK), "### 7. Hand off", r"^## "),
-          "`plan-assembly-line`", "role: engineer")
+          "`plan-assembly-line`", "role: engineer", "`assembly-line.lineDestination`", "local file")
 
 check("readme-section", re.search(r"^### plan-assembly-line$", readme, re.MULTILINE),
       "README has no ### plan-assembly-line")
