@@ -84,7 +84,7 @@ Cooking splits so that tests and code get written at the same time, by agents th
 
 A UI review compares what the change renders with the design the task carries. Load, read completely and execute `../ui-review/SKILL.md` on the card in this session, handing it the project rules above and the model `assembly-line.uiReviewerModel` names.
 
-Tell the latest `code` before it to screenshot into `{scratch}/ui-review/` once its checks pass: it clears the folder, brings the change up the way the project already does, and screenshots every state of the changed surface the Acceptance Criteria name. When it cannot bring the surface up, its summary says `none: <reason>`: the verdict is `inconclusive`, and no reviewer starts. An `inconclusive` verdict goes on the card with its reason, logged as `line:`, and the run moves on.
+Tell the latest `code` before it to screenshot into `{scratch}/ui-review/` once its checks pass: it clears the folder, brings the change up the way the project already does, and screenshots every state of the changed surface the Acceptance Criteria name. Once the screenshots are saved, it stops what it brought up. When it cannot bring the surface up, its summary says `none: <reason>`: the verdict is `inconclusive`, and no reviewer starts. An `inconclusive` verdict goes on the card with its reason, logged as `line:`, and the run moves on.
 
 ### Review and fix
 
@@ -142,4 +142,21 @@ python3 "$SKILL_DIR/scripts/board.py" --cards <feature-recipe.cardsDir> --log <a
 
 ## 6. Stop conditions
 
-Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`), or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
+Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`), or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat, after section 7. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
+
+## 7. Close down
+
+Run this section at every stop: the end, `blocked`, `needs-input` or a gate,
+before the report in chat. Nothing this line started outlives the run.
+
+1. **Sub-agents.** Each sub-agent this line started has returned, or gets
+   stopped: in Claude Code, `TaskStop` on its id; elsewhere, the runtime's own
+   way.
+2. **Background shells.** Stop each background shell this line started, a dev
+   server or watcher brought up for screenshots included: in Claude Code,
+   `TaskStop` on the shell's id.
+3. **Processes.** A process still running on a port or pid this line noted gets
+   stopped by that port or pid. Leave alone any process this line did not start.
+4. **Log.** Log `line: closed down <n> agents, <n> shells` to
+   `## Decisions`. Anything that would not stop goes on that line with its id,
+   and into the chat report.

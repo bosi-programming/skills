@@ -270,7 +270,7 @@ Once no card can start or move:
 
 The run stops only at a gate, at `blocked`, at `needs-input`, or at the end.
 On a stop, write `stage`, `runStatus` and `gate` to the service card, and
-report the question or the gate in chat. A gate stops with `runStatus: gate`.
+report the question or the gate in chat, after section 9. A gate stops with `runStatus: gate`.
 Re-invoking this skill on the same parent reads the service card and goes on
 after its last `restaurant: step` line, as `../assembly-line/SKILL.md` section 6
 says: a gate with the user's answer in chat continues past it; each sub-issue
@@ -282,3 +282,22 @@ In short bullets: each sub-issue with its PR and status; the unblock notes
 and any shape change after a handoff; each QA round's verdict; what proof
 leaves open; every `restaurant:` choice worth a look; the gate or question the
 run stopped at.
+
+## 9. Close down
+
+Run this section at every stop: the end, `blocked`, `needs-input` or a gate,
+before the report in chat. Nothing this run started outlives the run.
+
+1. **Sub-agents.** Each sub-agent this run started has returned, or gets
+   stopped: in Claude Code, `TaskStop` on its id; elsewhere, the runtime's own
+   way.
+2. **Background shells.** Stop each background shell this run started, a dev
+   server or watcher brought up for screenshots included: in Claude Code,
+   `TaskStop` on the shell's id.
+3. **Processes.** A process still running on a port or pid this run noted gets
+   stopped by that port or pid. Leave alone any process this run did not start.
+4. **QA env.** If a stop leaves the env `open-restaurant.envName` names still
+   up, tear it down the way the section's QA env entry says.
+5. **Log.** Log `restaurant: closed down <n> agents, <n> shells` to
+   `## Decisions`. Anything that would not stop goes on that line with its id,
+   and into the chat report.

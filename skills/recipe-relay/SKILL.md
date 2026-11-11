@@ -152,6 +152,7 @@ in the browser; for any other change, skip this section and log the skip to
    once `code`'s checks pass. It clears the folder `{scratch}/ui-review/`,
    brings the change up the way the project already does, and screenshots every
    state of the changed surface the Acceptance Criteria name into that folder.
+   Once the screenshots are saved, it stops what it brought up.
    When it cannot bring the surface up, its summary says `none: <reason>`: the
    verdict is `inconclusive`, and no reviewer starts.
 3. **Review.** Load, read completely and execute `../ui-review/SKILL.md` on
@@ -179,7 +180,7 @@ Same as feature-recipe's own contract: stop only when `code-docs` has returned
 and section 5 is done, or a sub-agent reports `runStatus: blocked` / `needs-input` — a
 real one-way door or an ambiguity with no reasonable default — never merely
 because a unit finished. On a stop, report the open question to the user
-directly in this chat. Resuming the conversation with an answer and
+directly in this chat, after section 6. Resuming the conversation with an answer and
 re-invoking this skill picks the card back up through Phase 0's own resume
 logic.
 
@@ -192,3 +193,20 @@ with a chunked delivery, for each chunk's PR as it opens. Do not wait for
 `needs-input` instead, skip this section.
 
 Load, read completely and execute `../review-fix/SKILL.md` on the card, handing it the project rules above.
+
+## 6. Close down
+
+Run this section at every stop: the end, `blocked`, `needs-input` or a gate,
+before the report in chat. Nothing this run started outlives the run.
+
+1. **Sub-agents.** Each sub-agent this run started has returned, or gets
+   stopped: in Claude Code, `TaskStop` on its id; elsewhere, the runtime's own
+   way.
+2. **Background shells.** Stop each background shell this run started, a dev
+   server or watcher brought up for screenshots included: in Claude Code,
+   `TaskStop` on the shell's id.
+3. **Processes.** A process still running on a port or pid this run noted gets
+   stopped by that port or pid. Leave alone any process this run did not start.
+4. **Log.** Log `relay: closed down <n> agents, <n> shells` to
+   `## Decisions`. Anything that would not stop goes on that line with its id,
+   and into the chat report.
