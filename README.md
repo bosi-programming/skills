@@ -96,8 +96,9 @@ How the line runs:
 4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
 5. **Gates.** A stage with `gate: human`, today `merge`, stops at `runStatus: gate` with a question in chat and on the card, and runs only on the person's approval.
 6. **Signals.** After each stage the run reads `## Signals` on the card and applies the rows in `signals.json` to the steps not yet run, through `apply-signals.py`. No approval: a row is the approval. Each change posts a line comment naming the signal, the stage that raised it and the stage added or removed; a change `validate-line.py` rejects leaves the line and is logged.
+7. **Run log.** After every stage run, go-back reruns and each parallel branch included, the run appends one JSON line to `runs.jsonl` (the file `assembly-line.runLog` names) through `run-log.py`: ticket, kind, line, stage, start and end times, verdict, loops, tokens and the signal that changed the line. A failed append is logged and never stops the run.
 
-`assembly-line.codingModel`, `assembly-line.uiReviewerModel` and `assembly-line.routineModel` pick the models; `assembly-line.reviewState` (`In Review`) and `assembly-line.doneState` (`Done`) pick the tracker states. A `## assembly-line` section in a project's `.bosi-skills.md` adds rules every sub-agent follows there; the line reads `## recipe-relay` when it has none.
+`assembly-line.codingModel`, `assembly-line.uiReviewerModel` and `assembly-line.routineModel` pick the models; `assembly-line.reviewState` (`In Review`) and `assembly-line.doneState` (`Done`) pick the tracker states; `assembly-line.runLog` (`~/.bosi-skills/runs.jsonl`) names the file the run log goes to. A `## assembly-line` section in a project's `.bosi-skills.md` adds rules every sub-agent follows there; the line reads `## recipe-relay` when it has none.
 
 ### plan-assembly-line
 
@@ -430,6 +431,7 @@ python3 skills/assembly-line/scripts/build-catalog.py --check
 python3 skills/assembly-line/scripts/test_build_catalog.py
 python3 skills/assembly-line/scripts/test_validate_line.py
 python3 skills/assembly-line/scripts/test_apply_signals.py
+python3 skills/assembly-line/scripts/test_run_log.py
 python3 skills/assembly-line/scripts/check-assembly-line.py
 python3 skills/assembly-line/scripts/check-no-pause.py
 python3 skills/assembly-line/scripts/check-split-cooking.py

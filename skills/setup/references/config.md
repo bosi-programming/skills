@@ -93,6 +93,7 @@ every key.
 | `assembly-line.uiReviewerModel` | `''` | Model for the reviewer `assembly-line` hands `ui-review`. Empty means the model the line runs on. |
 | `assembly-line.reviewState` | `In Review` | Tracker state `assembly-line` moves the ticket to once `prepare-pr` opens the PR. Empty skips the move. |
 | `assembly-line.doneState` | `Done` | Tracker state `merge` moves the ticket to under `assembly-line`, in place of `open-restaurant.doneState`. Empty skips the move. |
+| `assembly-line.runLog` | `~/.bosi-skills/runs.jsonl` | File `assembly-line` appends one JSON line to per stage run, shared by every project. `~` means `$HOME`. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |

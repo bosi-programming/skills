@@ -38,6 +38,7 @@ KEYS = {
     "assembly-line.uiReviewerModel": "''",
     "assembly-line.reviewState": "In Review",
     "assembly-line.doneState": "Done",
+    "assembly-line.runLog": "~/.bosi-skills/runs.jsonl",
     "feature-recipe.runWorkSummary": "true",
     "feature-recipe.docsDestination": "''",
     "ship-pr.titleFormat": "type(scope): subject [KEY]",

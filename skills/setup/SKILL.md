@@ -64,6 +64,7 @@ the ones in `./references/config.md`:
       the closing review, or the one the line runs on.
    l. State the line moves a ticket to once its PR opens, or `In Review`, and
       the state it moves it to once `merge` merges it, or `Done`.
+   m. File the line appends its run log to, or `~/.bosi-skills/runs.jsonl`.
 8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.

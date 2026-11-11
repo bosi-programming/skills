@@ -42,6 +42,7 @@ assembly-line:
   uiReviewerModel: ''
   reviewState: In Review
   doneState: Done
+  runLog: ~/.bosi-skills/runs.jsonl
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -144,6 +145,7 @@ only needs the keys it changes.
 - `assembly-line.reviewState` and `assembly-line.doneState` — tracker states
   the line moves a ticket to once its PR is open and once `merge` merges it;
   empty skips the move.
+- `assembly-line.runLog` — the file the line appends one JSON line to per stage run.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML

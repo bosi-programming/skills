@@ -20,6 +20,7 @@ Read the keys below as `../setup/references/config.md` says: look them up with `
 - `assembly-line.uiReviewerModel` (`''`): model for the UI reviewer.
 - `assembly-line.reviewState` (`In Review`): tracker state once the PR is open. Empty skips the move.
 - `assembly-line.doneState` (`Done`): tracker state once `merge` merges. Empty skips the move.
+- `assembly-line.runLog` (`~/.bosi-skills/runs.jsonl`): the file the run log goes to.
 
 An empty model keeps the model this session runs on.
 
@@ -45,13 +46,15 @@ The validator, `$SKILL_DIR/scripts/validate-line.py`, runs before any stage runs
 
 When the line has `from`, it starts from a saved line: the run uses the validator's `"line"`, the expanded line, from here on. Its stages are the ones run, and the `{"group": "sub-issues"}` stop is checked on the expanded line, so for a `from` line that check comes after validation.
 
+Work out `kind` once, from the block the ticket's body carries: `## Bug report` is `bug`; `## Why this shape` is `enablement`; `## Design deliverable` is `design`; `## Before → after` is `feature`. A ticket with none of them has `kind` `null`.
+
 ## 2. Find or make the card
 
 Read and follow `../feature-recipe/phases/phase-0-start.md` in this session, only up to the point it has a card. Follow it as an interactive invocation: take the task from what the user already said, and don't write `runMode` to the card. Its routing is not followed: the line routes. Log the link to the line comment to `## Decisions`, prefixed `line:`.
 
 ## 3. Run each stage
 
-A step is one top-level item of the line: a stage name, a stage object (its `with` keys go into the prompt), or a parallel group. Run the steps one at a time.
+A step is one top-level item of the line: a stage name, a stage object (its `with` keys go into the prompt), or a parallel group. Run the steps one at a time. Note `startedAt` before each stage starts, as _Run log_ in section 5 says.
 
 Each stage runs in its own sub-agent, a `general-purpose` one with full tool access, given the prompt in _Stage prompt_ below with the stage's `SKILL.md` as the file to load. `judge`, `ui-review` and `review-fix` run in this session instead, because their own steps spawn the sub-agents.
 
@@ -103,6 +106,22 @@ Once the entry's `limit` is used up, its `past` decides: `needs-input` stops the
 When a step returns, log `line: step <n>/<total> <stage> <verdict>` to `## Decisions`, keep `runNext` on the stage in flight so Phase 0 can resume it, and start the next step without waiting for a reply, whatever the stage's own file recommends at its end. Post one line per stage to the user: what it produced and which stage starts next.
 
 After each step, apply the signals the stages raised. Write the line in use to `{scratch}/line.json` (the expanded line for a `from` line) and run `$SKILL_DIR/scripts/apply-signals.py` on the card and that file, with `--done` set to the number of steps run: `python3 "$SKILL_DIR/scripts/apply-signals.py" <card> {scratch}/line.json --done <steps run>`. It reads `## Signals` on the card and applies the matching rows of `./references/signals.json` (through `./references/catalog.json`) to the steps not yet run, each change checked by `validate-line.py`. A row is the approval: ask no approval. For each entry in `"applied"`, post a line comment on the ticket (a `## Assembly line` heading, a sentence naming the signal, the stage that raised it, its evidence and the stage added or removed, then the changed line's JSON in `stages` form), log a `line: signal` entry, `line: signal <signal> <raisedBy> -> <change> <stage> (<comment link>)`, to `## Decisions`, and run the rest from the report's `"line"`. For each entry in `"rejected"`, log `line: signal <signal> <raisedBy> rejected: <stage> <rule>` for each of its errors and keep the line. The line comment created last is the line a resume reads.
+
+### Run log
+
+Note `startedAt` before each stage starts and `endedAt` when it returns, both UTC ISO 8601 from `date -u +%Y-%m-%dT%H:%M:%SZ`. After every stage run, append one line to the file `assembly-line.runLog` names, before applying signals. Go-back reruns and each parallel branch count as a stage run. In the command, `$SKILL_DIR` is this skill's folder.
+
+```bash
+python3 "$SKILL_DIR/scripts/run-log.py" append --log <assembly-line.runLog> --ticket <id> --kind <kind> --line <from> --stage <stage> --started-at <iso> --ended-at <iso> --verdict <verdict> --loops <n> --tokens <n> --changed-by <signal>
+```
+
+- `--log` is the value of `assembly-line.runLog`; leave it out for the default.
+- `--kind` is the `kind` from section 1, `--line` the line's `from` name; leave a flag out when its value is `null`, and the record holds `null`.
+- `--loops` is how many go-backs this stage has had so far in the run, `0` for the first run.
+- `--tokens` is the sub-agent's token count when it reports one; leave it out otherwise.
+- `--changed-by` is the signal that added this stage to the line; leave it out when the line planned it.
+
+A failed append (exit 1 or 2) is logged to `## Decisions` as `line: run-log failed`, and the run goes on: the run log never stops the run.
 
 ## 6. Stop conditions
 
