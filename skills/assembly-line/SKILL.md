@@ -149,6 +149,12 @@ Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate
 Run this section at every stop: the end, `blocked`, `needs-input` or a gate,
 before the report in chat. Nothing this line started outlives the run.
 
+While the run goes on, a sub-agent or background shell whose output has not
+grown for 30 minutes is stalled, such as a shell stuck on a command that never
+returns. Stop it with `TaskStop`, log `line: stalled <id> <last command>` to
+`## Decisions`, and start its stage again once. A second stall on the same
+stage stops the run with `runStatus: blocked`, and this section runs.
+
 1. **Sub-agents.** Each sub-agent this line started has returned, or gets
    stopped: in Claude Code, `TaskStop` on its id; elsewhere, the runtime's own
    way.

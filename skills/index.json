@@ -36,7 +36,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "442babb0ff79"
+      "version": "efc199f405a0"
     },
     {
       "name": "better-code-review",
@@ -188,7 +188,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "a78c997e78f3"
+      "version": "4f1ab2d85b5f"
     },
     {
       "name": "pause-work",
@@ -279,7 +279,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "228a35eccf99"
+      "version": "c1b30ebee244"
     },
     {
       "name": "reproduce",

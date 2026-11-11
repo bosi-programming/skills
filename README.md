@@ -98,7 +98,7 @@ How the line runs:
 6. **Signals.** After each stage the run reads `## Signals` on the card and applies the rows in `signals.json` to the steps not yet run, through `apply-signals.py`. No approval: a row is the approval. Each change posts a line comment naming the signal, the stage that raised it and the stage added or removed; a change `validate-line.py` rejects leaves the line and is logged.
 7. **Run log.** After every stage run, go-back reruns and each parallel branch included, the run appends one JSON line to `runs.jsonl` (the file `assembly-line.runLog` names) through `run-log.py`: ticket, kind, line, stage, start and end times, verdict, loops, tokens and the signal that changed the line. A failed append is logged and never stops the run.
 8. **Line board.** `board.py` prints every running card in `feature-recipe.cardsDir`: each ticket's stage, how many wait at each stage, and the bottleneck, the stage with the most waiting, ties going to the longest mean time in the run log. When more than one ticket is running, each step's report names the command.
-9. **Close down.** At every stop it stops the sub-agents, background shells and dev servers the line started, and logs `line: closed down` on the card.
+9. **Close down.** At every stop it stops the sub-agents, background shells and dev servers the line started, and logs `line: closed down` on the card. A sub-agent or shell with no new output for 30 minutes gets stopped and its stage started again once; a second stall stops the run as `blocked`.
 
 `assembly-line.codingModel`, `assembly-line.uiReviewerModel` and `assembly-line.routineModel` pick the models; `assembly-line.reviewState` (`In Review`) and `assembly-line.doneState` (`Done`) pick the tracker states; `assembly-line.runLog` (`~/.bosi-skills/runs.jsonl`) names the file the run log goes to. The line board reads cards from `feature-recipe.cardsDir` (`./recipes`). A `## assembly-line` section in a project's `.bosi-skills.md` adds rules every sub-agent follows there; the line reads `## recipe-relay` when it has none.
 
@@ -131,7 +131,7 @@ How the ticket moves:
 5. **Review and fix** (`review-fix`). The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch; this is the run's one review. Another sub-agent checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
 6. **`code-docs`** (Documentation) closes the task out and moves the ticket to `recipe-relay.doneState` (`Done` by default).
 
-It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`: a one-way door or a question with no reasonable default. Then it asks you in chat, and running it again picks the card back up where it stopped. It never merges; the PR waits for a person. At every stop it first stops the sub-agents, background shells and dev servers it started, so no shell stays open after the run.
+It stops only at the end, or when a sub-agent reports `blocked` or `needs-input`: a one-way door or a question with no reasonable default. Then it asks you in chat, and running it again picks the card back up where it stopped. It never merges; the PR waits for a person. At every stop it first stops the sub-agents, background shells and dev servers it started, so no shell stays open after the run. A sub-agent or shell with no new output for 30 minutes gets stopped and its unit started again once; a second stall stops the run as `blocked`.
 
 `recipe-relay.codingModel`, `recipe-relay.uiReviewerModel` and `recipe-relay.routineModel` pick the models for the writers, the UI reviewer, and the Plating (`prepare-pr`), Documentation (`code-docs`) and review sub-agents. A `## recipe-relay` section in a project's `.bosi-skills.md` adds rules every sub-agent follows in that project; delete the section when the project ends.
 
@@ -149,7 +149,7 @@ The run, in order:
 6. **Proof** (`proof`). A `## Proof` on each PR, and one on the parent with each criterion and its evidence.
 7. **Review request and merge** (`review-request`, `merge`). `review-request` waits on checks and posts the PRs to `open-restaurant.reviewChannel`. `merge` stops for a person every time, then merges in blocks order and moves the sub-issues, and the parent when no criterion is left open, to `open-restaurant.doneState`.
 
-Every stop writes its state to a service card next to the recipe cards; running it again on the same parent goes on from there. Before it reports a stop, it stops the sub-agents, background shells and QA env it started.
+Every stop writes its state to a service card next to the recipe cards; running it again on the same parent goes on from there. Before it reports a stop, it stops the sub-agents, background shells and QA env it started. A sub-agent or shell with no new output for 30 minutes gets stopped and its stage started again once.
 
 Needs a tracker tool in the session and one repo checkout per repo in the folder it runs from. Team-specific steps (the readiness lint, QA skill, env, review groups) go in the settings file's `## open-restaurant` section; see `setup`.
 
