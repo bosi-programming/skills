@@ -66,7 +66,7 @@ check_all("writes-stage-name", skill, "`phase: 'test'`")
 
 writing = block(skill, "## 2. Write the tests", r"^## ")
 check_all("writes-tests-blind", writing, "never opens", "confirm they fail", "regression")
-check_all("commits-tests-only", writing, "only the test files")
+check_all("commits-tests-only", writing, "only the test files", "`git commit -- <paths>`")
 
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: test`", "unattended:", "### Ending a run")

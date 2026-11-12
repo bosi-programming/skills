@@ -50,7 +50,8 @@ The same work card, with this stage's parts written:
 When a driver runs this stage beside `test`, at the same time and on the same
 branch, it is the code writer. It runs sections 1 and 2 only, minus the step
 that runs the tests: it never opens a test file, and it does not add tests. It
-writes the code, commits only the files it wrote, by path, and returns. The
+writes the code, commits only the files it wrote, with `git commit -- <paths>`,
+so a test file the test writer staged stays out, and returns. The
 driver runs this skill again once both writers are done, from step 3 of
 section 2, to make the tests pass and run the rest of the stage.
 

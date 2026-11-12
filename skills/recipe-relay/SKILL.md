@@ -111,8 +111,9 @@ session runs on.
 2. **Writers.** For each repo, spawn its test writer and its code writer at
    the same time, both on the same branch and worktree the code runs from: the
    repo's own checkout, on `{branch}`, the branch the repo is on. Start every
-   pair before waiting on any of them. Each writer stages and commits only the
-   files it wrote, by path, and retries a commit that hits `index.lock`.
+   pair before waiting on any of them. Each writer commits only the files it
+   wrote, with `git commit -- <paths>`, which leaves out anything the other writer
+   has staged, and retries a commit that hits `index.lock`.
    - The **test writer** loads `test` (`../test/SKILL.md`) with the section 2
      prompt, limited to its repo. It reads the Acceptance Criteria, Testing
      Strategy, `## TDD Test Mapping` and `## Interfaces`, and never sees the

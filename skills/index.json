@@ -40,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "53d983a59303"
+      "version": "14f66ae98efe"
     },
     {
       "name": "better-code-review",
@@ -64,7 +64,7 @@
         "scripts/check-code.py",
         "stage.json"
       ],
-      "version": "ee4b95320fc8"
+      "version": "e47923007b52"
     },
     {
       "name": "code-docs",
@@ -284,7 +284,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "c1b30ebee244"
+      "version": "34763bb80f5a"
     },
     {
       "name": "reproduce",
@@ -366,7 +366,7 @@
         "scripts/check-test.py",
         "stage.json"
       ],
-      "version": "774baddb654d"
+      "version": "e391d074f61a"
     },
     {
       "name": "ui-review",

@@ -78,7 +78,7 @@ check("stage-signals", code_signals == ["no-screen-change", "touches-security"],
 
 check_all("standards", block(skill, "## 1. Find the standards", r"^## "), "`../code-standards/SKILL.md`")
 check_all("tests-come-from-test", block(skill, "## 2. Write the code", r"^## "), "`../test/SKILL.md`", "fix the code, not the test")
-check_all("beside-test", block(skill, "## Beside test", r"^## "), "driver", "test file", "again")
+check_all("beside-test", block(skill, "## Beside test", r"^## "), "driver", "test file", "again", "`git commit -- <paths>`")
 
 review = block(skill, "## 5. Run the review", r"^## ")
 check_all("review-gate", review, "`better-code-review`", "**Tests**", "`Reviewed:`", "`Not verified:`")

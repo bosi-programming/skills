@@ -60,9 +60,9 @@ exist yet counts as a fail. A test that passes before any code means the
 behaviour may already exist: stop and investigate rather than moving on, and
 settle it with the user before you keep it.
 
-Mark each case written in `## TDD Test Mapping`, with its test's name. Stage
-and commit only the test files you wrote, by path, and retry a commit that hits
-`index.lock`.
+Mark each case written in `## TDD Test Mapping`, with its test's name. Commit
+only the test files you wrote, with `git commit -- <paths>`, so a file someone
+else staged stays out, and retry a commit that hits `index.lock`.
 
 ## 3. Close the stage
 

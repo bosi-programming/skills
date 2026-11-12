@@ -48,6 +48,7 @@ check("split-section-exists", split, "assembly-line must have a `### Cooking in 
 check_all("interfaces-first", split, "`## Interfaces`", "before either writer starts")
 check_all("pair-per-repo", split, "for each repo", "test writer", "code writer", "at the same time")
 check_all("shared-worktree", split, "same branch and worktree", "only the files it wrote")
+check_all("commits-own-paths", split, "`git commit -- <paths>`", "the other writer")
 check("no-writer-worktree", "worktree" not in flatten(split).replace("same branch and worktree", ""),
       "the writers must not get worktrees of their own")
 check_all("writers-blind", split, "never sees the code", "never sees the tests")
