@@ -44,11 +44,15 @@ Three limits:
 
 ## B. Ticket bodies
 
-Use these headings word for word; the lint looks for them.
+Use these headings word for word; the lint looks for them. Every body opens
+with the line Planned with `plan-work`. above `## What`; it tells `plan-assembly-line` that
+`plan-work` already checked the ticket.
 
 **Ticket**
 
 ```markdown
+Planned with `plan-work`.
+
 ## What
 <one paragraph: the result, not the steps>
 
@@ -97,6 +101,8 @@ may use any tag.
 **Sub-issue**
 
 ```markdown
+Planned with `plan-work`.
+
 ## What
 <the piece this sub-issue adds>
 

@@ -21,7 +21,7 @@ Read the line file too: the path `assembly-line.lineFile` names, read as in _Run
 
 ## 2. Suggest a line
 
-Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line starts at `judge` and ends at `merge`.
+Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line ends at `merge`, and starts at `judge` unless the ticket is marked (below).
 
 Start from the saved line that matches the ticket's kind. The saved lines are the files in `../assembly-line/references/lines/`: `feature`, `bug`, `small-fix` and `parent`. Pick by kind, in this order:
 
@@ -35,7 +35,9 @@ Then apply these rules as `drop` and `add` edits on that saved line, each with `
 - Drop `ui-review` unless the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count. On `small-fix`, add `ui-review` right after `code` when one of those holds.
 - Drop `code-docs` unless the title type is `feat` or a criterion is tagged `[docs]`. On `small-fix`, add `code-docs` right after `review-fix` when a criterion is tagged `[docs]`.
 
-If the ticket already has a line, start from it and change only what the rules require.
+- Marker: a ticket whose body holds the whole line Planned with `plan-work`. (trimmed, anywhere in the body) has passed `plan-work`'s own readiness check. On a ticket with no sub-issues, or on a sub-issue, add `"planned": "plan-work"` to the line and drop `judge`. A parent keeps `judge`, marker or not, and gets no `planned`. A marked ticket that starts at `judge` on its last line comment loses `judge` too; the old comment stays.
+
+If the ticket already has a line, start from it and change only what the rules require. A ticket without the marker starts at `judge`.
 
 Each suggestion carries one or two sentences of why.
 
@@ -59,7 +61,7 @@ A stage with fewer than 5 runs has a null suggestion. Show each `because` as it 
 
 ## 3. Validate each line
 
-Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. When the line starts from a saved line, the file holds `from`, with `drop` and `add`, in place of `stages`. In the command below, `$SKILL_DIR` is this skill's folder.
+Write each suggested line to `{scratch}/<ticket>.line.json` as the full line object from `../assembly-line/references/line-format.md`, with `format` (`assembly-line/1`), `ticket` and `stages`, not a bare list of stages. When the line carries `planned`, the file holds it too. When the line starts from a saved line, the file holds `from`, with `drop` and `add`, in place of `stages`. In the command below, `$SKILL_DIR` is this skill's folder.
 
 ```bash
 python3 "$SKILL_DIR/../assembly-line/scripts/validate-line.py" {scratch}/<ticket>.line.json
@@ -81,7 +83,7 @@ Save each line where `assembly-line.lineDestination` says, read as in _Run log_ 
 
 **`file`.** Write the approved line to the path `assembly-line.lineFile` names (default `{cardsDir}/{ticket}.line.json`), with `{cardsDir}` replaced by `feature-recipe.cardsDir` (`./recipes`; `grep -n -A8 '^feature-recipe:' .bosi-skills.md ~/.bosi-skills.md`) and `{ticket}` by the ticket id, relative to the project root. Make the folder if it is missing. The file holds the approved line as the JSON object alone, the `from` form as approved, not the expanded stages: no heading, no prose. An existing file is overwritten; show its line in the table in step 4 first. The tracker gets no comment.
 
-**`ticket`.** Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line: the `from` form as approved, not the expanded stages.
+**`ticket`.** Post one comment per ticket, using the tracker tool the session has. Use the shape in `../assembly-line/references/line-format.md`: a `## Assembly line` heading, the why in a sentence or two, and one json block holding exactly the approved line (with `planned` when set): the `from` form as approved, not the expanded stages.
 
 Never edit or delete an old line comment. A new comment replaces it, because the one created last wins.
 

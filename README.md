@@ -106,6 +106,8 @@ How the line runs:
 
 Suggests each ticket's line and saves it as a comment on the ticket or in a local line file, in the shape `assembly-line` reads. It never runs the line.
 
+A ticket whose body holds the line Planned with `plan-work`. has already passed `plan-work`'s readiness check, so its line drops `judge` and carries `"planned": "plan-work"`; a parent keeps `judge`.
+
 How it plans:
 
 1. **Read.** It reads each ticket's body and comments through the tracker. A line comment already there, the one created last, is the starting suggestion.
@@ -302,6 +304,8 @@ The tool, project, due date and labels are settings; see `setup`.
 Plans a feature into tickets, or reviews tickets already planned, in any tracker. In plan mode it reads the feature, its details and specs, checks the tracker for work that already exists, then decides the shape: one ticket or a project, milestones as vertical slices with clean-up last, and sub-issues only when the work needs more than one PR or repo. It writes each body from a template, puts a `[[gap Qn: …]]` marker and a numbered question where a fact is missing instead of guessing, runs a bundled lint (`scripts/check_plan.py`) on the draft, and shows it. Nothing reaches the tracker before approval; after writing, it reads the tickets back and lints them again. Review mode fills a fixed report, each finding with the exact change it proposes, and writes nothing.
 
 Screen work carries a `## Design` section with the design link and before/after screenshots; a design ticket always names the frontend ticket that builds it, existing or new. The rules live in a standard, bundled at `references/standard.md` or the team's own. The standard, lint, tracker team, labels, repos, whether every new Feature goes behind a feature flag and which flag tool, whether to hand the tickets to `plan-assembly-line`, and whether their lines go on the ticket or in a local file (`assembly-line.lineDestination`) are settings; see `setup`.
+
+Every ticket and sub-issue it saves opens with the line Planned with `plan-work`., which `plan-assembly-line` reads to skip `judge`.
 
 ### weekly-planning
 

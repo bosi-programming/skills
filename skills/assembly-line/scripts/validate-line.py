@@ -14,6 +14,7 @@ DEFAULT_CATALOG = Path(__file__).resolve().parents[1] / "references" / "catalog.
 DEFAULT_LINES = Path(__file__).resolve().parents[1] / "references" / "lines"
 SAVED_NAME = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 KEPT = ("judge", "merge")
+PLANNED = "plan-work"
 
 
 def parse_args(argv):
@@ -38,6 +39,10 @@ def parse_args(argv):
     if len(positional) != 1:
         return None
     return Path(positional[0]), catalog, lines
+
+
+def is_planned(line):
+    return isinstance(line, dict) and line.get("planned") == PLANNED
 
 
 def error(stage, rule, message):
@@ -111,6 +116,11 @@ def check_shape(line):
         bad("a line has ticket or name, not both")
     elif "ticket" not in line and "name" not in line:
         bad("ticket must be a non-empty string")
+    if "planned" in line:
+        if line["planned"] != PLANNED:
+            bad(f"planned must be {PLANNED}")
+        elif "name" in line:
+            bad("a saved line has no planned")
     has_from = "from" in line
     if has_from and "stages" in line:
         bad("a line has stages or from, not both")
@@ -201,7 +211,9 @@ def check_known(items, stages):
     ]
 
 
-def check_first_judge(items, stages):
+def check_first_judge(items, stages, planned=False):
+    if planned:
+        return []
     first = items[0]
     if is_group(first) or is_parallel(first):
         return [error(None, "first-judge", "the first item must be judge")]
@@ -367,9 +379,10 @@ def expand(line, lines_dir):
     stages = copy.deepcopy(saved["stages"])
     dropped = line.get("drop", [])
     present = set(all_names(stages))
+    kept = tuple(name for name in KEPT if not (name == "judge" and is_planned(line)))
     errors = []
     for name in dropped:
-        if name in KEPT:
+        if name in kept:
             errors.append(error(name, "line-edit", f"{name} cannot be dropped"))
         elif name not in present:
             errors.append(error(name, "line-edit", f"{name} is not on saved line {source}"))
@@ -386,7 +399,10 @@ def expand(line, lines_dir):
         insert_after(stages, after, copy.deepcopy(entry["item"]))
     if errors:
         return None, errors
-    return {"format": FORMAT, "ticket": line["ticket"], "stages": stages}, []
+    expanded = {"format": FORMAT, "ticket": line["ticket"], "stages": stages}
+    if is_planned(line):
+        expanded["planned"] = PLANNED
+    return expanded, []
 
 
 def check_line(line, catalog_path):
@@ -397,7 +413,7 @@ def check_line(line, catalog_path):
     merge_errors = check_merge(items)
     return (
         check_known(items, stages)
-        + check_first_judge(items, stages)
+        + check_first_judge(items, stages, is_planned(line))
         + merge_errors
         + (check_auto_after_merge(items, stages) if not merge_errors else [])
         + check_takes(items, stages)

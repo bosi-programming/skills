@@ -52,6 +52,7 @@ Small fix with no screen change, so no `test` or `ui-review`.
 | `from` | string | A line comment only: the saved line to start from, in place of `stages`. See `## Saved lines`. |
 | `drop` | list | With `from`: stage names to remove. |
 | `add` | list | With `from`: `{"after": <stage>, "item": <item>}` entries to insert. |
+| `planned` | string | Optional, ticket lines only: `plan-work` when `plan-work` planned the ticket. The line may then leave out `judge`. See `## Saved lines`. |
 
 ## Stages and inputs
 
@@ -107,13 +108,19 @@ of `{"after": "<stage>", "item": <item>}`). Expansion goes in this order:
 
 1. Copy the saved line's stages.
 2. Remove every dropped stage, at the top level and from parallel branches. A
-   parallel group left with no branch goes. `judge` and `merge` cannot be
-   dropped.
+   parallel group left with no branch goes. `merge` cannot be dropped, and
+   `judge` cannot be dropped unless the line holds `"planned": "plan-work"`.
 3. Apply each add in list order, right after the last top-level stage named in
    `"after"`.
 
 A name to drop must be on the saved line, and `"after"` must be a top-level
 stage on the line as it stands. A saved line has no `from` of its own.
+
+`"planned": "plan-work"` marks a ticket `plan-work` saved: its body holds the
+line Planned with `plan-work`., and `plan-work` already checked it for
+readiness. Such a line may drop `judge` or start at another stage; `merge`
+stays. The key takes no other value and belongs to a ticket line, not a saved
+line. The expansion keeps it, so the line printed under `"line"` carries it.
 
 `validate-line.py` expands the line, runs every rule on the expansion, and
 prints it under `"line"`. A line comment keeps the `from` form; readers run
@@ -121,7 +128,7 @@ the expanded line. A rejected edit gives `saved-line` or `line-edit`.
 
 ## Rules
 
-- The first stage is `judge`.
+- The first stage is `judge`, unless the line holds `"planned": "plan-work"`.
 - `merge` is on the line, at the top level.
 - After `merge`, only stages with `gate: auto` in their `stage.json`.
 - Every stage name is a skill under `skills/`.
@@ -130,12 +137,12 @@ the expanded line. A rejected edit gives `saved-line` or `line-edit`.
 `validate-line.py` enforces these and the rules that need the catalog:
 
 - `line-parses`: the line file exists and holds JSON.
-- `line-shape`: `format`, `ticket` or `name`, `stages` or `from`, `drop`, `add` and every item have the shapes above.
+- `line-shape`: `format`, `ticket` or `name`, `stages` or `from`, `drop`, `add`, `planned` and every item have the shapes above.
 - `saved-line`: `from` names a saved line in `lines/` that parses and has the saved-line shape.
-- `line-edit`: no `drop` of `judge`, `merge` or a stage not on the saved line; every `add` anchors on a top-level stage.
+- `line-edit`: no `drop` of `merge`, of `judge` on a line without `planned`, or of a stage not on the saved line; every `add` anchors on a top-level stage.
 - `catalog-parses`: the catalog file exists and holds a `stages` object.
 - `known-stage`: every stage name is in the catalog.
-- `first-judge`: the first item is `judge`.
+- `first-judge`: the first item is `judge`; a line with `"planned": "plan-work"` is exempt.
 - `last-gate-merge`: `merge` is on the line at the top level.
 - `auto-after-merge`: only `gate: auto` stages come after `merge`.
 - `takes-met`: each `takes` is delivered by an earlier stage, by the stage itself, or at the start.
@@ -206,6 +213,20 @@ A feature with no screen change:
   "ticket": "BOS-4",
   "from": "feature",
   "drop": ["ui-review"]
+}
+```
+
+## Example: line for a ticket planned with plan-work
+
+A feature `plan-work` planned, with no screen change, so no `judge`:
+
+```json
+{
+  "format": "assembly-line/1",
+  "ticket": "BOS-5",
+  "planned": "plan-work",
+  "from": "feature",
+  "drop": ["judge", "ui-review"]
 }
 ```
 

@@ -171,7 +171,8 @@ away.
 
 ### 3. Draft
 
-Fill each item from the templates in standard B.
+Fill each item from the templates in standard B. Open every ticket and
+sub-issue body with the line Planned with `plan-work`., above `## What`.
 
 Where a fact is missing, put `[[gap Qn: what is missing]]` in the body and add
 `Qn` to the questions. Use that form for every hole, so a search finds them
@@ -202,6 +203,9 @@ it still lacks. The others can go.
 
 Use whatever tracker tool the session has. Team or project comes from
 `plan-work.team`; if that is empty, ask.
+
+Save every body with the line Planned with `plan-work`. under the attribution line,
+above `## What`.
 
 Not every tracker has sub-issues, milestones or `blocked by`. Map each to what
 the tracker offers (an epic or parent link, a label or version, a task list or
