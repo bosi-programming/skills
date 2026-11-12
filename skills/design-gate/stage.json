@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "## Solution", "## Implementation Plan", "## Interfaces"],
+  "delivers": {
+    "sections": ["## Decisions"],
+    "fields": ["runStatus", "lastTouched"],
+    "verdicts": ["approved", "changes"]
+  },
+  "return": {
+    "changes": { "to": "plan-code", "limit": 2, "past": "human" }
+  },
+  "signals": [],
+  "gate": "human"
+}

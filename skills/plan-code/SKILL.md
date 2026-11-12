@@ -31,6 +31,8 @@ The same work card, with this stage's parts written:
 - `## Testing Strategy` — what gets tested and how.
 - `## TDD Test Mapping` — the test cases, each marked not yet written.
 - `## Interfaces` — the public names both writers code to.
+- `## Signals` — `schema-change — plan-code — <plan line>` when the plan
+  changes a database schema, a migration or a public contract.
 - `## Decisions` — one line for the stage.
 - `## Open Questions` — any gap nothing could settle.
 - Frontmatter — `phase` set to `plan-code`, `plan-code` appended to
@@ -92,6 +94,13 @@ A plan too vague to name them stops the stage: write the gap to
 `## Open Questions` and set `runStatus: needs-input`.
 
 ## 5. Close the stage
+
+When a step of `## Implementation Plan` changes a database schema, a
+migration or a public contract, write
+`schema-change — plan-code — <plan line>` to `## Signals`, quoting the plan
+line that names it. `assembly-line` then adds `design-gate` after this stage,
+so a person reads the plan before any code. No plan line to quote means no
+signal.
 
 Append one line to `## Decisions`. Update the frontmatter —
 `phase: 'plan-code'`, append `plan-code` to `phasesCompleted` (once, even on a

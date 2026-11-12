@@ -136,6 +136,37 @@
       "signals": [],
       "gate": "auto"
     },
+    "design-gate": {
+      "spec": "../assembly-line/references/stage-spec.md",
+      "takes": [
+        "task",
+        "## Solution",
+        "## Implementation Plan",
+        "## Interfaces"
+      ],
+      "delivers": {
+        "sections": [
+          "## Decisions"
+        ],
+        "fields": [
+          "runStatus",
+          "lastTouched"
+        ],
+        "verdicts": [
+          "approved",
+          "changes"
+        ]
+      },
+      "return": {
+        "changes": {
+          "to": "plan-code",
+          "limit": 2,
+          "past": "human"
+        }
+      },
+      "signals": [],
+      "gate": "human"
+    },
     "evaluate-ticket": {
       "spec": "../assembly-line/references/stage-spec.md",
       "takes": [
@@ -281,6 +312,7 @@
           "## Testing Strategy",
           "## TDD Test Mapping",
           "## Interfaces",
+          "## Signals",
           "## Decisions",
           "## Open Questions"
         ],
@@ -301,7 +333,9 @@
           "past": "needs-input"
         }
       },
-      "signals": [],
+      "signals": [
+        "schema-change"
+      ],
       "gate": "auto"
     },
     "prepare-pr": {
@@ -662,6 +696,12 @@
       "signal": "no-screen-change",
       "raisedBy": "code",
       "remove": "a11y-check"
+    },
+    {
+      "signal": "schema-change",
+      "raisedBy": "plan-code",
+      "add": "design-gate",
+      "where": "after plan-code"
     }
   ]
 }

@@ -1,13 +1,13 @@
 # Bosi Programming Skills
 
-Thirty-seven Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Thirty-eight Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs the parent's line and each sub-issue's line through `assembly-line`, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates the lines name.
 
-The other thirty-five feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `a11y-check` runs its accessibility check as a skill of its own, and `security-review` runs its security review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `research` answers a spike ticket's questions as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other thirty-six feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `a11y-check` runs its accessibility check as a skill of its own, and `security-review` runs its security review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `research` answers a spike ticket's questions as a skill of its own, and `design-gate` stops a plan that changes a schema, a migration or a public contract for a person to read as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same thirty-seven install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same thirty-eight install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -235,6 +235,12 @@ The stage that runs a spike. It reads the work card's `task`, then the ticket's 
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s, with `gate: human`.
 
+### design-gate
+
+The gate between a risky plan and its code. It never sits on a saved line: when `plan-code`'s `## Implementation Plan` changes a database schema, a migration or a public contract, `plan-code` writes `schema-change — plan-code — <plan line>` to `## Signals`, and a row in `signals.json` adds `design-gate` after `plan-code`. It reads the card's `## Solution`, `## Implementation Plan` and `## Interfaces`, posts them as one new comment on the ticket, then stops at `runStatus: gate`. Approval ends it `approved` and the line continues; a request for changes is logged to `## Decisions` in the person's words and ends it `changes`, which sends the line back to the latest `plan-code` at most twice, then to a person, and the rerun posts a new comment. A card missing one of the three sections stops it `runStatus: blocked` with nothing posted. With no tracker tool the plan stays on the card and the gate says it was not posted. It leaves `phase` and `phasesCompleted` alone. `assembly-line` runs it, and it also runs alone on a card.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s, with `gate: human`.
+
 ### security-review
 
 The stage after `code` when a change touches security. `code` raises `touches-security` when the diff touches auth, sessions, permissions, secrets, crypto, parsing of outside input, or adds or bumps a dependency, and the line adds this stage after it. It reads the work card's `task` and `## Solution` and the diff from the fixed point to `HEAD`, runs one reviewer sub-agent against `references/checks.md` (OWASP Top 10 2021 and ASVS 4.0.3 level 1, limited to what a diff shows), never edits code, and writes `## Security Review` with findings that name file, line, check id and severity. It ends `fail` on a `critical` or `high` finding, which sends the line back to `code` at most twice, then `needs-input`, and `pass` otherwise, including an empty diff. It logs medium and low findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. `assembly-line` runs it in its own session, and it also runs alone on a card.
@@ -380,6 +386,7 @@ skills/
   contract/           SKILL.md + stage.json + scripts/
   reproduce/          SKILL.md + stage.json + scripts/
   research/           SKILL.md + stage.json + scripts/
+  design-gate/        SKILL.md + stage.json + scripts/
   integrate/          SKILL.md + stage.json + scripts/
   qa/                 SKILL.md + stage.json + scripts/
   proof/              SKILL.md + stage.json + scripts/
@@ -432,6 +439,7 @@ python3 skills/judge/scripts/check-judge.py
 python3 skills/contract/scripts/check-contract.py
 python3 skills/reproduce/scripts/check-reproduce.py
 python3 skills/research/scripts/check-research.py
+python3 skills/design-gate/scripts/check-design-gate.py
 python3 skills/integrate/scripts/check-integrate.py
 python3 skills/qa/scripts/check-qa.py
 python3 skills/proof/scripts/check-proof.py
@@ -451,6 +459,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/contract
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/reproduce
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/research
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/design-gate
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/integrate
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/qa
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/proof
@@ -634,6 +643,8 @@ or if this README loses its section or its Validate lines. Offline, stdlib only
 — run it after editing `contract`.
 
 `check-research.py` is `research`'s own check: it fails if the skill loses its frontmatter or its section order, stops citing a source per claim, stops leaving unanswered questions `open` with what was tried, drops `{scratch}/research/` or the rule that nothing is committed, stops posting one new comment, opens tickets, drops the no-tracker case or the gate with its `approved` and `changes` verdicts, drops its `## Headless` section, links a file that does not exist, names private content, if `stage.json` drifts from its exact shape, or if this README loses its section or its Validate lines or the manifest versions differ. Offline, stdlib only — run it after editing `research`.
+
+`check-design-gate.py` is `design-gate`'s own check: it fails if the skill loses its frontmatter or its section order, stops reading `## Solution`, `## Implementation Plan` and `## Interfaces` or stopping `runStatus: blocked` with nothing posted when one is missing, stops posting one new comment or starts editing an old one, drops the no-tracker case or the gate with its `approved` and `changes` verdicts and its return to `plan-code`, drops its `## Headless` section or its log prefixes, links a file that does not exist, names private content, if `stage.json` drifts from its exact shape, or if this README loses its section or its Validate lines or the manifest versions differ. Offline, stdlib only — run it after editing `design-gate`.
 
 `check-reproduce.py` is `reproduce`'s own check: it fails if the skill loses its
 frontmatter, stops naming the work card, `task` and the bug ticket as its input,

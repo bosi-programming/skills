@@ -50,7 +50,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "66706c9f7093"
+      "version": "4e7e3722431c"
     },
     {
       "name": "better-code-review",
@@ -106,6 +106,15 @@
         "stage.json"
       ],
       "version": "e008bdc44d98"
+    },
+    {
+      "name": "design-gate",
+      "files": [
+        "SKILL.md",
+        "scripts/check-design-gate.py",
+        "stage.json"
+      ],
+      "version": "6c6e0cefadd3"
     },
     {
       "name": "epistemic-action",
@@ -226,7 +235,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "1b56a19b6472"
+      "version": "04824a8dcb61"
     },
     {
       "name": "plan-code",
@@ -235,7 +244,7 @@
         "scripts/check-plan-code.py",
         "stage.json"
       ],
-      "version": "17734feeb123"
+      "version": "5364c06a808c"
     },
     {
       "name": "plan-work",
