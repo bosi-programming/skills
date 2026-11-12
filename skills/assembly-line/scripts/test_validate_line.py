@@ -328,7 +328,41 @@ class ValidateLine(unittest.TestCase):
                 self.assertEqual(result.returncode, 0, result.stdout)
                 self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
 
-    def test_saved_lines_are_the_four(self):
+    def test_spike_line_passes(self):
+        result = run(LINES / "spike.json")
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
+
+    def test_prepare_pr_without_merge_fails_last_gate_merge(self):
+        stages = ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "research"]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, "merge", "last-gate-merge")
+
+    def test_parallel_group_last_without_merge_fails(self):
+        stages = ["judge", {"parallel": ["research", "evaluate-ticket"]}]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, "merge", "last-gate-merge")
+
+    def test_pr_in_a_parallel_branch_counts(self):
+        stages = ["judge", {"parallel": ["prepare-pr", "evaluate-ticket"]}, "research"]
+        code, out = self.validate(line_of(stages))
+        self.assertEqual(code, 1)
+        self.assertError(out, "merge", "last-gate-merge")
+
+    def test_a_human_gated_last_stage_without_pr_passes(self):
+        code, out = self.validate(line_of(["judge", "research"]))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out, {"valid": True, "errors": []})
+
+    def test_planned_spike_drops_judge(self):
+        code, out = self.validate(self.from_line("spike", drop=["judge"], planned="plan-work"))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out.get("line"), {"format": "assembly-line/1", "ticket": "BOS-1",
+                                           "stages": ["research"], "planned": "plan-work"})
+
+    def test_saved_lines_are_the_five(self):
         expected = {
             "feature": ["judge", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]}, "code",
                         "ui-review", "a11y-check", "prepare-pr", "review-fix", "code-docs", "merge"],
@@ -337,6 +371,7 @@ class ValidateLine(unittest.TestCase):
             "small-fix": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"],
             "parent": ["judge", "contract", {"group": "sub-issues"}, "integrate", "qa", "proof",
                        "review-request", "merge"],
+            "spike": ["judge", "research"],
         }
         self.assertEqual(sorted(path.stem for path in LINES.glob("*.json")), sorted(expected))
         for name, stages in expected.items():

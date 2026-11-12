@@ -106,10 +106,14 @@ check_all("readme-marker", block(readme, "### plan-assembly-line", r"^### "), MA
 check_all("suggestion-rules", section2, "`[unit]`", "`[int]`", "`[e2e]`", "`[story]`", "`## Design`", "`[ui]`",
           "`[docs]`", "`feat`", '`{"group": "sub-issues"}`', "sub-issues join the list", "why")
 check_all("suggests-saved-line", section2, "`../assembly-line/references/lines/`", "`feature`", "`bug`",
-          "`small-fix`", "`parent`", "`from`", "`drop`", "`add`", "saved line")
+          "`small-fix`", "`parent`", "`spike`", "`from`", "`drop`", "`add`", "saved line")
+check_all("spike-rule", section2, "`## Questions`", "`## Output`", "`spike`", "ends at `research`")
+check("spike-rule-first", flatten(section2).find("`spike`") != -1
+      and flatten(section2).find("`spike`") < min(i for i in (flatten(section2).find(f"`{k}`") for k in ("feature", "bug", "small-fix", "parent")) if i != -1),
+      "spike must be the first kind named")
 check_all("kind-rules", section2, "matches the ticket's kind", "`fix`")
 LINES = SKILLS / "assembly-line" / "references" / "lines"
-absent = [f"{n}.json" for n in ("feature", "bug", "small-fix", "parent") if not (LINES / f"{n}.json").is_file()]
+absent = [f"{n}.json" for n in ("feature", "bug", "small-fix", "parent", "spike") if not (LINES / f"{n}.json").is_file()]
 check("saved-lines-exist", not absent, f"missing: {absent}")
 check_all("validates-before-showing", block(skill, "## 3. Validate each line", r"^## "),
           "`$SKILL_DIR/../assembly-line/scripts/validate-line.py`", "`{scratch}/<ticket>.line.json`", '`"valid"`',
@@ -168,7 +172,7 @@ check("readme-run-log-no-old-claim", "it adds no setting" not in flatten(readme_
       "README still says 'it adds no setting'")
 check_all("readme-validate-stats", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/test_stats.py")
-check_all("readme-count", readme, "thirty-six claude code skills", "the other thirty-four", "the same thirty-six")
+check_all("readme-count", readme, "thirty-seven claude code skills", "the other thirty-five", "the same thirty-seven")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
 

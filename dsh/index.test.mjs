@@ -38,6 +38,7 @@ const SKILLS = [
   'qa',
   'recipe-relay',
   'reproduce',
+  'research',
   'review-fix',
   'review-request',
   'security-review',
