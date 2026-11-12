@@ -15,8 +15,12 @@
         "scripts/__pycache__/apply-signals.cpython-315.pyc",
         "scripts/__pycache__/board.cpython-315.pyc",
         "scripts/__pycache__/build-catalog.cpython-315.pyc",
+        "scripts/__pycache__/test_apply_signals.cpython-315.pyc",
         "scripts/__pycache__/test_board.cpython-315.pyc",
+        "scripts/__pycache__/test_build_catalog.cpython-315.pyc",
         "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
+        "scripts/__pycache__/test_check_stage_spec.cpython-315.pyc",
+        "scripts/__pycache__/test_run_log.cpython-315.pyc",
         "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/apply-signals.py",
         "scripts/board.py",
@@ -36,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "427514f3dd69"
+      "version": "53d983a59303"
     },
     {
       "name": "better-code-review",
@@ -207,11 +211,12 @@
       "name": "plan-assembly-line",
       "files": [
         "SKILL.md",
+        "scripts/__pycache__/test_stats.cpython-315.pyc",
         "scripts/check-plan-assembly-line.py",
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "827699cb19d9"
+      "version": "5cf0178483a7"
     },
     {
       "name": "plan-code",
@@ -316,7 +321,7 @@
         "scripts/check-security-review.py",
         "stage.json"
       ],
-      "version": "3858928a4c9c"
+      "version": "e9e61e5b1e11"
     },
     {
       "name": "setup",
@@ -457,10 +462,12 @@
         "evals/scenario-03.json",
         "evals/scenario-04.json",
         "evals/scenario-05.json",
+        "scripts/__pycache__/plan_week.cpython-315.pyc",
+        "scripts/__pycache__/test_plan_week.cpython-315.pyc",
         "scripts/plan_week.py",
         "scripts/test_plan_week.py"
       ],
-      "version": "0b90a3ec150e"
+      "version": "40acdc2e182e"
     },
     {
       "name": "work-summary",

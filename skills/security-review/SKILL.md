@@ -42,7 +42,9 @@ as they are, and never edits code.
 
 ## 1. Diff
 
-List the diff from the fixed point to `HEAD`. An empty diff is `pass`: log
+List the diff from the fixed point to `HEAD`. The fixed point is the one the
+driver's project rules name; with none, the merge-base of `HEAD` with
+`origin/<default branch>`. An empty diff is `pass`: log
 `empty diff` to `## Decisions` and start no reviewer. The reviewer reads only
 what the diff changes and the code around it that it needs to judge a line.
 
@@ -68,7 +70,7 @@ Medium and low findings never send work back: log them to
 `## Quality Gate Results`. On `fail` the line goes back to the latest `code`,
 with the critical and high findings, then runs this stage again; at most twice,
 then `needs-input`. This stage does not run `code` itself. A second run on the
-same card appends a `### Round <n>` block to `## Security Review` instead of
+same card appends a `Round <n>` block, headed `### Round <n>`, to `## Security Review` instead of
 replacing it.
 
 Log the verdict to `## Decisions`, update `lastTouched`, and end with the

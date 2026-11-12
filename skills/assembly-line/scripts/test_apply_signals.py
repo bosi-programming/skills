@@ -187,10 +187,10 @@ class ApplySignals(unittest.TestCase):
         self.assertEqual([entry["reason"] for entry in report["skipped"]], ["anchor-missing"])
 
     def test_after_anchor_already_run_goes_first_in_the_rest(self):
-        rows = [{"signal": "s", "raisedBy": "code", "add": "code-docs", "where": "after code"}]
+        rows = [{"signal": "s", "raisedBy": "code", "add": "ui-review", "where": "after code"}]
         report = self.apply("s — code — x", line_of(SMALL_FIX), 4, self.catalog_with(rows))
         self.assertTrue(report["changed"], report)
-        self.assertEqual(report["line"]["stages"], SMALL_FIX[:4] + ["code-docs"] + SMALL_FIX[4:])
+        self.assertEqual(report["line"]["stages"], SMALL_FIX[:4] + ["ui-review"] + SMALL_FIX[4:])
 
     def test_add_already_on_line_is_skipped(self):
         rows = [{"signal": "s", "raisedBy": "plan-code", "add": "code", "where": "after plan-code"}]
