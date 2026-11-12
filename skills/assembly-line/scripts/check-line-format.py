@@ -15,7 +15,7 @@ SECTIONS = {
     "parallel": ("## Parallel groups", ['"parallel"']),
     "latest-wins": ("## More than one line comment", ["created last"]),
     "sub-issues": ("## Sub-issue groups", ['"group"', '"sub-issues"', "`merge`"]),
-    "saved": ("## Saved lines", ['"name"', '"from"', '"add"', '"drop"', '"after"', '"item"', "`./lines/`",
+    "saved": ("## Saved lines", ['"name"', '"from"', '"add"', '"drop"', '"after"', '"item"', '"planned"', "`./lines/`",
                                  "cannot be dropped", "`saved-line`", "`line-edit`"]),
 }
 

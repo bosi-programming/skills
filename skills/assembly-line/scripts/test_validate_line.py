@@ -500,6 +500,57 @@ class ValidateLine(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertTrue(result.stdout.startswith(USAGE))
 
+    def test_a_planned_line_without_judge_passes(self):
+        line = {**line_of(SHORT[1:]), "planned": "plan-work"}
+        code, out = self.validate(line)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(out, {"valid": True, "errors": []})
+
+    def test_the_same_line_without_planned_fails_first_judge(self):
+        code, out = self.validate(line_of(SHORT[1:]))
+        self.assertEqual(code, 1)
+        self.assertError(out, "evaluate-ticket", "first-judge")
+
+    def test_a_planned_from_line_drops_judge(self):
+        code, out = self.validate(self.from_line("feature", drop=["judge"], planned="plan-work"))
+        self.assertEqual(code, 0, out)
+        stages = [s for s in self.saved("feature")["stages"] if s != "judge"]
+        self.assertEqual(out.get("line"), {"format": "assembly-line/1", "ticket": "BOS-1",
+                                           "stages": stages, "planned": "plan-work"})
+        self.assertNotIn("judge", out["line"]["stages"])
+
+    def test_planned_must_be_plan_work(self):
+        for value in ("other", True):
+            with self.subTest(value=value):
+                code, out = self.validate({**line_of(SHORT), "planned": value})
+                self.assertEqual(code, 1, out)
+                self.assertEqual({e["rule"] for e in out["errors"]}, {"line-shape"}, out)
+
+    def test_a_saved_line_cannot_be_planned(self):
+        line = {"format": "assembly-line/1", "name": "x", "planned": "plan-work", "stages": SHORT}
+        code, out = self.validate(line)
+        self.assertEqual(code, 1, out)
+        self.assertEqual({e["rule"] for e in out["errors"]}, {"line-shape"}, out)
+
+    def test_planned_with_from_shapes_still_checked(self):
+        code, out = self.validate(self.from_line("feature", planned="plan-work", stages=SHORT))
+        self.assertEqual(code, 1, out)
+        self.assertEqual({e["rule"] for e in out["errors"]}, {"line-shape"}, out)
+
+    def test_planned_does_not_free_merge(self):
+        code, out = self.validate(self.from_line("feature", drop=["merge"], planned="plan-work"))
+        self.assertEqual(code, 1, out)
+        self.assertError(out, "merge", "line-edit")
+
+    def test_a_planned_line_may_keep_judge(self):
+        code, out = self.validate({**line_of(SHORT), "planned": "plan-work"})
+        self.assertEqual(code, 0, out)
+
+    def test_planned_example_passes(self):
+        code, out = self.validate(example("## Example: line for a ticket planned with plan-work"))
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("judge", out["line"]["stages"])
+
     def test_from_example_passes(self):
         code, out = self.validate(example("## Example: line from a saved line"))
         self.assertEqual(code, 0, out)

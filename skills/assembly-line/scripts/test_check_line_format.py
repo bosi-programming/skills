@@ -22,7 +22,8 @@ SECTIONS = {
     "sub-issues": '## Sub-issue groups\n\n`{"group": "sub-issues"}` runs each sub-issue\'s own line '
                   "without its `merge`; the parent's `merge` merges them all.\n",
     "saved": '## Saved lines\n\nA saved line has `"name"`; a line comment uses `"from"` with `"add"` and '
-             '`"drop"`. An add holds `"after"` and `"item"`. Saved lines live in `./lines/`. A stage '
+             '`"drop"`. An add holds `"after"` and `"item"`. A ticket line may hold `"planned"`. '
+             'Saved lines live in `./lines/`. A stage '
              "`judge` or `merge` cannot be dropped. Errors are `saved-line` and `line-edit`.\n",
 }
 FROM_LINE = {"format": "assembly-line/1", "ticket": "BOS-1", "from": "feature", "drop": ["ui-review"]}
@@ -148,6 +149,15 @@ class LineFormatCheck(unittest.TestCase):
         result = self.write(document(drop=["saved"]))
         self.assertEqual(result.returncode, 1)
         self.assertRegex(result.stdout, r"FAIL\s+section-saved\b")
+
+    def test_fails_when_the_saved_section_omits_planned(self):
+        saved = SECTIONS["saved"].replace(' A ticket line may hold `"planned"`.', "")
+        self.assertNotIn('"planned"', saved)
+        text = document(drop=["saved"]) + "\n" + saved
+        result = self.write(text)
+        self.assertEqual(result.returncode, 1)
+        self.assertRegex(result.stdout, r"FAIL\s+section-saved\b")
+        self.assertIn('"planned"', result.stdout)
 
     def test_fails_without_the_from_example(self):
         result = self.write(document(drop=["from"]))

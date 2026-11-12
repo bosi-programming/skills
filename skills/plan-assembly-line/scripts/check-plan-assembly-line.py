@@ -87,6 +87,18 @@ check("only-catalog-stages", catalog_ok and offered and offered <= stages,
       f"not in catalog: {sorted(offered - stages)}" if catalog_ok and offered else
       ("catalog.json does not parse" if not catalog_ok else "section 2 names no stage"))
 
+MARKER = "Planned with `plan-work`."
+check_all("planned-marker", section2, MARKER, '"planned": "plan-work"', "drop `judge`", "parent keeps `judge`")
+check_all("planned-in-file", block(skill, "## 3. Validate each line", r"^## "), "`planned`")
+check_all("planned-saved", block(skill, "## 5. Save", r"^## "), "`planned`")
+plan_work_text = read(PLAN_WORK)
+standard_text = read(SKILLS / "plan-work" / "references" / "standard.md")
+check("plan-work-marker",
+      all(MARKER.lower() in flatten(block(plan_work_text, heading, r"^#{2,3} "))
+          for heading in ("### 3. Draft", "### 5. Save"))
+      and flatten(standard_text).count(MARKER.lower()) >= 2,
+      "plan-work steps 3 and 5 and both standard.md templates must hold the marker line")
+check_all("readme-marker", block(readme, "### plan-assembly-line", r"^### "), MARKER)
 check_all("suggestion-rules", section2, "`[unit]`", "`[int]`", "`[e2e]`", "`[story]`", "`## Design`", "`[ui]`",
           "`[docs]`", "`feat`", '`{"group": "sub-issues"}`', "sub-issues join the list", "why")
 check_all("suggests-saved-line", section2, "`../assembly-line/references/lines/`", "`feature`", "`bug`",
