@@ -1,0 +1,8 @@
+{
+  "format": "assembly-line/1",
+  "name": "spike",
+  "stages": [
+    "judge",
+    "research"
+  ]
+}

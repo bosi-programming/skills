@@ -99,7 +99,7 @@ and names `plan-assembly-line`.
 ## Saved lines
 
 Common lines live in the repo, one file each, in [`./lines/`](./lines/):
-`feature`, `bug`, `small-fix` and `parent`. A saved line has `"format"`,
+`feature`, `bug`, `small-fix`, `parent` and `spike`. A saved line has `"format"`,
 `"name"` (equal to the file name) and `stages`, and no `ticket`.
 
 A line comment may start from one: it holds `"from": "<saved line>"` in place
@@ -129,7 +129,7 @@ the expanded line. A rejected edit gives `saved-line` or `line-edit`.
 ## Rules
 
 - The first stage is `judge`, unless the line holds `"planned": "plan-work"`.
-- `merge` is on the line, at the top level.
+- `merge` is on the line, at the top level, unless the line ends at a human gate: its last item is a top-level stage with `gate: human` and no stage on the line, parallel branches included, delivers `## PR`. A `spike` line ends at `research` this way.
 - After `merge`, only stages with `gate: auto` in their `stage.json`.
 - Every stage name is a skill under `skills/`.
 - `ticket` matches the ticket the comment is on.
@@ -143,7 +143,7 @@ the expanded line. A rejected edit gives `saved-line` or `line-edit`.
 - `catalog-parses`: the catalog file exists and holds a `stages` object.
 - `known-stage`: every stage name is in the catalog.
 - `first-judge`: the first item is `judge`; a line with `"planned": "plan-work"` is exempt.
-- `last-gate-merge`: `merge` is on the line at the top level.
+- `last-gate-merge`: `merge` is on the line at the top level, unless the line ends at a human gate: the last item is a top-level `gate: human` stage and no stage on the line delivers `## PR`. A last item that is a parallel group or a sub-issue group fails.
 - `auto-after-merge`: only `gate: auto` stages come after `merge`.
 - `takes-met`: each `takes` is delivered by an earlier stage, by the stage itself, or at the start.
 - `return-target`: every `return` target is a stage on the line.

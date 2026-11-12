@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task"],
+  "delivers": {
+    "sections": ["## Findings", "## Decisions", "## Open Questions"],
+    "fields": ["lastTouched"],
+    "verdicts": ["approved", "changes"]
+  },
+  "return": {
+    "changes": { "to": "research", "limit": 2, "past": "human" }
+  },
+  "signals": [],
+  "gate": "human"
+}

@@ -96,7 +96,7 @@ Load, read completely and execute `../review-fix/SKILL.md` on the card in this s
 
 ### Gates
 
-A stage with `gate: human` in the catalog (today `merge`) runs its steps up to its gate in a sub-agent, which stops at `runStatus: gate`. The run then writes the question to `## Open Questions`, posts it in chat, and stops. Resumed with the person's approval, the gate stage runs in this session, with `assembly-line.doneState` in place of `open-restaurant.doneState`: it moves the ticket there once the merge lands. An empty value skips the move.
+A stage with `gate: human` in the catalog (`merge` and `research`) runs its steps up to its gate in a sub-agent, which stops at `runStatus: gate`. The run then writes the question to `## Open Questions`, posts it in chat, and stops. Resumed with the person's approval, the gate stage runs in this session, with `assembly-line.doneState` in place of `open-restaurant.doneState`: it moves the ticket there once the merge lands. An empty value skips the move. `assembly-line.doneState` applies only to `merge`. Approval of the `research` gate resumes that stage with verdict `approved`, and the line ends there.
 
 ## 4. Go back on a failing verdict
 

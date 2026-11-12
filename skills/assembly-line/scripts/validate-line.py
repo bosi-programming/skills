@@ -15,6 +15,7 @@ DEFAULT_LINES = Path(__file__).resolve().parents[1] / "references" / "lines"
 SAVED_NAME = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 KEPT = ("judge", "merge")
 PLANNED = "plan-work"
+PR_SECTION = "## PR"
 
 
 def parse_args(argv):
@@ -230,10 +231,28 @@ def merge_index(items):
     return None
 
 
-def check_merge(items):
-    if merge_index(items) is None:
-        return [error("merge", "last-gate-merge", "merge must be on the line at the top level")]
-    return []
+def ends_at_human_gate(items, stages):
+    last = items[-1]
+    if not is_stage_item(last):
+        return False
+    entry = stages.get(stage_name(last))
+    if not isinstance(entry, dict) or entry.get("gate") != "human":
+        return False
+    return not any(
+        PR_SECTION in delivers(stages[name]) for name in all_names(items) if name in stages
+    )
+
+
+def check_merge(items, stages):
+    if merge_index(items) is not None or ends_at_human_gate(items, stages):
+        return []
+    return [
+        error(
+            "merge",
+            "last-gate-merge",
+            "merge must be on the line at the top level, unless the line ends at a gate: human stage and no stage on it delivers ## PR",
+        )
+    ]
 
 
 def check_auto_after_merge(items, stages):
@@ -410,7 +429,7 @@ def check_line(line, catalog_path):
     if errors:
         return errors
     items = line["stages"]
-    merge_errors = check_merge(items)
+    merge_errors = check_merge(items, stages)
     return (
         check_known(items, stages)
         + check_first_judge(items, stages, is_planned(line))

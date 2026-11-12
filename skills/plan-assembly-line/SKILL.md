@@ -21,10 +21,11 @@ Read the line file too: the path `assembly-line.lineFile` names, read as in _Run
 
 ## 2. Suggest a line
 
-Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line ends at `merge`, and starts at `judge` unless the ticket is marked (below).
+Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line ends at `merge`, except a `spike` line, which ends at the human gate of `research`, and starts at `judge` unless the ticket is marked (below).
 
-Start from the saved line that matches the ticket's kind. The saved lines are the files in `../assembly-line/references/lines/`: `feature`, `bug`, `small-fix` and `parent`. Pick by kind, in this order:
+Start from the saved line that matches the ticket's kind. The saved lines are the files in `../assembly-line/references/lines/`: `feature`, `bug`, `small-fix`, `parent` and `spike`. Pick by kind, in this order:
 
+- A body with both `## Questions` and `## Output`: `spike`. Check this first.
 - A parent with sub-issues: `parent`. Its sub-issues join the list and get lines of their own. The saved line holds `{"group": "sub-issues"}`.
 - No criterion tagged `[unit]`, `[int]`, `[e2e]` or `[story]`: `small-fix`.
 - Title type `fix`: `bug`.
@@ -32,6 +33,7 @@ Start from the saved line that matches the ticket's kind. The saved lines are th
 
 Then apply these rules as `drop` and `add` edits on that saved line, each with `from`:
 
+- The next two rules skip a `spike` line: none of those stages is on it, and dropping one would fail `line-edit`.
 - Drop `ui-review` and `a11y-check` unless the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count. On `small-fix`, add `ui-review` right after `code` and `a11y-check` right after `ui-review` when one of those holds.
 - Drop `code-docs` unless the title type is `feat` or a criterion is tagged `[docs]`. On `small-fix`, add `code-docs` right after `review-fix` when a criterion is tagged `[docs]`.
 

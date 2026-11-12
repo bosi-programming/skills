@@ -19,6 +19,7 @@
         "references/lines/feature.json",
         "references/lines/parent.json",
         "references/lines/small-fix.json",
+        "references/lines/spike.json",
         "references/signals.json",
         "references/stage-spec.md",
         "scripts/__pycache__/apply-signals.cpython-315.pyc",
@@ -49,7 +50,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "64b9febe6a0f"
+      "version": "0e55ba84f752"
     },
     {
       "name": "better-code-review",
@@ -225,7 +226,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "289899e27f6d"
+      "version": "15e877015061"
     },
     {
       "name": "plan-code",
@@ -303,6 +304,15 @@
         "stage.json"
       ],
       "version": "7061054c8f7b"
+    },
+    {
+      "name": "research",
+      "files": [
+        "SKILL.md",
+        "scripts/check-research.py",
+        "stage.json"
+      ],
+      "version": "29474d1f4b7b"
     },
     {
       "name": "review-fix",
