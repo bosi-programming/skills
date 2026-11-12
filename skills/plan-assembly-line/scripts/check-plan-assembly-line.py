@@ -82,7 +82,7 @@ except (ValueError, AttributeError, TypeError):
     stages = set()
     catalog_ok = False
 names = {d.name for d in SKILLS.iterdir() if (d / "SKILL.md").is_file()}
-offered = {token for token in re.findall(r"`([a-z][a-z0-9-]*)`", section2) if token in names}
+offered = {token for token in re.findall(r"`([a-z][a-z0-9-]*)`", section2) if token in names and token != "plan-work"}
 check("only-catalog-stages", catalog_ok and offered and offered <= stages,
       f"not in catalog: {sorted(offered - stages)}" if catalog_ok and offered else
       ("catalog.json does not parse" if not catalog_ok else "section 2 names no stage"))

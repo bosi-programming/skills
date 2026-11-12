@@ -36,7 +36,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "2184ae208d6c"
+      "version": "bb16d51c2910"
     },
     {
       "name": "better-code-review",
@@ -211,7 +211,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "337ae6de11fb"
+      "version": "827699cb19d9"
     },
     {
       "name": "plan-code",
@@ -241,7 +241,7 @@
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "125741014789"
+      "version": "107a89069b65"
     },
     {
       "name": "prepare-pr",
