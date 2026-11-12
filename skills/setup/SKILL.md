@@ -122,6 +122,9 @@ the ones in `./references/config.md`:
     h. Role: `engineer` hands the tickets to `plan-assembly-line` when
        planning ends, `other` stops there, or ask each time.
     i. Any team rules for the body's `## plan-work` section.
+16. `a11y-check`:
+    a. The command that starts the app, or none.
+    b. The URL the app answers on, or none.
 
 An answer of "keep" or no answer leaves that key as it is.
 

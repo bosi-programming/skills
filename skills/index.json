@@ -1,6 +1,15 @@
 {
   "skills": [
     {
+      "name": "a11y-check",
+      "files": [
+        "SKILL.md",
+        "scripts/check-a11y-check.py",
+        "stage.json"
+      ],
+      "version": "db15fd80b49e"
+    },
+    {
       "name": "assembly-line",
       "files": [
         "SKILL.md",
@@ -40,7 +49,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "14f66ae98efe"
+      "version": "c6bc0b114f34"
     },
     {
       "name": "better-code-review",
@@ -216,7 +225,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "5cf0178483a7"
+      "version": "289899e27f6d"
     },
     {
       "name": "plan-code",
@@ -331,7 +340,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "b98089122147"
+      "version": "8393202b3525"
     },
     {
       "name": "ship-pr",

@@ -32,6 +32,8 @@ KEYS = {
     "recipe-relay.reviewState": "In Review",
     "recipe-relay.doneState": "Done",
     "recipe-relay.uiReviewerModel": "''",
+    "a11y-check.devCommand": "''",
+    "a11y-check.baseUrl": "''",
     "recipe-relay.routineModel": "''",
     "assembly-line.codingModel": "''",
     "assembly-line.routineModel": "''",
@@ -100,6 +102,7 @@ CONSUMERS = {
     SKILLS / "plan-assembly-line" / "SKILL.md": ["assembly-line.runLog", "assembly-line.lineFile", "assembly-line.lineDestination"],
     SKILLS / "review-fix" / "SKILL.md": ["recipe-relay.codingModel", "recipe-relay.routineModel"],
     SKILLS / "ui-review" / "SKILL.md": ["recipe-relay.uiReviewerModel"],
+    SKILLS / "a11y-check" / "SKILL.md": ["a11y-check.devCommand", "a11y-check.baseUrl"],
     SKILLS / "code-docs" / "SKILL.md": [
         "feature-recipe.runWorkSummary",
         "feature-recipe.docsDestination",
@@ -149,7 +152,7 @@ def frontmatter(text):
 def nested_keys(yaml_text):
     keys, section = set(), None
     for line in yaml_text.splitlines():
-        top = re.match(r"^([A-Za-z-]+):\s*$", line)
+        top = re.match(r"^([A-Za-z0-9-]+):\s*$", line)
         child = re.match(r"^  ([A-Za-z]+):", line)
         if top:
             section = top.group(1)

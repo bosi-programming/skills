@@ -14,6 +14,7 @@
     },
     "code",
     "ui-review",
+    "a11y-check",
     "prepare-pr",
     "review-fix",
     "code-docs",

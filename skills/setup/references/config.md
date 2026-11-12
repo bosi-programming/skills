@@ -88,6 +88,8 @@ every key.
 | `recipe-relay.doneState` | `Done` | Tracker state the relay moves the task to when Documentation closes it. Empty skips the move. |
 | `recipe-relay.uiReviewerModel` | `''` | Model for the UI reviewer that compares screenshots with the design, in `ui-review`. Empty means the model the session runs on. |
 | `recipe-relay.routineModel` | `''` | Model for the Plating and Documentation units and the review sub-agent in `review-fix`. Empty means the model the relay runs on. |
+| `a11y-check.devCommand` | `''` | Command that starts the app, run in the background by `a11y-check`. Empty makes the stage end `inconclusive`. |
+| `a11y-check.baseUrl` | `''` | URL the app answers on; each route the card's `## Solution` names is joined to it. Empty makes the stage end `inconclusive`. |
 | `assembly-line.codingModel` | `''` | Model for the test writers, the code writers and the fix agent, and for the fix sub-agent `assembly-line` hands `review-fix`. Empty means the model the line runs on. |
 | `assembly-line.routineModel` | `''` | Model for `prepare-pr` and `code-docs`, and for the review sub-agent `assembly-line` hands `review-fix`. Empty means the model the line runs on. |
 | `assembly-line.uiReviewerModel` | `''` | Model for the reviewer `assembly-line` hands `ui-review`. Empty means the model the line runs on. |

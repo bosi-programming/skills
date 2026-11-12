@@ -32,7 +32,7 @@ Start from the saved line that matches the ticket's kind. The saved lines are th
 
 Then apply these rules as `drop` and `add` edits on that saved line, each with `from`:
 
-- Drop `ui-review` unless the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count. On `small-fix`, add `ui-review` right after `code` when one of those holds.
+- Drop `ui-review` and `a11y-check` unless the ticket has a `## Design` section with a link, or a criterion tagged `[ui]` or `[story]`. A `- No visual change:` line does not count. On `small-fix`, add `ui-review` right after `code` and `a11y-check` right after `ui-review` when one of those holds.
 - Drop `code-docs` unless the title type is `feat` or a criterion is tagged `[docs]`. On `small-fix`, add `code-docs` right after `review-fix` when a criterion is tagged `[docs]`.
 
 - Marker: a ticket whose body holds the whole line Planned with `plan-work`. (trimmed, anywhere in the body) has passed `plan-work`'s own readiness check. On a ticket with no sub-issues, or on a sub-issue, add `"planned": "plan-work"` to the line and drop `judge`. A parent keeps `judge`, marker or not, and gets no `planned`. A marked ticket that starts at `judge` on its last line comment loses `judge` too; the old comment stays.

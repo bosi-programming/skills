@@ -1,11 +1,11 @@
 # Bosi Programming Skills
 
-Thirty-five Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
+Thirty-six Claude Code skills, packaged as an installable plugin. Two of them carry the rest:
 
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs the parent's line and each sub-issue's line through `assembly-line`, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates the lines name.
 
-The other thirty-three feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `security-review` runs its security review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other thirty-four feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `security-review` runs its security review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
 The same thirty-five install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
@@ -111,7 +111,7 @@ A ticket whose body holds the line Planned with `plan-work`. has already passed 
 How it plans:
 
 1. **Read.** It reads each ticket's body and comments through the tracker. A line comment already there, the one created last, is the starting suggestion.
-2. **Suggest.** It starts from the saved line that matches the ticket's kind (`feature`, `bug`, `small-fix` or `parent`) and drops or adds stages by rule, saving it with `from`: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. Each line comes with a short why.
+2. **Suggest.** It starts from the saved line that matches the ticket's kind (`feature`, `bug`, `small-fix` or `parent`) and drops or adds stages by rule, saving it with `from`: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` and `a11y-check` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. Each line comes with a short why.
 3. **Run log.** `stats.py` reads the run log for tickets of the same kind and suggests to add, look at or cut a stage, each with the count behind it, from 5 runs up. The suggestions are shown, not applied.
 4. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
 5. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
@@ -220,6 +220,12 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 ### ui-review
 
 The stage after `code` when a change reaches a screen. It reads the work card's `task` (the design attached to the ticket), `## Solution` and the screenshots in `{scratch}/ui-review/`, never starts the app or takes screenshots, rates each difference critical, major or minor and writes `## UI Review`. It ends `fail` on a critical or major finding, which sends the line back to `code` at most twice, `pass` otherwise, and `inconclusive` with no screenshots or no design. It logs minor findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. It reads `recipe-relay.uiReviewerModel`. `recipe-relay` runs its UI review through this skill, and it also runs alone on a card.
+
+Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### a11y-check
+
+The stage after `ui-review` when a change reaches a screen. It reads the work card's `## Solution` for the routes the change touches, starts the app with `a11y-check.devCommand`, reaches each route under `a11y-check.baseUrl`, scans it with axe-core through Playwright and walks it by keyboard against `Accessibility.md`: `keyboard-reach`, `keyboard-trap`, `aria-hidden-focusable`, `focus-indicator`, `modal-focus` and `route-focus`. It writes `## Accessibility` and ends `fail` on a `critical` or `serious` finding, which sends the line back to `code` at most twice, `pass` otherwise, and `inconclusive` when a key is empty, the app never answers, the card names no route or Playwright cannot load. It logs `moderate` and `minor` findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. It reads `a11y-check.devCommand` and `a11y-check.baseUrl`. `no-screen-change` from `code` removes it from the line.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -362,6 +368,7 @@ skills/
   code-docs/          SKILL.md + stage.json + scripts/
   review-fix/         SKILL.md + stage.json + scripts/
   ui-review/          SKILL.md + stage.json + scripts/
+  a11y-check/         SKILL.md + stage.json + scripts/
   security-review/    SKILL.md + stage.json + references/ + scripts/
   judge/              SKILL.md + stage.json + scripts/
   contract/           SKILL.md + stage.json + scripts/
@@ -412,6 +419,7 @@ python3 skills/code/scripts/check-code.py
 python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/review-fix/scripts/check-review-fix.py
 python3 skills/ui-review/scripts/check-ui-review.py
+python3 skills/a11y-check/scripts/check-a11y-check.py
 python3 skills/security-review/scripts/check-security-review.py
 python3 skills/judge/scripts/check-judge.py
 python3 skills/contract/scripts/check-contract.py
@@ -429,6 +437,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/review-fix
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/ui-review
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/a11y-check
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/security-review
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/contract

@@ -2,6 +2,38 @@
   "format": "assembly-line-catalog/1",
   "generatedBy": "skills/assembly-line/scripts/build-catalog.py",
   "stages": {
+    "a11y-check": {
+      "spec": "../assembly-line/references/stage-spec.md",
+      "takes": [
+        "task",
+        "## Solution"
+      ],
+      "delivers": {
+        "sections": [
+          "## Accessibility",
+          "## Quality Gate Results",
+          "## Decisions",
+          "## Open Questions"
+        ],
+        "fields": [
+          "lastTouched"
+        ],
+        "verdicts": [
+          "pass",
+          "fail",
+          "inconclusive"
+        ]
+      },
+      "return": {
+        "fail": {
+          "to": "code",
+          "limit": 2,
+          "past": "needs-input"
+        }
+      },
+      "signals": [],
+      "gate": "auto"
+    },
     "code": {
       "spec": "../assembly-line/references/stage-spec.md",
       "takes": [
@@ -596,6 +628,11 @@
       "raisedBy": "code",
       "add": "security-review",
       "where": "after code"
+    },
+    {
+      "signal": "no-screen-change",
+      "raisedBy": "code",
+      "remove": "a11y-check"
     }
   ]
 }

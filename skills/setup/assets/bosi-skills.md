@@ -26,6 +26,9 @@ ship-pr:
   draft: false
   validateCommands: []
   trackerServer: ''
+a11y-check:
+  devCommand: ''
+  baseUrl: ''
 better-code-review:
   defaultMode: conversation
   reviewerModel: ''
@@ -122,6 +125,10 @@ only needs the keys it changes.
 - `ship-pr.validateCommands` — commands run before each repo's commits, such
   as lint or tests.
 - `ship-pr.trackerServer` — MCP server that reads tickets; empty skips it.
+- `a11y-check.devCommand` — the command that starts the app for `a11y-check`;
+  empty makes that stage end `inconclusive`.
+- `a11y-check.baseUrl` — the URL the app answers on; empty makes that stage
+  end `inconclusive`.
 - `better-code-review.defaultMode` — `conversation`, `page` or `headless`.
 - `better-code-review.reviewerModel` — the model for the three review
   sub-agents; empty keeps the model the review runs on.
