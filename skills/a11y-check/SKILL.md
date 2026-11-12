@@ -57,16 +57,17 @@ folder first, then `$HOME`, then the default:
 2. Read the routes `## Solution` names and join each to `a11y-check.baseUrl`.
    None named: `inconclusive`, reason "`## Solution` names no route".
 3. Start `a11y-check.devCommand` in the background. Poll
-   `a11y-check.baseUrl` for up to 120 s. If it never answers: `inconclusive`,
-   and stop the process you started.
-4. Stop the process you started when the stage ends, whatever the verdict.
+   `a11y-check.baseUrl` for up to 120 s. If it never answers: `inconclusive`.
+4. The stage stops the process it started when it ends, whatever the verdict.
 
 ## 2. Scan
 
 Per screen, run axe-core through Playwright in Chromium. Use the project's own
 `playwright` and `@axe-core/playwright` when installed; otherwise install them
 in a throwaway folder, `{scratch}/a11y-check/`. If either cannot be loaded or
-installed, the verdict is `inconclusive` and the reason names the tool.
+installed, the verdict is `inconclusive`, with a reason naming the tool.
+
+Open the page from `browser.newContext()`, because `@axe-core/playwright` rejects a page from `browser.newPage()`. When the installed Playwright wants a Chromium build the machine lacks, launch the cached one by `executablePath`.
 
 Each axe violation becomes one finding, with axe's rule id as the rule and its
 `impact` as the severity. This covers colour contrast.
@@ -102,8 +103,8 @@ with the findings, and runs this stage again; at most twice, then
 `needs-input`. This stage does not run `code` itself.
 
 Write the verdict and findings to `## Accessibility`; a second run on the
-same card appends a `### Round <n>` block instead of replacing it. Log the verdict to
-`## Decisions`, update `lastTouched`, and end with the verdict.
+same card appends a block headed `### Round <n>`, `Round <n>` counting from 2, instead of replacing it.
+Log the verdict to `## Decisions`, update `lastTouched`, and end with the verdict.
 
 ## Headless
 

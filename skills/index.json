@@ -7,7 +7,7 @@
         "scripts/check-a11y-check.py",
         "stage.json"
       ],
-      "version": "db15fd80b49e"
+      "version": "231f0b79a9cb"
     },
     {
       "name": "assembly-line",
@@ -49,7 +49,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "c6bc0b114f34"
+      "version": "64b9febe6a0f"
     },
     {
       "name": "better-code-review",
@@ -340,7 +340,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "8393202b3525"
+      "version": "202d68f54e45"
     },
     {
       "name": "ship-pr",
