@@ -91,7 +91,8 @@ check_all("security-review-in-session", run, "`judge`, `ui-review`, `security-re
 check_all("security-review-run-log", block(skill, "### Run log", r"^##"),
           "`judge`, `ui-review`, `security-review` and `review-fix`", "`--tokens`")
 gates = block(skill, "### Gates", r"^##")
-check_all("gates", gates, "`gate: human`", "`runStatus: gate`", "`## Open Questions`", "in chat", "approv")
+check_all("gates", gates, "`gate: human`", "`runStatus: gate`", "`## Open Questions`", "in chat", "approv",
+          "`design-gate`", "line continues")
 check_all("done-state", gates, "`assembly-line.doneState`", "`open-restaurant.doneState`")
 check_all("go-back", block(skill, "## 4. Go back on a failing verdict", r"^## "),
           "`./references/catalog.json`", "`return`", "`limit`", "`past`", "latest", "line: return", "`needs-input`",

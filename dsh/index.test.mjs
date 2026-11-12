@@ -21,6 +21,7 @@ const SKILLS = [
   'code-docs',
   'code-standards',
   'contract',
+  'design-gate',
   'epistemic-action',
   'evaluate-ticket',
   'feature-recipe',

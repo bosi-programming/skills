@@ -16,6 +16,7 @@ SMALL_FIX = json.loads((LINES / "small-fix.json").read_text())["stages"]
 
 CODE_LINE = "- no-screen-change — code — only scripts changed"
 SECURITY_LINE = "- touches-security — code — adds a session token check"
+SCHEMA_LINE = "- schema-change — plan-code — adds a migration for the orders table"
 
 
 def line_of(stages):
@@ -187,6 +188,35 @@ class ApplySignals(unittest.TestCase):
         self.assertFalse(second["changed"])
         self.assertEqual(second["line"], first["line"])
         self.assertEqual([entry["reason"] for entry in second["skipped"]], ["already-on-line"])
+
+    def test_schema_change_adds_design_gate_after_plan_code(self):
+        report = self.apply(SCHEMA_LINE, line_of(FEATURE), 3)
+        self.assertTrue(report["changed"], report)
+        self.assertEqual(report["line"]["stages"], FEATURE[:3] + ["design-gate"] + FEATURE[3:])
+        self.assertEqual(report["applied"][0], {
+            "text": SCHEMA_LINE,
+            "signal": "schema-change",
+            "raisedBy": "plan-code",
+            "evidence": "adds a migration for the orders table",
+            "change": "add",
+            "stage": "design-gate",
+            "where": "after plan-code",
+        })
+        self.assertEqual(report["rejected"], [])
+        self.assertEqual(report["skipped"], [])
+
+    def test_schema_change_twice_is_skipped(self):
+        first = self.apply(SCHEMA_LINE, line_of(FEATURE), 3)
+        second = self.apply(SCHEMA_LINE, first["line"], 3)
+        self.assertFalse(second["changed"])
+        self.assertEqual(second["line"], first["line"])
+        self.assertEqual([entry["reason"] for entry in second["skipped"]], ["already-on-line"])
+
+    def test_schema_change_from_code_is_skipped(self):
+        report = self.apply("schema-change — code — x", line_of(FEATURE), 3)
+        self.assertFalse(report["changed"])
+        self.assertEqual(report["line"]["stages"], FEATURE)
+        self.assertEqual([entry["reason"] for entry in report["skipped"]], ["no-row"])
 
     def test_before_anchor_already_run_is_missing(self):
         rows = [{"signal": "s", "raisedBy": "code", "add": "code-docs", "where": "before code"}]

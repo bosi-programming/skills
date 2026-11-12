@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import re
 import sys
 from pathlib import Path
@@ -6,6 +7,7 @@ from pathlib import Path
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
 SKILL_MD = SKILL / "SKILL.md"
+STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
 OLD = REPO / "skills" / "feature-recipe" / "phases" / "phase-2-mise-en-place.md"
 
@@ -42,6 +44,11 @@ def check_all(name, text, *phrases):
 skill = read(SKILL_MD)
 readme = read(README)
 
+try:
+    stage = json.loads(read(STAGE) or "{}")
+except ValueError:
+    stage = {}
+
 check("skill-exists", SKILL_MD.exists(), f"{SKILL_MD} missing")
 
 frontmatter = re.match(r"^---\n(.*?)\n---\n", skill, re.DOTALL)
@@ -58,6 +65,13 @@ check_all(
     "`## TDD Test Mapping`", "`## Interfaces`", "`## Decisions`", "`## Open Questions`",
     "`phase`", "`phasesCompleted`", "`lastTouched`", "`plan-code`",
 )
+check_all("output-signal-line", block(skill, "## Output", r"^## "),
+          "`## Signals`", "`schema-change — plan-code — <plan line>`")
+check_all("signal-line", block(skill, "## 5. Close the stage", r"^## "),
+          "`schema-change — plan-code — <plan line>`", "database schema", "migration", "public contract", "no signal")
+check("stage-signals",
+      stage.get("signals") == ["schema-change"] and "## Signals" in stage.get("delivers", {}).get("sections", []),
+      f"signals {stage.get('signals')!r}, sections {stage.get('delivers', {}).get('sections')!r}")
 check_all("writes-stage-name", skill, "`phase: 'plan-code'`")
 
 check_all(

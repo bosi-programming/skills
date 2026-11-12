@@ -215,7 +215,8 @@ class BuildCatalog(unittest.TestCase):
         self.assertEqual(json.loads(path.read_text()), {"signals": [
             {"signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review"},
             {"signal": "touches-security", "raisedBy": "code", "add": "security-review", "where": "after code"},
-            {"signal": "no-screen-change", "raisedBy": "code", "remove": "a11y-check"}]})
+            {"signal": "no-screen-change", "raisedBy": "code", "remove": "a11y-check"},
+            {"signal": "schema-change", "raisedBy": "plan-code", "add": "design-gate", "where": "after plan-code"}]})
 
     def kept_stage_case(self, stages, remove, expected):
         for name, body in stages:
