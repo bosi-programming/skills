@@ -87,6 +87,10 @@ check("only-catalog-stages", catalog_ok and offered and offered <= stages,
       f"not in catalog: {sorted(offered - stages)}" if catalog_ok and offered else
       ("catalog.json does not parse" if not catalog_ok else "section 2 names no stage"))
 
+ui_rule = next((line for line in section2.splitlines() if "drop `ui-review`" in line.lower()), "")
+check_all("a11y-check-rule", ui_rule, "drop `ui-review` and `a11y-check`", "add `ui-review` right after `code`",
+          "`a11y-check` right after `ui-review`")
+
 MARKER = "Planned with `plan-work`."
 check_all("planned-marker", section2, MARKER, '"planned": "plan-work"', "drop `judge`", "parent keeps `judge`")
 check_all("planned-in-file", block(skill, "## 3. Validate each line", r"^## "), "`planned`")
@@ -164,7 +168,7 @@ check("readme-run-log-no-old-claim", "it adds no setting" not in flatten(readme_
       "README still says 'it adds no setting'")
 check_all("readme-validate-stats", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/test_stats.py")
-check_all("readme-count", readme, "thirty-five claude code skills", "the other thirty-three", "the same thirty-five")
+check_all("readme-count", readme, "thirty-six claude code skills", "the other thirty-four", "the same thirty-six")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
 

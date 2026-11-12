@@ -214,7 +214,8 @@ class BuildCatalog(unittest.TestCase):
         path = SKILLS / "assembly-line" / "references" / "signals.json"
         self.assertEqual(json.loads(path.read_text()), {"signals": [
             {"signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review"},
-            {"signal": "touches-security", "raisedBy": "code", "add": "security-review", "where": "after code"}]})
+            {"signal": "touches-security", "raisedBy": "code", "add": "security-review", "where": "after code"},
+            {"signal": "no-screen-change", "raisedBy": "code", "remove": "a11y-check"}]})
 
     def kept_stage_case(self, stages, remove, expected):
         for name, body in stages:

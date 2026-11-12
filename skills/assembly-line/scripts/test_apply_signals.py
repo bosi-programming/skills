@@ -71,8 +71,8 @@ class ApplySignals(unittest.TestCase):
         report = self.apply(CODE_LINE, line_of(FEATURE), 5)
         self.assertEqual(list(report), ["changed", "line", "applied", "rejected", "skipped"])
         self.assertTrue(report["changed"])
-        self.assertEqual(report["line"]["stages"], without(FEATURE, "ui-review"))
-        self.assertEqual(report["applied"], [{
+        self.assertEqual(report["line"]["stages"], without(without(FEATURE, "ui-review"), "a11y-check"))
+        self.assertEqual(report["applied"][0], {
             "text": CODE_LINE,
             "signal": "no-screen-change",
             "raisedBy": "code",
@@ -80,7 +80,17 @@ class ApplySignals(unittest.TestCase):
             "change": "remove",
             "stage": "ui-review",
             "where": None,
-        }])
+        })
+        self.assertEqual(report["rejected"], [])
+        self.assertEqual(report["skipped"], [])
+
+    def test_no_screen_change_removes_a11y_check(self):
+        report = self.apply(CODE_LINE, line_of(FEATURE), 5)
+        self.assertTrue(report["changed"], report)
+        self.assertNotIn("a11y-check", report["line"]["stages"])
+        self.assertNotIn("ui-review", report["line"]["stages"])
+        self.assertEqual([(entry["change"], entry["stage"]) for entry in report["applied"]],
+                         [("remove", "ui-review"), ("remove", "a11y-check")])
         self.assertEqual(report["rejected"], [])
         self.assertEqual(report["skipped"], [])
 
@@ -95,17 +105,17 @@ class ApplySignals(unittest.TestCase):
         self.assertEqual([entry["reason"] for entry in report["skipped"]], ["no-row"])
 
     def test_stage_already_run_is_not_removed(self):
-        report = self.apply(CODE_LINE, line_of(FEATURE), 6)
+        report = self.apply(CODE_LINE, line_of(FEATURE), 7)
         self.assertFalse(report["changed"])
         self.assertEqual(report["line"]["stages"], FEATURE)
-        self.assertEqual([entry["reason"] for entry in report["skipped"]], ["not-on-line"])
+        self.assertEqual([entry["reason"] for entry in report["skipped"]], ["not-on-line", "not-on-line"])
 
     def test_applying_twice_changes_nothing(self):
         first = self.apply(CODE_LINE, line_of(FEATURE), 5)
         second = self.apply(CODE_LINE, first["line"], 5)
         self.assertFalse(second["changed"])
         self.assertEqual(second["line"], first["line"])
-        self.assertEqual([entry["reason"] for entry in second["skipped"]], ["not-on-line"])
+        self.assertEqual([entry["reason"] for entry in second["skipped"]], ["not-on-line", "not-on-line"])
 
     def test_card_without_signals_section(self):
         line = line_of(FEATURE)
@@ -237,8 +247,9 @@ class ApplySignals(unittest.TestCase):
         report = self.apply(body, line_of(FEATURE), 3, self.catalog_with(rows))
         stages = report["line"]["stages"]
         self.assertNotIn("ui-review", stages)
+        self.assertNotIn("a11y-check", stages)
         self.assertIn("prepare-pr", stages)
-        self.assertEqual(len(report["applied"]), 1)
+        self.assertEqual(len(report["applied"]), 2)
         self.assertEqual(len(report["rejected"]), 1)
 
     def test_usage_and_fatal_errors(self):
