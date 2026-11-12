@@ -39,6 +39,7 @@ const SKILLS = [
   'reproduce',
   'review-fix',
   'review-request',
+  'security-review',
   'setup',
   'ship-pr',
   'summarize-llm-response',

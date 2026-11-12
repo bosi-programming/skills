@@ -35,7 +35,8 @@
         }
       },
       "signals": [
-        "no-screen-change"
+        "no-screen-change",
+        "touches-security"
       ],
       "gate": "auto"
     },
@@ -486,6 +487,37 @@
       "signals": [],
       "gate": "auto"
     },
+    "security-review": {
+      "spec": "../assembly-line/references/stage-spec.md",
+      "takes": [
+        "task",
+        "## Solution"
+      ],
+      "delivers": {
+        "sections": [
+          "## Security Review",
+          "## Quality Gate Results",
+          "## Decisions",
+          "## Open Questions"
+        ],
+        "fields": [
+          "lastTouched"
+        ],
+        "verdicts": [
+          "pass",
+          "fail"
+        ]
+      },
+      "return": {
+        "fail": {
+          "to": "code",
+          "limit": 2,
+          "past": "needs-input"
+        }
+      },
+      "signals": [],
+      "gate": "auto"
+    },
     "test": {
       "spec": "../assembly-line/references/stage-spec.md",
       "takes": [
@@ -558,6 +590,12 @@
       "signal": "no-screen-change",
       "raisedBy": "code",
       "remove": "ui-review"
+    },
+    {
+      "signal": "touches-security",
+      "raisedBy": "code",
+      "add": "security-review",
+      "where": "after code"
     }
   ]
 }

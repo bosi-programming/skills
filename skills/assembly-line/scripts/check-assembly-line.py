@@ -87,6 +87,9 @@ check_all("ui-review-stage", block(skill, "### UI review", r"^##"),
           "`../ui-review/SKILL.md`", "`{scratch}/ui-review/`", "`assembly-line.uiReviewerModel`", "`inconclusive`")
 check_all("review-fix-stage", block(skill, "### Review and fix", r"^##"),
           "`../review-fix/SKILL.md`", "`assembly-line.codingModel`", "`assembly-line.routineModel`")
+check_all("security-review-in-session", run, "`judge`, `ui-review`, `security-review` and `review-fix`", "in this session")
+check_all("security-review-run-log", block(skill, "### Run log", r"^##"),
+          "`judge`, `ui-review`, `security-review` and `review-fix`", "`--tokens`")
 gates = block(skill, "### Gates", r"^##")
 check_all("gates", gates, "`gate: human`", "`runStatus: gate`", "`## Open Questions`", "in chat", "approv")
 check_all("done-state", gates, "`assembly-line.doneState`", "`open-restaurant.doneState`")

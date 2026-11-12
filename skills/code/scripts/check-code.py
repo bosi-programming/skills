@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import re
 import sys
 from pathlib import Path
@@ -64,7 +65,16 @@ check_all(
 check_all("writes-stage-name", skill, "`phase: 'code'`")
 
 check_all("signal-line", block(skill, "## 11. Close the stage", r"^## "),
-          "`no-screen-change — code — <evidence>`")
+          "`no-screen-change — code — <evidence>`", "`touches-security — code — <evidence>`",
+          "auth", "sessions", "permissions", "secrets", "crypto", "outside input", "dependency")
+check_all("output-signal-line", block(skill, "## Output", r"^## "), "`touches-security — code — <evidence>`")
+
+try:
+    code_signals = json.loads(read(SKILL / "stage.json") or "{}").get("signals")
+except ValueError:
+    code_signals = None
+check("stage-signals", code_signals == ["no-screen-change", "touches-security"],
+      f"code/stage.json signals is {code_signals!r}")
 
 check_all("standards", block(skill, "## 1. Find the standards", r"^## "), "`../code-standards/SKILL.md`")
 check_all("tests-come-from-test", block(skill, "## 2. Write the code", r"^## "), "`../test/SKILL.md`", "fix the code, not the test")

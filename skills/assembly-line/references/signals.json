@@ -1,5 +1,6 @@
 {
   "signals": [
-    { "signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review" }
+    { "signal": "no-screen-change", "raisedBy": "code", "remove": "ui-review" },
+    { "signal": "touches-security", "raisedBy": "code", "add": "security-review", "where": "after code" }
   ]
 }

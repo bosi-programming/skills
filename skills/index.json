@@ -36,7 +36,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "bb16d51c2910"
+      "version": "427514f3dd69"
     },
     {
       "name": "better-code-review",
@@ -60,7 +60,7 @@
         "scripts/check-code.py",
         "stage.json"
       ],
-      "version": "0ef1aa7da25c"
+      "version": "ee4b95320fc8"
     },
     {
       "name": "code-docs",
@@ -307,6 +307,16 @@
         "stage.json"
       ],
       "version": "92bacb1e1af9"
+    },
+    {
+      "name": "security-review",
+      "files": [
+        "SKILL.md",
+        "references/checks.md",
+        "scripts/check-security-review.py",
+        "stage.json"
+      ],
+      "version": "3858928a4c9c"
     },
     {
       "name": "setup",

@@ -5,9 +5,9 @@ Thirty-four Claude Code skills, packaged as an installable plugin. Two of them c
 - **`recipe-relay`** takes one ticket from the tracker to a reviewed pull request, ready for review, with nobody answering questions on the way. Every phase runs in its own sub-agent, every checkpoint takes its own recommendation and logs it, and the run stops only at a question with no reasonable default.
 - **`open-restaurant`** is an LLM factory. Hand it a parent issue and it runs the parent's line and each sub-issue's line through `assembly-line`, in parallel across repos, then integrates the branches, QAs them as one system, writes proof and stops only at the human gates the lines name.
 
-The other thirty-two feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
+The other thirty-three feed those two or stand alone. `assembly-line` runs the stages a ticket's line names, and `plan-assembly-line` suggests each ticket's line and saves it as a comment on the ticket. `plan-work` turns a feature into tickets the two can build. `feature-recipe` is the six-phase workflow the relay runs, and `evaluate-ticket`, `plan-code`, `test`, `code`, `prepare-pr` and `code-docs` are its six stages as skills of their own, and `review-fix` runs the relay's closing review and fix as a skill of its own, and `ui-review` runs its UI review as a skill of its own, and `judge` runs `open-restaurant`'s readiness gate as a skill of its own, and `contract` runs its contract step as a skill of its own, and `reproduce` runs its bug reproduction step as a skill of its own, and `integrate` runs its integration step as a skill of its own, and `qa` runs its QA and fix step as a skill of its own, and `proof` runs its proof step as a skill of its own, and `review-request` runs its review request as a skill of its own, and `merge` runs its merge gate as a skill of its own. `better-code-review` reviews a diff along three axes, and `code-standards` is the catalog it reads from. `ship-pr` commits, pushes and opens a PR from the repo's template. `uml` draws UML diagrams of a codebase or a description, and `non-functional-requirements` writes and reviews NFRs. `summarize-llm-response` and `epistemic-action` check the model's own writing and reasoning before it reaches you. `work-summary` writes up a work session as a dated note, `pause-work` parks half-done work as a task for tomorrow, `weekly-planning` fits the week's tickets around your meetings, `week-summary` turns a week of those notes and your tracker, GitHub and chat activity into a review, and `setup` writes the settings file the others read their defaults from.
 
-The same thirty-four install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
+The same thirty-five install into Codex, DeepSeek Harness, Pi and opencode, from the same `skills/` directory. One plugin source, five harnesses, nothing copied — so a skill cannot drift between harnesses. The one exception is opencode, which fetches a skill list over HTTP: `skills/index.json` is generated from that same tree and kept honest by `opencode/build-index.py --check`.
 
 ## Install
 
@@ -91,7 +91,7 @@ Runs one ticket's line: the ordered stages its line names. It reads the local li
 How the line runs:
 
 1. **Validate.** The line goes through `validate-line.py` before any stage runs. An invalid line, no line file and no line comment or a `{"group": "sub-issues"}` line stops the run and writes nothing; it points to `plan-assembly-line`, or to `open-restaurant`.
-2. **Stages.** Each stage runs in its own sub-agent, and every checkpoint takes its own recommendation, logged to the recipe card as `line:`. `judge`, `ui-review` and `review-fix` run in the session, because their own steps spawn sub-agents.
+2. **Stages.** Each stage runs in its own sub-agent, and every checkpoint takes its own recommendation, logged to the recipe card as `line:`. `judge`, `ui-review`, `security-review` and `review-fix` run in the session, because their own steps spawn sub-agents.
 3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; the `code` after them is the fix and taste agent.
 4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
 5. **Gates.** A stage with `gate: human`, today `merge`, stops at `runStatus: gate` with a question in chat and on the card, and runs only on the person's approval.
@@ -222,6 +222,10 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 The stage after `code` when a change reaches a screen. It reads the work card's `task` (the design attached to the ticket), `## Solution` and the screenshots in `{scratch}/ui-review/`, never starts the app or takes screenshots, rates each difference critical, major or minor and writes `## UI Review`. It ends `fail` on a critical or major finding, which sends the line back to `code` at most twice, `pass` otherwise, and `inconclusive` with no screenshots or no design. It logs minor findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. It reads `recipe-relay.uiReviewerModel`. `recipe-relay` runs its UI review through this skill, and it also runs alone on a card.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
+
+### security-review
+
+The stage after `code` when a change touches security. `code` raises `touches-security` when the diff touches auth, sessions, permissions, secrets, crypto, parsing of outside input, or adds or bumps a dependency, and the line adds this stage after it. It reads the work card's `task` and `## Solution` and the diff from the fixed point to `HEAD`, runs one reviewer sub-agent against `references/checks.md` (OWASP Top 10 2021 and ASVS 4.0.3 level 1, limited to what a diff shows), never edits code, and writes `## Security Review` with findings that name file, line, check id and severity. It ends `fail` on a `critical` or `high` finding, which sends the line back to `code` at most twice, then `needs-input`, and `pass` otherwise, including an empty diff. It logs medium and low findings to `## Quality Gate Results` and leaves `phase` and `phasesCompleted` alone. `assembly-line` runs it in its own session, and it also runs alone on a card.
 
 ### judge
 
@@ -358,6 +362,7 @@ skills/
   code-docs/          SKILL.md + stage.json + scripts/
   review-fix/         SKILL.md + stage.json + scripts/
   ui-review/          SKILL.md + stage.json + scripts/
+  security-review/    SKILL.md + stage.json + references/ + scripts/
   judge/              SKILL.md + stage.json + scripts/
   contract/           SKILL.md + stage.json + scripts/
   reproduce/          SKILL.md + stage.json + scripts/
@@ -407,6 +412,7 @@ python3 skills/code/scripts/check-code.py
 python3 skills/code-docs/scripts/check-code-docs.py
 python3 skills/review-fix/scripts/check-review-fix.py
 python3 skills/ui-review/scripts/check-ui-review.py
+python3 skills/security-review/scripts/check-security-review.py
 python3 skills/judge/scripts/check-judge.py
 python3 skills/contract/scripts/check-contract.py
 python3 skills/reproduce/scripts/check-reproduce.py
@@ -423,6 +429,7 @@ python3 skills/assembly-line/scripts/check-stage-spec.py skills/code
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/code-docs
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/review-fix
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/ui-review
+python3 skills/assembly-line/scripts/check-stage-spec.py skills/security-review
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/judge
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/contract
 python3 skills/assembly-line/scripts/check-stage-spec.py skills/reproduce

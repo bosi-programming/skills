@@ -9,6 +9,6 @@
   "return": {
     "blocked": { "to": "code", "limit": 0, "past": "needs-input" }
   },
-  "signals": ["no-screen-change"],
+  "signals": ["no-screen-change", "touches-security"],
   "gate": "auto"
 }

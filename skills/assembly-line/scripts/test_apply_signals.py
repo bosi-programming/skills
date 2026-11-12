@@ -15,6 +15,7 @@ FEATURE = json.loads((LINES / "feature.json").read_text())["stages"]
 SMALL_FIX = json.loads((LINES / "small-fix.json").read_text())["stages"]
 
 CODE_LINE = "- no-screen-change — code — only scripts changed"
+SECURITY_LINE = "- touches-security — code — adds a session token check"
 
 
 def line_of(stages):
@@ -152,6 +153,44 @@ class ApplySignals(unittest.TestCase):
                 self.assertEqual(report["applied"][0]["change"], "add")
                 self.assertEqual(report["applied"][0]["stage"], "code-docs")
                 self.assertEqual(report["applied"][0]["where"], where)
+
+    def test_touches_security_adds_security_review_after_code(self):
+        report = self.apply(SECURITY_LINE, line_of(FEATURE), 5)
+        self.assertTrue(report["changed"], report)
+        index = FEATURE.index("ui-review")
+        self.assertEqual(report["line"]["stages"], FEATURE[:index] + ["security-review"] + FEATURE[index:])
+        self.assertEqual(report["applied"][0]["change"], "add")
+        self.assertEqual(report["applied"][0]["stage"], "security-review")
+        self.assertEqual(report["applied"][0]["where"], "after code")
+        self.assertEqual(report["rejected"], [])
+        self.assertEqual(report["skipped"], [])
+
+    def test_touches_security_on_small_fix(self):
+        report = self.apply(SECURITY_LINE, line_of(SMALL_FIX), 4)
+        self.assertTrue(report["changed"], report)
+        self.assertEqual(report["line"]["stages"], SMALL_FIX[:4] + ["security-review"] + SMALL_FIX[4:])
+        self.assertEqual(report["rejected"], [])
+
+    def test_touches_security_twice_is_skipped(self):
+        first = self.apply(SECURITY_LINE, line_of(FEATURE), 5)
+        second = self.apply(SECURITY_LINE, first["line"], 5)
+        self.assertFalse(second["changed"])
+        self.assertEqual(second["line"], first["line"])
+        self.assertEqual([entry["reason"] for entry in second["skipped"]], ["already-on-line"])
+
+    def test_before_anchor_already_run_is_missing(self):
+        rows = [{"signal": "s", "raisedBy": "code", "add": "code-docs", "where": "before code"}]
+        line = line_of(SMALL_FIX)
+        report = self.apply("s — code — x", line, 4, self.catalog_with(rows))
+        self.assertFalse(report["changed"])
+        self.assertEqual(report["line"], line)
+        self.assertEqual([entry["reason"] for entry in report["skipped"]], ["anchor-missing"])
+
+    def test_after_anchor_already_run_goes_first_in_the_rest(self):
+        rows = [{"signal": "s", "raisedBy": "code", "add": "code-docs", "where": "after code"}]
+        report = self.apply("s — code — x", line_of(SMALL_FIX), 4, self.catalog_with(rows))
+        self.assertTrue(report["changed"], report)
+        self.assertEqual(report["line"]["stages"], SMALL_FIX[:4] + ["code-docs"] + SMALL_FIX[4:])
 
     def test_add_already_on_line_is_skipped(self):
         rows = [{"signal": "s", "raisedBy": "plan-code", "add": "code", "where": "after plan-code"}]

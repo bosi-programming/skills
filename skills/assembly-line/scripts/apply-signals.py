@@ -120,7 +120,7 @@ def remove_stage(rest, name):
     return result
 
 
-def add_stage(rest, name, where):
+def add_stage(head, rest, name, where):
     match = WHERE.match(where or "")
     if not match:
         return None
@@ -129,6 +129,8 @@ def add_stage(rest, name, where):
         if item_name(item) == anchor:
             position = index + 1 if side == "after" else index
             return rest[:position] + [name] + rest[position:]
+    if side == "after" and anchor in names_in(head):
+        return [name] + rest
     return None
 
 
@@ -189,7 +191,7 @@ def apply_row(signal, row, state, done, catalog, catalog_path, report):
         if name in names_in(rest):
             report["skipped"].append({**skipped, "reason": "already-on-line"})
             return
-        new_rest = add_stage(rest, name, row.get("where"))
+        new_rest = add_stage(head, rest, name, row.get("where"))
         if new_rest is None:
             report["skipped"].append({**skipped, "reason": "anchor-missing"})
             return

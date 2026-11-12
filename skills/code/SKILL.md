@@ -37,7 +37,9 @@ The same work card, with this stage's parts written:
   `Not verified:` entries, judgement calls, what passed, and what is deferred
   to CI and why.
 - `## Signals` — `no-screen-change — code — <evidence>` when the change
-  touches no surface a person sees.
+  touches no surface a person sees, and `touches-security — code —
+  <evidence>` when the diff touches auth, sessions, permissions, secrets,
+  crypto, parsing of outside input, or adds or bumps a dependency.
 - `## Decisions` — one line for the stage, and any deviation from the plan.
 - `## Open Questions` — any gap nothing could settle.
 - Frontmatter — `phase` set to `code`, `code` appended to `phasesCompleted`
@@ -166,7 +168,10 @@ is honestly marked deferred to CI.
 Summarize what was implemented against the Implementation Plan. Write the
 results — what passed, what's deferred to CI and why — to
 `## Quality Gate Results`. When the change touches no surface a person sees,
-write `no-screen-change — code — <evidence>` to `## Signals`. Append one line to `## Decisions`.
+write `no-screen-change — code — <evidence>` to `## Signals`. When the diff touches
+auth, sessions, permissions, secrets, crypto, parsing of outside input, or adds or
+bumps a dependency, write `touches-security — code — <evidence>` to `## Signals`.
+Append one line to `## Decisions`.
 Update the frontmatter — `phase: 'code'`, append `code` to `phasesCompleted` (once, even
 on a redo), `lastTouched`.
 

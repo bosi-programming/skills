@@ -59,7 +59,7 @@ Read and follow `../feature-recipe/phases/phase-0-start.md` in this session, onl
 
 A step is one top-level item of the line: a stage name, a stage object (its `with` keys go into the prompt), or a parallel group. Run the steps one at a time. Note `startedAt` before each stage starts, as _Run log_ in section 5 says.
 
-Each stage runs in its own sub-agent, a `general-purpose` one with full tool access, given the prompt in _Stage prompt_ below with the stage's `SKILL.md` as the file to load. `judge`, `ui-review` and `review-fix` run in this session instead, because their own steps spawn the sub-agents.
+Each stage runs in its own sub-agent, a `general-purpose` one with full tool access, given the prompt in _Stage prompt_ below with the stage's `SKILL.md` as the file to load. `judge`, `ui-review`, `security-review` and `review-fix` run in this session instead, because their own steps spawn the sub-agents.
 
 Models: `assembly-line.codingModel` for test writers, code writers and the fix agent; `assembly-line.routineModel` for `prepare-pr` and `code-docs`. Hand both to `review-fix`, in place of the `recipe-relay` model keys, and `assembly-line.uiReviewerModel` to `ui-review`.
 
@@ -122,7 +122,7 @@ python3 "$SKILL_DIR/scripts/run-log.py" append --log <assembly-line.runLog> --ti
 - `--kind` is the `kind` from section 1 and `--line` the name the line comment starts `from`; leave a flag out when its value is `null`, and the record holds `null`.
 - `--line` is `null` for a line written out in `stages`.
 - `--loops` (`loops`) is how many times this stage already ran earlier in this run of the line: `0` on its first run, one more for each go-back rerun.
-- `--tokens` (`tokens`) is the total the harness reports for the stage's sub-agent. Leave it out, so it is `null`, when there is none, and always for `judge`, `ui-review` and `review-fix`, which run in this session.
+- `--tokens` (`tokens`) is the total the harness reports for the stage's sub-agent. Leave it out, so it is `null`, when there is none, and always for `judge`, `ui-review`, `security-review` and `review-fix`, which run in this session.
 - `--changed-by` (`changedBy`) is the signal name from an `apply-signals.py` `"applied"` add entry for that stage; leave it out, so it is `null`, otherwise.
 - `--verdict` is the stage's `Verdict:`; a stage that stops without one logs its `runStatus` (`blocked`, `needs-input`, `gate`).
 - A parallel group logs one line per branch stage, each with its own times.
