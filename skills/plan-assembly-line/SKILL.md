@@ -21,7 +21,7 @@ Read the line file too: the path `assembly-line.lineFile` names, read as in _Run
 
 ## 2. Suggest a line
 
-Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line ends at `merge`, except a `spike` line, which ends at the human gate of `research`, and starts at `judge` unless the ticket is marked (below).
+Read the stages from `../assembly-line/references/catalog.json`. Offer only stages in that catalog. Every line ends at `merge`, except a `spike` line, which ends at `research`, the human gate, and starts at `judge` unless the ticket is marked (below).
 
 Start from the saved line that matches the ticket's kind. The saved lines are the files in `../assembly-line/references/lines/`: `feature`, `bug`, `small-fix`, `parent` and `spike`. Pick by kind, in this order:
 

@@ -87,7 +87,7 @@ with its answer and sources. An `open` question says so and lists what was
 tried.
 
 The comment is posted before the gate, so a person can read it while the line
-waits. A rerun posts a new comment and never edits an old one. Open no ticket.
+waits. A rerun posts a new comment and never edits an old one. The stage opens no tickets.
 
 With no tracker tool in the session, post nothing: the doc stays in
 `## Findings`, `Output comment:` reads `not posted — no tracker tool`, and the
@@ -95,7 +95,7 @@ gate question says it was not posted.
 
 ## 5. Gate
 
-Set `runStatus: gate`. Write the question to `## Open Questions` ("approve the
+The comment of section 4 is posted before the gate. Set `runStatus: gate`. Write the question to `## Open Questions` ("approve the
 findings of <ticket>, or say what to change"), post it in chat and stop. The
 stage is `gate: human`: `assembly-line` resumes it with the person's answer.
 
@@ -113,6 +113,7 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 
 - Prefix each log line `unattended:`.
 - A question the sources cannot answer stays `open`; it is never guessed at.
+- A question with no reasonable default sets `runStatus: needs-input`.
 - Section 5 is the stop: the run waits for a person, since approving findings
   is not a decision the run takes for them.
 
@@ -121,7 +122,7 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 At the gate, and on a bad input:
 
 1. Write the entry to `## Open Questions`.
-2. Set `runStatus: gate` at the gate, or `blocked` on a bad input, and
+2. Set `runStatus: gate` at the gate, `blocked` on a bad input, or `needs-input` on a question with no default, and
    `runQuestion` to the entry's id where the card has the field. Leave
    `runNext`, `phase` and `phasesCompleted` alone.
 3. Log the stop to `## Decisions`.

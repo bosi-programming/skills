@@ -50,7 +50,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "0e55ba84f752"
+      "version": "66706c9f7093"
     },
     {
       "name": "better-code-review",
@@ -226,7 +226,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "15e877015061"
+      "version": "1b56a19b6472"
     },
     {
       "name": "plan-code",
@@ -312,7 +312,7 @@
         "scripts/check-research.py",
         "stage.json"
       ],
-      "version": "29474d1f4b7b"
+      "version": "fec4c75c8bc8"
     },
     {
       "name": "review-fix",
