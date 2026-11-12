@@ -7,7 +7,7 @@
         "scripts/check-a11y-check.py",
         "stage.json"
       ],
-      "version": "231f0b79a9cb"
+      "version": "2f42dd0325ab"
     },
     {
       "name": "assembly-line",

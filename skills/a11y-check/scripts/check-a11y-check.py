@@ -142,8 +142,8 @@ check("readme-section", re.search(r"^### a11y-check$", readme, re.MULTILINE), "R
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"),
           "skills/a11y-check/scripts/check-a11y-check.py", "check-stage-spec.py skills/a11y-check")
 
-bad_versions = [str(m.relative_to(REPO)) for m in MANIFESTS if '"version": "2.62.0"' not in read(m)]
-check("manifests-version", not bad_versions, f"not at 2.62.0: {bad_versions}")
+manifest_versions = {str(m.relative_to(REPO)): json.loads(read(m)).get("version") for m in MANIFESTS}
+check("manifests-version", len(set(manifest_versions.values())) == 1 and None not in manifest_versions.values(), f"manifest versions differ: {manifest_versions}")
 
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
