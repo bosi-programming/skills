@@ -75,13 +75,15 @@ check_all("reads-plan", block(skill, "## 1. Read the plan", r"^## "),
           "`## Open Questions`", "nothing posted")
 
 check_all("posts-plan", block(skill, "## 2. Post the plan", r"^## "),
-          "one new comment", "never edit", "no tracker tool", "not posted")
+          "one new comment", "never edit", "no tracker tool", "not posted", "`Plan comment: <link>`",
+          "`Plan comment: not posted — no tracker tool`")
 
 check_all("gate", block(skill, "## 3. Gate", r"^## "),
-          "`runStatus: gate`", "`approved`", "`changes`", "line continues", "`plan-code`", "`## Decisions`")
+          "`runStatus: gate`", "`approved`", "`changes`", "line continues", "`plan-code`", "`## Decisions`",
+          "set `runStatus: running`", "goes back to the latest `plan-code`", "at most twice")
 
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
-          "unattended:", "`runStatus: needs-input`", "### Ending a run")
+          "unattended:", "`runStatus: needs-input`", "### Ending a run", "waits for a person")
 check_all("log-prefixes", skill, "`relay:`", "`line:`", "`unattended:`", "`design-gate:`",
           "`../feature-recipe/references/recipe-card-template.md`")
 
@@ -118,6 +120,15 @@ check_all("readme-validate-command", block(readme, "## Validate a change", r"^##
 manifest_versions = {str(m.relative_to(REPO)): json.loads(read(m)).get("version") for m in MANIFESTS}
 check("manifests-version", len(set(manifest_versions.values())) == 1 and None not in manifest_versions.values(),
       f"manifest versions differ: {manifest_versions}")
+
+
+def minor_of(version):
+    match = re.match(r"^(\d+)\.(\d+)\.\d+$", version or "")
+    return (int(match.group(1)), int(match.group(2))) if match else (0, 0)
+
+
+check("version-bumped", all(minor_of(v) > (2, 63) for v in manifest_versions.values()),
+      f"version not past 2.63: {manifest_versions}")
 
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:

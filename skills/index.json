@@ -22,16 +22,6 @@
         "references/lines/spike.json",
         "references/signals.json",
         "references/stage-spec.md",
-        "scripts/__pycache__/apply-signals.cpython-315.pyc",
-        "scripts/__pycache__/board.cpython-315.pyc",
-        "scripts/__pycache__/build-catalog.cpython-315.pyc",
-        "scripts/__pycache__/test_apply_signals.cpython-315.pyc",
-        "scripts/__pycache__/test_board.cpython-315.pyc",
-        "scripts/__pycache__/test_build_catalog.cpython-315.pyc",
-        "scripts/__pycache__/test_check_line_format.cpython-315.pyc",
-        "scripts/__pycache__/test_check_stage_spec.cpython-315.pyc",
-        "scripts/__pycache__/test_run_log.cpython-315.pyc",
-        "scripts/__pycache__/test_validate_line.cpython-315.pyc",
         "scripts/apply-signals.py",
         "scripts/board.py",
         "scripts/build-catalog.py",
@@ -50,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "9173aa60a22f"
+      "version": "90a55fffb323"
     },
     {
       "name": "better-code-review",
@@ -114,7 +104,7 @@
         "scripts/check-design-gate.py",
         "stage.json"
       ],
-      "version": "6c6e0cefadd3"
+      "version": "7a8cdc1f9897"
     },
     {
       "name": "epistemic-action",
@@ -230,12 +220,11 @@
       "name": "plan-assembly-line",
       "files": [
         "SKILL.md",
-        "scripts/__pycache__/test_stats.cpython-315.pyc",
         "scripts/check-plan-assembly-line.py",
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "04824a8dcb61"
+      "version": "04067218c165"
     },
     {
       "name": "plan-code",
@@ -260,12 +249,10 @@
         "evals/scenario-07.json",
         "references/review-report.md",
         "references/standard.md",
-        "scripts/__pycache__/check_plan.cpython-315.pyc",
-        "scripts/__pycache__/test_check_plan.cpython-315.pyc",
         "scripts/check_plan.py",
         "scripts/test_check_plan.py"
       ],
-      "version": "107a89069b65"
+      "version": "e6f60c511a33"
     },
     {
       "name": "prepare-pr",
@@ -490,12 +477,10 @@
         "evals/scenario-03.json",
         "evals/scenario-04.json",
         "evals/scenario-05.json",
-        "scripts/__pycache__/plan_week.cpython-315.pyc",
-        "scripts/__pycache__/test_plan_week.cpython-315.pyc",
         "scripts/plan_week.py",
         "scripts/test_plan_week.py"
       ],
-      "version": "40acdc2e182e"
+      "version": "0b90a3ec150e"
     },
     {
       "name": "work-summary",

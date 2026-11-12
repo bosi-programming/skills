@@ -30,7 +30,8 @@ def skill_dirs():
 def files_of(directory):
     """Every file the skill carries, SKILL.md first, then paths in name order."""
     relative = sorted(p.relative_to(directory).as_posix()
-                      for p in directory.rglob("*") if p.is_file())
+                      for p in directory.rglob("*")
+                      if p.is_file() and "__pycache__" not in p.relative_to(directory).parts)
     return [SKILL_MD] + [path for path in relative if path != SKILL_MD]
 
 

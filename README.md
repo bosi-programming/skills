@@ -367,6 +367,7 @@ dsh/
   index.test.mjs      holds that provider to the skills that actually exist
 opencode/
   build-index.py      writes and checks skills/index.json, the list opencode fetches
+  test_build_index.py holds the index to the files a checkout carries, never __pycache__
 package.json          Pi package manifest (`pi.skills`) and DeepSeek Harness bundle (`dsh.bundle`)
 skills/
   index.json          the skill list at the root of the URL opencode downloads from
@@ -418,6 +419,7 @@ node --test 'dsh/**/*.test.mjs'
 node --test 'skills/uml/scripts/*.test.mjs'
 python3 skills/feature-recipe/scripts/check-headless-contract.py
 python3 opencode/build-index.py --check
+python3 opencode/test_build_index.py
 python3 skills/better-code-review/scripts/check-headless.py
 python3 skills/better-code-review/scripts/check-tests-axis.py
 python3 skills/better-code-review/scripts/check-evidence.py

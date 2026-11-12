@@ -30,7 +30,8 @@ The same card, with this stage's parts written:
 
 - `## Decisions` — the `Plan comment:` line, then one line for the verdict.
 - `## Open Questions` — the gate question while the stage waits.
-- `runStatus` — `gate` while the stage waits for a person.
+- `runStatus` — `gate` while the stage waits for a person, `running` once
+  the person answers.
 - `lastTouched`.
 
 The verdict is `approved` or `changes`. The stage leaves `phase` and
@@ -68,7 +69,8 @@ The comment of section 2 is posted before the gate, so a person can read it
 while the line waits. Set `runStatus: gate`. Write the question to
 `## Open Questions` ("approve the plan of <ticket>, or say what to change"),
 post it in chat and stop. The stage is `gate: human`: `assembly-line` resumes
-it with the person's answer.
+it with the person's answer. On either answer, set `runStatus: running`
+before ending, so the card no longer reads as stopped at the gate.
 
 - Approval: log `<prefix> design-gate approved` to `## Decisions`, update
   `lastTouched` and end `approved`. The line continues with the step after this
