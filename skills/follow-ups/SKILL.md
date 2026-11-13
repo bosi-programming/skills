@@ -109,8 +109,8 @@ makes to it.
 ## 4. Write the follow-ups
 
 Write `## Follow-ups` on the card, one line per item in read order,
-`- <kind> <ref> — <ticket> <url> — <opened | matched>`. A ticket matched by the team search (section 2, rule 2) adds ` — <reason>` to
-its line. With no open items, the section holds one line,
+`- <kind> <ref> — <ticket> <url> — <opened | matched>`. A ticket matched by
+the team search (section 2, rule 2) adds ` — <reason>` to its line. With no open items, the section holds one line,
 `- none — no open items on the card`. A rerun replaces the section whole. A
 card made before the template had the section has no `## Follow-ups`: the
 stage adds the heading right after `## PR`.
