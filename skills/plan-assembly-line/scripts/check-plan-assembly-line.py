@@ -172,7 +172,7 @@ check("readme-run-log-no-old-claim", "it adds no setting" not in flatten(readme_
       "README still says 'it adds no setting'")
 check_all("readme-validate-stats", block(readme, "## Validate a change", r"^## "),
           "skills/plan-assembly-line/scripts/test_stats.py")
-check_all("readme-count", readme, "thirty-eight claude code skills", "the other thirty-six", "the same thirty-eight")
+check_all("readme-count", readme, "thirty-nine claude code skills", "the other thirty-seven", "the same thirty-nine")
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
 

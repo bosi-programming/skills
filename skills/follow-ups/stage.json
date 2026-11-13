@@ -1,0 +1,14 @@
+{
+  "spec": "../assembly-line/references/stage-spec.md",
+  "takes": ["task", "## Open Questions", "## Quality Gate Results", "## Decisions"],
+  "delivers": {
+    "sections": ["## Follow-ups", "## Decisions"],
+    "fields": ["lastTouched"],
+    "verdicts": ["done", "blocked"]
+  },
+  "return": {
+    "blocked": { "to": "follow-ups", "limit": 0, "past": "needs-input" }
+  },
+  "signals": [],
+  "gate": "auto"
+}

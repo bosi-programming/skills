@@ -17,6 +17,7 @@
     "prepare-pr",
     "review-fix",
     "code-docs",
+    "follow-ups",
     "merge"
   ]
 }

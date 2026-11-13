@@ -88,6 +88,12 @@ lastTouched: '<date>'
 
 <!-- written by Phase 5: prepare-pr. Appended to, not overwritten — a single PR
      delivery gets one entry; a chunked delivery gets one entry per chunk. -->
+
+## Follow-ups
+
+<!-- written by follow-ups: one line per item a run left open,
+     - <kind> <ref> — <ticket> <url> — <opened | matched>, or
+     - none — no open items on the card. Rewritten whole on a rerun. -->
 ```
 
 The `phase` and `phasesCompleted` fields are the only things Phase 0 reads to

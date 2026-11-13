@@ -40,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "90a55fffb323"
+      "version": "03dd7db03f2e"
     },
     {
       "name": "better-code-review",
@@ -154,7 +154,16 @@
         "scripts/check-pr-screenshots.py",
         "scripts/check-tasting-evidence.py"
       ],
-      "version": "565ec96caf1f"
+      "version": "6ddd83ec07f6"
+    },
+    {
+      "name": "follow-ups",
+      "files": [
+        "SKILL.md",
+        "scripts/check-follow-ups.py",
+        "stage.json"
+      ],
+      "version": "b65e25967971"
     },
     {
       "name": "integrate",
@@ -224,7 +233,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "04067218c165"
+      "version": "a70ae2efc572"
     },
     {
       "name": "plan-code",
