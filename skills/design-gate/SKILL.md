@@ -67,8 +67,12 @@ plan was not posted.
 
 The comment of section 2 is posted before the gate, so a person can read it
 while the line waits. Set `runStatus: gate`. Write the question to
-`## Open Questions` ("approve the plan of <ticket>, or say what to change"),
-post it in chat and stop. The stage is `gate: human`: `assembly-line` resumes
+`## Open Questions` ("approve the plan of <ticket>, or say what to change").
+The question ends with the plan comment link: the link section 2 posted this
+round and wrote to the `Plan comment:` line, never one from an earlier round.
+With no tracker tool, it ends with `not posted — no tracker tool` instead. The
+question is never a placeholder such as `{link}` or `<link>`. Post the question
+in chat and stop. The stage is `gate: human`: `assembly-line` resumes
 it with the person's answer. On either answer, set `runStatus: running`
 before ending, so the card no longer reads as stopped at the gate.
 
