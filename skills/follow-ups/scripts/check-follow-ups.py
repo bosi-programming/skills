@@ -80,7 +80,8 @@ check("section-order", found == SECTIONS, f"headings are {found}")
 check_all("reads-items", block(skill, "## 1. Read the open items", r"^## "),
           "`## Open Questions`", "`answer:`", "`## Quality Gate Results`", "`Not verified:`",
           "judgement call", "scope creep", "`medium`", "`low`", "`moderate`", "`minor`", "`none`",
-          "`## Decisions`", "`unattended:`", "one ticket for all", "html comment")
+          "`## Decisions`", "`unattended:`", "one ticket for all", "html comment",
+          "skip lines that start `unattended: follow-ups`")
 
 check_all("searches-first", block(skill, "## 2. Search the tracker first", r"^## "),
           "`Source:`", "related", "team", "canceled", "matched", "no tracker tool",
@@ -130,8 +131,17 @@ template_block = block(template, "\n## Follow-ups\n", r"^## ")
 check("template-section",
       re.search(r"^## Follow-ups$", template, re.MULTILINE) and "follow-ups" in template_block.lower(),
       "card template has no ## Follow-ups section written by follow-ups")
+check_all("template-formats", template_block,
+          "<kind> <ref> — <ticket> <url> — <opened | matched>", "none — no open items on the card")
+headings = re.findall(r"^## .*$", template, re.MULTILINE)
+after_pr = headings[headings.index("## PR") + 1] if "## PR" in headings[:-1] else None
+check("template-after-pr", after_pr == "## Follow-ups", f"heading after ## PR is {after_pr!r}")
 
 check("readme-section", re.search(r"^### follow-ups$", readme, re.MULTILINE), "README has no ### follow-ups")
+check_all("readme-intro", readme, "`follow-ups` opens a ticket for each item a run left open",
+          "follow-ups/ SKILL.md + stage.json + scripts/")
+check_all("readme-validate-paragraph", block(readme, "## Validate a change", r"^## Falsify"),
+          "`check-follow-ups.py` is `follow-ups`' own check")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"),
           "skills/follow-ups/scripts/check-follow-ups.py", "check-stage-spec.py skills/follow-ups")
 

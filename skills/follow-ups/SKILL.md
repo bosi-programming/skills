@@ -60,8 +60,9 @@ sources, read in this order:
   first 80 characters, trimmed.
 - `## Decisions` — every line that starts `unattended:`. One ticket for all of
   them: they make a single item, not one per line, since a headless run logs
-  many settled choices and one review ticket keeps them all in the tracker. Its
-  kind is `unattended` and its ref is `decisions`.
+  many settled choices and one review ticket keeps them all in the tracker.
+  Skip lines that start `unattended: follow-ups`: they are this stage's own
+  logs. Its kind is `unattended` and its ref is `decisions`.
 
 Two items with the same `Source:` line (section 3) count once.
 
