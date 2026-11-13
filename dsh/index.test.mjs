@@ -25,6 +25,7 @@ const SKILLS = [
   'epistemic-action',
   'evaluate-ticket',
   'feature-recipe',
+  'follow-ups',
   'integrate',
   'judge',
   'merge',

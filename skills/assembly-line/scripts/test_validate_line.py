@@ -365,9 +365,10 @@ class ValidateLine(unittest.TestCase):
     def test_saved_lines_are_the_five(self):
         expected = {
             "feature": ["judge", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]}, "code",
-                        "ui-review", "a11y-check", "prepare-pr", "review-fix", "code-docs", "merge"],
+                        "ui-review", "a11y-check", "prepare-pr", "review-fix", "code-docs", "follow-ups", "merge"],
             "bug": ["judge", "reproduce", "evaluate-ticket", "plan-code", {"parallel": ["test", "code"]},
-                    "code", "ui-review", "a11y-check", "prepare-pr", "review-fix", "code-docs", "merge"],
+                    "code", "ui-review", "a11y-check", "prepare-pr", "review-fix", "code-docs", "follow-ups",
+                    "merge"],
             "small-fix": ["judge", "evaluate-ticket", "plan-code", "code", "prepare-pr", "review-fix", "merge"],
             "parent": ["judge", "contract", {"group": "sub-issues"}, "integrate", "qa", "proof",
                        "review-request", "merge"],
@@ -378,6 +379,14 @@ class ValidateLine(unittest.TestCase):
             with self.subTest(line=name):
                 self.assertEqual(self.saved(name),
                                  {"format": "assembly-line/1", "name": name, "stages": stages})
+
+    def test_feature_and_bug_run_follow_ups_before_merge(self):
+        for name in ("feature", "bug"):
+            with self.subTest(line=name):
+                result = run(LINES / f"{name}.json")
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertEqual(json.loads(result.stdout), {"valid": True, "errors": []})
+                self.assertEqual(self.saved(name)["stages"][-3:], ["code-docs", "follow-ups", "merge"])
 
     def test_a_saved_line_has_no_line_key(self):
         result = run(LINES / "feature.json")
