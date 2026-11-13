@@ -78,6 +78,9 @@ earlier one in the same run. An item is matched by, in this order:
 
 1. A ticket already related to the run ticket whose body holds the item's exact
    `Source:` line. This is how a rerun finds the tickets the first run opened.
+   A tracker that rewrites the run ticket's id on save, as Linear turns
+   `BOS-184` into an issue mention, still matches: read the mention as the id
+   it names before comparing the line.
 2. A search of the run ticket's team by the item's words, where a result's
    title or body covers the same question or finding. The stage judges it and
    writes the reason on the item's `## Follow-ups` line.

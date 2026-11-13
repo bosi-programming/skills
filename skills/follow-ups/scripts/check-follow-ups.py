@@ -84,7 +84,7 @@ check_all("reads-items", block(skill, "## 1. Read the open items", r"^## "),
           "skip lines that start `unattended: follow-ups`")
 
 check_all("searches-first", block(skill, "## 2. Search the tracker first", r"^## "),
-          "`Source:`", "related", "team", "canceled", "matched", "no tracker tool",
+          "`Source:`", "related", "team", "canceled", "matched", "no tracker tool", "rewrites the run ticket's id",
           "`runStatus: blocked`", "`blocked`")
 
 check_all("opens-and-links", block(skill, "## 3. Open and link", r"^## "),
