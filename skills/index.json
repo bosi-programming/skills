@@ -104,7 +104,7 @@
         "scripts/check-design-gate.py",
         "stage.json"
       ],
-      "version": "7a8cdc1f9897"
+      "version": "c48f807cda32"
     },
     {
       "name": "epistemic-action",
