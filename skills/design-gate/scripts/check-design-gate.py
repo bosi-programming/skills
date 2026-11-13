@@ -82,6 +82,10 @@ check_all("gate", block(skill, "## 3. Gate", r"^## "),
           "`runStatus: gate`", "`approved`", "`changes`", "line continues", "`plan-code`", "`## Decisions`",
           "set `runStatus: running`", "goes back to the latest `plan-code`", "at most twice")
 
+check_all("gate-link", block(skill, "## 3. Gate", r"^## "),
+          "ends with the plan comment link", "section 2 posted this round", "`not posted — no tracker tool`",
+          "never a placeholder")
+
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
           "unattended:", "`runStatus: needs-input`", "### Ending a run", "waits for a person")
 check_all("log-prefixes", skill, "`relay:`", "`line:`", "`unattended:`", "`design-gate:`",
