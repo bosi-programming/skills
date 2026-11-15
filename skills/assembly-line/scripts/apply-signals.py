@@ -89,6 +89,22 @@ def read_signals(card_text):
     return found
 
 
+def expand(line_path, catalog_path):
+    run = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(line_path), "--catalog", str(catalog_path)],
+        capture_output=True,
+        text=True,
+    )
+    try:
+        result = json.loads(run.stdout)
+    except ValueError:
+        raise Fatal("validator output did not parse")
+    if result.get("valid") is not True or not isinstance(result.get("line"), dict):
+        rules = ", ".join(f"{error.get('stage')} {error.get('rule')}" for error in result.get("errors") or [])
+        raise Fatal(f"line with from does not validate: {rules or 'no expanded line'}")
+    return result["line"]
+
+
 def item_name(item):
     if isinstance(item, str):
         return item
@@ -252,11 +268,11 @@ def main(argv):
         line = read_json(line_path, "line file")
         if not isinstance(line, dict):
             raise Fatal("line file must hold an object")
+        catalog = read_json(catalog_path, "catalog")
         if "from" in line:
-            raise Fatal("line file holds from; pass the expanded line")
+            line = expand(line_path, catalog_path)
         if not isinstance(line.get("stages"), list) or not line["stages"]:
             raise Fatal("line file needs a non-empty stages list")
-        catalog = read_json(catalog_path, "catalog")
         if not isinstance(catalog, dict) or not isinstance(catalog.get("stages"), dict):
             raise Fatal("catalog must hold an object with a stages object")
     except Fatal as problem:

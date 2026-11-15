@@ -85,6 +85,19 @@ class ApplySignals(unittest.TestCase):
         self.assertEqual(report["rejected"], [])
         self.assertEqual(report["skipped"], [])
 
+    def test_line_with_from_is_expanded_before_signals_apply(self):
+        bug = json.loads((LINES / "bug.json").read_text())["stages"]
+        line = {"format": "assembly-line/1", "ticket": "BOS-1", "from": "bug",
+                "drop": ["reproduce", "ui-review", "code-docs"]}
+        report = self.apply(CODE_LINE, line, 5)
+        expected = [item for item in bug if item not in ("reproduce", "ui-review", "code-docs", "a11y-check")]
+        self.assertNotIn("from", report["line"])
+        self.assertNotIn("drop", report["line"])
+        self.assertEqual(report["line"]["ticket"], "BOS-1")
+        self.assertEqual(report["line"]["stages"], expected)
+        self.assertEqual([(entry["change"], entry["stage"]) for entry in report["applied"]],
+                         [("remove", "a11y-check")])
+
     def test_no_screen_change_removes_a11y_check(self):
         report = self.apply(CODE_LINE, line_of(FEATURE), 5)
         self.assertTrue(report["changed"], report)
@@ -292,8 +305,8 @@ class ApplySignals(unittest.TestCase):
         with self.subTest("negative --done"):
             result = self.run_script(card, line, "--done", "-1")
             self.assertEqual(result.returncode, 2)
-        with self.subTest("line with from"):
-            bad = self.line_file({**line_of(FEATURE), "from": "feature"})
+        with self.subTest("line with from that does not validate"):
+            bad = self.line_file({"format": "assembly-line/1", "ticket": "BOS-1", "from": "no-such-line"})
             result = self.run_script(card, bad, "--done", 5)
             self.assertEqual(result.returncode, 1)
             self.assertIn("error", json.loads(result.stdout))
