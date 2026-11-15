@@ -60,8 +60,10 @@ in that file, on the same branch, by their `Verified:` tag. A `ran` finding is
 proved: go to the fix. A `read` finding gets read at its `file:line` first. A
 `no` finding: verify it first, by running or reading what it names, and reject
 it if it does not hold. Log each `judgement call` and `scope creep` finding to
-`## Quality Gate Results` and leave the code as it is; deleting work written on
-purpose is a one-way door. Write a failing test first where the finding is a
+`## Quality Gate Results` as one bullet, `- Judgement call — <file:line> — <what>`
+or `- Scope creep — <file:line> — <what>`, with nothing before the marker, so
+`../follow-ups/SKILL.md` finds it; leave the code as it is; deleting work
+written on purpose is a one-way door. Write a failing test first where the finding is a
 behaviour, then fix, then run the project's scoped tests and lint. Push to the
 open PR, which stays ready for review. Log each finding you reject to
 `## Decisions`, with the reason, instead of changing the code: prefix the line

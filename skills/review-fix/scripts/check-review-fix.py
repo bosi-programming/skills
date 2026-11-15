@@ -67,6 +67,9 @@ check_all("fix-log-prefixes", block(skill, "## 2. Fix", r"^## "),
           "`relay:`", "`unattended:`", "`review-fix:`")
 check_all("fix-one-way-door", block(skill, "## 2. Fix", r"^## "),
           "deleting work written on purpose is a one-way door")
+check_all("finding-line-format", block(skill, "## 2. Fix", r"^## "),
+          "`- Judgement call — <file:line> — <what>`", "`- Scope creep — <file:line> — <what>`",
+          "`../follow-ups/SKILL.md`")
 check_all("fix-return-cap", block(skill, "## 2. Fix", r"^## "), "at most 150 words")
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
           "unattended:", "`runStatus: needs-input`", "### Ending a run")

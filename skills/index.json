@@ -40,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "03dd7db03f2e"
+      "version": "835dfd638cc7"
     },
     {
       "name": "better-code-review",
@@ -326,7 +326,7 @@
         "scripts/check-review-fix.py",
         "stage.json"
       ],
-      "version": "98a00e0bda91"
+      "version": "1c018530f5a1"
     },
     {
       "name": "review-request",
