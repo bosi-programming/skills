@@ -21,6 +21,7 @@ SECTIONS = [
     "## 3. Write the findings",
     "## 4. Post the output",
     "## 5. Gate",
+    "## Auto gates",
     "## Headless",
 ]
 

@@ -19,6 +19,7 @@ SECTIONS = [
     "## 1. Read the plan",
     "## 2. Post the plan",
     "## 3. Gate",
+    "## Auto gates",
     "## Headless",
 ]
 
