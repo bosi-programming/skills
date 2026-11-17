@@ -177,7 +177,8 @@ A feature with tests written beside the code, review fixes and docs:
 
 `test` and `code` start together; `code` runs again once both end, to make the
 new tests pass. `merge` is the only `gate: human` stage, so the run stops there
-with a PR ready for review.
+with a PR ready for review, unless auto gates are on and `merge` takes its own
+recommendation.
 
 ## Example: short line
 

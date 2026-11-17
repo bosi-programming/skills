@@ -64,6 +64,7 @@ open-restaurant:
   judgeModel: ''
   qaModel: ''
   fixModel: ''
+  autoGates: false
 pause-work:
   destination: ''
   project: ''
@@ -180,6 +181,9 @@ only needs the keys it changes.
 - `open-restaurant.judgeModel`, `open-restaurant.qaModel`,
   `open-restaurant.fixModel` — models for the readiness judge and contract,
   the QA agent and the QA fix agent; empty keeps the session's model.
+- `open-restaurant.autoGates` — `true` makes each human gate take its own
+  recommendation, `merge` included; `false` keeps every gate for a person.
+  A `--auto` or `--no-auto` argument beats it.
 - `pause-work.destination` — MCP server or CLI the paused-work task goes
   to, such as `Todoist`, `Linear` or `gh`; empty asks, or prints the task.
 - `pause-work.project` — project, list or team in that tool; empty is its

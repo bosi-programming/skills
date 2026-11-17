@@ -23,7 +23,7 @@ Every key but `spec` is required. Lists may be empty.
 | `delivers` | object | What the stage writes. `sections` and `fields` follow the same rule as `takes`; `verdicts` lists every verdict the stage can end with. |
 | `return` | object | One entry per failing verdict. See below. |
 | `signals` | list of strings | Names of the signals the stage can raise. It writes them to `## Signals` on the card. What a signal adds to or removes from the line lives in the catalog. |
-| `gate` | `auto` or `human` | `human` when a person must approve the stage's work before the line moves on. |
+| `gate` | `auto` or `human` | `human` when a person must approve the stage's work before the line moves on, unless auto gates are on: then the stage takes its own recommendation. |
 
 ### `return`
 

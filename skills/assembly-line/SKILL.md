@@ -9,7 +9,9 @@ Runs one ticket's line: the ordered stages its line comment names. It changes no
 
 ## Input
 
-One ticket id. The line comes from the local line file, else from the ticket's line comment. Several tickets, or a parent with sub-issues, are the work of `open-restaurant`.
+One ticket id, and optionally `--auto` or `--no-auto`. The line comes from the local line file, else from the ticket's line comment. Several tickets, or a parent with sub-issues, are the work of `open-restaurant`.
+
+`--auto` and `--no-auto` come from a caller. Run standalone, on its own with neither, this skill is on: auto gates are on. Under `open-restaurant` the caller always passes one, and the caller's choice wins. The mode is on or off for the whole run; a resume keeps the mode the run started with, read from the card's `## Decisions` line `line: auto gates on|off`. Log that line once, when the run starts.
 
 ## Settings
 
@@ -70,6 +72,7 @@ A `{"parallel": ["test", "code"]}` group follows _Cooking in parallel_ below. An
 ### Stage prompt
 
 > Load and execute the stage's `SKILL.md` against the recipe card at `{card path}`, with the stage's `with` keys, if the line gives any. Follow its own `## Headless` section for every checkpoint it names, taking the recommendation it states, and log it to `## Decisions` prefixed `line:` (a person is running this, just not being asked).
+> When auto gates are on, add the line `Auto gates: on` as its own line at the end of this prompt, before `Project rules:`. With it, a gate stage takes its own recommendation as its `## Auto gates` section says. Without it the stage never approves for a person.
 > Do not read `../feature-recipe/references/headless.md`: this prompt holds what you need from it. Stop and return control once the stage's closing section is written. Do not set `runMode` on the card. Never merge, delete work written on purpose, force-push, rewrite history, run an irreversible migration, or change credentials or production. At one of those, or at a question with no reasonable default, stop: write an entry to `## Open Questions` with an id, the question, the options and your recommendation; set `runStatus` to `needs-input` for a one-way door or `blocked` when something external must change; set `runQuestion` to the id; leave `runNext`, `phase` and `phasesCompleted` alone; and log the stop to `## Decisions`. Return at most 100 words on what got decided, and end the reply with `Verdict:` and the stage's verdict. The rest stays on the card.
 
 ### Cooking in parallel
@@ -96,13 +99,22 @@ Load, read completely and execute `../review-fix/SKILL.md` on the card in this s
 
 ### Gates
 
-A stage with `gate: human` in the catalog (`merge`, `research` and `design-gate`) runs its steps up to its gate in a sub-agent, which stops at `runStatus: gate`. The run then writes the question to `## Open Questions`, posts it in chat, and stops. Resumed with the person's approval, the gate stage runs in this session, with `assembly-line.doneState` in place of `open-restaurant.doneState`: it moves the ticket there once the merge lands. An empty value skips the move. `assembly-line.doneState` applies only to `merge`. Approval of the `research` gate resumes that stage with verdict `approved`, and the line ends there. Approval of the `design-gate` gate resumes that stage with verdict `approved`, and the line continues with the next step. A request for changes resumes it with verdict `changes`, and the line goes back to the latest `plan-code`.
+With auto gates on, follow _Auto gates_ below instead of stopping. With them off, a stage with `gate: human` in the catalog (`merge`, `research` and `design-gate`) runs its steps up to its gate in a sub-agent, which stops at `runStatus: gate`. The run then writes the question to `## Open Questions`, posts it in chat, and stops. Resumed with the person's approval, the gate stage runs in this session, with `assembly-line.doneState` in place of `open-restaurant.doneState`: it moves the ticket there once the merge lands. An empty value skips the move. `assembly-line.doneState` applies only to `merge`. Approval of the `research` gate resumes that stage with verdict `approved`, and the line ends there. Approval of the `design-gate` gate resumes that stage with verdict `approved`, and the line continues with the next step. A request for changes resumes it with verdict `changes`, and the line goes back to the latest `plan-code`.
+
+### Auto gates
+
+With auto gates on, each gate takes its own recommendation and the line goes on; under `open-restaurant` the caller's choice wins. Log each one as `line: auto-gate: <stage> <gate> took <choice>`.
+
+- `design-gate`, `research` and `qa` run in their sub-agent, told `Auto gates: on`. Each approves on its own and returns its verdict, so the verdict ends the stage, never `runStatus: gate`. `design-gate` returns `approved` and the line continues; `research` returns `approved` and the line ends; `qa` takes its `qa1` recommendation.
+- `merge` runs in this session, because the stage prompt forbids merging. Run its steps up to its gate in a sub-agent told `Auto gates: on`; when its `## Auto gates` section clears the PRs, run the merge here, with `assembly-line.doneState` in place of `open-restaurant.doneState`. When that section does not clear them, stop at the gate as with auto gates off.
+- A failed merge stops at the gate, with the merged, failed and pending lists. This skill never retries it.
+- An unfinished park in `open-restaurant`, `blocked` and `needs-input` still stop the run.
 
 ## 4. Go back on a failing verdict
 
 A verdict with an entry in the stage's `return` in `./references/catalog.json` is failing. The run goes back to the latest step at or before this one that is, or holds, the entry's `to` stage, and runs forward again from there. Log each go-back as `line: return <stage> <verdict> -> <to> (<k>/<limit>)`.
 
-Once the entry's `limit` is used up, its `past` decides: `needs-input` stops the run with `runStatus: needs-input`; `human` stops it with `runStatus: gate`, a question in `## Open Questions` and the same question in chat. A verdict with no `return` entry moves on, and is logged.
+Once the entry's `limit` is used up, its `past` decides: `needs-input` stops the run with `runStatus: needs-input`; `human` stops it with `runStatus: gate`, a question in `## Open Questions` and the same question in chat. With auto gates on, `past: human` takes the entry's own recommendation instead, and logs `line: auto-gate: <stage> past limit took <choice>`; an entry whose recommendation is `stop`, such as `merge` `threads-open` or `design-gate` and `research` `changes`, stops the run with `runStatus: needs-input` and logs `line: auto-gate: <stage> past limit took stop`. A verdict with no `return` entry moves on, and is logged.
 
 ## 5. Move to the next stage
 
@@ -144,7 +156,7 @@ python3 "$SKILL_DIR/scripts/board.py" --cards <feature-recipe.cardsDir> --log <a
 
 ## 6. Stop conditions
 
-Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`), or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat, after section 7. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
+Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`) that auto gates did not take, or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat, after section 7. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
 
 ## 7. Close down
 

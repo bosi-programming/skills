@@ -17,8 +17,9 @@ a sub-issue's card.
 Start sub-agents in the background where the runtime allows it, so cards in
 different repos cook at the same time, and act on each one as it returns.
 
-The run never merges without a human, and opens every PR ready for review,
-never as a draft. Merging waits at the parent line's `merge` gate.
+The run never merges without a human unless auto gates are on, and opens every
+PR ready for review, never as a draft. Merging waits at the parent line's
+`merge` gate, which takes its own recommendation only when auto gates are on.
 
 ## Settings
 
@@ -41,6 +42,27 @@ this skill reads the rest:
   and the contract (run through `contract`). Default `''`: the model this session runs on.
 - `open-restaurant.qaModel` — model for the QA agent. Default `''`.
 - `open-restaurant.fixModel` — model for the QA fix agent. Default `''`.
+- `open-restaurant.autoGates` — `true` makes each human gate take its own
+  recommendation, `merge` included. Default `false`. See _Auto gates_ below.
+
+### Auto gates
+
+Resolve the mode once, at the start of the run: the `--auto` or `--no-auto`
+argument when given, else `open-restaurant.autoGates`, else `false`. The
+argument beats the key, so `--auto` beats `false` and `--no-auto` beats `true`.
+Write the result to the service card as `autoGates: true|false`, and log it as
+`restaurant: auto gates on|off`. A resume reads `autoGates` from the card and
+ignores the key and the argument.
+
+When on, this skill passes `--auto` to `../assembly-line/SKILL.md`, for the
+parent's line and for every sub-issue's line; when off, pass `--no-auto`, so a line run
+under this skill never takes its own default. The gate stages (`merge`,
+`research`, `design-gate`, `qa`) then take their own recommendation, each as
+its own `## Auto gates` section says, and log it as `restaurant: auto-gate:
+<stage> <gate> took <choice>`.
+
+Auto gates do not cover the `gate: unfinished` park in section 6, `blocked` or
+`needs-input`: each still stops the run.
 
 The settings file's `## open-restaurant` section, when present, is guidance
 this skill follows on top of its own rules. It names the steps that differ
@@ -99,6 +121,7 @@ look there; where the section names nothing, take the default given here:
    gate: ''             # the gate name, while runStatus is gate
    qaRounds: 0
    fixChecks: 0
+   autoGates: false     # true | false, resolved once from the argument, the key, then false
    ---
 
    ## Sub-issues
@@ -134,11 +157,13 @@ service card is the card.
   used: `past` decides. So `qa` `fail` to `code` goes past, and `merge`
   `threads-open` to `review-fix` stays at the merge gate with the open
   threads listed.
-- `merge` has `gate: human`, so the run stops with `runStatus: gate`. On
-  resume with approval, `merge` runs in this session with
-  `open-restaurant.doneState` in place of `assembly-line.doneState`. On
-  `merged`, delete each local `integration/<parent>` branch and set
-  `stage: closed`.
+- `merge` has `gate: human`, so the run stops with `runStatus: gate`, unless
+  `autoGates` is true: then `merge` takes its own recommendation as its
+  `## Auto gates` section says, and falls back to this stop when that section
+  says so. On resume with approval, or on an auto approval, `merge` runs in
+  this session with `open-restaurant.doneState` in place of
+  `assembly-line.doneState`. On `merged`, delete each local
+  `integration/<parent>` branch and set `stage: closed`.
 
 ## 3. Seat the cards
 
@@ -271,7 +296,7 @@ Once no card can start or move:
 The run stops only at a gate, at `blocked`, at `needs-input`, or at the end.
 On a stop, write `stage`, `runStatus` and `gate` to the service card, and
 report the question or the gate in chat, after section 9. A gate stops with `runStatus: gate`.
-Re-invoking this skill on the same parent reads the service card and goes on
+A gate that auto gates took is no stop. Re-invoking this skill on the same parent reads the service card and goes on
 after its last `restaurant: step` line, as `../assembly-line/SKILL.md` section 6
 says: a gate with the user's answer in chat continues past it; each sub-issue
 card resumes through its own line.

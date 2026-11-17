@@ -85,6 +85,19 @@ before ending, so the card no longer reads as stopped at the gate.
   `plan-code` at most twice, then to a person. The rerun of `plan-code` raises
   `schema-change` again, and this stage posts a new comment.
 
+## Auto gates
+
+The stage is on only when its prompt holds the line `Auto gates: on`. With no
+such line it is off, and section 3 stops at the gate.
+
+When on, section 3 takes its recommendation instead of stopping: approve.
+Section 2 still posts the plan first. Log `<prefix> auto-gate: design-gate gate
+took approved` to `## Decisions` (an `auto-gate:` line), set `runStatus: running`, update `lastTouched`
+and end `approved`; the line continues with the step after this one. A bad
+input and `needs-input` still stop the stage. A `changes` verdict past the
+return limit has no safe recommendation: its recommendation is `stop`, so write
+`needs-input`, and log `<prefix> auto-gate: design-gate past limit took stop`.
+
 ## Headless
 
 Read `../feature-recipe/references/headless.md`. In a headless run:
@@ -94,7 +107,7 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
   default sets `runStatus: needs-input`.
 - Section 3 is the stop: the run waits for a person, since approving a plan
   that changes a schema, a migration or a public contract is not a decision
-  the run takes for them.
+  the run takes for them, except under _Auto gates_ above.
 
 ### Ending a run
 

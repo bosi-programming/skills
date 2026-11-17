@@ -96,7 +96,9 @@ the ones in `./references/config.md`:
     e. Chat channel for the review request, or none.
     f. Models for the readiness judge, the QA agent and the QA fix agent, or
        the one the session runs on.
-    g. Any team steps for the body's `## open-restaurant` section.
+    g. `autoGates`: whether each human gate takes its own recommendation,
+       `merge` included, or waits for a person. Default waits.
+    h. Any team steps for the body's `## open-restaurant` section.
 13. `pause-work`:
     a. Tool the paused-work task goes to, such as `Todoist`, `Linear` or
        `gh`, or ask each time.

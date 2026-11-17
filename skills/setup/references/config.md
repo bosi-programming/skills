@@ -111,6 +111,7 @@ every key.
 | `open-restaurant.judgeModel` | `''` | Model for the readiness judge (in `judge`) and the contract (in `contract`). Empty means the model the session runs on. |
 | `open-restaurant.qaModel` | `''` | Model for the parent QA agent (in `qa`). Empty means the model the session runs on. |
 | `open-restaurant.fixModel` | `''` | Model for the agent that fixes failed QA criteria (in `qa`). Empty means the model the session runs on. |
+| `open-restaurant.autoGates` | `false` | `true` makes each human gate take its own recommendation, `merge` included, so the run goes on to the merged PR with no person in the chat. A `--auto` or `--no-auto` argument beats it. |
 | `pause-work.destination` | `''` | MCP server or CLI the paused-work task goes to, such as `Todoist`, `Linear` or `gh`. A ticket tool gets a comment on the ticket. Empty means ask to use the one to-do or tracker tool the session has, else print the task. |
 | `pause-work.project` | `''` | Project, list or team the task goes in. Empty means the tool's inbox or default. |
 | `pause-work.due` | `tomorrow` | Due date of the task, in the words the tool takes. |

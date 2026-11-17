@@ -136,13 +136,28 @@ set `runStatus: gate` and `gate: qa` where the card has the field, set
 last verdict. A `blocked` the human approves goes to section 4, with the blocker
 counted in scope.
 
+## Auto gates
+
+The stage is on only when its prompt holds the line `Auto gates: on`. With no
+such line it is off, and section 6 stops at the human gate.
+
+When on, section 6's human gate takes the `qa1` recommendation instead of
+stopping. Log `<prefix> auto-gate: qa qa1 took <choice>` to `## Decisions` (an `auto-gate:` line),
+with the choice `qa1` names, and write the answer on the `qa1` entry. The
+verdict, not `runStatus: gate`, ends the stage. `qa1` carries one
+recommendation, so it is taken as it reads: `approve another round` for a
+`fail` past the limits, and for `inconclusive` or `blocked` the recommendation
+`qa1` states. When that is `stop`, write `needs-input` and log
+`<prefix> auto-gate: qa past limit took stop`. A `blocked` input, with no card
+or no `## Integration`, still stops the stage with `runStatus: blocked`.
+
 ## Headless
 
 Read `../feature-recipe/references/headless.md`. In a headless run:
 
 - Prefix each log line `unattended:`. Nothing in it waits on a person.
 - A human gate is a stop with `runStatus: gate`, never answered on a person's
-  behalf.
+  behalf, except under _Auto gates_ above.
 - It never force-pushes, never pushes `integration/<parent>`, never merges.
 
 ### Ending a run

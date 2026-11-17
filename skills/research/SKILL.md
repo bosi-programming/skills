@@ -107,6 +107,20 @@ stage is `gate: human`: `assembly-line` resumes it with the person's answer.
   person named, appends a `### Round <n>` block to `## Findings` and posts a
   new comment.
 
+## Auto gates
+
+The stage is on only when its prompt holds the line `Auto gates: on`. With no
+such line it is off, and section 5 stops at the gate.
+
+When on, section 5 takes its recommendation instead of stopping: approve. Log
+`<prefix> auto-gate: research gate took approved` to `## Decisions` (an `auto-gate:` line), set
+`runStatus` to `running`, update `lastTouched` and end `approved`. The line ends
+there. Sections 1 to 4 run as written, and the comment of section 4 is still
+posted before the verdict. A question left `open`, `blocked` and `needs-input`
+still stop the stage. A `changes` verdict past the return limit has no safe
+recommendation: its recommendation is `stop`, so write `needs-input`, and log
+`<prefix> auto-gate: research past limit took stop`.
+
 ## Headless
 
 Read `../feature-recipe/references/headless.md`. In a headless run:
@@ -115,7 +129,7 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 - A question the sources cannot answer stays `open`; it is never guessed at.
 - A question with no reasonable default sets `runStatus: needs-input`.
 - Section 5 is the stop: the run waits for a person, since approving findings
-  is not a decision the run takes for them.
+  is not a decision the run takes for them, except under _Auto gates_ above.
 
 ### Ending a run
 

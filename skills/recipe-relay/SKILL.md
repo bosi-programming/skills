@@ -76,6 +76,14 @@ this effect:
 > leave `runNext`, `phase` and `phasesCompleted` alone; and log the stop to
 > `## Decisions`. Return at most 100 words on what got decided. The rest stays
 > on the card.
+>
+> Auto gates: on
+
+Every unit prompt this skill writes ends with the line `Auto gates: on`, as
+the block above shows, and so does the review prompt of section 5. This skill
+is always automatic: no argument or key turns it off. The feature recipe has
+no gate stage, so the line changes nothing in a phase file here; it tells any
+gate stage a unit reaches that it takes its own recommendation.
 
 For the Plating unit, add this to that prompt: open the PR ready for review,
 never as a draft, and leave it that way. This overrides Plating's draft rule
@@ -193,7 +201,7 @@ with a chunked delivery, for each chunk's PR as it opens. Do not wait for
 `code-docs` or for `runStatus: terminal`. If the run stopped on `blocked` /
 `needs-input` instead, skip this section.
 
-Load, read completely and execute `../review-fix/SKILL.md` on the card, handing it the project rules above.
+Load, read completely and execute `../review-fix/SKILL.md` on the card, handing it the project rules above and the line `Auto gates: on`, which goes at the end of each sub-agent prompt it writes.
 
 ## 6. Close down
 
