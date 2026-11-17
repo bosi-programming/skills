@@ -40,7 +40,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "835dfd638cc7"
+      "version": "2acfe1366b86"
     },
     {
       "name": "better-code-review",
@@ -104,7 +104,7 @@
         "scripts/check-design-gate.py",
         "stage.json"
       ],
-      "version": "c48f807cda32"
+      "version": "2ea4aa309ef2"
     },
     {
       "name": "epistemic-action",
@@ -190,7 +190,7 @@
         "scripts/check-merge.py",
         "stage.json"
       ],
-      "version": "7e71f2ff99b9"
+      "version": "4b40c3ac2fac"
     },
     {
       "name": "non-functional-requirements",
@@ -210,7 +210,7 @@
         "SKILL.md",
         "scripts/check-open-restaurant.py"
       ],
-      "version": "4f1ab2d85b5f"
+      "version": "65de0b2862a4"
     },
     {
       "name": "pause-work",
@@ -233,7 +233,7 @@
         "scripts/stats.py",
         "scripts/test_stats.py"
       ],
-      "version": "a70ae2efc572"
+      "version": "99d1de168427"
     },
     {
       "name": "plan-code",
@@ -288,7 +288,7 @@
         "scripts/check-qa.py",
         "stage.json"
       ],
-      "version": "b0a448bef2cf"
+      "version": "8e25a927cd80"
     },
     {
       "name": "recipe-relay",
@@ -299,7 +299,7 @@
         "scripts/check-split-cooking.py",
         "scripts/check-ui-review.py"
       ],
-      "version": "34763bb80f5a"
+      "version": "06499c24b690"
     },
     {
       "name": "reproduce",
@@ -317,7 +317,7 @@
         "scripts/check-research.py",
         "stage.json"
       ],
-      "version": "fec4c75c8bc8"
+      "version": "a67ad405a373"
     },
     {
       "name": "review-fix",
@@ -355,7 +355,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "202d68f54e45"
+      "version": "39aa0b34e88c"
     },
     {
       "name": "ship-pr",
