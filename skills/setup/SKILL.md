@@ -67,6 +67,8 @@ the ones in `./references/config.md`:
    m. File the line appends its run log to, or `~/.bosi-skills/runs.jsonl`.
    n. Where a planned line is saved: `ticket` (a comment) or `file` (a
       local file), and the file's path, or `{cardsDir}/{ticket}.line.json`.
+   o. Save every line `plan-assembly-line` validates without waiting for
+      approval: yes or no (`autoApprove`, default no).
 8. `better-code-review`:
    a. Default mode: `conversation`, `page` or `headless`.
    b. Model for the three review sub-agents, or the one the review runs on.

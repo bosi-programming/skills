@@ -1,11 +1,11 @@
 ---
 name: plan-assembly-line
-description: Suggests each ticket's line of stages from its body and the stage catalog, starting from the saved line that matches the ticket's kind, validates it, lets the engineer confirm or edit it, and saves it, only after approval, as a line comment on the ticket or in a local line file. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
+description: Suggests each ticket's line of stages from its body and the stage catalog, starting from the saved line that matches the ticket's kind, validates it, lets the engineer confirm or edit it, or approves it on its own when auto approve is on, and saves it as a line comment on the ticket or in a local line file. Use when plan-work hands off new tickets, when an engineer names tickets that need a line, or says "plan the line" or "plan assembly line".
 ---
 
 # Plan Assembly Line
 
-Suggests and saves each ticket's line: the ordered stages `assembly-line` runs for it. It never runs the line. It writes nothing to the tracker before the engineer approves.
+Suggests and saves each ticket's line: the ordered stages `assembly-line` runs for it. It never runs the line. It writes nothing before a line is approved, by the engineer or, with auto approve on, by the validator.
 
 ## Input
 
@@ -79,6 +79,8 @@ Show one table of every ticket: the line, why, a "From the run log" column and t
 
 Nothing is written before the engineer approves. An edit is validated again. A line the validator rejects is not saved: show the errors and ask again. The engineer may approve some tickets and not others; only the approved ones go on to step 5.
 
+Auto approve skips the wait. Read `plan-assembly-line.autoApprove` as `../setup/references/config.md` says: `grep -n -A8 '^plan-assembly-line:' .bosi-skills.md ~/.bosi-skills.md`, the current folder first, then `$HOME`, then the default `false`. The request beats the setting: `--auto` turns it on and `--no-auto` turns it off for this run. With it on, show the table and go on without waiting: every line the validator accepts counts as approved and goes to step 5. A line the validator rejects is not saved; the table shows its errors, and the reply names it. Suggestions from the run log stay unapplied.
+
 ## 5. Save
 
 Save each line where `assembly-line.lineDestination` says, read as in _Run log_ (default `ticket`). The request beats the setting: "save it locally" means `file`, "post it on the ticket" means `ticket`. `plan-work` passes on what the user picked.
@@ -95,4 +97,4 @@ If the destination is `ticket` and the session has no tracker tool, stop before 
 
 The skill reads it back: fetch each saved comment, parse its json block and check that it matches the approved line. For a line file, read the file and parse it the same way. A difference is reported, and the skill does not post again unless the engineer asks.
 
-Reply with a link per ticket, or a path per ticket for a line file, and which tickets were not saved and why.
+Reply with a link per ticket, or a path per ticket for a line file, and which tickets were not saved and why. With auto approve on, the reply says the lines were approved without asking.

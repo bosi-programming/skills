@@ -1,17 +1,27 @@
 ---
 name: assembly-line
-description: Runs the stages a ticket's line names, from its line comment or a local line file, in the line's order, each in its own sub-agent, taking every checkpoint's own recommendation; validates the line first, follows each stage's return on a failing verdict, and stops at the line's gates. Use when the user names one ticket and wants its line run, or says "run the line" or "assembly line".
+description: Runs the stages a ticket's line names, from its line comment or a local line file, in the line's order, each in its own sub-agent, taking every checkpoint's own recommendation; validates the line first, follows each stage's return on a failing verdict, and stops at the line's gates. Takes several tickets and runs their lines one after another. Use when the user names one or more tickets and wants their lines run, or says "run the line" or "assembly line".
 ---
 
 # Assembly Line
 
-Runs one ticket's line: the ordered stages its line comment names. It changes no stage's files, and `recipe-relay` stays as it is until BOS-112. This session orchestrates and stays live; each stage's work happens in a sub-agent told to take every checkpoint's own recommendation, so what reaches this chat is one line per stage, not a design question.
+Runs a ticket's line: the ordered stages its line comment names. Given several tickets, it runs their lines one after another. It changes no stage's files, and `recipe-relay` stays as it is until BOS-112. This session orchestrates and stays live; each stage's work happens in a sub-agent told to take every checkpoint's own recommendation, so what reaches this chat is one line per stage, not a design question.
 
 ## Input
 
-One ticket id, and optionally `--auto` or `--no-auto`. The line comes from the local line file, else from the ticket's line comment. Several tickets, or a parent with sub-issues, are the work of `open-restaurant`.
+One or more ticket ids, and optionally `--auto` or `--no-auto`. Each line comes from the ticket's local line file, else from its line comment. Several tickets run one after another, in the order given, as _Several tickets_ below says. A parent with sub-issues is the work of `open-restaurant`.
 
 `--auto` and `--no-auto` come from a caller. Run standalone, on its own with neither, this skill is on: auto gates are on. Under `open-restaurant` the caller always passes one, and the caller's choice wins. The mode is on or off for the whole run; a resume keeps the mode the run started with, read from the card's `## Decisions` line `line: auto gates on|off`. Log that line once, when the run starts.
+
+### Several tickets
+
+With more than one ticket id, the run is a queue:
+
+1. **Lines first.** Read and validate every ticket's line, as section 1 says, before the first ticket starts. A ticket with no line, or a line the validator rejects, is left out of the queue; the chat names it and the error, and the rest go on.
+2. **One at a time.** Each ticket gets its own card and its own run, sections 1 to 7, close-down included, before the next ticket starts. Log `line: queue <i>/<n> <ticket>` to its card's `## Decisions` when it starts.
+3. **Go on after a stop.** When a ticket ends at `runStatus: gate`, `blocked` or `needs-input`, the queue moves to the next ticket. A ticket blocked by an earlier ticket in the queue that did not reach `runStatus: terminal` is skipped: log `line: queue skipped <ticket> blocked by <ticket>` to the chat report, and start no card for it.
+4. **Same mode.** The auto gates mode from the input holds for every ticket in the queue.
+5. **Report.** At the end, give one report: each ticket, its end state, its PR link or its open question.
 
 ## Settings
 
@@ -156,7 +166,7 @@ python3 "$SKILL_DIR/scripts/board.py" --cards <feature-recipe.cardsDir> --log <a
 
 ## 6. Stop conditions
 
-Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`) that auto gates did not take, or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat, after section 7. Running this skill again on the same ticket resumes at the step after the last `line: step` line.
+Stop only at the line's end (`runStatus: terminal`), at a gate (`runStatus: gate`) that auto gates did not take, or when a stage reports `blocked` or `needs-input` in `runStatus`: a real one-way door or an ambiguity with no reasonable default; never merely because a stage finished. On a stop, report the open question to the user directly in this chat, after section 7. Running this skill again on the same ticket resumes at the step after the last `line: step` line. In a queue, a stop ends that ticket's run, not the queue: the questions go into the one report at the end.
 
 ## 7. Close down
 

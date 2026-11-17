@@ -48,6 +48,8 @@ assembly-line:
   runLog: ~/.bosi-skills/runs.jsonl
   lineFile: '{cardsDir}/{ticket}.line.json'
   lineDestination: ticket
+plan-assembly-line:
+  autoApprove: false
 uml:
   outputDir: docs/uml
   plantumlJar: ''
@@ -161,6 +163,8 @@ only needs the keys it changes.
   before the ticket's line comment.
 - `assembly-line.lineDestination` — `ticket` saves a planned line as a
   comment on the ticket, `file` writes it to `assembly-line.lineFile`.
+- `plan-assembly-line.autoApprove` — `true` saves every line the validator
+  accepts without waiting for approval.
 - `uml.outputDir` — folder the UML sources and `uml.json` go in.
 - `uml.plantumlJar` — path to the PlantUML jar; empty means the cache folder.
 - `uml.plantumlServer` — `local` for the jar, or the URL of a PlantUML

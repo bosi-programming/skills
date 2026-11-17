@@ -98,6 +98,7 @@ every key.
 | `assembly-line.runLog` | `~/.bosi-skills/runs.jsonl` | File `assembly-line` appends one JSON line to per stage run, shared by every project; `plan-assembly-line` reads it. `~` means `$HOME`. |
 | `assembly-line.lineFile` | `{cardsDir}/{ticket}.line.json` | Local line file, relative to the project root; `{cardsDir}` is `feature-recipe.cardsDir` and `{ticket}` the ticket id. `assembly-line` reads it before the ticket's line comment and takes it when both exist. |
 | `assembly-line.lineDestination` | `ticket` | Where `plan-assembly-line`, and `plan-work` through it, saves an approved line: `ticket` posts a line comment, `file` writes `assembly-line.lineFile`. |
+| `plan-assembly-line.autoApprove` | `false` | `true` makes `plan-assembly-line` save every line the validator accepts without waiting for approval. A `--auto` or `--no-auto` argument beats it. |
 | `uml.outputDir` | `docs/uml` | Folder, relative to the project root, where `uml` keeps its `.puml` sources and `uml.json`. |
 | `uml.plantumlJar` | `''` | Path to the PlantUML jar. Empty means the cache folder: `$XDG_CACHE_HOME/bosi-skills/uml/plantuml.jar`, else `~/.cache/bosi-skills/uml/plantuml.jar`. |
 | `uml.plantumlServer` | `local` | `local` renders through the jar and Java; a URL, such as `https://www.plantuml.com/plantuml`, renders through that PlantUML server instead. |

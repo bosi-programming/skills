@@ -86,7 +86,7 @@ For a plain checkout, point opencode at the tree instead and skip the index enti
 
 ### assembly-line
 
-Runs one ticket's line: the ordered stages its line names. It reads the local line file `assembly-line.lineFile` names (`{cardsDir}/{ticket}.line.json`) and the ticket's comments through the tracker; the file wins when both exist, else it takes the line comment created last, the one with `"format": "assembly-line/1"`. A line comment may start from a saved line with `from`, edited by `add` and `drop`, and the run uses the expanded line. It changes no stage's files, and `recipe-relay` stays until BOS-112.
+Runs a ticket's line: the ordered stages its line names. Given several tickets, it reads and validates every line first, then runs them one after another, each with its own card; a ticket that stops does not stop the queue, and one report lists each ticket's end state. It reads the local line file `assembly-line.lineFile` names (`{cardsDir}/{ticket}.line.json`) and the ticket's comments through the tracker; the file wins when both exist, else it takes the line comment created last, the one with `"format": "assembly-line/1"`. A line comment may start from a saved line with `from`, edited by `add` and `drop`, and the run uses the expanded line. It changes no stage's files, and `recipe-relay` stays until BOS-112.
 
 How the line runs:
 
@@ -114,7 +114,7 @@ How it plans:
 2. **Suggest.** It starts from the saved line that matches the ticket's kind (`feature`, `bug`, `small-fix`, `parent` or `spike`) and drops or adds stages by rule, saving it with `from`: no `test`/`code` group without a `[unit]`, `[int]`, `[e2e]` or `[story]` criterion; `ui-review` and `a11y-check` for a `## Design` link or a `[ui]` or `[story]` criterion; `code-docs` only for a `feat` title or a `[docs]` criterion. A parent gets `{"group": "sub-issues"}`, and its sub-issues join the list. A ticket whose body holds both `## Questions` and `## Output` gets `spike`, checked first, and none of the `ui-review`, `a11y-check` or `code-docs` rules apply to it. Each line comes with a short why.
 3. **Run log.** `stats.py` reads the run log for tickets of the same kind and suggests to add, look at or cut a stage, each with the count behind it, from 5 runs up. The suggestions are shown, not applied.
 4. **Validate.** Every line goes through `validate-line.py` before it is shown. An error names the stage and rule, and the stage to add.
-5. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved.
+5. **Approve.** One table shows every ticket. The engineer confirms or edits, and an edit is validated again. Nothing is written to the tracker before approval, and a rejected line is not saved. With `plan-assembly-line.autoApprove` (`false`) on, or `--auto`, every line the validator accepts is saved without waiting; `--no-auto` turns it off for one run.
 6. **Save.** `assembly-line.lineDestination` (`ticket`) picks where: one comment per ticket, in the `line-format.md` shape, or with `file` the JSON line alone at `assembly-line.lineFile`. It never edits or deletes an old line comment.
 7. **Read back.** It reads each comment back and reports any difference from the approved line, with a link per ticket.
 
