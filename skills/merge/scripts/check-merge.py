@@ -115,6 +115,14 @@ check("template-gate-status", "gate" in status_line, "template runStatus line mu
 check("readme-section", re.search(r"^### merge$", readme, re.MULTILINE), "README has no ### merge")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## Falsify"), "check-merge.py")
 
+auto_gates = block(skill, "## Auto gates", r"^## ")
+check_all("auto-section", auto_gates, "`Auto gates: on`", "`gh pr checks`", "`CHANGES_REQUESTED`", "`auto-gate:`")
+check_all("auto-fallback", auto_gates, "pending", "failing", "requested change", "human gate", "failed", "stops at the gate")
+check_all("never-merges-unless-auto", skill, "never merges without", "unless auto gates")
+check_all("headless-never-approves-kept", skill, "never approves")
+check_none("auto-never-admin", auto_gates, "--admin is allowed")
+check_all("auto-never-admin-stated", auto_gates, "never `--admin`")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

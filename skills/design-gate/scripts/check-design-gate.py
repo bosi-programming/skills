@@ -134,6 +134,9 @@ def minor_of(version):
 check("version-bumped", all(minor_of(v) > (2, 63) for v in manifest_versions.values()),
       f"version not past 2.63: {manifest_versions}")
 
+auto_gates = block(skill, "## Auto gates", r"^## ")
+check_all("auto-section", auto_gates, "`Auto gates: on`", "`approved`", "`auto-gate:`", "line continues")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

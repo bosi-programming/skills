@@ -157,6 +157,13 @@ check_all("readme-validate-board", block(readme, "## Validate a change", r"^## "
           "skills/assembly-line/scripts/test_board.py")
 check_all("config-names-section", read(CONFIG_MD), "`## assembly-line`")
 
+auto_input = block(skill, "## Input", r"^## ")
+check_all("auto-input", auto_input, "`--auto`", "`--no-auto`", "standalone", "on")
+auto_gates = block(skill, "### Auto gates", r"^##")
+check_all("auto-prompt", auto_gates, "`Auto gates: on`", "`merge`", "this session")
+check_all("auto-past-human", block(skill, "## 4. Go back on a failing verdict", r"^## "), "`past: human`", "recommendation", "`stop`")
+check_all("auto-under-restaurant", auto_gates, "`open-restaurant`", "caller's choice")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     out = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

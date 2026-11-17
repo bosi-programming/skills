@@ -63,6 +63,7 @@ KEYS = {
     "open-restaurant.judgeModel": "''",
     "open-restaurant.qaModel": "''",
     "open-restaurant.fixModel": "''",
+    "open-restaurant.autoGates": "false",
     "pause-work.destination": "''",
     "pause-work.project": "''",
     "pause-work.due": "tomorrow",
@@ -255,6 +256,11 @@ check("readme-validate-command", "check-config.py" in readme, "README must list 
 agents = flatten(read(AGENTS))
 check("agents-documents-settings", all(phrase in agents for phrase in ["## settings", "config.md", "bosi-skills.md", "check-config.py", "~/.bosi-skills.md"]),
       "AGENTS.md must give the workflow for adding a setting")
+
+restaurant_keys = re.search(r"^open-restaurant:\n((?:[ \t]+.*\n)+)", template, re.MULTILINE)
+restaurant_children = re.findall(r"^[ \t]+(\w+):", restaurant_keys.group(1), re.MULTILINE) if restaurant_keys else []
+check("autogates-last", restaurant_children[-1:] == ["autoGates"], f"last open-restaurant key in template is {restaurant_children[-1:]}")
+check("key-autogates-in-skill", "autogates" in read(SKILL_MD).lower() and "`open-restaurant.autoGates`" in read(SKILLS / "open-restaurant" / "SKILL.md"), "setup SKILL.md and open-restaurant SKILL.md must name autoGates")
 
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:

@@ -150,6 +150,9 @@ check_all("readme-validate-command", block(readme, "## Validate a change", r"^##
           "check-qa.py", "check-stage-spec.py skills/qa")
 check_all("readme-open-restaurant-names-it", block(readme, "### open-restaurant", r"^### "), "`qa`")
 
+auto_gates = block(skill, "## Auto gates", r"^## ")
+check_all("auto-section", auto_gates, "`Auto gates: on`", "`qa1`", "recommendation", "`auto-gate:`", "`blocked`")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

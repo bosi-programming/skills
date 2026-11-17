@@ -78,6 +78,9 @@ def main():
         print("usage: check-stage-spec.py <skill dir>")
         return 2
     validate(Path(sys.argv[1]) / "stage.json")
+    spec_doc = (SKILLS / "assembly-line" / "references" / "stage-spec.md").read_text()
+    gate_row = [row for row in spec_doc.splitlines() if row.startswith("| `gate`")]
+    check("spec-gate-note", bool(gate_row) and "auto gates" in gate_row[0].lower(), "stage-spec.md gate row must mention auto gates")
     width = max(len(name) for name, _, _ in results)
     for name, ok, detail in results:
         line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

@@ -160,6 +160,12 @@ check_all("readme-layout", block(readme, "## Layout", r"^## "), "open-restaurant
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "), "check-open-restaurant.py")
 check("dsh-lists-skill", "'open-restaurant'" in read(DSH_TEST), "dsh/index.test.mjs must list open-restaurant")
 
+check_all("auto-resolution", skill, "`--auto`", "`--no-auto`", "`open-restaurant.autoGates`", "argument", "default `false`")
+check_all("auto-argument-beats-key", skill, "argument beats", "`open-restaurant.autoGates`")
+check_all("auto-recorded", skill, "`autoGates: true|false`", "service card", "`assembly-line`", "passes")
+check_all("human-merge-unless-auto", skill, "never merges", "without a human", "unless auto gates")
+check_all("park-not-auto", skill, "`gate: unfinished`", "park", "auto gates", "still stops")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

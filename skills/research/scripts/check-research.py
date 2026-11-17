@@ -120,6 +120,9 @@ manifest_versions = {str(m.relative_to(REPO)): json.loads(read(m)).get("version"
 check("manifests-version", len(set(manifest_versions.values())) == 1 and None not in manifest_versions.values(),
       f"manifest versions differ: {manifest_versions}")
 
+auto_gates = block(skill, "## Auto gates", r"^## ")
+check_all("auto-section", auto_gates, "`Auto gates: on`", "`approved`", "`auto-gate:`")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

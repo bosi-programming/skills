@@ -67,6 +67,10 @@ check("close-down", not gaps, f"missing: {gaps}")
 validate = block(read(README), "## Validate a change", r"^## ")
 check("readme-validate-command", "check-no-pause.py" in validate, "README must list check-no-pause.py")
 
+unit_prompt = block(skill, "## 2. Run one unit per sub-agent", r"^## ")
+check("relay-auto-line-unit", "`Auto gates: on`" in unit_prompt or "Auto gates: on" in unit_prompt, "unit prompt must carry Auto gates: on")
+check("relay-auto-line-review", "Auto gates: on" in review, "review prompt must carry Auto gates: on")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     line = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"
