@@ -1,6 +1,6 @@
 ---
 name: merge
-description: The last human gate on a line. Check the PRs a work card or a parent's service card names for open review threads, stop for a person every time, and on approval merge them in blocks order, retarget stacked PRs and move the tickets to their done state. Runs alone on a work card or under open-restaurant. Use when someone wants a ticket's PRs or a parent's PRs merged behind a human gate, or this gate redone on a card.
+description: The last human gate on a line. Check the PRs a work card or a parent's service card names for open review threads, stop for a person unless auto gates are on, and on approval merge them in blocks order, retarget stacked PRs and move the tickets to their done state. Runs alone on a work card or under open-restaurant. Use when someone wants a ticket's PRs or a parent's PRs merged behind a human gate, or this gate redone on a card.
 ---
 
 # merge
@@ -66,7 +66,7 @@ gate.
 
 ## 2. Gate
 
-Stop for a human every time: set `runStatus: gate` and `gate: merge` where the
+Stop for a human unless auto gates are on: set `runStatus: gate` and `gate: merge` where the
 card has the field, write the pending list to `## Merge`, and report the PRs.
 Approval is a person's answer in chat in the session that resumes it; without
 it the stage stays at the gate. On approval, go on to section 3.
@@ -107,8 +107,8 @@ human gate; no new verdict exists.
 
 A failed `gh pr merge` stops at the gate again, with the merged, failed and
 pending lists in `## Merge`, and logs `<prefix> auto-gate: merge failed`. The
-stage never retries it by itself. It is never `--admin` and never
-force-pushes: never `--admin`, never force-push. Threads still open past the return limit end `needs-input`, as
+stage never retries it by itself. It never uses `--admin` and never
+force-pushes. Threads still open past the return limit end `needs-input`, as
 section 1 says: the recommendation there is `stop`, logged as
 `<prefix> auto-gate: merge past limit took stop`.
 

@@ -161,6 +161,7 @@ check_all("readme-validate-command", block(readme, "## Validate a change", r"^##
 check("dsh-lists-skill", "'open-restaurant'" in read(DSH_TEST), "dsh/index.test.mjs must list open-restaurant")
 
 check_all("auto-resolution", skill, "`--auto`", "`--no-auto`", "`open-restaurant.autoGates`", "argument", "default `false`")
+check_all("auto-no-auto-passed", block(skill, "### Auto gates", r"^##"), "`--no-auto`", "pass")
 check_all("auto-argument-beats-key", skill, "argument beats", "`open-restaurant.autoGates`")
 check_all("auto-recorded", skill, "`autoGates: true|false`", "service card", "`assembly-line`", "passes")
 check_all("human-merge-unless-auto", skill, "never merges", "without a human", "unless auto gates")

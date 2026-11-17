@@ -83,7 +83,7 @@ check_all("threads-open-card-write", block(skill, "## 1. Threads", r"^## "),
           "`runStatus: needs-input`", "`## Decisions`", "`## Merge`")
 check_all("output-names-threads-open-status", output, "`needs-input`", "`threads-open`")
 check_all("gate-step", block(skill, "## 2. Gate", r"^## "),
-          "`runStatus: gate`", "`gate: merge`", "every time", "approv")
+          "`runStatus: gate`", "`gate: merge`", "unless auto gates are on", "approv")
 check_all("merge-step", block(skill, "## 3. Merge", r"^## "),
           "blocks order", "retarget", "default branch", "merged", "failed", "pending")
 check_all("done-step", block(skill, "## 4. Done", r"^## "),
@@ -118,10 +118,13 @@ check_all("readme-validate-command", block(readme, "## Validate a change", r"^##
 auto_gates = block(skill, "## Auto gates", r"^## ")
 check_all("auto-section", auto_gates, "`Auto gates: on`", "`gh pr checks`", "`CHANGES_REQUESTED`", "`auto-gate:`")
 check_all("auto-fallback", auto_gates, "pending", "failing", "requested change", "human gate", "failed", "stops at the gate")
+check("description-unless-auto", "unless auto gates are on" in " ".join(fields.get("description", "").split()), "description must say a person is asked unless auto gates are on")
+check_all("gate-section-unless-auto", block(skill, "## 2. Gate", r"^## "), "unless auto gates are on")
+check_none("gate-section-not-always", block(skill, "## 2. Gate", r"^## "), "stop for a human every time")
 check_all("never-merges-unless-auto", skill, "never merges without", "unless auto gates")
 check_all("headless-never-approves-kept", skill, "never approves")
 check_none("auto-never-admin", auto_gates, "--admin is allowed")
-check_all("auto-never-admin-stated", auto_gates, "never `--admin`")
+check_all("auto-never-admin-stated", auto_gates, "never uses `--admin`")
 
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:

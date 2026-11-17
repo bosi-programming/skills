@@ -158,10 +158,13 @@ check_all("readme-validate-board", block(readme, "## Validate a change", r"^## "
 check_all("config-names-section", read(CONFIG_MD), "`## assembly-line`")
 
 auto_input = block(skill, "## Input", r"^## ")
-check_all("auto-input", auto_input, "`--auto`", "`--no-auto`", "standalone", "on")
+check_all("auto-input", auto_input, "`--auto`", "`--no-auto`", "standalone")
+check_all("auto-resume-keeps-mode", auto_input, "resume", "keeps the mode", "`line: auto gates")
 auto_gates = block(skill, "### Auto gates", r"^##")
 check_all("auto-prompt", auto_gates, "`Auto gates: on`", "`merge`", "this session")
 check_all("auto-past-human", block(skill, "## 4. Go back on a failing verdict", r"^## "), "`past: human`", "recommendation", "`stop`")
+check_all("auto-failed-merge", auto_gates, "failed merge", "never retries")
+check_all("auto-no-recommendation-stops", block(skill, "## 4. Go back on a failing verdict", r"^## "), "no stated recommendation", "`stop`", "`needs-input`", "past limit took stop")
 check_all("auto-under-restaurant", auto_gates, "`open-restaurant`", "caller's choice")
 
 width = max(len(name) for name, _, _ in results)
