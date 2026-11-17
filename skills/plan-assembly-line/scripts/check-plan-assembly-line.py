@@ -176,6 +176,12 @@ check_all("readme-count", readme, "thirty-nine claude code skills", "the other t
 missing_manifests = [str(m.relative_to(REPO)) for m in MANIFESTS if "line planner" not in flatten(read(m))]
 check("manifests-name-it", not missing_manifests, f"missing 'line planner': {missing_manifests}")
 
+approve = block(skill, "## 4. Show and approve", r"^## ")
+check_all("auto-approve", approve, "`plan-assembly-line.autoApprove`", "without waiting", "every line the validator accepts", "rejects is not saved")
+check_all("auto-approve-request", approve, "the request beats the setting", "`--auto`", "`--no-auto`")
+check_all("auto-approve-log", block(skill, "## 6. Read back", r"^## "), "approved without asking")
+check_all("readme-auto-approve", block(readme, "### plan-assembly-line", r"^### "), "`plan-assembly-line.autoApprove`")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     out = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"

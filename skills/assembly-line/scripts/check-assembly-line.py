@@ -167,6 +167,18 @@ check_all("auto-failed-merge", auto_gates, "failed merge", "never retries")
 check_all("auto-no-recommendation-stops", block(skill, "## 4. Go back on a failing verdict", r"^## "), "no stated recommendation", "`stop`", "`needs-input`", "past limit took stop")
 check_all("auto-under-restaurant", auto_gates, "`open-restaurant`", "caller's choice")
 
+queue_input = block(skill, "## Input", r"^## ")
+check_all("queue-input", queue_input, "one or more ticket ids", "one after another", "order given")
+queue = block(skill, "### Several tickets", r"^##")
+check_all("queue-reads-all-lines", queue, "every ticket's line", "before the first", "left out of the queue")
+check_all("queue-own-run", queue, "own card", "sections 1 to 7", "close-down")
+check_all("queue-goes-on", queue, "next ticket", "`blocked`", "`needs-input`", "`runStatus: gate`")
+check_all("queue-skips-dependents", queue, "blocked by", "skipped", "`line: queue skipped")
+check_all("queue-log", queue, "`line: queue <i>/<n>")
+check_all("queue-report", queue, "one report", "each ticket", "end state")
+check_all("queue-auto-mode", queue, "same mode", "every ticket")
+check_all("readme-queue", block(readme, "### assembly-line", r"^### "), "several tickets", "one after another")
+
 width = max(len(name) for name, _, _ in results)
 for name, ok, detail in results:
     out = f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}"
