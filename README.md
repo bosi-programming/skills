@@ -209,7 +209,7 @@ Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
 ### code-docs
 
-The last stage, after `prepare-pr`. It asks whether the change is worth documenting, writes the docs where the team keeps them or where `feature-recipe.docsDestination` says, or writes none when it says `none`, marks the work card `delivered`, records the task done in the tracker, and runs `work-summary` unless `feature-recipe.runWorkSummary` is `false`. It reads the card's `## Problem`, `## Solution` and `## PR`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `code-docs` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo the stage on a card. It ends the line: no New session / Continue menu, and a headless run ends with `runStatus: terminal`. Cards from before the split, with `documentation` in `phase` or `phase-6-documentation.md` in `runNext`, still route here.
+The last stage, after `prepare-pr`. It asks whether the change is worth documenting, writes the docs where the team keeps them or where `feature-recipe.docsDestination` says, or writes none when it says `none`, marks the work card `delivered`, records the task done in the tracker, and runs `work-summary` unless `feature-recipe.runWorkSummary` is `false`. It reads the card's `## Problem`, `## Solution` and `## PR`. It takes the path to a work card; with no card it runs `feature-recipe`'s Phase 0 to find or make one. It writes `code-docs` to the card's `phase` and `phasesCompleted`, so `feature-recipe`, `recipe-relay` or a person can run it alone, for instance to redo the stage on a card. It ends the line: no New session / Continue menu, and a headless run ends with `runStatus: terminal`, but only when no `Next stage:` line in its prompt says a stage follows. `assembly-line` adds that line, and with it `code-docs` leaves `status`, `runStatus`, `runNext` and `runQuestion` as they are. Cards from before the split, with `documentation` in `phase` or `phase-6-documentation.md` in `runNext`, still route here.
 
 Its `stage.json` has the same shape as `evaluate-ticket`'s.
 
@@ -608,7 +608,7 @@ its frontmatter, stops naming the work card as its input and Phase 0 as the
 way in without one, stops listing the card fields it writes or writing
 `code-docs` to `phase` and `delivered` to `status`, stops reading its two
 settings or running `work-summary`, offers a New session / Continue menu,
-drops its `## Headless` section or its terminal run record, stops logging a
+drops its `## Headless` section or its terminal run record, stops making `status` and `runStatus: terminal` depend on a `Next stage:` line, stops logging a
 skipped docs step or saying "no docs" in its summary, links a file that
 does not exist, if the old Documentation phase file comes back, or if this
 README loses its section. Offline, stdlib only — run it after editing

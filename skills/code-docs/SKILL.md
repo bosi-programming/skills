@@ -5,8 +5,9 @@ description: Close a delivered change out — ask whether it is worth documentin
 
 # code-docs
 
-The last stage. This one is terminal — it ends the line, not with a
-session-break menu but with a plain close.
+The last stage. This one ends the run when no stage follows it, not with a
+session-break menu but with a plain close. When the prompt holds a
+`Next stage:` line, a stage follows and this one leaves the run open.
 
 `feature-recipe` and `recipe-relay` run this stage through this skill, and it
 also runs alone.
@@ -29,8 +30,8 @@ The same work card, with this stage's parts written:
 
 - The docs, where section 1 settled, when the change is worth documenting.
 - `## Decisions` — a final line for the stage.
-- Frontmatter — `phase` set to `code-docs`, `status` set to `delivered`,
-  `lastTouched`, and `code-docs` appended to `phasesCompleted`.
+- Frontmatter — `phase` set to `code-docs`, `status` set to `delivered`
+  only when the prompt holds no `Next stage:` line, `lastTouched`, and `code-docs` appended to `phasesCompleted`.
 
 ## Settings
 
@@ -68,8 +69,8 @@ settled on.
 ## 3. Close out
 
 Update the frontmatter — `phase: 'code-docs'`, append `code-docs` to
-`phasesCompleted`, `status: 'delivered'`, `lastTouched`. Append a final line
-to `## Decisions`.
+`phasesCompleted`, `status: 'delivered'` only when the prompt holds no
+`Next stage:` line, `lastTouched`. Append a final line to `## Decisions`.
 
 If the task came from a tracker, record there that it's done.
 
@@ -108,8 +109,12 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 
 ### Ending a run
 
-This stage ends the run, so it always writes the record:
+With a `Next stage:` line in the prompt, a stage follows this one: leave
+`status`, `runStatus`, `runNext` and `runQuestion` as they are, since the stage
+that ends the line writes the end. Log the delivery to `## Decisions`.
+
+Otherwise this stage ends the run and writes the record:
 
 1. Set `runStatus: terminal`, `runNext: none`, `runQuestion: ''` in the
-   frontmatter.
+   frontmatter, only when the prompt holds no `Next stage:` line.
 2. Log the delivery to `## Decisions`.
