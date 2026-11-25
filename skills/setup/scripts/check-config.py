@@ -182,6 +182,14 @@ check("config-per-key", "each setting" in flat, "config.md must say each setting
 missing = [key for key, default in KEYS.items() if f"`{key}`" not in config or f"`{default}`" not in config]
 check("config-documents-keys", not missing, f"undocumented key or default: {missing}")
 
+NONE_DETAIL = "{} must name `none` for feature-recipe.docsDestination"
+config_row = next((line for line in config.splitlines() if line.lstrip().startswith("| `feature-recipe.docsDestination`")), "")
+check("docs-destination-none:config", "`none`" in config_row, NONE_DETAIL.format("config.md"))
+template_item = re.search(r"^- `feature-recipe\.docsDestination`.*?(?=^- |\Z)", template, re.MULTILINE | re.DOTALL)
+check("docs-destination-none:template", bool(template_item) and "`none`" in template_item.group(0), NONE_DETAIL.format("bosi-skills.md"))
+setup_step = next((line for line in skill.splitlines() if re.match(r"^\s*c\. Where feature docs go", line)), "")
+check("docs-destination-none:setup", "`none`" in setup_step, NONE_DETAIL.format("setup SKILL.md"))
+
 keys = nested_keys(frontmatter(template))
 missing = [key for key in KEYS if key not in keys]
 check("template-carries-keys", not missing, f"template frontmatter lacks: {missing}")
