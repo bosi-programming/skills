@@ -67,6 +67,20 @@ check_all("reviewer-model", spawn, "`better-code-review.reviewerModel`")
 check_all("readme-validate-command", block(readme, "## Validate a change", r"^## "),
           "assembly-line/scripts/check-split-cooking.py")
 
+check_all("prove-red-step", split, "prove red", "once both writers return", "`prove-red.py`",
+          "the commit before the code", "restores", "weak")
+
+flat_split = flatten(split)
+order = [flat_split.find(marker) for marker in ("**writers.**", "**prove red.**", "**fix and taste.**")]
+check("prove-red-order", all(index >= 0 for index in order) and order == sorted(order),
+      f"marker positions (writers, prove red, fix and taste): {order}")
+
+check_all("parallel-base-logged", split, "`line: parallel base")
+check_all("test-writer-commands", split, "`Test: <path> — <command>`", "TAP")
+
+check_all("readme-prove-red-test", block(readme, "## Validate a change", r"^## "),
+          "assembly-line/scripts/test_prove_red.py")
+
 unresolved = [path for path in re.findall(r"`(\.\.?/[^`]+\.md)`", skill) if not (SKILL / path).resolve().exists()]
 check("links-resolve", not unresolved, f"unresolved: {unresolved}")
 
