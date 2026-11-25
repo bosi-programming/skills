@@ -74,7 +74,7 @@ every key.
 | `feature-recipe.cardsDir` | `./recipes` | Folder recipe cards go in, relative to the project root; `assembly-line`'s line board reads it. |
 | `feature-recipe.defaultMode` | `regular` | Mode a recipe runs in when the request names none: `regular` or `headless`. |
 | `feature-recipe.runWorkSummary` | `true` | Run `work-summary` at the end of Documentation, when the session has it. `false` skips it. |
-| `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. |
+| `feature-recipe.docsDestination` | `''` | Where Documentation writes the feature's docs, such as `./docs/features/` or "the team's Notion space". Empty means work it out from the project, or ask. `none` never writes docs. |
 | `ship-pr.titleFormat` | `type(scope): subject [KEY]` | Shape of every commit header and PR title; the other common shape is `[KEY] type(scope): subject`. |
 | `ship-pr.approvalGate` | `true` | Pause for approval before `git push` and `gh pr create`. `false` pushes and opens the PR without asking. |
 | `ship-pr.draft` | `false` | Open the PR as a draft. |

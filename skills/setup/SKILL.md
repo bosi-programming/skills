@@ -47,7 +47,7 @@ the ones in `./references/config.md`:
 7. `feature-recipe`:
    a. Default mode: `regular` or `headless`.
    b. Run `work-summary` when a recipe ends: yes or no.
-   c. Where feature docs go, or ask each time.
+   c. Where feature docs go, ask each time, or `none` to never write docs.
    d. Model for the `recipe-relay` sub-agents that write tests and code, or
       the one the relay runs on.
    e. Model for the `recipe-relay` UI reviewer, or the one the relay runs on.

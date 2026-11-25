@@ -121,7 +121,7 @@ only needs the keys it changes.
 - `feature-recipe.runWorkSummary` — `true` or `false`: write a session note
   when the recipe ends.
 - `feature-recipe.docsDestination` — where the feature's docs go; empty means
-  ask.
+  ask, `none` means never write docs.
 - `ship-pr.titleFormat` — shape of commit headers and PR titles.
 - `ship-pr.approvalGate` — `true` pauses before push and PR; `false` does not.
 - `ship-pr.draft` — `true` opens PRs as drafts.

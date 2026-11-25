@@ -40,10 +40,14 @@ Resolve two keys from the settings file as
 folder first, then `$HOME`, then the default:
 
 - `feature-recipe.docsDestination` — where docs go. Default `''`: work it out
-  as section 1 says.
+  as section 1 says. A destination: docs go there. `none` (exact, case-sensitive):
+  never write docs; sections 1 and 2 skip, without asking.
 - `feature-recipe.runWorkSummary` — whether section 4 runs. Default `true`.
 
 ## 1. Ask if this needs documenting
+
+If `feature-recipe.docsDestination` is `none`, skip this section and section 2
+without asking, in every mode; section 3 reports `no docs — docsDestination none`.
 
 Ask the user whether this feature is worth documenting for the team, and
 respect a no — this step is optional. If yes and `feature-recipe.docsDestination`
@@ -92,7 +96,9 @@ Read `../feature-recipe/references/headless.md`. In a headless run:
 - Section 1's question is taken, not asked: take the recommendation and log it
   `unattended:`. This stage stays optional, so a night run with no docs
   destination in the settings or the project skips it. A skip is still a
-  call taken alone: log it `unattended: docs skipped — <reason>`.
+  call taken alone: log it `unattended: docs skipped — <reason>`. With
+  `docsDestination` set to `none`, log
+  `unattended: docs skipped — docsDestination none`.
 - Section 2's draft, when there is one to write, is written without waiting.
 - Section 3's tracker update is skipped where no tracker is available, and the
   card says the external update is pending rather than inventing one.
