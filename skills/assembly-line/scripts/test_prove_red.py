@@ -356,6 +356,11 @@ class ProveRed(unittest.TestCase):
         self.assertEqual(proc.returncode, 2)
         self.assertIn("error", report)
 
+        for extra in ({"timeout": 0}, {"timeout": True}, {"exclude": "x"}):
+            proc, report = self.prove(spec=dict(good, **extra))
+            self.assertEqual(proc.returncode, 2, extra)
+            self.assertIn("error", report, extra)
+
         self.assertEqual(self.snapshot(), before)
         self.assertFalse(self.marker.exists())
 

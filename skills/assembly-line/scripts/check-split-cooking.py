@@ -78,7 +78,10 @@ check("prove-red-order", all(index >= 0 for index in order) and order == sorted(
 check_all("parallel-base-logged", split, "`line: parallel base")
 check_all("test-writer-commands", split, "`Test: <path> — <command>`", "TAP")
 
-check_all("readme-prove-red-test", block(readme, "## Validate a change", r"^## "),
+check_all("test-writer-base-file", split, "that must hold without the code", "does not import the new names")
+check_all("prove-red-import-limit", split, "whose import fails", "one red test")
+
+check_all("readme-prove-red-test",block(readme, "## Validate a change", r"^## "),
           "assembly-line/scripts/test_prove_red.py")
 
 unresolved = [path for path in re.findall(r"`(\.\.?/[^`]+\.md)`", skill) if not (SKILL / path).resolve().exists()]
