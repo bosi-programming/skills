@@ -30,17 +30,19 @@
         "scripts/check-no-pause.py",
         "scripts/check-split-cooking.py",
         "scripts/check-stage-spec.py",
+        "scripts/prove-red.py",
         "scripts/run-log.py",
         "scripts/test_apply_signals.py",
         "scripts/test_board.py",
         "scripts/test_build_catalog.py",
         "scripts/test_check_line_format.py",
         "scripts/test_check_stage_spec.py",
+        "scripts/test_prove_red.py",
         "scripts/test_run_log.py",
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "2acfe1366b86"
+      "version": "9a489192d1fb"
     },
     {
       "name": "better-code-review",
@@ -73,7 +75,7 @@
         "scripts/check-code-docs.py",
         "stage.json"
       ],
-      "version": "d53e7b4d3408"
+      "version": "2e937cfa6b35"
     },
     {
       "name": "code-standards",
@@ -355,7 +357,7 @@
         "references/config.md",
         "scripts/check-config.py"
       ],
-      "version": "39aa0b34e88c"
+      "version": "16108f71604c"
     },
     {
       "name": "ship-pr",

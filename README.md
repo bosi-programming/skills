@@ -92,7 +92,7 @@ How the line runs:
 
 1. **Validate.** The line goes through `validate-line.py` before any stage runs. An invalid line, no line file and no line comment or a `{"group": "sub-issues"}` line stops the run and writes nothing; it points to `plan-assembly-line`, or to `open-restaurant`.
 2. **Stages.** Each stage runs in its own sub-agent, and every checkpoint takes its own recommendation, logged to the recipe card as `line:`. `judge`, `ui-review`, `security-review` and `review-fix` run in the session, because their own steps spawn sub-agents.
-3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; the `code` after them is the fix and taste agent.
+3. **Cooking.** `test` and `code` in parallel run as a test writer and a code writer that never see each other's files; once both return, `prove-red.py` puts the code back as it was before the code and runs each test, logging the ones that still pass as weak; the `code` after them is the fix and taste agent.
 4. **Go-backs.** A failing verdict follows the stage's `return` entry in `catalog.json`, back to the stage it names, up to its `limit`. Past it, the run stops at `needs-input` or at a human gate.
 5. **Gates.** A stage with `gate: human` (`merge`, `research`, `design-gate`) stops at `runStatus: gate` with a question in chat and on the card, and runs only on the person's approval. With auto gates on, `--auto` or no argument when run on its own, each takes its own recommendation instead, logged as `line: auto-gate:`, and the sub-agent prompt carries `Auto gates: on`; `--no-auto` turns it off.
 6. **Signals.** After each stage the run reads `## Signals` on the card and applies the rows in `signals.json` to the steps not yet run, through `apply-signals.py`. No approval: a row is the approval. Each change posts a line comment naming the signal, the stage that raised it and the stage added or removed; a change `validate-line.py` rejects leaves the line and is logged.
@@ -127,7 +127,7 @@ Takes one ticket to a pull request that is open, reviewed and ready for review, 
 How the ticket moves:
 
 1. **`evaluate-ticket` and `plan-code`** run as one sub-agent. It turns the ticket into a plan on the recipe card and names the interfaces.
-2. **Cooking** splits. For each repo, a test writer, running `test`, and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. The code writer runs `code` up to its code, and a last sub-agent runs `code` again to make the tests pass and run its checks: the project's scoped tests and lint.
+2. **Cooking** splits. For each repo, a test writer, running `test`, and a code writer work at the same time on the same branch, neither opening the other's files, so the tests cannot bend to the code. The code writer runs `code` up to its code, and, once both return, `prove-red.py` runs each new test with the code put back as it was before the code and logs the ones that still pass as weak; a last sub-agent then runs `code` again to make the tests pass and run its checks: the project's scoped tests and lint.
 3. **UI review** (`ui-review`). When the change reaches a screen, a UI reviewer runs after that last sub-agent. It compares the screenshots `code` captured with the design attached to the ticket, and sends critical and major differences back for up to two more rounds.
 4. **`prepare-pr`** (Plating) opens the PR ready for review, never as a draft, waits on CI and fixes it, and moves the ticket to `recipe-relay.reviewState` (`In Review` by default).
 5. **Review and fix** (`review-fix`). The moment the PR opens, a sub-agent runs `better-code-review --headless` against the branch; this is the run's one review. Another sub-agent checks each finding by how it was verified — `ran`, `read` or `no` — fixes the ones that hold, test first, pushes to the open PR, and logs each one it rejects with the reason.
@@ -487,6 +487,7 @@ python3 skills/assembly-line/scripts/test_validate_line.py
 python3 skills/assembly-line/scripts/test_apply_signals.py
 python3 skills/assembly-line/scripts/test_run_log.py
 python3 skills/assembly-line/scripts/test_board.py
+python3 skills/assembly-line/scripts/test_prove_red.py
 python3 skills/assembly-line/scripts/check-assembly-line.py
 python3 skills/assembly-line/scripts/check-no-pause.py
 python3 skills/assembly-line/scripts/check-split-cooking.py
