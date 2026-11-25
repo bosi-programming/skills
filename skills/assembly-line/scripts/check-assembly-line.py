@@ -81,6 +81,8 @@ check_all("own-sub-agent", run, "own sub-agent", "`general-purpose`", "in this s
 check_all("stage-prompt", block(skill, "### Stage prompt", r"^##"),
           "`## Headless`", "`line:`", "`Verdict:`", "never merge", "`## Open Questions`", "`runStatus`", "`with`",
           "100 words")
+check_all("stage-prompt-next-stage", block(skill, "### Stage prompt", r"^##"),
+          "`Next stage: <stage>`", "`code-docs`", "the last step gets no such line")
 check_all("routine-model", run, "`assembly-line.routineModel`", "`prepare-pr`", "`code-docs`")
 check_all("review-state", run, "`assembly-line.reviewState`", "ready for review", "never as a draft")
 check_all("ui-review-stage", block(skill, "### UI review", r"^##"),

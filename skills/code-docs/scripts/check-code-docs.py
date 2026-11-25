@@ -67,6 +67,11 @@ check("ends-without-menu", "Don't offer a New session / Continue menu" in skill,
 headless = block(skill, "## Headless", r"^## ")
 check_all("keeps-headless", headless, "`runNext: code-docs`", "unattended:", "unattended: work-summary skipped",
           "`runStatus: terminal`", "### Ending a run")
+check_all("terminal-only-when-last", block(skill, "### Ending a run", r"^## "),
+          "`Next stage:`", "leave `status`, `runStatus`, `runNext` and `runQuestion` as they are",
+          "`runStatus: terminal`", "only when the prompt holds no `Next stage:` line")
+check_all("output-status-when-last", block(skill, "## Output", r"^## "), "`Next stage:`")
+check_all("close-out-status-when-last", block(skill, "## 3. Close out", r"^## "), "`Next stage:`")
 check_all("headless-logs-docs-skip", headless, "unattended: docs skipped")
 check_all("settings-names-none", block(skill, "## Settings", r"^## "), "`none`")
 check_all("section-1-skips-on-none", block(skill, "## 1. Ask if this needs documenting", r"^## "),
