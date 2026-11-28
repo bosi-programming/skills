@@ -83,6 +83,8 @@ check_all("stage-prompt", block(skill, "### Stage prompt", r"^##"),
           "100 words")
 check_all("stage-prompt-next-stage", block(skill, "### Stage prompt", r"^##"),
           "`Next stage: <stage>`", "`code-docs`", "the last step gets no such line")
+check_all("stage-prompt-no-step-lines", block(skill, "### Stage prompt", r"^##"),
+          "never write a `line: step` or a `line: return` line", "the driver writes them")
 check_all("routine-model", run, "`assembly-line.routineModel`", "`prepare-pr`", "`code-docs`")
 check_all("review-state", run, "`assembly-line.reviewState`", "ready for review", "never as a draft")
 check_all("ui-review-stage", block(skill, "### UI review", r"^##"),
@@ -101,6 +103,9 @@ check_all("go-back", block(skill, "## 4. Go back on a failing verdict", r"^## ")
           "`human`")
 check_all("next-stage", block(skill, "## 5. Move to the next stage", r"^## "),
           "line: step", "without waiting", "one line per stage")
+check_all("step-lines-driver-only", block(skill, "## 5. Move to the next stage", r"^## "),
+          "only writer of `line: step` and `line: return` lines", "one `line: step` line per step",
+          "not again")
 check_all("stop-conditions", block(skill, "## 6. Stop conditions", r"^## "),
           "`blocked`", "`needs-input`", "`runStatus: gate`", "report the open question to the user",
           "never merely because")
