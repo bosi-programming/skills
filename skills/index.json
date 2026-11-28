@@ -42,7 +42,7 @@
         "scripts/test_validate_line.py",
         "scripts/validate-line.py"
       ],
-      "version": "d5d724b256ad"
+      "version": "1a1f3c18432b"
     },
     {
       "name": "better-code-review",
@@ -75,7 +75,7 @@
         "scripts/check-code-docs.py",
         "stage.json"
       ],
-      "version": "2e937cfa6b35"
+      "version": "69995b9b1153"
     },
     {
       "name": "code-standards",
