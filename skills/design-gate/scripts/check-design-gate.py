@@ -6,7 +6,7 @@ from pathlib import Path
 
 SKILL = Path(__file__).resolve().parents[1]
 REPO = SKILL.parents[1]
-SKILL_MD = SKILL / "SKILL.md"
+SKILL_MD = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else SKILL / "SKILL.md"
 STAGE = SKILL / "stage.json"
 README = REPO / "README.md"
 MANIFESTS = [REPO / ".claude-plugin" / "plugin.json", REPO / ".codex-plugin" / "plugin.json", REPO / "package.json"]
@@ -53,6 +53,16 @@ def check_all(name, text, *phrases):
     check(name, not missing, f"missing: {missing}" if missing else "")
 
 
+def sentences(text):
+    return re.split(r"(?<=[.!?])\s+", flatten(text))
+
+
+def check_starts(name, text, *phrases):
+    starts = sentences(text)
+    missing = [phrase for phrase in phrases if not any(s.startswith(phrase.lower()) for s in starts)]
+    check(name, not missing, f"missing: {missing}" if missing else "")
+
+
 skill = read(SKILL_MD)
 readme = read(README)
 
@@ -83,9 +93,10 @@ check_all("gate", block(skill, "## 3. Gate", r"^## "),
           "`runStatus: gate`", "`approved`", "`changes`", "line continues", "`plan-code`", "`## Decisions`",
           "set `runStatus: running`", "goes back to the latest `plan-code`", "at most twice")
 
-check_all("gate-link", block(skill, "## 3. Gate", r"^## "),
-          "ends with the plan comment link", "section 2 posted this round", "`not posted — no tracker tool`",
-          "never a placeholder")
+check_starts("gate-link", block(skill, "## 3. Gate", r"^## "),
+             "the question ends with the plan comment link: the link section 2 posted this round",
+             "with no tracker tool, it ends with `not posted — no tracker tool`",
+             "the question is never a placeholder")
 
 check_all("keeps-headless", block(skill, "## Headless", r"^## "),
           "unattended:", "`runStatus: needs-input`", "### Ending a run", "waits for a person")

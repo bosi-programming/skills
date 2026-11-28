@@ -451,6 +451,7 @@ python3 skills/contract/scripts/check-contract.py
 python3 skills/reproduce/scripts/check-reproduce.py
 python3 skills/research/scripts/check-research.py
 python3 skills/design-gate/scripts/check-design-gate.py
+python3 skills/design-gate/scripts/test_check_design_gate.py
 python3 skills/follow-ups/scripts/check-follow-ups.py
 python3 skills/integrate/scripts/check-integrate.py
 python3 skills/qa/scripts/check-qa.py
