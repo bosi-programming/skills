@@ -104,9 +104,10 @@
       "files": [
         "SKILL.md",
         "scripts/check-design-gate.py",
+        "scripts/test_check_design_gate.py",
         "stage.json"
       ],
-      "version": "2ea4aa309ef2"
+      "version": "2f77dcd89bfc"
     },
     {
       "name": "epistemic-action",
